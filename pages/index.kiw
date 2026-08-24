@@ -6,10 +6,10 @@ layout: Base
 
 {{component "Hero" .}}
 
-<section class="features">
-  <h2>One framework. Eight workloads.</h2>
-  <p class="sub">From CLI to WASM frontend — same Go, same <code>kiw</code>.</p>
-  <div class="grid">
+<section class="features py-6">
+  <h2 class="text-3xl font-bold tracking-tight mb-1">One framework. Eight workloads.</h2>
+  <p class="sub text-muted mb-5">From CLI to WASM frontend — same Go, same <code class="font-mono text-sm bg-bg-2 border border-border px-1 py-0.5 rounded">kiw</code>.</p>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     {{component "FeatureCard" (dict "Icon" "▲" "Title" "app" "Desc" "Fullstack monolith — web + API in one binary")}}
     {{component "FeatureCard" (dict "Icon" "›" "Title" "cli" "Desc" "Command-line apps with framework/tui")}}
     {{component "FeatureCard" (dict "Icon" "◧" "Title" "site" "Desc" "File-based .kiw DSL → static site, no JS by default")}}
@@ -21,29 +21,18 @@ layout: Base
   </div>
 </section>
 
-<section class="cta">
-  <h2>Go-first. Zero JS until you need it.</h2>
-  <p>Write pages as <code>pages/*.kiw</code> — frontmatter + HTML + scoped <code>&lt;style&gt;</code>. No toolchain, no npm.</p>
-  <pre><code>kiw new my-site --site
+<section class="cta my-9 p-7 border border-border rounded-2xl bg-bg-2">
+  <h2 class="text-2xl font-bold mb-2">Go-first. Zero JS until you need it.</h2>
+  <p class="text-muted mb-3">Write pages as <code class="font-mono text-sm">pages/*.kiw</code> — frontmatter + HTML + scoped <code class="font-mono text-sm">&lt;style&gt;</code>. No toolchain, no npm.</p>
+  <pre class="bg-[#0a0a0a] text-[#e5e7eb] p-4 rounded-xl overflow-auto"><code class="font-mono text-sm">kiw new my-site --site
 kiw build
 kiw serve</code></pre>
-  <a class="btn primary" href="/docs/getting-started">Read the docs →</a>
+  <a class="btn primary inline-flex items-center px-4 py-2.5 rounded-full bg-primary text-white font-semibold mt-4" href="/docs/getting-started">Read the docs →</a>
 </section>
 
 {{component "Ecosystem" .}}
 
 <style>
-.features{padding:24px 0 16px}
-.features h2{font-size:28px;letter-spacing:-.03em;margin:0 0 6px}
-.features .sub{color:var(--muted);margin:0 0 20px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.cta{margin:36px 0;padding:28px;border:1px solid var(--border);border-radius:16px;background:var(--bg-2)}
-.cta h2{margin:0 0 8px;font-size:22px}
-.cta p{color:var(--muted);margin:0 0 12px}
-.cta pre{background:#0a0a0a;color:#e5e7eb;padding:16px;border-radius:12px;overflow:auto}
-.cta pre code{font-family:ui-monospace, monospace;font-size:13px}
-.cta .btn{margin-top:16px}
-.btn.primary{background:var(--primary);color:#fff;padding:10px 16px;border-radius:999px;display:inline-flex;font-weight:600}
-@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.grid{grid-template-columns:1fr}}
+/* Tailwind handles layout; keep only theme-specific overrides */
+.features .sub{color:var(--muted)}
 </style>

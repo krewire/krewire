@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/tailwind.css -o ./site/assets/tailwind.css --minify"
+  }
+}

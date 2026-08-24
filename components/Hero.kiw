@@ -1,16 +1,16 @@
 
-<section class="hero">
+<section class="hero grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center py-16">
   <div class="copy">
-    <div class="eyebrow">Unified Go Framework · v0.1.0</div>
-    <h1>Krewire — The Go Framework for Web Artisans</h1>
-    <p>One framework for every web-service workload — <b>app, cli, site, book, worker, service, infra, runtime</b>. One CLI <code>kiw</code>, one config <code>krewire.yaml</code>.</p>
-    <div class="ctas">
-      <a class="btn primary" href="/docs/getting-started">Get Started</a>
-      <a class="btn" href="https://github.com/krewire/krewire">View on GitHub</a>
+    <div class="eyebrow text-xs tracking-widest uppercase text-muted font-semibold">Unified Go Framework · v0.1.0</div>
+    <h1 class="font-serif text-5xl md:text-6xl leading-none tracking-tight my-3">Krewire — The Go Framework for Web Artisans</h1>
+    <p class="text-lg text-muted max-w-xl">One framework for every web-service workload — <b>app, cli, site, book, worker, service, infra, runtime</b>. One CLI <code class="font-mono text-sm bg-bg-2 border border-border px-1.5 py-0.5 rounded-lg">kiw</code>, one config <code class="font-mono text-sm bg-bg-2 border border-border px-1.5 py-0.5 rounded-lg">krewire.yaml</code>.</p>
+    <div class="ctas flex gap-3 mt-6 flex-wrap">
+      <a class="btn primary inline-flex items-center gap-2 px-4 py-2.5 rounded-full border font-semibold text-sm bg-primary text-white border-primary" href="/docs/getting-started">Get Started</a>
+      <a class="btn inline-flex items-center gap-2 px-4 py-2.5 rounded-full border font-semibold text-sm" href="https://github.com/krewire/krewire">View on GitHub</a>
     </div>
-    <div class="meta"><span>Go 1.22+ · File-based routing · Scoped CSS · No JS by default</span></div>
+    <div class="meta mt-4 text-xs text-muted"><span>Go 1.22+ · File-based routing · Scoped CSS · No JS by default</span></div>
   </div>
-  <div class="art">{{component "CodeWindow" .}}</div>
+  <div class="art min-w-0">{{component "CodeWindow" .}}</div>
 </section>
 
 <style>
