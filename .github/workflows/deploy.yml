@@ -20,31 +20,15 @@ jobs:
           path: site-src
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout deploy target (krewire/krewire.github.io gh-pages)
-        uses: actions/checkout@v4
+      - name: Deploy to krewire.github.io (gh-pages, root)
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          repository: krewire/krewire.github.io
-          path: deploy
-          ref: gh-pages
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy gh-deploy → krewire.github.io gh-pages (root)
-        run: |
-          # site-src is the built site at root (gh-deploy branch)
-          cp -r site-src/. deploy/
-          rm -rf deploy/.git
-          touch deploy/.nojekyll
-          cd deploy
-          # deploy was checked out via actions/checkout with its own .git for gh-pages;
-          # we just overwrote it, so re-init and push
-          git init
-          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/krewire/krewire.github.io.git 2>/dev/null || true
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --staged --quiet; then
-            echo "No changes to deploy"
-            exit 0
-          fi
-          git commit -m "deploy: from krewire/krewire@${{ github.sha }} (gh-deploy) [skip ci]"
-          git push origin HEAD:gh-pages --force
+          # For cross-repo deploy, GITHUB_TOKEN is scoped to source repo only.
+          # Add a PAT with repo scope as `PAT` secret for org push, else fallback
+          # will attempt with GITHUB_TOKEN (may fail on org repos).
+          personal_token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          external_repository: krewire/krewire.github.io
+          publish_branch: gh-pages
+          publish_dir: site-src
+          cname: ""
+          enable_jekyll: false
