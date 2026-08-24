@@ -21,7 +21,7 @@ jobs:
           go-version: "1.22"
 
       - name: Install kiw
-        run: go install github.com/krewire/kiw/cmd/kiw@latest
+        run: go install github.com/krewire/kiw/cmd/kiw@v0.1.1
 
       - name: Build site
         run: |
