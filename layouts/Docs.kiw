@@ -38,11 +38,11 @@
       <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme" onclick="window.krewireTheme.toggle()"><span class="sun">☀</span><span class="moon">☾</span></button>
     </div>
   </header>
-  <div class="docs-shell">
+  <div class="docs-shell mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <aside class="sidebar">{{component "DocNav" .}}</aside>
     <main class="doc-main"><article class="prose">{{.Content}}</article></main>
   </div>
-  <footer class="footer"><div class="footer-inner"><span>© 2026 Krewire — v0.1.0</span><span><a href="/">Landing</a> · <a href="/docs">Docs</a></span></div></footer>
+  <footer class="footer"><div class="footer-inner mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-xs text-muted sm:px-6 lg:px-8"><span>© 2026 Krewire — v0.1.0</span><span><a href="/">Landing</a> · <a href="/docs">Docs</a></span></div></footer>
 </body>
 </html>
 
@@ -56,10 +56,10 @@ a{color:inherit}a:hover{color:var(--primary)}
 .brand{font-weight:700;display:flex;align-items:center;gap:10px}.brand .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--primary);color:#fff}
 .links{margin-left:auto;display:flex;gap:18px;font-size:14px;color:var(--muted)}.links a{color:var(--muted)}.links a:hover{color:var(--fg)}
 .theme-toggle{border:1px solid var(--border);background:var(--bg-2);border-radius:999px;padding:6px 10px;cursor:pointer}.theme-toggle .sun{display:var(--show-sun)}.theme-toggle .moon{display:var(--show-moon)}
-.docs-shell{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:260px 1fr;gap:32px;padding:32px 24px;min-height:60vh}
+.docs-shell{display:grid;grid-template-columns:260px 1fr;gap:32px;min-height:60vh}
 .sidebar{position:sticky;top:72px;align-self:start;border-right:1px solid var(--border);padding-right:16px}
 .doc-main{min-width:0}
 .prose{max-width:780px}.prose h1{font-size:32px;letter-spacing:-.03em;margin:0 0 16px}.prose h2{font-size:22px;margin:40px 0 12px}.prose h3{font-size:16px;margin:28px 0 10px}.prose p{color:color-mix(in srgb, var(--fg) 85%, var(--muted))}.prose a{color:var(--primary);text-decoration:underline;text-underline-offset:3px}.prose code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px;background:var(--bg-2);padding:1px 6px;border-radius:6px}.prose pre{background:#0a0a0a;color:#e5e7eb;padding:16px;border-radius:12px;overflow:auto}
-.footer{border-top:1px solid var(--border);margin-top:64px;background:var(--bg-2)}.footer-inner{max-width:1280px;margin:0 auto;padding:24px;display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.footer{border-top:1px solid var(--border);margin-top:64px;background:var(--bg-2)}.footer-inner a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 @media(max-width:900px){.docs-shell{grid-template-columns:1fr}.sidebar{position:static;border-right:0;border-bottom:1px solid var(--border);padding-bottom:16px}}
 </style>
