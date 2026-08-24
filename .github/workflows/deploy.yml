@@ -2,7 +2,7 @@ name: Deploy to krewire.github.io
 
 on:
   push:
-    branches: [main]
+    branches: [gh-deploy]
   workflow_dispatch:
 
 permissions:
@@ -12,28 +12,13 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout site source (krewire/krewire)
+      - name: Checkout built site from gh-deploy
         uses: actions/checkout@v4
         with:
           repository: krewire/krewire
+          ref: gh-deploy
           path: site-src
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.22"
-
-      - name: Install kiw
-        run: go install github.com/krewire/kiw/cmd/kiw@latest
-
-      - name: Build site
-        working-directory: site-src
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          kiw build
-          ls -R site
-          test -f site/index.html
 
       - name: Checkout deploy target (krewire/krewire.github.io gh-pages)
         uses: actions/checkout@v4
@@ -43,23 +28,17 @@ jobs:
           ref: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy to gh-pages
+      - name: Deploy gh-deploy → krewire.github.io gh-pages (root)
         run: |
-          # ensure gh-pages branch exists (empty repo case)
-          if [ ! -d deploy/.git ]; then
-            mkdir -p deploy
-            cd deploy
-            git init
-            git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/krewire/krewire.github.io.git
-            git checkout --orphan gh-pages
-          elif ! git rev-parse --verify gh-pages >/dev/null 2>&1; then
-            cd deploy
-            git checkout --orphan gh-pages
-            cd ..
-          fi
-          cp -r site-src/site/. deploy/
+          # site-src is the built site at root (gh-deploy branch)
+          cp -r site-src/. deploy/
+          rm -rf deploy/.git
           touch deploy/.nojekyll
           cd deploy
+          # deploy was checked out via actions/checkout with its own .git for gh-pages;
+          # we just overwrote it, so re-init and push
+          git init
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/krewire/krewire.github.io.git 2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
@@ -67,5 +46,5 @@ jobs:
             echo "No changes to deploy"
             exit 0
           fi
-          git commit -m "deploy: from krewire/krewire@${{ github.sha }} [skip ci]"
-          git push origin gh-pages
+          git commit -m "deploy: from krewire/krewire@${{ github.sha }} (gh-deploy) [skip ci]"
+          git push origin HEAD:gh-pages --force
