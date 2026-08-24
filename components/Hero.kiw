@@ -1,0 +1,28 @@
+
+<section class="hero">
+  <div class="copy">
+    <div class="eyebrow">Unified Go Framework · v0.1.0</div>
+    <h1>Krewire — The Go Framework for Web Artisans</h1>
+    <p>One framework for every web-service workload — <b>app, cli, site, book, worker, service, infra, runtime</b>. One CLI <code>kiw</code>, one config <code>krewire.yaml</code>.</p>
+    <div class="ctas">
+      <a class="btn primary" href="/docs/getting-started">Get Started</a>
+      <a class="btn" href="https://github.com/krewire/krewire">View on GitHub</a>
+    </div>
+    <div class="meta"><span>Go 1.22+ · File-based routing · Scoped CSS · No JS by default</span></div>
+  </div>
+  <div class="art">{{component "CodeWindow" .}}</div>
+</section>
+
+<style>
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:72px 0 24px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.hero h1{font-family:ui-serif, Georgia, serif;font-size:56px;line-height:.95;letter-spacing:-.04em;margin:12px 0 16px}
+.hero p{font-size:18px;color:color-mix(in srgb, var(--fg) 70%, var(--muted));max-width:560px}
+.hero code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px;background:var(--bg-2);border:1px solid var(--border);padding:2px 6px;border-radius:8px}
+.ctas{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:14px}
+.btn.primary{background:var(--primary);color:var(--primary-content, #fff);border-color:var(--primary)}
+.meta{margin-top:18px;font-size:12px;color:var(--muted)}
+.art{min-width:0}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding:36px 0}.hero h1{font-size:42px}}
+</style>

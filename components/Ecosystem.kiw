@@ -1,0 +1,22 @@
+
+<section class="eco">
+  <h2>Ecosystem — one <code>kiw</code> for everything</h2>
+  <div class="grid">
+    <a class="item" href="https://github.com/krewire/framework"><b>framework</b><span>app · web · ui · runtime · worker · service · infra</span></a>
+    <a class="item" href="https://github.com/krewire/libs"><b>libs</b><span>core + kern · config · validate · term</span></a>
+    <a class="item" href="https://github.com/krewire/mdbind"><b>mdbind</b><span>book → site pipeline</span></a>
+    <a class="item" href="https://github.com/krewire/guild"><b>guild</b><span>AI agent template</span></a>
+    <a class="item" href="https://github.com/krewire/kiw"><b>kiw</b><span>build · serve · dev · deploy</span></a>
+  </div>
+</section>
+
+<style>
+.eco{padding:24px 0}
+.eco h2{font-size:22px;letter-spacing:-.02em;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.item{display:block;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+.item b{font-size:14px}
+.item span{display:block;font-size:12px;color:var(--muted);margin-top:4px;font-family:ui-monospace, monospace}
+@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+</style>

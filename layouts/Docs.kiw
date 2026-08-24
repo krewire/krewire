@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{{.Title}} — Krewire</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script>
+    (function(){
+      try{
+        var t=localStorage.getItem("krewire-theme")||"auto";
+        var m=t==="auto"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):t;
+        document.documentElement.dataset.theme=m;
+      }catch(e){}
+      window.krewireTheme={toggle:function(){
+        var cur=document.documentElement.dataset.theme;
+        var nxt=cur==="dark"?"light":"dark";
+        document.documentElement.dataset.theme=nxt;
+        try{localStorage.setItem("krewire-theme",nxt)}catch(e){}
+      }};
+    })();
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">Krewire <span class="badge">v0.1.0</span></a>
+      <nav class="links">
+        <a href="/">Landing</a>
+        <a href="/docs">Docs</a>
+        <a href="https://github.com/krewire/krewire">GitHub</a>
+      </nav>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme" onclick="window.krewireTheme.toggle()"><span class="sun">☀</span><span class="moon">☾</span></button>
+    </div>
+  </header>
+  <div class="docs-shell">
+    <aside class="sidebar">{{component "DocNav" .}}</aside>
+    <main class="doc-main"><article class="prose">{{.Content}}</article></main>
+  </div>
+  <footer class="footer"><div class="footer-inner"><span>© 2026 Krewire — v0.1.0</span><span><a href="/">Landing</a> · <a href="/docs">Docs</a></span></div></footer>
+</body>
+</html>
+
+<style>
+:root{--primary:#00c853;--bg:#fff;--bg-2:#f6f8f7;--fg:#0a0a0a;--muted:#6b7280;--border:rgba(10,10,10,.08);--radius:16px;--shadow:0 10px 30px rgba(10,10,10,.06);--show-sun:inline;--show-moon:none}
+html[data-theme="dark"]{--bg:#0a0a0a;--bg-2:#111413;--fg:#f6f8f7;--muted:#9ca3af;--border:rgba(246,248,247,.12);--shadow:0 10px 30px rgba(0,0,0,.4);--show-sun:none;--show-moon:inline}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter, ui-sans-serif, system-ui;background:var(--bg);color:var(--fg);line-height:1.6}
+a{color:inherit}a:hover{color:var(--primary)}
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--bg) 85%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1280px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:20px}
+.brand{font-weight:700;display:flex;align-items:center;gap:10px}.brand .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--primary);color:#fff}
+.links{margin-left:auto;display:flex;gap:18px;font-size:14px;color:var(--muted)}.links a{color:var(--muted)}.links a:hover{color:var(--fg)}
+.theme-toggle{border:1px solid var(--border);background:var(--bg-2);border-radius:999px;padding:6px 10px;cursor:pointer}.theme-toggle .sun{display:var(--show-sun)}.theme-toggle .moon{display:var(--show-moon)}
+.docs-shell{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:260px 1fr;gap:32px;padding:32px 24px;min-height:60vh}
+.sidebar{position:sticky;top:72px;align-self:start;border-right:1px solid var(--border);padding-right:16px}
+.doc-main{min-width:0}
+.prose{max-width:780px}.prose h1{font-size:32px;letter-spacing:-.03em;margin:0 0 16px}.prose h2{font-size:22px;margin:40px 0 12px}.prose h3{font-size:16px;margin:28px 0 10px}.prose p{color:color-mix(in srgb, var(--fg) 85%, var(--muted))}.prose a{color:var(--primary);text-decoration:underline;text-underline-offset:3px}.prose code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px;background:var(--bg-2);padding:1px 6px;border-radius:6px}.prose pre{background:#0a0a0a;color:#e5e7eb;padding:16px;border-radius:12px;overflow:auto}
+.footer{border-top:1px solid var(--border);margin-top:64px;background:var(--bg-2)}.footer-inner{max-width:1280px;margin:0 auto;padding:24px;display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+@media(max-width:900px){.docs-shell{grid-template-columns:1fr}.sidebar{position:static;border-right:0;border-bottom:1px solid var(--border);padding-bottom:16px}}
+</style>

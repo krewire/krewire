@@ -1,0 +1,20 @@
+
+<div class="window">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">krewire.kiw</span></div>
+  <pre><code><span class="c">---</span>
+<span class="k">title:</span> Hello
+<span class="k">layout:</span> Base
+<span class="c">---</span>
+<span class="t">&lt;h1&gt;</span>{{"{{"}}.Title{{"}}"}}<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;style&gt;</span>h1{color:var(--primary)}<span class="t">&lt;/style&gt;</span></code></pre>
+</div>
+
+<style>
+.window{background:#0a0a0a;color:#e5e7eb;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #1f2421}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#111413;border-bottom:1px solid #1f2421}
+.dot{width:10px;height:10px;border-radius:50%}.r{background:#ff5f56}.y{background:#ffbd2e}.g{background:#27c93f}
+.title{margin-left:auto;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:12px;color:#9ca3af}
+.window pre{margin:0;padding:18px 16px;overflow:auto}
+.window code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px;line-height:1.7}
+.c{color:#6b7280}.k{color:#5cff8e}.t{color:#93c5fd}
+</style>

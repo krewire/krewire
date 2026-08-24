@@ -1,0 +1,49 @@
+---
+title: "Krewire — The Go Framework for Web Artisans"
+description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config. v0.1.0."
+layout: Base
+---
+
+{{component "Hero" .}}
+
+<section class="features">
+  <h2>One framework. Eight workloads.</h2>
+  <p class="sub">From CLI to WASM frontend — same Go, same <code>kiw</code>.</p>
+  <div class="grid">
+    {{component "FeatureCard" (dict "Icon" "▲" "Title" "app" "Desc" "Fullstack monolith — web + API in one binary")}}
+    {{component "FeatureCard" (dict "Icon" "›" "Title" "cli" "Desc" "Command-line apps with framework/tui")}}
+    {{component "FeatureCard" (dict "Icon" "◧" "Title" "site" "Desc" "File-based .kiw DSL → static site, no JS by default")}}
+    {{component "FeatureCard" (dict "Icon" "≡" "Title" "book" "Desc" "Manuscript → book via mdbind")}}
+    {{component "FeatureCard" (dict "Icon" "⚙" "Title" "worker" "Desc" "Job queues, cron, retries, DLQ")}}
+    {{component "FeatureCard" (dict "Icon" "⬢" "Title" "service" "Desc" "Registry, gateway, resilience, tracing")}}
+    {{component "FeatureCard" (dict "Icon" "☁" "Title" "infra" "Desc" "Provider-agnostic IaC → AWS/K8s")}}
+    {{component "FeatureCard" (dict "Icon" "◈" "Title" "runtime" "Desc" "Go→WASM, VDOM, mount points")}}
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Go-first. Zero JS until you need it.</h2>
+  <p>Write pages as <code>pages/*.kiw</code> — frontmatter + HTML + scoped <code>&lt;style&gt;</code>. No toolchain, no npm.</p>
+  <pre><code>kiw new my-site --site
+kiw build
+kiw serve</code></pre>
+  <a class="btn primary" href="/docs/getting-started">Read the docs →</a>
+</section>
+
+{{component "Ecosystem" .}}
+
+<style>
+.features{padding:24px 0 16px}
+.features h2{font-size:28px;letter-spacing:-.03em;margin:0 0 6px}
+.features .sub{color:var(--muted);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cta{margin:36px 0;padding:28px;border:1px solid var(--border);border-radius:16px;background:var(--bg-2)}
+.cta h2{margin:0 0 8px;font-size:22px}
+.cta p{color:var(--muted);margin:0 0 12px}
+.cta pre{background:#0a0a0a;color:#e5e7eb;padding:16px;border-radius:12px;overflow:auto}
+.cta pre code{font-family:ui-monospace, monospace;font-size:13px}
+.cta .btn{margin-top:16px}
+.btn.primary{background:var(--primary);color:#fff;padding:10px 16px;border-radius:999px;display:inline-flex;font-weight:600}
+@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+</style>

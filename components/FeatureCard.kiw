@@ -1,0 +1,14 @@
+
+<div class="card">
+  <div class="icon">{{.Icon}}</div>
+  <h3>{{.Title}}</h3>
+  <p>{{.Desc}}</p>
+</div>
+
+<style>
+.card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);transition:transform .16s, border-color .16s}
+.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb, var(--primary) 25%, var(--border))}
+.icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb, var(--primary) 14%, transparent);font-size:18px}
+.card h3{font-size:15px;margin:12px 0 6px;letter-spacing:-.02em}
+.card p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+</style>

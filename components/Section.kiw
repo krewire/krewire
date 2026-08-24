@@ -1,0 +1,15 @@
+
+<section class="section">
+  <div class="head">
+    <h2>{{.Title}}</h2>
+    <p>{{.Desc}}</p>
+  </div>
+  <div class="body">{{.Content}}</div>
+</section>
+
+<style>
+.section{padding:32px 0}
+.head{max-width:720px;margin:0 0 24px}
+.head h2{font-size:28px;letter-spacing:-.03em;margin:0 0 8px}
+.head p{color:var(--muted);margin:0}
+</style>

@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en" data-kiw-layout="Base"><head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <title>Krewire — The Go Framework for Web Artisans</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+  
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">Krewire <span class="badge">v0.1.0</span></a>
+      <nav class="links">
+        <a href="/docs">Docs</a>
+        <a href="https://github.com/krewire/framework">GitHub</a>
+        <a href="https://github.com/krewire/krewire">krewire/krewire</a>
+      </nav>
+      <button class="theme-toggle" data-theme-toggle="" aria-label="Toggle theme" onclick="window.krewireTheme.toggle()">
+        <span class="sun">☀</span><span class="moon">☾</span>
+      </button>
+    </div>
+  </header>
+  <main><section class="hero" data-kiw-component="Hero">
+  <div class="copy">
+    <div class="eyebrow">Unified Go Framework · v0.1.0</div>
+    <h1>Krewire — The Go Framework for Web Artisans</h1>
+    <p>One framework for every web-service workload — <b>app, cli, site, book, worker, service, infra, runtime</b>. One CLI <code>kiw</code>, one config <code>krewire.yaml</code>.</p>
+    <div class="ctas">
+      <a class="btn primary" href="/docs/getting-started">Get Started</a>
+      <a class="btn" href="https://github.com/krewire/krewire">View on GitHub</a>
+    </div>
+    <div class="meta"><span>Go 1.22+ · File-based routing · Scoped CSS · No JS by default</span></div>
+  </div>
+  <div class="art"><div class="window" data-kiw-component="CodeWindow">
+  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">krewire.kiw</span></div>
+  <pre><code><span class="c">---</span>
+<span class="k">title:</span> Hello
+<span class="k">layout:</span> Base
+<span class="c">---</span>
+<span class="t">&lt;h1&gt;</span>{{.Title}}<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;style&gt;</span>h1{color:var(--primary)}<span class="t">&lt;/style&gt;</span></code></pre>
+</div></div>
+</section>
+
+<section class="features">
+  <h2>One framework. Eight workloads.</h2>
+  <p class="sub">From CLI to WASM frontend — same Go, same <code>kiw</code>.</p>
+  <div class="grid">
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">▲</div>
+  <h3>app</h3>
+  <p>Fullstack monolith — web + API in one binary</p>
+</div>
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">›</div>
+  <h3>cli</h3>
+  <p>Command-line apps with framework/tui</p>
+</div>
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">◧</div>
+  <h3>site</h3>
+  <p>File-based .kiw DSL → static site, no JS by default</p>
+</div>
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">≡</div>
+  <h3>book</h3>
+  <p>Manuscript → book via mdbind</p>
+</div>
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">⚙</div>
+  <h3>worker</h3>
+  <p>Job queues, cron, retries, DLQ</p>
+</div>
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">⬢</div>
+  <h3>service</h3>
+  <p>Registry, gateway, resilience, tracing</p>
+</div>
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">☁</div>
+  <h3>infra</h3>
+  <p>Provider-agnostic IaC → AWS/K8s</p>
+</div>
+    <div class="card" data-kiw-component="FeatureCard">
+  <div class="icon">◈</div>
+  <h3>runtime</h3>
+  <p>Go→WASM, VDOM, mount points</p>
+</div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Go-first. Zero JS until you need it.</h2>
+  <p>Write pages as <code>pages/*.kiw</code> — frontmatter + HTML + scoped <code>&lt;style&gt;</code>. No toolchain, no npm.</p>
+  <pre><code>kiw new my-site --site
+kiw build
+kiw serve</code></pre>
+  <a class="btn primary" href="/docs/getting-started">Read the docs →</a>
+</section>
+
+<section class="eco" data-kiw-component="Ecosystem">
+  <h2>Ecosystem — one <code>kiw</code> for everything</h2>
+  <div class="grid">
+    <a class="item" href="https://github.com/krewire/framework"><b>framework</b><span>app · web · ui · runtime · worker · service · infra</span></a>
+    <a class="item" href="https://github.com/krewire/libs"><b>libs</b><span>core + kern · config · validate · term</span></a>
+    <a class="item" href="https://github.com/krewire/mdbind"><b>mdbind</b><span>book → site pipeline</span></a>
+    <a class="item" href="https://github.com/krewire/guild"><b>guild</b><span>AI agent template</span></a>
+    <a class="item" href="https://github.com/krewire/kiw"><b>kiw</b><span>build · serve · dev · deploy</span></a>
+  </div>
+</section></main>
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>© 2026 Krewire Contributors — Built 100% with Krewire `site` workload.</span>
+      <span><a href="https://github.com/krewire">github.com/krewire</a> · <a href="/docs/getting-started">Get Started</a></span>
+    </div>
+  </footer>
+
+</body></html>

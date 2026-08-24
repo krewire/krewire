@@ -1,0 +1,23 @@
+---
+title: "Documentation — Krewire"
+description: "Guides for the Unified Go Framework"
+layout: Docs
+---
+
+<h1>Documentation</h1>
+<p>Welcome to Krewire v0.1.0 — one framework for every workload. Start here, then dive by workload.</p>
+
+<div class="cards">
+  <a class="card" href="/docs/getting-started"><b>Getting Started</b><span>kiw new, krewire.yaml, kiw build &amp; serve</span></a>
+  <a class="card" href="/docs/workloads"><b>Workloads</b><span>app · cli · site · book · worker · service · infra · runtime</span></a>
+  <a class="card" href="/docs/dsl"><b>.kiw DSL</b><span>HTML + scoped CSS + Go + Rust in one file</span></a>
+</div>
+
+{{component "Callout" (dict "Type" "info" "Title" "Spec-first" "Body" "Every feature has a spec in docs/specs/ with a 5-char ID. See framework/docs/specs/index.md")}}
+<style>
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.card{display:block;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+.card b{font-size:14px}
+.card span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+@media(max-width:800px){.cards{grid-template-columns:1fr}}
+</style>
