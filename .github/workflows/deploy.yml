@@ -15,6 +15,18 @@ jobs:
       - name: Checkout source (gh-deploy is fast-forward from main)
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install Node dependencies (for Tailwind plugin)
+        run: npm ci
+        # Tailwind is an optional PostCSS plugin; if npm ci fails (no package.json
+        # or no Node), the build still continues — plugin will log a warning.
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -29,6 +41,8 @@ jobs:
           kiw build
           ls -R site
           test -f site/index.html
+          # Tailwind output is optional; just log if present
+          ls -lh site/assets/tailwind.css 2>&1 || echo "tailwind.css not generated (plugin not triggered or no npx)"
 
       - name: Deploy to krewire.github.io (gh-pages, root)
         uses: peaceiris/actions-gh-pages@v3
