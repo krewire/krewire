@@ -40,9 +40,9 @@
       </button>
     </div>
   </header>
-  <main>{{.Content}}</main>
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{{.Content}}</main>
   <footer class="footer">
-    <div class="footer-inner">
+    <div class="footer-inner mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-xs text-muted sm:px-6 lg:px-8">
       <span>© 2026 Krewire Contributors — Built 100% with Krewire `site` workload.</span>
       <span><a href="https://github.com/krewire">github.com/krewire</a> · <a href="/docs/getting-started">Get Started</a></span>
     </div>
@@ -90,6 +90,5 @@ a:hover{color:var(--primary)}
 .theme-toggle .sun{display:var(--show-sun)}
 .theme-toggle .moon{display:var(--show-moon)}
 .footer{border-top:1px solid var(--border);margin-top:64px;background:var(--bg-2)}
-.footer-inner{max-width:1280px;margin:0 auto;padding:24px;display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);flex-wrap:wrap}
 .footer-inner a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 </style>

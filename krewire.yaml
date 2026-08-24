@@ -1,6 +1,6 @@
 project:
   kind: site
-title: "Krewire — The Go Framework for Web Artisans"
+title: "Krewire — One Go Framework for Every Workload"
 description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI, one config, v0.1.0."
 base: "/"
 output: "site"
