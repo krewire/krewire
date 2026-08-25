@@ -1,6 +1,6 @@
 ---
 title: "Krewire — One Go Framework for Every Workload"
-description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config. v0.1.0."
+description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config."
 layout: Base
 ---
 

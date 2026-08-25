@@ -1,7 +1,8 @@
 project:
   kind: site
+version: "v0.3.2"
 title: "Krewire — One Go Framework for Every Workload"
-description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI, one config, v0.1.0."
+description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI, one config."
 base: "/"
 output: ".krewire/build"
 author: "Krewire Contributors"
@@ -12,6 +13,6 @@ nav:
     url: "https://github.com/krewire/krewire"
   - text: "Specs"
     url: "https://github.com/krewire/framework/tree/main/docs/specs"
-footer: "© 2026 Krewire Contributors — v0.1.0. Built 100% with Krewire."
+footer: "© 2026 Krewire Contributors — v0.3.2. Built 100% with Krewire."
 theme:
   default: "auto"

@@ -1,7 +1,7 @@
 
 <section class="hero grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center py-16">
   <div class="copy">
-    <div class="eyebrow text-xs tracking-widest uppercase text-muted font-semibold">Unified Go Framework · v0.1.0</div>
+    <div class="eyebrow text-xs tracking-widest uppercase text-muted font-semibold">Unified Go Framework{{with .Version}} · {{.}}{{end}}</div>
     <h1 class="font-serif text-5xl md:text-6xl leading-none tracking-tight my-3">One Go Framework.<br class="hidden md:block"> Every Workload.</h1>
     <p class="text-lg text-muted max-w-xl">One framework for every web-service workload — <b>app, cli, site, book, worker, service, infra, runtime</b>. One CLI <code class="font-mono text-sm bg-bg-2 border border-border px-1.5 py-0.5 rounded-lg">kiw</code>, one config <code class="font-mono text-sm bg-bg-2 border border-border px-1.5 py-0.5 rounded-lg">krewire.yaml</code>.</p>
     <div class="ctas flex gap-3 mt-6 flex-wrap">

@@ -34,10 +34,8 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      # TODO: pin to the next kiw release tag once the content/-mode,
-      # build pruning, and gh-pages publishing features are tagged.
       - name: Install kiw
-        run: GOPROXY=direct go install github.com/krewire/kiw/cmd/kiw@main
+        run: GOPROXY=direct go install github.com/krewire/kiw/cmd/kiw@v0.3.2
 
       - name: Build site
         run: |
