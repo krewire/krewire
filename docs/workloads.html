@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Workloads — Krewire — One Go Framework for Every Workload</title>
+<link rel="stylesheet" href="/assets/mdbind.css">
+<style>:root{--base-1: #fdfdfb;--base-1-content: #1a1a1a;--base-2: #f5f2eb;--base-2-content: #666;--base-3: #efece4;--base-3-content: #4a4a4a;--primary: #00c853;--primary-content: #ffffff;--secondary: #4a8f7a;--secondary-content: #ffffff;--accent: #f59e0b;--accent-content: #ffffff;--ghost: #e9e6dc;--ghost-content: #666;--neutral: #e3e0d8;--neutral-content: #666;--success: #15803d;--success-content: #ffffff;--info: #0d9488;--info-content: #ffffff;--warning: #f59e0b;--warning-content: #ffffff;--error: #b91c1c;--error-content: #ffffff;}:root[data-theme="dark"]{--base-1: #17171a;--base-1-content: #e6e4dd;--base-2: #202024;--base-2-content: #9a968b;--base-3: #2a2a30;--base-3-content: #c6c2b8;--primary: #5cff8e;--primary-content: #06160d;--secondary: #7fc99d;--secondary-content: #07130b;--accent: #ffb020;--accent-content: #241a00;--ghost: #26262b;--ghost-content: #9a968b;--neutral: #2e2e34;--neutral-content: #9a968b;--success: #4ade80;--success-content: #0b1f10;--info: #2dd4bf;--info-content: #062a23;--warning: #ffb020;--warning-content: #241a00;--error: #f87171;--error-content: #260a0a;}@media (prefers-color-scheme: dark){:root:not([data-theme]){--base-1: #17171a;--base-1-content: #e6e4dd;--base-2: #202024;--base-2-content: #9a968b;--base-3: #2a2a30;--base-3-content: #c6c2b8;--primary: #5cff8e;--primary-content: #06160d;--secondary: #7fc99d;--secondary-content: #07130b;--accent: #ffb020;--accent-content: #241a00;--ghost: #26262b;--ghost-content: #9a968b;--neutral: #2e2e34;--neutral-content: #9a968b;--success: #4ade80;--success-content: #0b1f10;--info: #2dd4bf;--info-content: #062a23;--warning: #ffb020;--warning-content: #241a00;--error: #f87171;--error-content: #260a0a;}}</style><script>(function(){var k="krewire-theme",d="auto",t=d;try{t=localStorage.getItem(k)||d}catch(e){}var m=window.matchMedia('(prefers-color-scheme: dark)');function apply(){var dark=t==='dark'||(t==='auto'&&m.matches);var r=document.documentElement;r.dataset.theme=dark?'dark':'light';r.style.colorScheme=dark?'dark':'light';var meta=document.querySelector('meta[name="color-scheme"]');if(meta)meta.content=dark?'dark':'light'}apply();if(m.addEventListener){m.addEventListener('change',function(){if(t==='auto')apply()})}window.krewireTheme={get:function(){return t},set:function(x){t=x;try{localStorage.setItem(k,x)}catch(e){}apply()},toggle:function(){var dark=t==='dark'||(t==='auto'&&m.matches);window.krewireTheme.set(dark?'light':'dark')}};document.addEventListener('click',function(e){var el=e.target&&e.target.closest?e.target.closest('[data-theme-toggle]'):null;if(el)window.krewireTheme.toggle()})})();</script>
+</head>
+<body>
+
+<header class="topbar">
+  <nav>
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+    </button>
+    <a class="brand" href="/">Krewire — One Go Framework for Every Workload</a>
+    <a class="nav-link" href="/docs">Docs</a><a class="nav-link" href="https://github.com/krewire/krewire">GitHub</a><a class="nav-link" href="https://github.com/krewire/framework/tree/main/docs/specs">Specs</a>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle light/dark theme" title="Toggle theme"><svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+  </nav>
+</header>
+
+<div class="layout">
+  
+<aside class="sidebar" id="sidebar" aria-label="Table of contents">
+  <div class="sidebar-head">
+    <p class="sidebar-title">Contents</p>
+    <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation">×</button>
+  </div>
+  <nav class="toc">
+    
+      
+      <div class="toc-group open" data-group>
+        <div class="toc-parent-row">
+          <a href="/docs" class="toc-link"><span class="num">1.</span> docs</a>
+          <button class="toc-toggle" aria-expanded="true" aria-label="Toggle submenu for docs">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+          </button>
+        </div>
+        <div class="toc-subs">
+          <a href="/docs/dsl" class="toc-sub"><span class="num">1.1</span> .kiw DSL</a><a href="/docs/getting-started" class="toc-sub"><span class="num">1.2</span> Getting Started</a><a href="/docs/workloads" class="toc-sub active"><span class="num">1.3</span> Workloads</a>
+        </div>
+      </div>
+      
+    
+  </nav>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+<script>
+(function(){
+  var sidebar=document.getElementById('sidebar');
+  var toggle=document.getElementById('sidebar-toggle');
+  var close=document.getElementById('sidebar-close');
+  var overlay=document.getElementById('sidebar-overlay');
+  function setOpen(open){
+    document.documentElement.classList.toggle('sidebar-open', open);
+    if(toggle) toggle.setAttribute('aria-expanded', open?'true':'false');
+    if(sidebar) sidebar.setAttribute('aria-hidden', open?'false':'true');
+  }
+  if(toggle) toggle.addEventListener('click', function(){ setOpen(!document.documentElement.classList.contains('sidebar-open')); });
+  if(close) close.addEventListener('click', function(){ setOpen(false); });
+  if(overlay) overlay.addEventListener('click', function(){ setOpen(false); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') setOpen(false); });
+  document.querySelectorAll('[data-group] .toc-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      var g=btn.closest('[data-group]');
+      var open=g.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open?'true':'false');
+      try{ localStorage.setItem('krewire-toc-'+g.querySelector('.toc-link').getAttribute('href'), open?'1':'0'); }catch(_){}
+    });
+  });
+  try{
+    document.querySelectorAll('[data-group]').forEach(function(g){
+      var href=g.querySelector('.toc-link').getAttribute('href');
+      var v=localStorage.getItem('krewire-toc-'+href);
+      if(v==='0') g.classList.remove('open');
+      if(v==='1') g.classList.add('open');
+    });
+  }catch(_){}
+})();
+</script>
+
+  <main>
+    
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a><span class="sep">/</span><a href="/docs">docs</a><span class="sep">/</span><span class="current">Workloads</span>
+    </nav>
+    
+    <article class="chapter"><h1 id="workloads">Workloads</h1>
+<p>Krewire has 8 workload kinds. <code>krewire.yaml</code> pins <code>project.kind</code>; <code>kiw</code> dispatches.</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Example</th>
+<th>Driven by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app</code></td>
+<td>Fullstack monolith</td>
+<td><code>kiw run</code>, <code>kiw dev</code></td>
+</tr>
+<tr>
+<td><code>cli</code></td>
+<td>Command-line app</td>
+<td><code>kiw run &lt;args&gt;</code></td>
+</tr>
+<tr>
+<td><code>site</code></td>
+<td>Static site (this site)</td>
+<td><code>kiw build</code>, <code>kiw serve</code></td>
+</tr>
+<tr>
+<td><code>book</code></td>
+<td>Manuscript → site</td>
+<td><code>kiw build</code>, <code>kiw serve</code></td>
+</tr>
+<tr>
+<td><code>worker</code></td>
+<td>Job queues, cron</td>
+<td><code>kiw run</code>, <code>kiw worker</code></td>
+</tr>
+<tr>
+<td><code>service</code></td>
+<td>Microservice</td>
+<td><code>kiw run</code>, <code>kiw dev</code></td>
+</tr>
+<tr>
+<td><code>infra</code></td>
+<td>Cloud IaC</td>
+<td><code>kiw deploy --plan</code></td>
+</tr>
+<tr>
+<td><code>runtime</code></td>
+<td>Go→WASM, VDOM, mount points</td>
+<td><code>kiw build</code></td>
+</tr>
+</tbody>
+</table>
+<p>All share <code>krewire.yaml</code> as the single config and <code>framework/*</code> as the unified library.</p>
+<h2 id="file-based-routing">File-based routing</h2>
+<p><code>pages/*.kiw</code> mirrors the filesystem — no router to configure.</p>
+</article>
+    <nav class="pager">
+      <a class="prev" href="/docs/getting-started">&larr; Getting Started</a>
+      
+    </nav>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="inner">
+    <p>© 2026 Krewire Contributors — v0.3.2. Built 100% with Krewire.</p>
+    <p class="built-with">Built with <a href="https://github.com/krewire/mdbind">mdbind</a> and the <a href="https://github.com/krewire/framework">Krewire Framework</a> · vv0.3.2.</p>
+  </div>
+</footer>
+
+</body>
+</html>
