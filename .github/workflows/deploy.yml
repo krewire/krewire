@@ -44,10 +44,19 @@ jobs:
           test -f .krewire/build/index.html
           ls .krewire/build/docs/
 
-      - name: Publish to gh-deploy
+      - name: Publish to gh-pages (project site)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
-          kiw deploy --target gh-pages --branch gh-deploy --remote origin \
+          kiw deploy --target gh-pages --branch gh-pages --remote origin \
             --message "deploy: site from ${GITHUB_SHA::7}"
+
+      - name: Publish to krewire.github.io (root site)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          git remote add io https://x-access-token:${GITHUB_TOKEN}@github.com/krewire/krewire.github.io.git 2>/dev/null || git remote set-url io https://x-access-token:${GITHUB_TOKEN}@github.com/krewire/krewire.github.io.git
+          kiw deploy --target gh-pages --branch gh-pages --remote io \
+            --message "deploy: site from krewire/krewire@${GITHUB_SHA::7}"

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Redirecting...</title>
+  <script>
+    (function() {
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      if (path.endsWith('.html')) return;
+      if (path.endsWith('/')) {
+        var withoutSlash = path.slice(0, -1);
+        window.location.href = withoutSlash + '.html' + search + hash;
+        return;
+      }
+      window.location.href = path + '.html' + search + hash;
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
