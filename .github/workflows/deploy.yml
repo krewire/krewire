@@ -54,10 +54,15 @@ jobs:
             --message "deploy: site from ${GITHUB_SHA::7}"
 
       - name: Publish to krewire.github.io (root site)
+        # Requires PAT with repo scope stored as PAGES_PAT (GITHUB_TOKEN cannot push cross-repo)
+        continue-on-error: true
         env:
+          PAGES_PAT: ${{ secrets.PAGES_PAT }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
-          git remote add io https://x-access-token:${GITHUB_TOKEN}@github.com/krewire/krewire.github.io.git 2>/dev/null || git remote set-url io https://x-access-token:${GITHUB_TOKEN}@github.com/krewire/krewire.github.io.git
+          TOKEN="${PAGES_PAT:-$GITHUB_TOKEN}"
+          if [ -z "$TOKEN" ]; then echo "No token available, skipping root deploy"; exit 0; fi
+          git remote add io https://x-access-token:${TOKEN}@github.com/krewire/krewire.github.io.git 2>/dev/null || git remote set-url io https://x-access-token:${TOKEN}@github.com/krewire/krewire.github.io.git
           kiw deploy --target gh-pages --branch gh-pages --remote io \
-            --message "deploy: site from krewire/krewire@${GITHUB_SHA::7}"
+            --message "deploy: site from krewire/krewire@${GITHUB_SHA::7}" || echo "Root deploy failed (needs PAGES_PAT with repo access) - subpath deploy already succeeded"
