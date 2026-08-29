@@ -12,75 +12,29 @@
 
 <header class="topbar">
   <nav>
-    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
-      <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
-    </button>
     <a class="brand" href="/">Krewire — One Go Framework for Every Workload</a>
-    <a class="nav-link" href="/docs">Docs</a><a class="nav-link" href="https://github.com/krewire/krewire">GitHub</a><a class="nav-link" href="https://github.com/krewire/framework/tree/main/docs/specs">Specs</a>
+    <a href="/docs">Docs</a><a href="https://github.com/krewire/krewire">GitHub</a><a href="https://github.com/krewire/framework/tree/main/docs/specs">Specs</a>
     <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle light/dark theme" title="Toggle theme"><svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
   </nav>
 </header>
 
 <div class="layout">
   
-<aside class="sidebar" id="sidebar" aria-label="Table of contents">
-  <div class="sidebar-head">
-    <p class="sidebar-title">Contents</p>
-    <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation">×</button>
-  </div>
-  <nav class="toc">
+<aside class="sidebar">
+  <p class="sidebar-title">Contents</p>
+  <nav>
     
-      
-      <div class="toc-group open" data-group>
-        <div class="toc-parent-row">
-          <a href="/docs" class="toc-link"><span class="num">1.</span> docs</a>
-          <button class="toc-toggle" aria-expanded="true" aria-label="Toggle submenu for docs">
-            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
-          </button>
-        </div>
-        <div class="toc-subs">
-          <a href="/docs/dsl" class="toc-sub"><span class="num">1.1</span> .kiw DSL</a><a href="/docs/getting-started" class="toc-sub active"><span class="num">1.2</span> Getting Started</a><a href="/docs/workloads" class="toc-sub"><span class="num">1.3</span> Workloads</a>
-        </div>
-      </div>
-      
+    <a href="/docs"><span class="num">1.</span> docs</a>
+    
+    <a href="/docs/dsl" class="sub"><span class="num">1.1</span> .kiw DSL</a>
+    
+    <a href="/docs/getting-started" class="sub active"><span class="num">1.2</span> Getting Started</a>
+    
+    <a href="/docs/workloads" class="sub"><span class="num">1.3</span> Workloads</a>
+    
     
   </nav>
 </aside>
-<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
-<script>
-(function(){
-  var sidebar=document.getElementById('sidebar');
-  var toggle=document.getElementById('sidebar-toggle');
-  var close=document.getElementById('sidebar-close');
-  var overlay=document.getElementById('sidebar-overlay');
-  function setOpen(open){
-    document.documentElement.classList.toggle('sidebar-open', open);
-    if(toggle) toggle.setAttribute('aria-expanded', open?'true':'false');
-    if(sidebar) sidebar.setAttribute('aria-hidden', open?'false':'true');
-  }
-  if(toggle) toggle.addEventListener('click', function(){ setOpen(!document.documentElement.classList.contains('sidebar-open')); });
-  if(close) close.addEventListener('click', function(){ setOpen(false); });
-  if(overlay) overlay.addEventListener('click', function(){ setOpen(false); });
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') setOpen(false); });
-  document.querySelectorAll('[data-group] .toc-toggle').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.preventDefault();
-      var g=btn.closest('[data-group]');
-      var open=g.classList.toggle('open');
-      btn.setAttribute('aria-expanded', open?'true':'false');
-      try{ localStorage.setItem('krewire-toc-'+g.querySelector('.toc-link').getAttribute('href'), open?'1':'0'); }catch(_){}
-    });
-  });
-  try{
-    document.querySelectorAll('[data-group]').forEach(function(g){
-      var href=g.querySelector('.toc-link').getAttribute('href');
-      var v=localStorage.getItem('krewire-toc-'+href);
-      if(v==='0') g.classList.remove('open');
-      if(v==='1') g.classList.add('open');
-    });
-  }catch(_){}
-})();
-</script>
 
   <main>
     
