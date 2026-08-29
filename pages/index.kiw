@@ -1,38 +1,237 @@
 ---
 title: "Krewire — One Go Framework for Every Workload"
 description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config."
-layout: Base
+layout: Landing
 ---
 
-{{component "Hero" .}}
-
-<section class="features py-6">
-  <h2 class="text-3xl font-bold tracking-tight mb-1">One framework. Eight workloads.</h2>
-  <p class="sub text-muted mb-5">From CLI to WASM frontend — same Go, same <code class="font-mono text-sm bg-bg-2 border border-border px-1 py-0.5 rounded">kiw</code>.</p>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    {{component "FeatureCard" (dict "Icon" "▲" "Title" "app" "Desc" "Fullstack monolith — web + API in one binary")}}
-    {{component "FeatureCard" (dict "Icon" "›" "Title" "cli" "Desc" "Command-line apps with framework/tui")}}
-    {{component "FeatureCard" (dict "Icon" "◧" "Title" "site" "Desc" "File-based .kiw DSL → static site, no JS by default")}}
-    {{component "FeatureCard" (dict "Icon" "≡" "Title" "book" "Desc" "Manuscript → book via mdbind")}}
-    {{component "FeatureCard" (dict "Icon" "⚙" "Title" "worker" "Desc" "Job queues, cron, retries, DLQ")}}
-    {{component "FeatureCard" (dict "Icon" "⬢" "Title" "service" "Desc" "Registry, gateway, resilience, tracing")}}
-    {{component "FeatureCard" (dict "Icon" "☁" "Title" "infra" "Desc" "Provider-agnostic IaC → AWS/K8s")}}
-    {{component "FeatureCard" (dict "Icon" "◈" "Title" "runtime" "Desc" "Go→WASM, VDOM, mount points")}}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <div class="eyebrow">Unified Go Framework{{with .Version}} · {{.}}{{end}} · Open Source</div>
+      <h1>One Go Framework.<br>Every Workload.</h1>
+      <p class="lead">From CLI to site, book to infra — one framework, one CLI <code>kiw</code>, one config <code>krewire.yaml</code>. Go-first, zero JS until you need it.</p>
+      <div class="ctas">
+        <a class="btn primary" href="/docs/getting-started">Get Started →</a>
+        <a class="btn" href="https://github.com/krewire/krewire" target="_blank" rel="noopener"><span>★</span> View on GitHub</a>
+      </div>
+      <div class="meta">Go 1.22+ · File-based routing · Scoped CSS · No JS by default</div>
+    </div>
+    <div class="hero-art">
+      {{component "CodeWindow" .}}
+    </div>
   </div>
 </section>
 
-<section class="cta my-9 p-7 border border-border rounded-2xl bg-bg-2">
-  <h2 class="text-2xl font-bold mb-2">Go-first. Zero JS until you need it.</h2>
-  <p class="text-muted mb-3">Write pages as <code class="font-mono text-sm">pages/*.kiw</code> — frontmatter + HTML + scoped <code class="font-mono text-sm">&lt;style&gt;</code>. No toolchain, no npm.</p>
-  <pre class="bg-[#0a0a0a] text-[#e5e7eb] p-4 rounded-xl overflow-auto"><code class="font-mono text-sm">kiw new my-site --site
-kiw build
-kiw serve</code></pre>
-  <a class="btn primary inline-flex items-center px-4 py-2.5 rounded-full bg-primary text-white font-semibold mt-4" href="/docs/getting-started">Read the docs →</a>
+<!-- TRUST BAR -->
+<section class="trust">
+  <div class="trust-inner">
+    <span class="trust-label">One config, eight workloads</span>
+    <div class="trust-items">
+      <span>One CLI <code>kiw</code></span>
+      <span class="dot">·</span>
+      <span>One config <code>krewire.yaml</code></span>
+      <span class="dot">·</span>
+      <span>8 workloads</span>
+      <span class="dot">·</span>
+      <span>100% Go</span>
+    </div>
+  </div>
 </section>
 
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-inner">
+    <div class="section-head">
+      <h2>One framework. Eight workloads.</h2>
+      <p>From static site to microservice — same Go, same <code>kiw</code>. Add only what you need, pay zero cost for what you don't.</p>
+    </div>
+    <div class="grid">
+      {{component "FeatureCard" (dict "Icon" "▲" "Title" "app" "Desc" "Fullstack monolith — web + API in one binary. `kiw run`." )}}
+      {{component "FeatureCard" (dict "Icon" "›" "Title" "cli" "Desc" "Command-line apps with framework/tui. Bubbles-inspired." )}}
+      {{component "FeatureCard" (dict "Icon" "◧" "Title" "site" "Desc" "File-based .kiw DSL → static site. No JS by default." )}}
+      {{component "FeatureCard" (dict "Icon" "≡" "Title" "book" "Desc" "Manuscript → book via mdbind. Markdown → site." )}}
+      {{component "FeatureCard" (dict "Icon" "⚙" "Title" "worker" "Desc" "Job queues, cron, retries, DLQ via framework/worker." )}}
+      {{component "FeatureCard" (dict "Icon" "⬢" "Title" "service" "Desc" "Registry, gateway, resilience, tracing via service." )}}
+      {{component "FeatureCard" (dict "Icon" "☁" "Title" "infra" "Desc" "Provider-agnostic IaC → AWS/K8s via framework/infra." )}}
+      {{component "FeatureCard" (dict "Icon" "◈" "Title" "runtime" "Desc" "Go→WASM, VDOM, islands, hydration via runtime." )}}
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="section-inner">
+    <div class="section-head">
+      <h2>How it works</h2>
+      <p>Three commands. Zero toolchain.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>kiw new</h3>
+        <p>Scaffold a <code>site</code>, <code>book</code>, <code>app</code> or <code>cli</code> in seconds.</p>
+        <pre><code>kiw new my-site --site
+cd my-site</code></pre>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>kiw build</h3>
+        <p>Build static or binary. Scoped CSS, file-based routing, no config.</p>
+        <pre><code>kiw build
+# → .krewire/build/</code></pre>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>kiw deploy</h3>
+        <p>Deploy to GitHub Pages or your infra. One command.</p>
+        <pre><code>kiw deploy --target gh-pages</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY KREWIRE -->
+<section class="why">
+  <div class="section-inner">
+    <div class="section-head">
+      <h2>Go-first. Progressive. Zero bloat.</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon">◈</div>
+        <h3>Go-first</h3>
+        <p>Write everything in Go. No JS toolchain until you opt into <code>runtime</code> WASM.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">◧</div>
+        <h3>File-based</h3>
+        <p><code>pages/*.kiw</code> with frontmatter + HTML + scoped <code>&lt;style&gt;</code>. No config hell.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">☰</div>
+        <h3>One CLI</h3>
+        <p><code>kiw build</code>, <code>kiw serve</code>, <code>kiw deploy</code> for every workload.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DSL SHOWCASE -->
+<section class="showcase">
+  <div class="section-inner showcase-inner">
+    <div>
+      <h2>Write pages as <code>.kiw</code></h2>
+      <p>Frontmatter + HTML + scoped CSS. No npm, no bundler.</p>
+      <pre class="code"><code>---
+title: Hello
+layout: Base
+---
+&lt;h1&gt;{{"{{"}}.Title{{"}}"}}&lt;/h1&gt;
+&lt;style&gt;h1{color:var(--primary)}&lt;/style&gt;</code></pre>
+      <div class="ctas">
+        <a class="btn primary" href="/docs/dsl">Explore the DSL →</a>
+        <a class="btn" href="/docs/getting-started">Read the docs →</a>
+      </div>
+    </div>
+    <div class="showcase-card">
+      <div class="card-head">Why scoped CSS?</div>
+      <p>Every <code>.kiw</code> component gets <code>data-kiw-component</code> scoping automatically. Like Svelte/Astro — zero setup, zero leaks.</p>
+      <ul>
+        <li>✓ Scoped by default</li>
+        <li>✓ Global via <code>:root</code></li>
+        <li>✓ Theme with <code>ui.Theme</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ECOSYSTEM -->
 {{component "Ecosystem" .}}
 
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="cta-card">
+    <h2>Ready to build?</h2>
+    <p>Start with a site, scale to a monolith, then to services — same repo, same CLI.</p>
+    <div class="ctas">
+      <a class="btn primary large" href="/docs/getting-started">Get Started — 5 min →</a>
+      <a class="btn large" href="https://github.com/krewire/krewire" target="_blank" rel="noopener">Star on GitHub</a>
+    </div>
+    <div class="cta-meta"><code>kiw new my-app && cd my-app && kiw serve</code> — that's it.</div>
+  </div>
+</section>
+
 <style>
-/* Tailwind handles layout; keep only theme-specific overrides */
-.features .sub{color:var(--muted)}
+.hero{padding:56px 0 24px;background:linear-gradient(180deg, color-mix(in srgb, var(--bg-2) 70%, var(--bg)), var(--bg))}
+.hero-inner{max-width:80rem;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px}
+.hero h1{font-family:ui-serif, Georgia, serif;font-size:56px;line-height:.95;letter-spacing:-.04em;margin:0 0 16px}
+.hero .lead{font-size:18px;color:color-mix(in srgb, var(--fg) 72%, var(--muted));max-width:560px;margin:0}
+.hero .lead code{font-family:ui-monospace, monospace;font-size:13px;background:var(--bg-2);border:1px solid var(--border);padding:2px 6px;border-radius:8px}
+.ctas{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:14px;transition:all .15s}
+.btn:hover{border-color:var(--fg);transform:translateY(-1px)}
+.btn.primary{background:var(--primary);color:var(--primary-content);border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.large{padding:12px 22px;font-size:15px}
+.meta{margin-top:18px;font-size:12px;color:var(--muted)}
+.trust{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg-2)}
+.trust-inner{max-width:80rem;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.trust-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.trust-items{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.trust-items code{font-family:ui-monospace, monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);padding:1px 6px;border-radius:6px}
+.trust-items .dot{opacity:.4}
+.features{padding:48px 0 24px}
+.section-inner{max-width:80rem;margin:0 auto;padding:0 16px}
+.section-head{max-width:720px;margin:0 0 32px}
+.section-head h2{font-size:32px;letter-spacing:-.03em;margin:0 0 10px}
+.section-head p{color:var(--muted);margin:0;font-size:15px}
+.section-head p code{font-family:ui-monospace, monospace;font-size:13px;background:var(--bg-2);border:1px solid var(--border);padding:1px 6px;border-radius:6px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.how{padding:32px 0;background:var(--bg-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.step{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:20px}
+.step-num{width:32px;height:32px;display:grid;place-items:center;border-radius:999px;background:var(--primary);color:var(--primary-content);font-weight:700;font-size:14px;margin-bottom:12px}
+.step h3{margin:0 0 6px;font-size:16px}
+.step p{margin:0 0 12px;color:var(--muted);font-size:13px}
+.step pre{margin:0;background:#0a0a0a;color:#e5e7eb;border-radius:10px;padding:12px;overflow:auto}
+.step code{font-family:ui-monospace, monospace;font-size:12px}
+.why{padding:48px 0}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.why-card{border:1px solid var(--border);border-radius:16px;padding:24px;background:var(--bg)}
+.why-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:10px;background:var(--bg-2);border:1px solid var(--border);margin-bottom:14px}
+.why-card h3{margin:0 0 8px;font-size:16px}
+.why-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.why-card code{font-family:ui-monospace, monospace;font-size:12px;background:var(--bg-2);border:1px solid var(--border);padding:1px 5px;border-radius:6px}
+.showcase{padding:40px 0;border-top:1px solid var(--border)}
+.showcase-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+.showcase h2{font-size:24px;margin:0 0 8px;letter-spacing:-.02em}
+.showcase p{color:var(--muted);margin:0 0 16px}
+.showcase .code{margin:0;background:#0a0a0a;color:#e5e7eb;border-radius:12px;padding:16px;overflow:auto;font-family:ui-monospace, monospace;font-size:13px;line-height:1.7}
+.showcase-card{border:1px solid var(--border);border-radius:16px;padding:24px;background:var(--bg-2)}
+.card-head{font-weight:700;margin-bottom:10px}
+.showcase-card p{font-size:13px}
+.showcase-card ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)}
+.showcase-card code{font-family:ui-monospace, monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:6px}
+.final-cta{padding:40px 0 56px}
+.cta-card{max-width:80rem;margin:0 auto;padding:36px 16px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(135deg, var(--bg-2), var(--bg));text-align:center}
+.cta-card h2{font-size:28px;margin:0 0 8px;letter-spacing:-.02em}
+.cta-card p{color:var(--muted);margin:0 0 20px}
+.cta-card .ctas{justify-content:center}
+.cta-meta{margin-top:14px;font-size:12px;color:var(--muted)}
+.cta-meta code{font-family:ui-monospace, monospace;background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:999px}
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:24px}
+  .hero h1{font-size:42px}
+  .grid{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr}
+  .why-grid{grid-template-columns:1fr}
+  .showcase-inner{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .grid{grid-template-columns:1fr}
+  .hero{padding:32px 0 16px}
+  .features{padding:32px 0 16px}
+}
 </style>
