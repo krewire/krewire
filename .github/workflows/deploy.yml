@@ -35,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: Install kiw
-        run: GOPROXY=direct go install github.com/krewire/kiw/cmd/kiw@v0.3.2
+        run: GOPROXY=direct go install github.com/krewire/kiw/cmd/kiw@v0.3.3
 
       - name: Build site
         run: |
