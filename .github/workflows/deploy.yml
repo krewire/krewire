@@ -49,6 +49,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/krewire/krewire.git
           kiw deploy --target gh-pages --branch gh-pages --remote origin \
             --message "deploy: site from ${GITHUB_SHA::7}"
 
