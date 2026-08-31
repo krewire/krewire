@@ -229,9 +229,33 @@ layout: Base
   .why-grid{grid-template-columns:1fr}
   .showcase-inner{grid-template-columns:1fr}
 }
+@media(max-width:640px){
+  .hero{padding:32px 0 16px}
+  .hero h1{font-size:34px}
+  .hero .lead{font-size:16px}
+  .hero .ctas{flex-direction:column;align-items:stretch}
+  .hero .btn{width:100%;justify-content:center}
+  .trust-items{flex-direction:column;align-items:flex-start;gap:8px}
+  .trust-items .dot{display:none}
+  .features{padding:24px 0 12px}
+  .section-head h2{font-size:26px}
+  .grid{grid-template-columns:1fr}
+  .card{padding:16px}
+  .how{padding:24px 0}
+  .why{padding:32px 0}
+  .why-card{padding:20px}
+  .showcase{padding:24px 0}
+  .showcase h2{font-size:20px}
+  .showcase .code{font-size:12px;padding:12px}
+  .final-cta{padding:24px 0 40px}
+  .cta-card{padding:24px 12px}
+  .cta-card h2{font-size:22px}
+  .cta-card .ctas{flex-direction:column;align-items:stretch}
+  .cta-card .btn{width:100%;justify-content:center}
+}
 @media(max-width:560px){
   .grid{grid-template-columns:1fr}
-  .hero{padding:32px 0 16px}
-  .features{padding:32px 0 16px}
+  .hero{padding:24px 0 12px}
+  .features{padding:16px 0 8px}
 }
 </style>

@@ -138,8 +138,16 @@ a:hover{color:var(--primary)}
   .links{gap:14px;font-size:13px}
   .links a:nth-child(2){display:none}
 }
+@media(max-width:640px){
+  .nav-inner{padding:10px 12px;gap:10px}
+  .brand{font-size:14px;gap:6px}
+  .brand-mark{width:24px;height:24px;font-size:12px;border-radius:6px}
+  .links{display:none} /* hidden, accessible via mobile drawer if needed */
+  .theme-toggle{padding:4px 8px}
+}
 @media(max-width:560px){
   .footer-grid{grid-template-columns:1fr}
-  .nav-inner{padding:12px 14px}
+  .footer-inner{padding:24px 12px 16px}
+  .footer-grid{gap:20px;padding-bottom:20px}
 }
 </style>

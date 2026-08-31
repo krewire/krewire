@@ -5,5 +5,89 @@
 @layer base {
   :root {
     --color-primary: #00c853;
+    --color-primary-light: #5cff8e;
+    --color-muted: #6b7280;
+    --color-border: rgba(10, 10, 10, 0.08);
+    --color-fg: #0a0a0a;
+    --color-bg: #ffffff;
+    --color-bg-2: #f6f8f7;
+  }
+
+  .dark {
+    --color-primary: #5cff8e;
+    --color-primary-light: #00c853;
+    --color-muted: #9ca3af;
+    --color-border: rgba(246, 248, 247, 0.12);
+    --color-fg: #f6f8f7;
+    --color-bg: #0a0a0a;
+    --color-bg-2: #111413;
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply m-0 font-sans bg-bg text-fg leading-relaxed antialiased;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  a:hover {
+    @apply text-primary;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-full border font-semibold text-sm transition-all duration-150;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-content border-primary;
+  }
+
+  .btn-primary:hover {
+    @apply brightness-105;
+  }
+
+  .btn-large {
+    @apply px-5 py-3 text-base;
+  }
+
+  .card {
+    @apply rounded-2xl border border-border p-5 bg-bg shadow-sm transition-transform;
+  }
+
+  .card:hover {
+    @apply -translate-y-0.5 border-primary/25;
+  }
+
+  .section-inner {
+    @apply max-w-7xl mx-auto px-4;
+  }
+
+  .section-head {
+    @apply max-w-2xl mx-auto mb-8;
+  }
+
+  .section-head h2 {
+    @apply text-3xl font-bold tracking-tight mb-2;
+  }
+
+  .section-head p {
+    @apply text-muted text-base;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }
