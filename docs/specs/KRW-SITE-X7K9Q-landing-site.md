@@ -11,7 +11,7 @@
 
 ## 1. Summary
 
-Build `krewire/krewire` (public repo) as the **unified site** for the Krewire ecosystem — **landing + documentation** — **100% built with the ecosystem itself** (file-based `.kiw` DSL, `krewire.yaml`, `pages/`/`components/`/`layouts/`/`content/`/`public/` → `krewire build` → `site/`), inspired by `laravel.com`'s clarity but Go-native and docs-ready. The site proves the `site` workload is production-ready for both marketing and long-form docs, validates the static-site pipeline (file-based routing, scoped CSS, theme toggle, asset hashing, content collections), and is published to `https://krewire.github.io/` (via `krewire/krewire.github.io`) — not too narrowly scoped to a one-page landing.
+Build `krewire/krewire` (public repo) as the **unified site** for the Krewire ecosystem — **landing + documentation** — **100% built with the ecosystem itself** (file-based `.kiw` DSL, `krewire.yaml`, `pages/`/`components/`/`layouts/`/`content/`/`public/` → `krewire build` → `site/`), inspired by `laravel.com`'s clarity but Go-native and docs-ready. The site proves the `site` workload is production-ready for both marketing and long-form docs, validates the static-site pipeline (file-based routing, scoped CSS, theme toggle, asset hashing, content collections), and is prepared for deployment to the Krewire-hosted production machine via Docker — not too narrowly scoped to a one-page landing.
 
 ## 2. Background & Context
 
@@ -22,13 +22,13 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 ## 3. Problem Statement
 
 - No public Krewire presence; visitors cannot differentiate the 8 kinds or see the "one CLI" promise.
-- The `site` path has not been exercised end-to-end with a real design system, theme toggle, and gh-pages deploy, so regressions stay hidden.
+- The `site` path has not been exercised end-to-end with a real design system, theme toggle, and production deployment, so regressions stay hidden.
 - Without dogfooding, spec gaps (e.g., `site` requiring `go.mod`) persist.
 
 ## 4. Goals & Non-Goals
 
 ### Goals
-- G1 — Ship `krewire/krewire` public repo as the **source** for the unified site; publish the built `site/` to `krewire/krewire.github.io` so `https://krewire.github.io/` (root, no `/krewire/` prefix) serves the site, built solely via `kiw build`.
+- G1 — Ship `krewire/krewire` public repo as the **source** for the unified site; deploy the built `site/` to the Krewire production machine with Docker, using a domain configured separately.
 - G2 — Landing surface: elegant display typography, code snippet (`kiw new my-app && kiw build`), CTAs (Get Started → docs, View on GitHub), feature cards, ecosystem strip — not over-scoped to a single hero.
 - G3 — Documentation surface: file-based docs under `/docs` (getting-started, workload matrix, `.kiw` DSL) with sidebar nav, prose, code windows, callouts — same engine as landing, proving the site is **general-purpose**.
 - G4 — Reusable system: `layouts/Base.kiw` + docs-aware layout (`Docs.kiw`) and generic components (`Hero`, `FeatureCard`, `Ecosystem`, `CodeWindow`, `Section`, `Prose`, `Callout`, `DocNav`) — landing and docs share the same design tokens.
@@ -37,13 +37,13 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 ### Non-Goals
 - NG1 — No client interactivity beyond theme toggle in v0.1.0 (static `site`, no WASM mounts yet — hydrations are next phase).
 - NG2 — No CMS, blog, or analytics in v0.1.0 (but content collections `content/` are validated for future posts; blog reuses the same pipeline).
-- NG3 — No backend; all content is Markdown/`.kiw` files — the site must stay hostable on static GitHub Pages.
+- NG3 — No backend; all content is Markdown/`.kiw` files — the build output must remain deployable as static assets in the Docker-hosted production environment.
 
 ### 4.5 Assumptions & Constraints
 
 | ID | Assumption / Constraint | Type |
 |----|-------------------------|------|
-| A1 | Host is GitHub Pages (`gh-pages` branch, root) | Assumption |
+| A1 | Production deployment uses the Krewire-hosted machine and Docker; domain configuration is separate | Assumption |
 | A2 | `krewire build` on site-kind requires only `krewire.yaml` + `pages/` (`go.mod` not required) | Constraint |
 | C1 | Config in `krewire.yaml` only; output to `site/` | Constraint |
 | C2 | Styles scoped by default (`data-kiw-*`), `:root` stays global | Constraint |
@@ -63,7 +63,7 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 | KRW-LAND-030 | Content: hero (tagline "One Go Framework. Every Workload." — Krewire's own positioning, not borrowed taglines, `kiw new my-app`, CTA), 8 workload cards, code snippet (file-based routing + .kiw DSL), ecosystem links, community placeholder | Must | MUST |
 | KRW-LAND-040 | `public/` assets (favicon, logo) copied verbatim; no extra toolchain | Must | MUST |
 | KRW-LAND-050 | `krewire build` in repo root builds deterministic `site/`; `krewire serve` previews locally | Must | MUST |
-| KRW-LAND-060 | Deploy: `gh-pages` branch contains built site at root; `krewire/.nojekyll` present; GitHub Pages serves from `gh-pages` | Must | MUST |
+| KRW-LAND-060 | Deploy: Docker production deployment serves the built site output from the Krewire-hosted machine | Must | MUST |
 
 ### Non-Functional Requirements
 
@@ -103,7 +103,7 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 
 ## 8. Rollout
 
-- Phase: Spec draft → scaffold `krewire/krewire` (krewire.yaml + pages/layouts/components/public) → `kiw build` → verify `site/` → push `main` → copy `site/` to `gh-pages` branch → enable Pages (gh-pages, root) → `curl https://krewire.github.io/krewire/` verification
+- Phase: Spec draft → scaffold `krewire/krewire` (krewire.yaml + pages/layouts/components/public) → `kiw build` → verify `site/` → push `main` → build and deploy the site to the Krewire production machine with Docker
 
 ## 9. Open Questions
 
@@ -111,7 +111,7 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 
 ## 10. Success Criteria
 
-- S1 — `https://krewire.github.io/krewire/` renders hero, 8 cards, ecosystem, footer with theme toggle (no JS required for first paint)
+- S1 — The production deployment renders the hero, 8 cards, ecosystem, footer with theme toggle (no JS required for first paint)
 - S2 — `site/index.html` byte-identical on rebuild (deterministic)
 - S3 — View-source shows `data-kiw-component`/`layout` markers, no inline YAML config
 
