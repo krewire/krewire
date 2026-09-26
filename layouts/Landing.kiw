@@ -80,7 +80,7 @@
 
 <style>
 :root{
-  --primary:#00c853;
+  --primary:#ff6b00;
   --primary-content:#ffffff;
   --bg:#ffffff;
   --bg-2:#f6f8f7;

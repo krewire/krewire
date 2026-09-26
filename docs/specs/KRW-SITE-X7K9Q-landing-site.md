@@ -55,7 +55,7 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 | ID | Requirement | Priority | RFC 2119 |
 |----|-------------|----------|----------|
 | KRW-LAND-001 | Repo `krewire/krewire` is public; `main` holds sources (`krewire.yaml`, `pages/`, `components/`, `layouts/`, `public/`, `docs/specs/`); `gh-pages` holds built `site/` (index.html, assets) | Must | MUST |
-| KRW-LAND-010 | `krewire.yaml` declares `project.kind: site`, `title`, `description`, `theme` (light #00c853 / dark #5cff8e per `framework/ui`) | Must | MUST |
+| KRW-LAND-010 | `krewire.yaml` declares `project.kind: site`, `title`, `description`, `theme` (light #ff6b00 / dark #ff8c42 per `framework/ui`) | Must | MUST |
 | KRW-LAND-011 | `pages/index.kiw` is the landing; routes extensionless (`/` → `index.html`), no trailing slashes | Must | MUST |
 | KRW-LAND-012 | `layouts/Base.kiw` provides HTML shell, `<head>` theme script (`localStorage krewire-theme`), nav, footer, content slot `{{.Content}}` | Must | MUST |
 | KRW-LAND-020 | Components: `Hero.kiw` (title, subtitle, code window, CTAs), `FeatureCard.kiw`, `Ecosystem.kiw`, `CodeWindow.kiw`, `Section.kiw` — invocable via `{{component "Hero" .}}` | Must | MUST |
@@ -92,7 +92,7 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 - Typography: display serif for hero title (70px, -0.04em tracking), sans for body (Inter/system)
 - Grid: 12-col, max-w 1280, gapped cards (rounded 16px, subtle border/shadow)
 - Hero: left copy (title, subtitle, CTAs, terminal code), right decorative code window with `.kiw` snippet
-- Code window: dark bg #0a0a0a, green accent #00c853, mono 13px, rounded, shadow
+- Code window: dark bg #0a0a0a, orange accent #ff8c42, mono 13px, rounded, shadow
 - Feature cards: icon emoji/box, title, one-line desc, hover lift
 - Ecosystem: mono list with repo links
 

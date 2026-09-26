@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --color-primary: #00c853;
-    --color-primary-light: #5cff8e;
+    --color-primary: #ff6b00;
+    --color-primary-light: #ff8c42;
     --color-muted: #6b7280;
     --color-border: rgba(10, 10, 10, 0.08);
     --color-fg: #0a0a0a;
@@ -14,8 +14,8 @@
   }
 
   .dark {
-    --color-primary: #5cff8e;
-    --color-primary-light: #00c853;
+    --color-primary: #ff8c42;
+    --color-primary-light: #ff6b00;
     --color-muted: #9ca3af;
     --color-border: rgba(246, 248, 247, 0.12);
     --color-fg: #f6f8f7;
