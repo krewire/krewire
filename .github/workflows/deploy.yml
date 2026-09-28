@@ -45,12 +45,10 @@ jobs:
           [ -d .krewire/build/docs ] && ls .krewire/build/docs/ || true
 
       - name: Publish to gh-pages (project site)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          export PATH="$PATH:$(go env GOPATH)/bin"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/krewire/krewire.git
-          kiw deploy --target gh-pages --branch gh-pages --remote origin \
-            --message "deploy: site from ${GITHUB_SHA::7}"
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .krewire/build
+          publish_branch: gh-pages
 
 
