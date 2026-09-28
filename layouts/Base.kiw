@@ -126,9 +126,9 @@
 
 <style>
 :root{
-  --primary:#00D1C1;
+  --primary:#39D353;
   --primary-content:#0B1F3B;
-  --secondary:#39D353;
+  --secondary:#00D1C1;
   --secondary-content:#0B1F3B;
   --accent:#FF3B2E;
   --accent-content:#ffffff;
