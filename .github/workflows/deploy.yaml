@@ -37,7 +37,7 @@ jobs:
         run: npm ci
 
       - name: Install kiw CLI
-        run: go install github.com/krewire/kiw/cmd/kiw@v0.1.4
+        run: go install github.com/krewire/kiw/cmd/kiw@v0.2.0
 
       - name: Build static site
         run: |
@@ -122,11 +122,18 @@ jobs:
             cd ~/workspace/krewire/krewire
             docker compose up -d --no-build
 
-            echo "▶ Waiting for health check..."
-            sleep 5
-            docker inspect --format='{{.State.Health.Status}}' krewire-web
+            echo "▶ Waiting for container healthcheck..."
+            for i in $(seq 1 15); do
+              status=$(docker inspect --format='{{.State.Health.Status}}' krewire-web 2>/dev/null || echo "unknown")
+              echo "  [poll $i/15] Health: $status"
+              if [ "$status" = "healthy" ]; then
+                echo "✓ Container is healthy!"
+                break
+              fi
+              sleep 2
+            done
 
-            echo "▶ Cleaning up old images..."
+            echo "▶ Cleaning up..."
             docker image prune -f
             rm -f /tmp/krewire-web.tar.gz
 
