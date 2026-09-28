@@ -31,7 +31,7 @@
       <a class="brand" href="/">
         <span class="brand-mark">◈</span>
         <span class="brand-text">Krewire</span>
-        {{with .Version}}<span class="badge">{{.}}</span>{{else}}<span class="badge">v0.1.0</span>{{end}}
+        <span class="badge">v0.1.0</span>
       </a>
       <nav class="links">
         <a href="/docs/getting-started">Get Started</a>

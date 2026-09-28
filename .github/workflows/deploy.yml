@@ -42,7 +42,7 @@ jobs:
           export PATH="$PATH:$(go env GOPATH)/bin"
           kiw build
           test -f .krewire/build/index.html
-          ls .krewire/build/docs/
+          [ -d .krewire/build/docs ] && ls .krewire/build/docs/ || true
 
       - name: Publish to gh-pages (project site)
         env:

@@ -10,7 +10,7 @@ layout: Landing
     <div class="hero-copy">
       <div class="eyebrow">
         <span>◈</span>
-        <span>Unified Go Framework{{with .Version}} · {{.}}{{else}} · v0.1.0{{end}} · Open Source</span>
+        <span>Unified Go Framework · v0.1.0 · Open Source</span>
       </div>
       <h1>One Go Framework.<br>Every Workload.</h1>
       <p class="lead">From single-binary web monoliths to interactive TUIs, high-speed static sites, book pipelines, background workers, microservices, cloud infra, and Go WebAssembly runtimes — build everything in Go with one CLI <code>kiw</code> and zero JS fatigue.</p>

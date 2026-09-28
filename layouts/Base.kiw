@@ -31,7 +31,7 @@
       <button class="sidebar-toggle" id="site-sidebar-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="site-sidebar">
         <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
       </button>
-      <a class="brand" href="/">Krewire{{with .Version}} <span class="badge">{{.}}</span>{{end}}</a>
+      <a class="brand" href="/">Krewire <span class="badge">v0.1.0</span></a>
       <nav class="links">
         <a href="/docs">Docs</a>
         <a href="https://github.com/krewire/framework">GitHub</a>
