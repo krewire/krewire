@@ -27,6 +27,10 @@
   --show-moon:none;
 }
 :root[data-theme="dark"], [data-theme="dark"], html[data-theme="dark"]{
+  --primary:#39D353 !important;
+  --primary-content:#0B1F3B !important;
+  --secondary:#00D1C1 !important;
+  --secondary-content:#0B1F3B !important;
   --bg:#0B1F3B;
   --bg-2:#112646;
   --fg:#FAF8F4;
