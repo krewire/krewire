@@ -43,6 +43,10 @@ jobs:
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
           kiw build
+          # Apply modern documentation stylesheet & interactive reader scripts
+          cp public/assets/mdbind.css .krewire/build/assets/mdbind.css
+          cp public/assets/docs.js .krewire/build/assets/docs.js
+          sed -i 's|</body>|<script src="/assets/docs.js"></script></body>|g' .krewire/build/docs/*.html .krewire/build/docs.html
           # Verify required outputs exist
           test -f .krewire/build/index.html
           test -d .krewire/build/assets
