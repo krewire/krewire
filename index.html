@@ -15,40 +15,110 @@
       <a class="brand" href="/">
         <span class="brand-mark">◈</span>
         <span class="brand-text">Krewire</span>
-        <span class="badge">v0.3.2</span>
+        <span class="badge">v0.1.0</span>
       </a>
       <nav class="links">
-        <a href="/docs">Docs</a>
         <a href="/docs/getting-started">Get Started</a>
-        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener">GitHub</a>
+        <a href="/docs/workloads">Workloads</a>
+        <a href="/docs/dsl">DSL</a>
+        <a href="/docs">Docs</a>
+        <a href="#ecosystem">Ecosystem</a>
       </nav>
-      <button class="theme-toggle" data-theme-toggle="" aria-label="Toggle theme" onclick="window.krewireTheme.toggle()">
-        <span class="sun">☀</span><span class="moon">☾</span>
-      </button>
+      <div class="nav-actions">
+        <a class="gh-link" href="https://github.com/krewire/krewire" target="_blank" rel="noopener">
+          <span>★</span>
+          <span>GitHub</span>
+        </a>
+        <button class="theme-toggle" data-theme-toggle="" aria-label="Toggle theme" onclick="window.krewireTheme.toggle()">
+          <span class="sun">☀</span><span class="moon">☾</span>
+        </button>
+        <button class="nav-toggler" id="nav-toggler" aria-label="Toggle navigation menu" aria-expanded="false">
+          <span class="bar bar-1"></span>
+          <span class="bar bar-2"></span>
+          <span class="bar bar-3"></span>
+        </button>
+      </div>
+    </div>
+    <div class="nav-mobile-menu" id="nav-mobile-menu">
+      <div class="mobile-menu-inner">
+        <a class="mobile-link" href="/docs/getting-started">
+          <span class="link-icon">›</span>
+          <span>Get Started</span>
+        </a>
+        <a class="mobile-link" href="/docs/workloads">
+          <span class="link-icon">▦</span>
+          <span>8 Workloads</span>
+        </a>
+        <a class="mobile-link" href="/docs/dsl">
+          <span class="link-icon">◈</span>
+          <span>Component DSL</span>
+        </a>
+        <a class="mobile-link" href="/docs">
+          <span class="link-icon">≡</span>
+          <span>Documentation</span>
+        </a>
+        <a class="mobile-link" href="#ecosystem">
+          <span class="link-icon">⬢</span>
+          <span>Ecosystem</span>
+        </a>
+        <div class="mobile-menu-divider"></div>
+        <a class="mobile-link gh-mobile" href="https://github.com/krewire/krewire" target="_blank" rel="noopener">
+          <span>★ GitHub Repository</span>
+          <span>↗</span>
+        </a>
+      </div>
     </div>
   </header>
+
   <main class="landing-main">
 <section class="hero" data-kiw-component="page:/">
   <div class="hero-inner">
     <div class="hero-copy">
-      <div class="eyebrow">Unified Go Framework · v0.3.2 · Open Source</div>
-      <h1>One Go Framework.<br/>Every Workload.</h1>
-      <p class="lead">From CLI to site, book to infra — one framework, one CLI <code>kiw</code>, one config <code>krewire.yaml</code>. Go-first, zero JS until you need it.</p>
-      <div class="ctas">
-        <a class="btn primary" href="/docs/getting-started">Get Started →</a>
-        <a class="btn" href="https://github.com/krewire/krewire" target="_blank" rel="noopener"><span>★</span> View on GitHub</a>
+      <div class="eyebrow">
+        <span>◈</span>
+        <span>Unified Go Framework · v0.1.0 · Open Source</span>
       </div>
-      <div class="meta">Go 1.22+ · File-based routing · Scoped CSS · No JS by default</div>
+      <h1>One Go Framework.<br/>Every Workload.</h1>
+      <p class="lead">From single-binary web monoliths to interactive TUIs, high-speed static sites, book pipelines, background workers, microservices, cloud infra, and Go WebAssembly runtimes — build everything in Go with one CLI <code>kiw</code> and zero JS fatigue.</p>
+      
+      
+      <div class="quick-terminal">
+        <div class="terminal-bar">
+          <span class="term-prompt">$</span>
+          <code>kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw serve</code>
+          <button class="btn-copy" onclick="copyCmd(this, &#39;kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw serve&#39;)">Copy</button>
+        </div>
+      </div>
+
+      <div class="ctas">
+        <a class="btn primary large" href="/docs/getting-started">Get Started — 5 Min →</a>
+        <a class="btn large" href="#workloads">Explore 8 Workloads ↓</a>
+        <a class="btn large" href="https://github.com/krewire/krewire" target="_blank" rel="noopener"><span>★</span> GitHub</a>
+      </div>
+      <div class="meta">Go 1.22+ · File-based routing · Scoped CSS · 100% Zero JS by default</div>
     </div>
     <div class="hero-art">
       <div class="window" data-kiw-component="CodeWindow">
-  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">krewire.kiw</span></div>
+  <div class="bar">
+    <div class="dots">
+      <span class="dot r"></span>
+      <span class="dot y"></span>
+      <span class="dot g"></span>
+    </div>
+    <span class="title">pages/index.kiw</span>
+  </div>
   <pre><code><span class="c">---</span>
-<span class="k">title:</span> Hello
-<span class="k">layout:</span> Base
+<span class="k">title:</span> Hello Krewire
+<span class="k">layout:</span> Landing
+<span class="k">workload:</span> site
 <span class="c">---</span>
 <span class="t">&lt;h1&gt;</span>{{.Title}}<span class="t">&lt;/h1&gt;</span>
-<span class="t">&lt;style&gt;</span>h1{color:var(--primary)}<span class="t">&lt;/style&gt;</span></code></pre>
+<span class="t">&lt;p&gt;</span>One Go Framework. Every Workload.<span class="t">&lt;/p&gt;</span>
+
+<span class="t">&lt;style&gt;</span>
+h1 { color: var(--primary); font-weight: 900; }
+p  { font-size: 14px; color: var(--muted); }
+<span class="t">&lt;/style&gt;</span></code></pre>
 </div>
     </div>
   </div>
@@ -57,67 +127,117 @@
 
 <section class="trust">
   <div class="trust-inner">
-    <span class="trust-label">One config, eight workloads</span>
+    <span class="trust-label">Unified Go Toolchain</span>
     <div class="trust-items">
-      <span>One CLI <code>kiw</code></span>
+      <span><b>100%</b> Go Standard Library</span>
       <span class="dot">·</span>
-      <span>One config <code>krewire.yaml</code></span>
+      <span><b>0</b> npm / 0 Bundlers</span>
       <span class="dot">·</span>
-      <span>8 workloads</span>
+      <span><b>8</b> Workloads in 1 Binary</span>
       <span class="dot">·</span>
-      <span>100% Go</span>
+      <span><b>&lt; 1ms</b> Cold Starts</span>
+      <span class="dot">·</span>
+      <span>Single Config <code>krewire.yaml</code></span>
     </div>
   </div>
 </section>
 
 
-<section class="features">
+<section class="workloads" id="workloads">
   <div class="section-inner">
     <div class="section-head">
-      <h2>One framework. Eight workloads.</h2>
-      <p>From static site to microservice — same Go, same <code>kiw</code>. Add only what you need, pay zero cost for what you don&#39;t.</p>
+      <span class="sub-badge">Unified Workload Engine</span>
+      <h2>One Framework. Eight Workloads.</h2>
+      <p>Stop assembling disparate frameworks for web, CLI, background queues, and infra. Krewire provides unified ergonomics, shared configuration, and zero context switching.</p>
     </div>
-    <div class="grid">
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">▲</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">app</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">Fullstack monolith — web + API in one binary. `kiw run`.</p>
-</div>
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">›</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">cli</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">Command-line apps with framework/tui. Bubbles-inspired.</p>
-</div>
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">◧</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">site</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">File-based .kiw DSL → static site. No JS by default.</p>
-</div>
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">≡</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">book</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">Manuscript → book via mdbind. Markdown → site.</p>
-</div>
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">⚙</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">worker</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">Job queues, cron, retries, DLQ via framework/worker.</p>
-</div>
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">⬢</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">service</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">Registry, gateway, resilience, tracing via service.</p>
-</div>
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">☁</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">infra</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">Provider-agnostic IaC → AWS/K8s via framework/infra.</p>
-</div>
-      <div class="card rounded-2xl border border-border p-5 bg-bg shadow-sm hover:-translate-y-0.5 transition" data-kiw-component="FeatureCard">
-  <div class="icon w-10 h-10 rounded-xl grid place-items-center bg-primary/10 text-lg">◈</div>
-  <h3 class="text-sm font-semibold mt-3 mb-1.5">runtime</h3>
-  <p class="text-xs text-muted leading-relaxed m-0">Go→WASM, VDOM, islands, hydration via runtime.</p>
-</div>
+    <div class="workloads-grid">
+      
+      <div class="workload-card highlight">
+        <div class="card-header">
+          <div class="workload-icon">▲</div>
+          <span class="workload-tag primary-tag">Fullstack</span>
+        </div>
+        <h3>app</h3>
+        <p>Fullstack web monolith — compile your web interface, HTTP routing, and API handlers into a single static Go binary.</p>
+        <div class="workload-cmd"><code>kiw run</code></div>
+      </div>
+
+      
+      <div class="workload-card">
+        <div class="card-header">
+          <div class="workload-icon">›_</div>
+          <span class="workload-tag">Terminal</span>
+        </div>
+        <h3>cli</h3>
+        <p>Command-line utilities and interactive TUIs powered by a Bubble Tea-inspired reactive terminal interface engine.</p>
+        <div class="workload-cmd"><code>kiw build --cli</code></div>
+      </div>
+
+      
+      <div class="workload-card">
+        <div class="card-header">
+          <div class="workload-icon">◧</div>
+          <span class="workload-tag">SSG</span>
+        </div>
+        <h3>site</h3>
+        <p>High-performance static site generator with file-based routing, scoped <code>.kiw</code> components, and zero client-side JS.</p>
+        <div class="workload-cmd"><code>kiw build --site</code></div>
+      </div>
+
+      
+      <div class="workload-card">
+        <div class="card-header">
+          <div class="workload-icon">≡</div>
+          <span class="workload-tag">Publishing</span>
+        </div>
+        <h3>book</h3>
+        <p>Turn markdown manuscripts and technical manuals into structured documentation books with automatic indexing via <code>mdbind</code>.</p>
+        <div class="workload-cmd"><code>kiw build --book</code></div>
+      </div>
+
+      
+      <div class="workload-card">
+        <div class="card-header">
+          <div class="workload-icon">⚙</div>
+          <span class="workload-tag">Async</span>
+        </div>
+        <h3>worker</h3>
+        <p>Asynchronous job queues, scheduled cron tasks, retry policies, backoff timers, and dead-letter queues via <code>framework/worker</code>.</p>
+        <div class="workload-cmd"><code>kiw run --worker</code></div>
+      </div>
+
+      
+      <div class="workload-card">
+        <div class="card-header">
+          <div class="workload-icon">⬢</div>
+          <span class="workload-tag">Microservice</span>
+        </div>
+        <h3>service</h3>
+        <p>Distributed microservice architecture with service discovery, API gateway routing, rate limiting, and OpenTelemetry tracing.</p>
+        <div class="workload-cmd"><code>kiw run --service</code></div>
+      </div>
+
+      
+      <div class="workload-card">
+        <div class="card-header">
+          <div class="workload-icon">☁</div>
+          <span class="workload-tag">Cloud IaC</span>
+        </div>
+        <h3>infra</h3>
+        <p>Provider-agnostic infrastructure-as-code compiling directly to AWS, GCP, or Kubernetes specifications from Go declarations.</p>
+        <div class="workload-cmd"><code>kiw infra apply</code></div>
+      </div>
+
+      
+      <div class="workload-card">
+        <div class="card-header">
+          <div class="workload-icon">◈</div>
+          <span class="workload-tag">WASM</span>
+        </div>
+        <h3>runtime</h3>
+        <p>Compile Go into WebAssembly with virtual DOM diffing, reactive interactive islands, and partial client hydration.</p>
+        <div class="workload-cmd"><code>kiw build --wasm</code></div>
+      </div>
     </div>
   </div>
 </section>
@@ -126,29 +246,42 @@
 <section class="how">
   <div class="section-inner">
     <div class="section-head">
-      <h2>How it works</h2>
-      <p>Three commands. Zero toolchain.</p>
+      <span class="sub-badge">Developer Workflow</span>
+      <h2>From Zero to Production in 3 Commands</h2>
+      <p>No toolchain fatigue, no breaking npm dependency trees, and zero build configuration hurdles.</p>
     </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-top">
+          <div class="step-number">1</div>
+          <span class="step-tag">Scaffold</span>
+        </div>
         <h3>kiw new</h3>
-        <p>Scaffold a <code>site</code>, <code>book</code>, <code>app</code> or <code>cli</code> in seconds.</p>
-        <pre><code>kiw new my-site --site
+        <p>Generate a production-ready project template for any workload in under one second.</p>
+        <pre class="term-pre"><code>kiw new my-site --site
 cd my-site</code></pre>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h3>kiw build</h3>
-        <p>Build static or binary. Scoped CSS, file-based routing, no config.</p>
-        <pre><code>kiw build
-# → .krewire/build/</code></pre>
+
+      <div class="step-card">
+        <div class="step-top">
+          <div class="step-number">2</div>
+          <span class="step-tag">Develop</span>
+        </div>
+        <h3>kiw dev</h3>
+        <p>Instant hot-reload local development server with file-based routing and scoped CSS updates.</p>
+        <pre class="term-pre"><code>kiw dev
+# ⚡ Ready at http://localhost:3000</code></pre>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
+
+      <div class="step-card">
+        <div class="step-top">
+          <div class="step-number">3</div>
+          <span class="step-tag">Deploy</span>
+        </div>
         <h3>kiw deploy</h3>
-        <p>Deploy to GitHub Pages or your infra. One command.</p>
-        <pre><code>kiw deploy --target gh-pages</code></pre>
+        <p>Compile into a single static binary or static asset bundle and ship to GitHub Pages or Docker.</p>
+        <pre class="term-pre"><code>kiw deploy --target gh-pages
+# ✓ Deployed successfully!</code></pre>
       </div>
     </div>
   </div>
@@ -158,23 +291,30 @@ cd my-site</code></pre>
 <section class="why">
   <div class="section-inner">
     <div class="section-head">
-      <h2>Go-first. Progressive. Zero bloat.</h2>
+      <span class="sub-badge">Architecture &amp; Philosophy</span>
+      <h2>Go-First. Progressive. Zero Bloat.</h2>
+      <p>Built for engineers who value compilation speed, predictable deployments, and maintainable software architecture.</p>
     </div>
     <div class="why-grid">
       <div class="why-card">
-        <div class="why-icon">◈</div>
-        <h3>Go-first</h3>
-        <p>Write everything in Go. No JS toolchain until you opt into <code>runtime</code> WASM.</p>
+        <div class="why-icon-box">◈</div>
+        <h3>Pure Go Toolchain</h3>
+        <p>No Node.js, no npm dependencies, and no bundler configuration. Your entire application compiles with standard Go tooling into clean, self-contained binaries.</p>
       </div>
       <div class="why-card">
-        <div class="why-icon">◧</div>
-        <h3>File-based</h3>
-        <p><code>pages/*.kiw</code> with frontmatter + HTML + scoped <code>&lt;style&gt;</code>. No config hell.</p>
+        <div class="why-icon-box">◧</div>
+        <h3>Scoped .kiw Components</h3>
+        <p>Combines YAML frontmatter, standard Go HTML templates, and scoped <code>&lt;style&gt;</code> blocks. CSS classes never leak outside their component boundary.</p>
       </div>
       <div class="why-card">
-        <div class="why-icon">☰</div>
-        <h3>One CLI</h3>
-        <p><code>kiw build</code>, <code>kiw serve</code>, <code>kiw deploy</code> for every workload.</p>
+        <div class="why-icon-box">⚡</div>
+        <h3>Progressive Scaling</h3>
+        <p>Start as a lightweight static site, grow into a fullstack web monolith, then seamlessly extract background workers and microservices — all within the same ecosystem.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon-box">🛡</div>
+        <h3>Enterprise Resilience</h3>
+        <p>Engineered with production defaults: structured JSON logging, distributed tracing, health checks, circuit breakers, and graceful shutdown out of the box.</p>
       </div>
     </div>
   </div>
@@ -182,87 +322,181 @@ cd my-site</code></pre>
 
 
 <section class="showcase">
-  <div class="section-inner showcase-inner">
-    <div>
-      <h2>Write pages as <code>.kiw</code></h2>
-      <p>Frontmatter + HTML + scoped CSS. No npm, no bundler.</p>
-      <pre class="code"><code>---
-title: Hello
-layout: Base
----
-&lt;h1&gt;{{.Title}}&lt;/h1&gt;
-&lt;style&gt;h1{color:var(--primary)}&lt;/style&gt;</code></pre>
-      <div class="ctas">
-        <a class="btn primary" href="/docs/dsl">Explore the DSL →</a>
-        <a class="btn" href="/docs/getting-started">Read the docs →</a>
-      </div>
+  <div class="section-inner">
+    <div class="section-head">
+      <span class="sub-badge">Component DSL</span>
+      <h2>Write Pages as Clean .kiw Components</h2>
+      <p>The elegance of Svelte and Astro brought to Go. Frontmatter + HTML + scoped CSS in one intuitive file.</p>
     </div>
-    <div class="showcase-card">
-      <div class="card-head">Why scoped CSS?</div>
-      <p>Every <code>.kiw</code> component gets <code>data-kiw-component</code> scoping automatically. Like Svelte/Astro — zero setup, zero leaks.</p>
-      <ul>
-        <li>✓ Scoped by default</li>
-        <li>✓ Global via <code>:root</code></li>
-        <li>✓ Theme with <code>ui.Theme</code></li>
-      </ul>
+    <div class="showcase-grid">
+      <div class="showcase-code-panel">
+        <div class="panel-header">
+          <div class="panel-dots">
+            <span class="p-dot r"></span>
+            <span class="p-dot y"></span>
+            <span class="p-dot g"></span>
+          </div>
+          <span class="panel-file">pages/index.kiw</span>
+        </div>
+        <pre class="panel-pre"><code><span class="c">---</span>
+<span class="k">title:</span> &#34;Welcome to Krewire&#34;
+<span class="k">layout:</span> Landing
+<span class="k">workload:</span> site
+<span class="c">---</span>
+
+<span class="t">&lt;section class=&#34;welcome&#34;&gt;</span>
+  <span class="t">&lt;h1&gt;</span>{{.Title}}<span class="t">&lt;/h1&gt;</span>
+  <span class="t">&lt;p&gt;</span>Compiled Go speed with zero runtime bloat.<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;/section&gt;</span>
+
+<span class="t">&lt;style&gt;</span>
+.welcome { padding: 40px 0; text-align: center; }
+h1 { color: var(--primary); font-weight: 900; }
+p  { font-size: 15px; color: var(--muted); }
+<span class="t">&lt;/style&gt;</span></code></pre>
+        <div class="panel-footer">
+          <a class="btn primary" href="/docs/dsl">Explore DSL Syntax →</a>
+          <a class="btn" href="/docs/getting-started">Read the Docs</a>
+        </div>
+      </div>
+
+      <div class="showcase-feature-panel">
+        <div class="feature-panel-card">
+          <div class="fpc-head">
+            <span class="fpc-badge">Scoping</span>
+            <h3>Why Scoped CSS in Go?</h3>
+          </div>
+          <p>Every <code>.kiw</code> component receives automatic <code>data-kiw-component</code> scope hashing at build time. No CSS collisions, no naming gymnastics, zero runtime cost.</p>
+          <ul class="fpc-list">
+            <li><span>✓</span> <b>Scoped by Default:</b> Styles remain strictly isolated to the component.</li>
+            <li><span>✓</span> <b>Global CSS via <code>:root</code>:</b> Theme tokens cascade cleanly across layouts.</li>
+            <li><span>✓</span> <b>No Bundler Required:</b> Built directly by the Go compiler without npm.</li>
+            <li><span>✓</span> <b>Light &amp; Dark Mode:</b> Native token switching via <code>data-theme</code>.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 
-<section class="eco" data-kiw-component="Ecosystem">
-  <h2>Ecosystem — one <code>kiw</code> for everything</h2>
-  <div class="grid">
-    <a class="item" href="https://github.com/krewire/framework"><b>framework</b><span>app · web · ui · runtime · worker · service · infra</span></a>
-    <a class="item" href="https://github.com/krewire/libs"><b>libs</b><span>core + kern · config · validate · term</span></a>
-    <a class="item" href="https://github.com/krewire/mdbind"><b>mdbind</b><span>book → site pipeline</span></a>
-    <a class="item" href="https://github.com/krewire/guild"><b>guild</b><span>AI agent template</span></a>
-    <a class="item" href="https://github.com/krewire/kiw"><b>kiw</b><span>build · serve · dev · deploy</span></a>
+<section class="eco" id="ecosystem" data-kiw-component="Ecosystem">
+  <div class="eco-head">
+    <span class="sub-badge">Official Ecosystem</span>
+    <h2>Ecosystem — One <code>kiw</code> for Everything</h2>
+    <p>Modular, high-performance Go libraries engineered to build every workload together or standalone.</p>
+  </div>
+  <div class="eco-grid">
+    <a class="eco-card" href="https://github.com/krewire/framework" target="_blank" rel="noopener">
+      <div class="eco-card-top">
+        <span class="eco-badge core">Core Engine</span>
+        <span class="eco-arrow">↗</span>
+      </div>
+      <h3>framework</h3>
+      <p>App · web · UI · runtime · worker · service · infra workloads in unified Go.</p>
+      <div class="eco-code"><code>github.com/krewire/framework</code></div>
+    </a>
+    <a class="eco-card" href="https://github.com/krewire/kiw" target="_blank" rel="noopener">
+      <div class="eco-card-top">
+        <span class="eco-badge cli">Developer CLI</span>
+        <span class="eco-arrow">↗</span>
+      </div>
+      <h3>kiw</h3>
+      <p>Developer multi-tool: instant scaffolding, fast builds, dev server, and deployment.</p>
+      <div class="eco-code"><code>github.com/krewire/kiw</code></div>
+    </a>
+    <a class="eco-card" href="https://github.com/krewire/libs" target="_blank" rel="noopener">
+      <div class="eco-card-top">
+        <span class="eco-badge libs">Foundation</span>
+        <span class="eco-arrow">↗</span>
+      </div>
+      <h3>libs</h3>
+      <p>Zero-dependency foundation: config loader, validation, terminal UI, and logging.</p>
+      <div class="eco-code"><code>github.com/krewire/libs</code></div>
+    </a>
+    <a class="eco-card" href="https://github.com/krewire/mdbind" target="_blank" rel="noopener">
+      <div class="eco-card-top">
+        <span class="eco-badge tool">Pipeline</span>
+        <span class="eco-arrow">↗</span>
+      </div>
+      <h3>mdbind</h3>
+      <p>Manuscript-to-book engine: structured markdown, frontmatter, and search indexing.</p>
+      <div class="eco-code"><code>github.com/krewire/mdbind</code></div>
+    </a>
+    <a class="eco-card" href="https://github.com/krewire/boost" target="_blank" rel="noopener">
+      <div class="eco-card-top">
+        <span class="eco-badge boost">AI Agents</span>
+        <span class="eco-arrow">↗</span>
+      </div>
+      <h3>boost</h3>
+      <p>Autonomous AI pair programming workflows, roles, and contributor guidelines.</p>
+      <div class="eco-code"><code>github.com/krewire/boost</code></div>
+    </a>
   </div>
 </section>
 
 
 <section class="final-cta">
-  <div class="cta-card">
-    <h2>Ready to build?</h2>
-    <p>Start with a site, scale to a monolith, then to services — same repo, same CLI.</p>
-    <div class="ctas">
-      <a class="btn primary large" href="/docs/getting-started">Get Started — 5 min →</a>
-      <a class="btn large" href="https://github.com/krewire/krewire" target="_blank" rel="noopener">Star on GitHub</a>
+  <div class="section-inner">
+    <div class="cta-card">
+      <span class="sub-badge">Ready to Build</span>
+      <h2>Start Building with Krewire Today</h2>
+      <p>Start with a lightweight static site, scale to a web monolith, then to distributed cloud services — one repository, one CLI, one configuration.</p>
+      <div class="cta-actions">
+        <a class="btn primary large" href="/docs/getting-started">Get Started — 5 Min →</a>
+        <a class="btn large" href="https://github.com/krewire/krewire" target="_blank" rel="noopener"><span>★</span> Star on GitHub</a>
+      </div>
+      <div class="cta-terminal">
+        <code>kiw new my-app &amp;&amp; cd my-app &amp;&amp; kiw serve</code>
+      </div>
     </div>
-    <div class="cta-meta"><code>kiw new my-app &amp;&amp; cd my-app &amp;&amp; kiw serve</code> — that&#39;s it.</div>
   </div>
 </section></main>
+
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-grid">
-        <div>
+        <div class="footer-brand-col">
           <div class="footer-brand"><span class="brand-mark">◈</span> Krewire</div>
           <p class="footer-desc">One Go Framework for Every Workload.<br/>One CLI <code>kiw</code>, one config <code>krewire.yaml</code>.</p>
+          <div class="footer-pill">Compiled Go · Zero Bloat</div>
         </div>
         <div class="footer-col">
-          <strong>Workloads</strong>
-          <a href="/docs/workloads">app · cli · site · book</a>
-          <a href="/docs/workloads">worker · service · infra · runtime</a>
+          <strong>8 Workloads</strong>
+          <a href="/docs/workloads#app">app — Fullstack Monolith</a>
+          <a href="/docs/workloads#cli">cli — Terminal TUI</a>
+          <a href="/docs/workloads#site">site — Scoped SSG</a>
+          <a href="/docs/workloads#book">book — Docs &amp; Books</a>
+          <a href="/docs/workloads#worker">worker — Async Queues</a>
+          <a href="/docs/workloads#service">service — Microservices</a>
+          <a href="/docs/workloads#infra">infra — Cloud IaC</a>
+          <a href="/docs/workloads#runtime">runtime — Go WASM</a>
         </div>
         <div class="footer-col">
-          <strong>Resources</strong>
-          <a href="/docs/getting-started">Getting Started</a>
-          <a href="/docs">Documentation</a>
-          <a href="https://github.com/krewire/framework/tree/main/docs/specs">Specs</a>
+          <strong>Documentation</strong>
+          <a href="/docs/getting-started">Getting Started (5 min)</a>
+          <a href="/docs/workloads">Workloads Architecture</a>
+          <a href="/docs/dsl">Component DSL (.kiw)</a>
+          <a href="/docs/security-and-api">Security &amp; HTTP API</a>
+          <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener">Engineering Specs</a>
         </div>
         <div class="footer-col">
-          <strong>Community</strong>
-          <a href="https://github.com/krewire/krewire">GitHub</a>
-          <a href="https://github.com/orgs/krewire/discussions">Forum</a>
-          <a href="https://github.com/krewire/framework">Framework</a>
+          <strong>Ecosystem</strong>
+          <a href="https://github.com/krewire/framework" target="_blank" rel="noopener">krewire/framework</a>
+          <a href="https://github.com/krewire/kiw" target="_blank" rel="noopener">krewire/kiw</a>
+          <a href="https://github.com/krewire/libs" target="_blank" rel="noopener">krewire/libs</a>
+          <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener">krewire/mdbind</a>
+          <a href="https://github.com/krewire/boost" target="_blank" rel="noopener">krewire/boost</a>
+          <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener">Community Forum</a>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 Krewire Contributors — Built 100% with Krewire <code>site</code> workload.</span>
-        <span><a href="https://github.com/krewire">github.com/krewire</a></span>
+        <span>© 2026 Krewire Contributors — 100% built with Krewire <code>site</code> workload.</span>
+        <span><a href="https://github.com/krewire" target="_blank" rel="noopener">github.com/krewire</a></span>
       </div>
     </div>
   </footer>
+
+  
 
 </body></html>
