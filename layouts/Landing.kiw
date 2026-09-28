@@ -27,570 +27,209 @@
   </script>
 </head>
 <body>
-  <header class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="/">
-        <span class="brand-mark">◈</span>
-        <span class="brand-text">Krewire</span>
-        <span class="badge">v0.1.0</span>
+
+  <!-- NAV -->
+  <header class="sticky top-0 z-50 bg-bg dark:bg-bg-dark border-b border-pop w-full" style="border-bottom:var(--pop-border)">
+    <div class="container-site flex items-center justify-between gap-3 py-3">
+
+      <!-- Brand -->
+      <a href="/" class="flex items-center gap-2 font-black tracking-tight text-fg dark:text-fg-dark shrink-0 no-underline hover:no-underline hover:text-fg dark:hover:text-fg-dark">
+        <span class="icon-box bg-primary text-primary-content w-8 h-8 text-base">◈</span>
+        <span class="text-base font-black tracking-tighter">Krewire</span>
+        <span class="badge badge-secondary font-mono text-2xs">v0.1.0</span>
       </a>
-      <nav class="links">
-        <a href="/docs/getting-started">Get Started</a>
-        <a href="/docs/workloads">Workloads</a>
-        <a href="/docs/dsl">DSL</a>
-        <a href="/docs">Docs</a>
-        <a href="#ecosystem">Ecosystem</a>
+
+      <!-- Desktop nav links -->
+      <nav class="hidden md:flex items-center gap-1 ml-auto">
+        <a href="/docs/getting-started" class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Get Started</a>
+        <a href="/docs/workloads"        class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Workloads</a>
+        <a href="/docs/dsl"             class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">DSL</a>
+        <a href="/docs"                 class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Docs</a>
+        <a href="#ecosystem"            class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Ecosystem</a>
       </nav>
-      <div class="nav-actions">
-        <a class="gh-link" href="https://github.com/krewire/krewire" target="_blank" rel="noopener">
-          <span>★</span>
-          <span>GitHub</span>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2">
+        <!-- GitHub button (desktop only) -->
+        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener"
+           class="hidden md:inline-flex items-center gap-1.5 btn btn-primary text-xs px-4 py-2 min-h-0">
+          <span>★</span><span>GitHub</span>
         </a>
-        <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme" onclick="window.krewireTheme.toggle()">
-          <span class="sun">☀</span><span class="moon">☾</span>
+
+        <!-- Theme toggle -->
+        <button onclick="window.krewireTheme.toggle()" aria-label="Toggle theme"
+                class="btn w-9 h-9 p-0 min-h-0 text-base">
+          <span class="sun-icon">☀</span><span class="moon-icon">☾</span>
         </button>
-        <button class="nav-toggler" id="nav-toggler" aria-label="Toggle navigation menu" aria-expanded="false">
-          <span class="bar bar-1"></span>
-          <span class="bar bar-2"></span>
-          <span class="bar bar-3"></span>
+
+        <!-- Hamburger (mobile only) -->
+        <button id="nav-toggler" aria-label="Toggle menu" aria-expanded="false"
+                class="md:hidden btn w-9 h-9 p-0 min-h-0 flex-col gap-1 justify-center items-center">
+          <span class="nav-bar block w-4 h-0.5 bg-fg dark:bg-fg-dark rounded transition-all duration-200"></span>
+          <span class="nav-bar block w-4 h-0.5 bg-fg dark:bg-fg-dark rounded transition-all duration-200"></span>
+          <span class="nav-bar block w-4 h-0.5 bg-fg dark:bg-fg-dark rounded transition-all duration-200"></span>
         </button>
       </div>
     </div>
-    <div class="nav-mobile-menu" id="nav-mobile-menu">
-      <div class="mobile-menu-inner">
-        <a class="mobile-link" href="/docs/getting-started">
-          <span class="link-icon">›</span>
-          <span>Get Started</span>
+
+    <!-- Mobile dropdown -->
+    <div id="nav-mobile-menu"
+         class="md:hidden absolute top-full left-0 w-full bg-bg dark:bg-bg-dark opacity-0 pointer-events-none -translate-y-2 transition-all duration-200"
+         style="border-bottom:var(--pop-border); box-shadow: 0 8px 0 rgba(0,0,0,0.1)">
+      <div class="container-site flex flex-col gap-1 py-4">
+        <a href="/docs/getting-started" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+          <span class="text-primary w-4">›</span> Get Started
         </a>
-        <a class="mobile-link" href="/docs/workloads">
-          <span class="link-icon">▦</span>
-          <span>8 Workloads</span>
+        <a href="/docs/workloads"        class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+          <span class="text-primary w-4">▦</span> 8 Workloads
         </a>
-        <a class="mobile-link" href="/docs/dsl">
-          <span class="link-icon">◈</span>
-          <span>Component DSL</span>
+        <a href="/docs/dsl"             class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+          <span class="text-primary w-4">◈</span> Component DSL
         </a>
-        <a class="mobile-link" href="/docs">
-          <span class="link-icon">≡</span>
-          <span>Documentation</span>
+        <a href="/docs"                 class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+          <span class="text-primary w-4">≡</span> Documentation
         </a>
-        <a class="mobile-link" href="#ecosystem">
-          <span class="link-icon">⬢</span>
-          <span>Ecosystem</span>
+        <a href="#ecosystem"            class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+          <span class="text-primary w-4">⬢</span> Ecosystem
         </a>
-        <div class="mobile-menu-divider"></div>
-        <a class="mobile-link gh-mobile" href="https://github.com/krewire/krewire" target="_blank" rel="noopener">
-          <span>★ GitHub Repository</span>
-          <span>↗</span>
+        <hr class="my-1" style="border-color:var(--pop-border); border-width:1.5px">
+        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener"
+           class="mobile-link flex items-center justify-between gap-3 px-3 py-3 rounded-lg font-extrabold text-sm min-h-[44px] btn-primary transition-all duration-150"
+           style="border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">
+          <span>★ GitHub Repository</span><span>↗</span>
         </a>
       </div>
     </div>
   </header>
 
-  <main class="landing-main">{{.Content}}</main>
+  <!-- PAGE CONTENT -->
+  <main>{{.Content}}</main>
 
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-grid">
-        <div class="footer-brand-col">
-          <div class="footer-brand"><span class="brand-mark">◈</span> Krewire</div>
-          <p class="footer-desc">One Go Framework for Every Workload.<br>One CLI <code>kiw</code>, one config <code>krewire.yaml</code>.</p>
-          <div class="footer-pill">Compiled Go · Zero Bloat</div>
+  <!-- FOOTER -->
+  <footer class="bg-bg-2 dark:bg-bg-dark-2" style="border-top:var(--pop-border)">
+    <div class="container-site pt-12 pb-8">
+
+      <!-- Footer grid: 1 col → sm: 2 col → md: 4 col -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8" style="border-bottom:var(--pop-border-thin)">
+
+        <!-- Brand col -->
+        <div class="sm:col-span-2 md:col-span-1">
+          <div class="flex items-center gap-2 font-black text-lg mb-3">
+            <span class="icon-box bg-primary text-primary-content w-7 h-7 text-sm">◈</span>
+            Krewire
+          </div>
+          <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-4">
+            One Go Framework for Every Workload.<br>
+            One CLI <code class="code-inline">kiw</code>, one config <code class="code-inline">krewire.yaml</code>.
+          </p>
+          <span class="badge badge-secondary text-2xs">Compiled Go · Zero Bloat</span>
         </div>
-        <div class="footer-col">
-          <strong>8 Workloads</strong>
-          <a href="/docs/workloads#app">app — Fullstack Monolith</a>
-          <a href="/docs/workloads#cli">cli — Terminal TUI</a>
-          <a href="/docs/workloads#site">site — Scoped SSG</a>
-          <a href="/docs/workloads#book">book — Docs & Books</a>
-          <a href="/docs/workloads#worker">worker — Async Queues</a>
-          <a href="/docs/workloads#service">service — Microservices</a>
-          <a href="/docs/workloads#infra">infra — Cloud IaC</a>
-          <a href="/docs/workloads#runtime">runtime — Go WASM</a>
+
+        <!-- Workloads col -->
+        <div class="flex flex-col gap-2">
+          <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">8 Workloads</strong>
+          <a href="/docs/workloads#app"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
+          <a href="/docs/workloads#cli"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
+          <a href="/docs/workloads#site"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
+          <a href="/docs/workloads#book"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs &amp; Books</a>
+          <a href="/docs/workloads#worker"  class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
+          <a href="/docs/workloads#service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
+          <a href="/docs/workloads#infra"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
+          <a href="/docs/workloads#runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
         </div>
-        <div class="footer-col">
-          <strong>Documentation</strong>
-          <a href="/docs/getting-started">Getting Started (5 min)</a>
-          <a href="/docs/workloads">Workloads Architecture</a>
-          <a href="/docs/dsl">Component DSL (.kiw)</a>
-          <a href="/docs/security-and-api">Security & HTTP API</a>
-          <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener">Engineering Specs</a>
+
+        <!-- Docs col -->
+        <div class="flex flex-col gap-2">
+          <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Documentation</strong>
+          <a href="/docs/getting-started"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Getting Started (5 min)</a>
+          <a href="/docs/workloads"           class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Workloads Architecture</a>
+          <a href="/docs/dsl"                 class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Component DSL (.kiw)</a>
+          <a href="/docs/security-and-api"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Security &amp; HTTP API</a>
+          <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener"
+             class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Engineering Specs</a>
         </div>
-        <div class="footer-col">
-          <strong>Ecosystem</strong>
-          <a href="https://github.com/krewire/framework" target="_blank" rel="noopener">krewire/framework</a>
-          <a href="https://github.com/krewire/kiw" target="_blank" rel="noopener">krewire/kiw</a>
-          <a href="https://github.com/krewire/libs" target="_blank" rel="noopener">krewire/libs</a>
-          <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener">krewire/mdbind</a>
-          <a href="https://github.com/krewire/boost" target="_blank" rel="noopener">krewire/boost</a>
-          <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener">Community Forum</a>
+
+        <!-- Ecosystem col -->
+        <div class="flex flex-col gap-2">
+          <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Ecosystem</strong>
+          <a href="https://github.com/krewire/framework" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/framework</a>
+          <a href="https://github.com/krewire/kiw"       target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/kiw</a>
+          <a href="https://github.com/krewire/libs"      target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/libs</a>
+          <a href="https://github.com/krewire/mdbind"    target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/mdbind</a>
+          <a href="https://github.com/krewire/boost"     target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/boost</a>
+          <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Community Forum</a>
         </div>
       </div>
-      <div class="footer-bottom">
-        <span>© 2026 Krewire Contributors — 100% built with Krewire <code>site</code> workload.</span>
-        <span><a href="https://github.com/krewire" target="_blank" rel="noopener">github.com/krewire</a></span>
+
+      <!-- Footer bottom -->
+      <div class="pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-xs font-semibold text-muted dark:text-muted-dark">
+        <span>© 2026 Krewire Contributors — 100% built with Krewire <code class="code-inline">site</code> workload.</span>
+        <a href="https://github.com/krewire" target="_blank" rel="noopener" class="hover:text-primary transition-colors">github.com/krewire</a>
       </div>
     </div>
   </footer>
 
+  <!-- Mobile menu JS -->
   <script>
     (function(){
       var toggler = document.getElementById('nav-toggler');
-      var menu = document.getElementById('nav-mobile-menu');
-      if(toggler && menu){
-        toggler.addEventListener('click', function(){
-          var open = menu.classList.toggle('is-open');
-          toggler.classList.toggle('is-active', open);
-          toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
+      var menu    = document.getElementById('nav-mobile-menu');
+      if(!toggler || !menu) return;
+      toggler.addEventListener('click', function(){
+        var open = menu.classList.toggle('menu-open');
+        toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if(open){
+          menu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+          menu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+        } else {
+          menu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+          menu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+        }
+      });
+      menu.querySelectorAll('a').forEach(function(l){
+        l.addEventListener('click', function(){
+          menu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+          menu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0', 'menu-open');
+          toggler.setAttribute('aria-expanded', 'false');
         });
-        menu.querySelectorAll('a').forEach(function(l){
-          l.addEventListener('click', function(){
-            menu.classList.remove('is-open');
-            toggler.classList.remove('is-active');
-            toggler.setAttribute('aria-expanded', 'false');
-          });
-        });
-      }
+      });
     })();
   </script>
 </body>
 </html>
 
 <style>
-:root{
-  --primary:#39D353;
-  --primary-content:#0B1F3B;
-  --secondary:#00D1C1;
-  --secondary-content:#0B1F3B;
-  --accent:#FF3B2E;
-  --accent-content:#ffffff;
-  --success:#39D353;
-  --warning:#ffb703;
-  --error:#FF3B2E;
-  --info:#00D1C1;
-  --bg:#FAF8F4;
-  --bg-2:#f2ede4;
-  --fg:#0B1F3B;
-  --muted:#57677d;
-  --border:#0B1F3B;
-  --border-subtle:rgba(11,31,59,.18);
-  --pop-border:2.5px solid #0B1F3B;
-  --pop-border-thin:2px solid #0B1F3B;
-  --pop-shadow:4px 4px 0px #0B1F3B;
-  --pop-shadow-lg:6px 6px 0px #0B1F3B;
-  --pop-shadow-sm:2px 2px 0px #0B1F3B;
-  --dot-color:rgba(11,31,59,.08);
-  --radius:10px;
-  --shadow:4px 4px 0px #0B1F3B;
-  --show-sun:inline;
-  --show-moon:none;
+/* Only what Tailwind can't express: CSS var-driven pop-shadow on dark
+   and the theme-css-var tokens for style.css compatibility */
+:root {
+  --primary: #39D353;
+  --primary-content: #0B1F3B;
+  --secondary: #00D1C1;
+  --secondary-content: #0B1F3B;
+  --accent: #FF3B2E;
+  --accent-content: #ffffff;
+  --bg: #FAF8F4;
+  --bg-2: #f2ede4;
+  --fg: #0B1F3B;
+  --muted: #57677d;
+  --border: #0B1F3B;
+  --border-subtle: rgba(11,31,59,.18);
+  --radius: 10px;
+  --success: #39D353;
+  --warning: #ffb703;
+  --error: #FF3B2E;
+  --info: #00D1C1;
 }
-:root[data-theme="dark"], [data-theme="dark"], html[data-theme="dark"]{
-  --primary:#39D353 !important;
-  --primary-content:#0B1F3B !important;
-  --secondary:#00D1C1 !important;
-  --secondary-content:#0B1F3B !important;
-  --bg:#0B1F3B;
-  --bg-2:#112646;
-  --fg:#FAF8F4;
-  --muted:#9ab0ce;
-  --border:#FAF8F4;
-  --border-subtle:rgba(250,248,244,.2);
-  --pop-border:2.5px solid #FAF8F4;
-  --pop-border-thin:2px solid #FAF8F4;
-  --pop-shadow:4px 4px 0px #39D353;
-  --pop-shadow-lg:6px 6px 0px #39D353;
-  --pop-shadow-sm:2px 2px 0px #39D353;
-  --dot-color:rgba(250,248,244,.08);
-  --shadow:4px 4px 0px #39D353;
-  --show-sun:none;
-  --show-moon:inline;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, sans-serif;
-  background:var(--bg);
-  color:var(--fg);
-  line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-}
-a{color:inherit;text-decoration:none}
-a:hover{color:var(--primary)}
-
-/* NAVBAR */
-.nav{
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:var(--bg);
-  border-bottom:var(--pop-border);
-  width:100%;
-}
-.nav-inner{
-  max-width:80rem;
-  margin:0 auto;
-  padding:12px 16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-.brand{
-  font-weight:900;
-  letter-spacing:-.03em;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:16px;
-  flex-shrink:0;
-}
-.brand-mark{
-  width:32px;
-  height:32px;
-  display:grid;
-  place-items:center;
-  border-radius:8px;
-  background:var(--primary);
-  color:var(--primary-content);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  font-size:16px;
-  line-height:1;
-  font-weight:900;
-}
-.brand-text{font-weight:900;letter-spacing:-.03em}
-.brand .badge{
-  font-size:10.5px;
-  font-weight:900;
-  padding:2px 7px;
-  border-radius:6px;
-  background:var(--secondary);
-  color:var(--secondary-content);
-  border:1.5px solid var(--border);
-  box-shadow:1.5px 1.5px 0px var(--border);
-  font-family:ui-monospace, monospace;
-}
-
-/* DESKTOP LINKS */
-.links{
-  display:none;
-  margin-left:auto;
-  gap:18px;
-  font-size:13.5px;
-  align-items:center;
-}
-.links a{
-  color:var(--fg);
-  font-weight:700;
-  padding:4px 8px;
-  border-radius:6px;
-  transition:all .15s ease;
-}
-.links a:hover{
-  background:var(--bg-2);
-  color:var(--primary);
-}
-
-/* NAV ACTIONS */
-.nav-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.gh-link{
-  display:none;
-  align-items:center;
-  gap:6px;
-  padding:6px 14px;
-  border-radius:8px;
-  border:var(--pop-border-thin);
-  background:var(--secondary);
-  color:var(--secondary-content);
-  box-shadow:var(--pop-shadow-sm);
-  font-size:13px;
-  font-weight:900;
-  transition:all .15s ease;
-}
-.gh-link:hover{
-  transform:translate(-1px, -1px);
-  box-shadow:3px 3px 0px var(--border);
-  background:var(--primary);
-  color:var(--primary-content);
-}
-.gh-link:active{
-  transform:translate(1px, 1px);
-  box-shadow:1px 1px 0px var(--border);
-}
-
-.theme-toggle{
-  width:36px;
-  height:36px;
-  border:var(--pop-border-thin);
-  background:var(--bg);
-  border-radius:8px;
-  box-shadow:var(--pop-shadow-sm);
-  cursor:pointer;
-  color:var(--fg);
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  font-size:14px;
-  transition:all .15s ease;
-  flex-shrink:0;
-}
-.theme-toggle:hover{
-  transform:translate(-1px, -1px);
-  box-shadow:3px 3px 0px var(--border);
-  background:var(--bg-2);
-}
-.theme-toggle:active{
-  transform:translate(1px, 1px);
-  box-shadow:1px 1px 0px var(--border);
-}
-.theme-toggle .sun{display:var(--show-sun)}
-.theme-toggle .moon{display:var(--show-moon)}
-
-/* HAMBURGER */
-.nav-toggler{
-  display:flex;
-  width:36px;
-  height:36px;
-  padding:0;
-  background:var(--bg);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  border-radius:8px;
-  cursor:pointer;
-  flex-direction:column;
-  justify-content:center;
-  gap:4.5px;
-  align-items:center;
-  transition:all .15s ease;
-  flex-shrink:0;
-}
-.nav-toggler:hover{
-  transform:translate(-1px, -1px);
-  box-shadow:3px 3px 0px var(--border);
-  background:var(--bg-2);
-}
-.nav-toggler:active{
-  transform:translate(1px, 1px);
-  box-shadow:1px 1px 0px var(--border);
-}
-.nav-toggler .bar{
-  display:block;
-  width:16px;
-  height:2.5px;
-  background:var(--fg);
-  border-radius:2px;
-  transition:all .2s ease-in-out;
-  transform-origin:center;
-}
-.nav-toggler.is-active .bar-1{
-  transform:translateY(7px) rotate(45deg);
-}
-.nav-toggler.is-active .bar-2{
-  opacity:0;
-  transform:scaleX(0);
-}
-.nav-toggler.is-active .bar-3{
-  transform:translateY(-7px) rotate(-45deg);
-}
-
-/* MOBILE DROPDOWN MENU */
-.nav-mobile-menu{
-  position:absolute;
-  top:100%;
-  left:0;
-  width:100%;
-  background:var(--bg);
-  border-bottom:var(--pop-border);
-  box-shadow:0 12px 0px rgba(0,0,0,0.12);
-  padding:14px 16px 20px;
-  transform:translateY(-8px);
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .2s ease, transform .2s ease;
-}
-.nav-mobile-menu.is-open{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
-}
-.mobile-menu-inner{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  max-width:80rem;
-  margin:0 auto;
-}
-.mobile-link{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:11px 14px;
-  border-radius:8px;
-  border:1.5px solid transparent;
-  font-size:14px;
-  font-weight:800;
-  color:var(--fg);
-  transition:all .15s ease;
-  min-height:44px;
-}
-.mobile-link:hover, .mobile-link:active{
-  background:var(--bg-2);
-  border-color:var(--border);
-  box-shadow:var(--pop-shadow-sm);
-  color:var(--fg);
-  transform:translateX(2px);
-}
-.mobile-link .link-icon{
-  width:20px;
-  display:grid;
-  place-items:center;
-  color:var(--primary);
-  font-size:14px;
-}
-.mobile-menu-divider{
-  height:2px;
-  background:var(--border);
-  margin:8px 0;
-}
-.gh-mobile{
-  background:var(--secondary);
-  color:var(--secondary-content);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  justify-content:space-between;
-}
-.gh-mobile:hover{
-  background:var(--primary);
-  color:var(--primary-content);
-}
-
-/* FOOTER */
-.footer{
-  border-top:var(--pop-border);
-  margin-top:0;
-  background:var(--bg-2);
-}
-.footer-inner{
-  max-width:80rem;
-  margin:0 auto;
-  padding:44px 16px 28px;
-}
-.footer-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:28px;
-  padding-bottom:32px;
-  border-bottom:var(--pop-border-thin);
-}
-.footer-brand{
-  font-weight:900;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:10px;
-  font-size:18px;
-}
-.footer-brand .brand-mark{
-  width:28px;
-  height:28px;
-  font-size:14px;
-  border-radius:6px;
-}
-.footer-desc{
-  font-size:13px;
-  color:var(--muted);
-  line-height:1.6;
-  margin:0 0 14px;
-}
-.footer-desc code{
-  font-family:ui-monospace, monospace;
-  font-size:12px;
-  background:var(--bg);
-  border:1.5px solid var(--border);
-  padding:2px 6px;
-  border-radius:6px;
-  font-weight:700;
-}
-.footer-pill{
-  display:inline-block;
-  font-size:11px;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  padding:3px 10px;
-  border-radius:6px;
-  background:var(--secondary);
-  color:var(--secondary-content);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-}
-.footer-col{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.footer-col strong{
-  font-size:13px;
-  font-weight:900;
-  letter-spacing:.05em;
-  text-transform:uppercase;
-  margin-bottom:4px;
-  color:var(--fg);
-}
-.footer-col a{
-  font-size:13px;
-  font-weight:600;
-  color:var(--muted);
-  transition:color .15s ease;
-}
-.footer-col a:hover{
-  color:var(--primary);
-  text-decoration:underline;
-}
-.footer-bottom{
-  padding-top:20px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  font-size:12px;
-  font-weight:600;
-  color:var(--muted);
-}
-.footer-bottom code{
-  font-family:ui-monospace, monospace;
-  background:var(--bg);
-  border:1px solid var(--border);
-  padding:1px 4px;
-  border-radius:4px;
-}
-
-@media(min-width: 768px){
-  .links{
-    display:flex;
-  }
-  .gh-link{
-    display:inline-flex;
-  }
-  .nav-toggler{
-    display:none;
-  }
-  .nav-mobile-menu{
-    display:none;
-  }
-  .footer-grid{
-    grid-template-columns:1.3fr 1fr 1fr 1fr;
-    gap:32px;
-  }
-  .footer-bottom{
-    flex-direction:row;
-    justify-content:space-between;
-    align-items:center;
-  }
+:root[data-theme="dark"], html[data-theme="dark"], .dark {
+  --primary: #39D353 !important;
+  --primary-content: #0B1F3B !important;
+  --secondary: #00D1C1 !important;
+  --secondary-content: #0B1F3B !important;
+  --bg: #0B1F3B;
+  --bg-2: #112646;
+  --fg: #FAF8F4;
+  --muted: #9ab0ce;
+  --border: #FAF8F4;
+  --border-subtle: rgba(250,248,244,.2);
 }
 </style>

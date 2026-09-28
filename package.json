@@ -6,6 +6,6 @@
     "autoprefixer": "^10.4.0"
   },
   "scripts": {
-    "build:css": "tailwindcss -i ./assets/tailwind.css -o ./site/assets/tailwind.css --minify"
+    "build:css": "tailwindcss -i ./assets/tailwind.css -o ./.krewire/build/assets/tailwind.css --minify"
   }
 }

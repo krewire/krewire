@@ -4,310 +4,405 @@ description: "Unified Go Framework for every workload — app, cli, site, book, 
 layout: Landing
 ---
 
-<!-- HERO SECTION -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-copy">
-      <div class="eyebrow">
-        <span>◈</span>
-        <span>Unified Go Framework · v0.1.0 · Open Source</span>
-      </div>
-      <h1>One Go Framework.<br>Every Workload.</h1>
-      <p class="lead">From single-binary web monoliths to interactive TUIs, high-speed static sites, book pipelines, background workers, microservices, cloud infra, and Go WebAssembly runtimes — build everything in Go with one CLI <code>kiw</code> and zero JS fatigue.</p>
-      
-      <!-- QUICK START COMMAND BOX -->
-      <div class="quick-terminal">
-        <div class="terminal-bar">
-          <span class="term-prompt">$</span>
-          <code>kiw new my-app --site && cd my-app && kiw serve</code>
-          <button class="btn-copy" onclick="copyCmd(this, 'kiw new my-app --site && cd my-app && kiw serve')">Copy</button>
+<!-- =====================================================================
+     HERO
+     ===================================================================== -->
+<section class="w-full bg-bg dark:bg-bg-dark bg-dots py-10 md:py-14 lg:py-20" style="border-bottom:var(--pop-border)">
+  <div class="container-site">
+    <div class="flex flex-col md:grid md:grid-cols-2 md:items-center gap-8 lg:gap-12">
+
+      <!-- Copy -->
+      <div class="min-w-0">
+        <!-- Eyebrow -->
+        <div class="badge badge-primary mb-4">
+          <span>◈</span>
+          <span>Unified Go Framework · v0.1.0 · Open Source</span>
         </div>
+
+        <!-- Headline -->
+        <h1 class="font-black tracking-tighter leading-tight mb-4 text-fg dark:text-fg-dark"
+            style="font-size:clamp(32px,7vw,56px); letter-spacing:-0.04em">
+          One Go Framework.<br>Every Workload.
+        </h1>
+
+        <!-- Lead -->
+        <p class="text-base text-muted dark:text-muted-dark leading-relaxed mb-5 max-w-lg">
+          From single-binary web monoliths to interactive TUIs, high-speed static sites, book pipelines, background workers, microservices, cloud infra, and Go WebAssembly runtimes — build everything in Go with one CLI <code class="code-inline">kiw</code> and zero JS fatigue.
+        </p>
+
+        <!-- Quick terminal -->
+        <div class="mb-5 max-w-lg">
+          <div class="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 overflow-x-auto bg-bg-2 dark:bg-bg-dark-2"
+               style="border:var(--pop-border); box-shadow:var(--pop-shadow-sm)">
+            <span class="font-mono font-black text-primary text-sm shrink-0">$</span>
+            <code class="font-mono text-xs font-bold text-fg dark:text-fg-dark whitespace-nowrap flex-1">kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw serve</code>
+            <button class="btn-copy shrink-0 text-xs font-black px-2.5 py-1 rounded-md bg-secondary text-secondary-content transition-all duration-150"
+                    style="border:var(--pop-border-thin); box-shadow:1.5px 1.5px 0px var(--border)"
+                    onclick="copyCmd(this,'kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw serve')">Copy</button>
+          </div>
+        </div>
+
+        <!-- CTAs: stacked on mobile, row on sm+ -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <a href="/docs/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
+          <a href="#workloads"            class="btn btn-lg">Explore 8 Workloads ↓</a>
+          <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="btn btn-lg"><span>★</span> GitHub</a>
+        </div>
+
+        <p class="text-xs font-semibold text-muted dark:text-muted-dark">Go 1.22+ · File-based routing · Scoped CSS · 100% Zero JS by default</p>
       </div>
 
-      <div class="ctas">
-        <a class="btn primary large" href="/docs/getting-started">Get Started — 5 Min →</a>
-        <a class="btn large" href="#workloads">Explore 8 Workloads ↓</a>
-        <a class="btn large" href="https://github.com/krewire/krewire" target="_blank" rel="noopener"><span>★</span> GitHub</a>
+      <!-- Art / Code window -->
+      <div class="min-w-0 w-full">
+        {{component "CodeWindow" .}}
       </div>
-      <div class="meta">Go 1.22+ · File-based routing · Scoped CSS · 100% Zero JS by default</div>
-    </div>
-    <div class="hero-art">
-      {{component "CodeWindow" .}}
     </div>
   </div>
 </section>
 
-<!-- TRUST & VALUE METRICS STRIP -->
-<section class="trust">
-  <div class="trust-inner">
-    <span class="trust-label">Unified Go Toolchain</span>
-    <div class="trust-items">
-      <span><b>100%</b> Go Standard Library</span>
-      <span class="dot">·</span>
-      <span><b>0</b> npm / 0 Bundlers</span>
-      <span class="dot">·</span>
-      <span><b>8</b> Workloads in 1 Binary</span>
-      <span class="dot">·</span>
-      <span><b>&lt; 1ms</b> Cold Starts</span>
-      <span class="dot">·</span>
-      <span>Single Config <code>krewire.yaml</code></span>
+<!-- =====================================================================
+     TRUST BAR
+     ===================================================================== -->
+<section class="w-full bg-bg-2 dark:bg-bg-dark-2 py-3.5" style="border-bottom:var(--pop-border)">
+  <div class="container-site flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+    <span class="badge badge-secondary shrink-0">Unified Go Toolchain</span>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-muted dark:text-muted-dark">
+      <span><b class="text-fg dark:text-fg-dark">100%</b> Go Standard Library</span>
+      <span class="hidden sm:inline opacity-40">·</span>
+      <span><b class="text-fg dark:text-fg-dark">0</b> npm / 0 Bundlers</span>
+      <span class="hidden sm:inline opacity-40">·</span>
+      <span><b class="text-fg dark:text-fg-dark">8</b> Workloads in 1 Binary</span>
+      <span class="hidden sm:inline opacity-40">·</span>
+      <span><b class="text-fg dark:text-fg-dark">&lt; 1ms</b> Cold Starts</span>
+      <span class="hidden sm:inline opacity-40">·</span>
+      <span>Single Config <code class="code-inline">krewire.yaml</code></span>
     </div>
   </div>
 </section>
 
-<!-- 8 WORKLOADS SHOWCASE -->
-<section class="workloads" id="workloads">
-  <div class="section-inner">
+<!-- =====================================================================
+     8 WORKLOADS
+     ===================================================================== -->
+<section id="workloads" class="w-full bg-bg dark:bg-bg-dark py-12 lg:py-16" style="border-bottom:var(--pop-border)">
+  <div class="container-site">
     <div class="section-head">
-      <span class="sub-badge">Unified Workload Engine</span>
+      <span class="badge badge-primary mb-3">Unified Workload Engine</span>
       <h2>One Framework. Eight Workloads.</h2>
       <p>Stop assembling disparate frameworks for web, CLI, background queues, and infra. Krewire provides unified ergonomics, shared configuration, and zero context switching.</p>
     </div>
-    <div class="workloads-grid">
-      <!-- 1. APP -->
-      <div class="workload-card highlight">
-        <div class="card-header">
-          <div class="workload-icon">▲</div>
-          <span class="workload-tag primary-tag">Fullstack</span>
+
+    <!-- Grid: 1 col → sm: 2 col → lg: 4 col -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- 1. APP (highlighted) -->
+      <div class="card" style="background:linear-gradient(135deg, color-mix(in srgb, #39D353 12%, var(--bg)), var(--bg))">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-primary text-primary-content">▲</span>
+          <span class="badge badge-primary text-2xs font-mono">Fullstack</span>
         </div>
-        <h3>app</h3>
-        <p>Fullstack web monolith — compile your web interface, HTTP routing, and API handlers into a single static Go binary.</p>
-        <div class="workload-cmd"><code>kiw run</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">app</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Fullstack web monolith — compile your web interface, HTTP routing, and API handlers into a single static Go binary.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw run</code>
+        </div>
       </div>
 
       <!-- 2. CLI -->
-      <div class="workload-card">
-        <div class="card-header">
-          <div class="workload-icon">›_</div>
-          <span class="workload-tag">Terminal</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content">›_</span>
+          <span class="badge badge-muted text-2xs font-mono">Terminal</span>
         </div>
-        <h3>cli</h3>
-        <p>Command-line utilities and interactive TUIs powered by a Bubble Tea-inspired reactive terminal interface engine.</p>
-        <div class="workload-cmd"><code>kiw build --cli</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">cli</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Command-line utilities and interactive TUIs powered by a Bubble Tea-inspired reactive terminal interface engine.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --cli</code>
+        </div>
       </div>
 
       <!-- 3. SITE -->
-      <div class="workload-card">
-        <div class="card-header">
-          <div class="workload-icon">◧</div>
-          <span class="workload-tag">SSG</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content">◧</span>
+          <span class="badge badge-muted text-2xs font-mono">SSG</span>
         </div>
-        <h3>site</h3>
-        <p>High-performance static site generator with file-based routing, scoped <code>.kiw</code> components, and zero client-side JS.</p>
-        <div class="workload-cmd"><code>kiw build --site</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">site</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">High-performance static site generator with file-based routing, scoped <code class="code-inline">.kiw</code> components, and zero client-side JS.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --site</code>
+        </div>
       </div>
 
       <!-- 4. BOOK -->
-      <div class="workload-card">
-        <div class="card-header">
-          <div class="workload-icon">≡</div>
-          <span class="workload-tag">Publishing</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content">≡</span>
+          <span class="badge badge-muted text-2xs font-mono">Publishing</span>
         </div>
-        <h3>book</h3>
-        <p>Turn markdown manuscripts and technical manuals into structured documentation books with automatic indexing via <code>mdbind</code>.</p>
-        <div class="workload-cmd"><code>kiw build --book</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">book</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Turn markdown manuscripts into structured documentation books with automatic indexing via <code class="code-inline">mdbind</code>.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --book</code>
+        </div>
       </div>
 
       <!-- 5. WORKER -->
-      <div class="workload-card">
-        <div class="card-header">
-          <div class="workload-icon">⚙</div>
-          <span class="workload-tag">Async</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content">⚙</span>
+          <span class="badge badge-muted text-2xs font-mono">Async</span>
         </div>
-        <h3>worker</h3>
-        <p>Asynchronous job queues, scheduled cron tasks, retry policies, backoff timers, and dead-letter queues via <code>framework/worker</code>.</p>
-        <div class="workload-cmd"><code>kiw run --worker</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">worker</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Asynchronous job queues, scheduled cron tasks, retry policies, backoff timers, and dead-letter queues via <code class="code-inline">framework/worker</code>.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw run --worker</code>
+        </div>
       </div>
 
       <!-- 6. SERVICE -->
-      <div class="workload-card">
-        <div class="card-header">
-          <div class="workload-icon">⬢</div>
-          <span class="workload-tag">Microservice</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content">⬢</span>
+          <span class="badge badge-muted text-2xs font-mono">Microservice</span>
         </div>
-        <h3>service</h3>
-        <p>Distributed microservice architecture with service discovery, API gateway routing, rate limiting, and OpenTelemetry tracing.</p>
-        <div class="workload-cmd"><code>kiw run --service</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">service</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Distributed microservice architecture with service discovery, API gateway routing, rate limiting, and OpenTelemetry tracing.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw run --service</code>
+        </div>
       </div>
 
       <!-- 7. INFRA -->
-      <div class="workload-card">
-        <div class="card-header">
-          <div class="workload-icon">☁</div>
-          <span class="workload-tag">Cloud IaC</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content">☁</span>
+          <span class="badge badge-muted text-2xs font-mono">Cloud IaC</span>
         </div>
-        <h3>infra</h3>
-        <p>Provider-agnostic infrastructure-as-code compiling directly to AWS, GCP, or Kubernetes specifications from Go declarations.</p>
-        <div class="workload-cmd"><code>kiw infra apply</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">infra</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Provider-agnostic infrastructure-as-code compiling directly to AWS, GCP, or Kubernetes specifications from Go declarations.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw infra apply</code>
+        </div>
       </div>
 
       <!-- 8. RUNTIME -->
-      <div class="workload-card">
-        <div class="card-header">
-          <div class="workload-icon">◈</div>
-          <span class="workload-tag">WASM</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content">◈</span>
+          <span class="badge badge-muted text-2xs font-mono">WASM</span>
         </div>
-        <h3>runtime</h3>
-        <p>Compile Go into WebAssembly with virtual DOM diffing, reactive interactive islands, and partial client hydration.</p>
-        <div class="workload-cmd"><code>kiw build --wasm</code></div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">runtime</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Compile Go into WebAssembly with virtual DOM diffing, reactive interactive islands, and partial client hydration.</p>
+        <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --wasm</code>
+        </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- THREE STEPS TO PRODUCTION -->
-<section class="how">
-  <div class="section-inner">
+<!-- =====================================================================
+     THREE STEPS
+     ===================================================================== -->
+<section class="w-full bg-bg-2 dark:bg-bg-dark-2 bg-dots py-12 lg:py-16" style="border-bottom:var(--pop-border)">
+  <div class="container-site">
     <div class="section-head">
-      <span class="sub-badge">Developer Workflow</span>
+      <span class="badge badge-secondary mb-3">Developer Workflow</span>
       <h2>From Zero to Production in 3 Commands</h2>
       <p>No toolchain fatigue, no breaking npm dependency trees, and zero build configuration hurdles.</p>
     </div>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-top">
-          <div class="step-number">1</div>
-          <span class="step-tag">Scaffold</span>
+
+    <!-- Grid: 1 col → sm: 3 col -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
+
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-primary text-primary-content text-base font-black">1</span>
+          <span class="badge badge-secondary text-2xs font-mono">Scaffold</span>
         </div>
-        <h3>kiw new</h3>
-        <p>Generate a production-ready project template for any workload in under one second.</p>
-        <pre class="term-pre"><code>kiw new my-site --site
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw new</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">Generate a production-ready project template for any workload in under one second.</p>
+        <pre class="term-block mt-auto text-xs"><code>kiw new my-site --site
 cd my-site</code></pre>
       </div>
 
-      <div class="step-card">
-        <div class="step-top">
-          <div class="step-number">2</div>
-          <span class="step-tag">Develop</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-primary text-primary-content text-base font-black">2</span>
+          <span class="badge badge-secondary text-2xs font-mono">Develop</span>
         </div>
-        <h3>kiw dev</h3>
-        <p>Instant hot-reload local development server with file-based routing and scoped CSS updates.</p>
-        <pre class="term-pre"><code>kiw dev
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw dev</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">Instant hot-reload local development server with file-based routing and scoped CSS updates.</p>
+        <pre class="term-block mt-auto text-xs"><code>kiw dev
 # ⚡ Ready at http://localhost:3000</code></pre>
       </div>
 
-      <div class="step-card">
-        <div class="step-top">
-          <div class="step-number">3</div>
-          <span class="step-tag">Deploy</span>
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-primary text-primary-content text-base font-black">3</span>
+          <span class="badge badge-secondary text-2xs font-mono">Deploy</span>
         </div>
-        <h3>kiw deploy</h3>
-        <p>Compile into a single static binary or static asset bundle and ship to GitHub Pages or Docker.</p>
-        <pre class="term-pre"><code>kiw deploy --target gh-pages
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw deploy</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">Compile into a single static binary or static asset bundle and ship to GitHub Pages or Docker.</p>
+        <pre class="term-block mt-auto text-xs"><code>kiw deploy --target gh-pages
 # ✓ Deployed successfully!</code></pre>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- ARCHITECTURAL PILLARS / WHY KREWIRE -->
-<section class="why">
-  <div class="section-inner">
+<!-- =====================================================================
+     WHY KREWIRE
+     ===================================================================== -->
+<section class="w-full bg-bg dark:bg-bg-dark py-12 lg:py-16" style="border-bottom:var(--pop-border)">
+  <div class="container-site">
     <div class="section-head">
-      <span class="sub-badge">Architecture & Philosophy</span>
+      <span class="badge badge-primary mb-3">Architecture &amp; Philosophy</span>
       <h2>Go-First. Progressive. Zero Bloat.</h2>
       <p>Built for engineers who value compilation speed, predictable deployments, and maintainable software architecture.</p>
     </div>
-    <div class="why-grid">
-      <div class="why-card">
-        <div class="why-icon-box">◈</div>
-        <h3>Pure Go Toolchain</h3>
-        <p>No Node.js, no npm dependencies, and no bundler configuration. Your entire application compiles with standard Go tooling into clean, self-contained binaries.</p>
+
+    <!-- Grid: 1 col → sm: 2 col → lg: 4 col -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <div class="card">
+        <span class="icon-box bg-secondary text-secondary-content mb-4 text-xl">◈</span>
+        <h3 class="text-base font-black tracking-tight mb-2 text-fg dark:text-fg-dark">Pure Go Toolchain</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed">No Node.js, no npm dependencies, and no bundler configuration. Your entire application compiles with standard Go tooling into clean, self-contained binaries.</p>
       </div>
-      <div class="why-card">
-        <div class="why-icon-box">◧</div>
-        <h3>Scoped .kiw Components</h3>
-        <p>Combines YAML frontmatter, standard Go HTML templates, and scoped <code>&lt;style&gt;</code> blocks. CSS classes never leak outside their component boundary.</p>
+
+      <div class="card">
+        <span class="icon-box bg-secondary text-secondary-content mb-4 text-xl">◧</span>
+        <h3 class="text-base font-black tracking-tight mb-2 text-fg dark:text-fg-dark">Scoped .kiw Components</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed">Combines YAML frontmatter, standard Go HTML templates, and scoped <code class="code-inline">&lt;style&gt;</code> blocks. CSS classes never leak outside their component boundary.</p>
       </div>
-      <div class="why-card">
-        <div class="why-icon-box">⚡</div>
-        <h3>Progressive Scaling</h3>
-        <p>Start as a lightweight static site, grow into a fullstack web monolith, then seamlessly extract background workers and microservices — all within the same ecosystem.</p>
+
+      <div class="card">
+        <span class="icon-box bg-secondary text-secondary-content mb-4 text-xl">⚡</span>
+        <h3 class="text-base font-black tracking-tight mb-2 text-fg dark:text-fg-dark">Progressive Scaling</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed">Start as a lightweight static site, grow into a fullstack web monolith, then seamlessly extract background workers and microservices — all within the same ecosystem.</p>
       </div>
-      <div class="why-card">
-        <div class="why-icon-box">🛡</div>
-        <h3>Enterprise Resilience</h3>
-        <p>Engineered with production defaults: structured JSON logging, distributed tracing, health checks, circuit breakers, and graceful shutdown out of the box.</p>
+
+      <div class="card">
+        <span class="icon-box bg-secondary text-secondary-content mb-4 text-xl">🛡</span>
+        <h3 class="text-base font-black tracking-tight mb-2 text-fg dark:text-fg-dark">Enterprise Resilience</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed">Engineered with production defaults: structured JSON logging, distributed tracing, health checks, circuit breakers, and graceful shutdown out of the box.</p>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- COMPONENT DSL SHOWCASE -->
-<section class="showcase">
-  <div class="section-inner">
+<!-- =====================================================================
+     DSL SHOWCASE
+     ===================================================================== -->
+<section class="w-full bg-bg-2 dark:bg-bg-dark-2 bg-dots py-12 lg:py-16" style="border-bottom:var(--pop-border)">
+  <div class="container-site">
     <div class="section-head">
-      <span class="sub-badge">Component DSL</span>
+      <span class="badge badge-secondary mb-3">Component DSL</span>
       <h2>Write Pages as Clean .kiw Components</h2>
       <p>The elegance of Svelte and Astro brought to Go. Frontmatter + HTML + scoped CSS in one intuitive file.</p>
     </div>
-    <div class="showcase-grid">
-      <div class="showcase-code-panel">
-        <div class="panel-header">
-          <div class="panel-dots">
-            <span class="p-dot r"></span>
-            <span class="p-dot y"></span>
-            <span class="p-dot g"></span>
+
+    <!-- Grid: 1 col → md: 2 col -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start">
+
+      <!-- Code panel -->
+      <div class="rounded-xl overflow-hidden" style="background:#0B1F3B; border:var(--pop-border); box-shadow:var(--pop-shadow-lg)">
+        <!-- Panel header -->
+        <div class="flex items-center gap-2.5 px-4 py-3" style="background:#071426; border-bottom:var(--pop-border-thin)">
+          <div class="flex gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-accent" style="border:1.5px solid #000"></span>
+            <span class="w-3 h-3 rounded-full bg-[#ffbd2e]" style="border:1.5px solid #000"></span>
+            <span class="w-3 h-3 rounded-full bg-primary" style="border:1.5px solid #000"></span>
           </div>
-          <span class="panel-file">pages/index.kiw</span>
+          <span class="ml-auto font-mono text-xs font-extrabold text-slate-400 tracking-widest uppercase">pages/index.kiw</span>
         </div>
-        <pre class="panel-pre"><code><span class="c">---</span>
-<span class="k">title:</span> "Welcome to Krewire"
-<span class="k">layout:</span> Landing
-<span class="k">workload:</span> site
-<span class="c">---</span>
+        <!-- Code -->
+        <pre class="m-0 px-5 py-5 overflow-x-auto font-mono text-sm leading-relaxed" style="color:#FAF8F4"><code><span style="color:#64748b;font-style:italic">---</span>
+<span style="color:#00D1C1;font-weight:700">title:</span> "Welcome to Krewire"
+<span style="color:#00D1C1;font-weight:700">layout:</span> Landing
+<span style="color:#00D1C1;font-weight:700">workload:</span> site
+<span style="color:#64748b;font-style:italic">---</span>
 
-<span class="t">&lt;section class="welcome"&gt;</span>
-  <span class="t">&lt;h1&gt;</span>{{"{{"}}.Title{{"}}"}}<span class="t">&lt;/h1&gt;</span>
-  <span class="t">&lt;p&gt;</span>Compiled Go speed with zero runtime bloat.<span class="t">&lt;/p&gt;</span>
-<span class="t">&lt;/section&gt;</span>
+<span style="color:#39D353;font-weight:700">&lt;section class="welcome"&gt;</span>
+  <span style="color:#39D353;font-weight:700">&lt;h1&gt;</span>{{"{{"}} .Title {{"}}"}}<span style="color:#39D353;font-weight:700">&lt;/h1&gt;</span>
+  <span style="color:#39D353;font-weight:700">&lt;p&gt;</span>Compiled Go speed with zero runtime bloat.<span style="color:#39D353;font-weight:700">&lt;/p&gt;</span>
+<span style="color:#39D353;font-weight:700">&lt;/section&gt;</span>
 
-<span class="t">&lt;style&gt;</span>
+<span style="color:#39D353;font-weight:700">&lt;style&gt;</span>
 .welcome { padding: 40px 0; text-align: center; }
 h1 { color: var(--primary); font-weight: 900; }
 p  { font-size: 15px; color: var(--muted); }
-<span class="t">&lt;/style&gt;</span></code></pre>
-        <div class="panel-footer">
-          <a class="btn primary" href="/docs/dsl">Explore DSL Syntax →</a>
-          <a class="btn" href="/docs/getting-started">Read the Docs</a>
+<span style="color:#39D353;font-weight:700">&lt;/style&gt;</span></code></pre>
+        <!-- Panel footer -->
+        <div class="flex flex-wrap gap-2.5 px-4 py-4" style="background:#071426; border-top:1.5px solid rgba(255,255,255,0.1)">
+          <a href="/docs/dsl"              class="btn btn-primary text-xs px-4 py-2 min-h-0">Explore DSL Syntax →</a>
+          <a href="/docs/getting-started"  class="btn text-xs px-4 py-2 min-h-0 text-fg dark:text-fg-dark" style="background:#0B1F3B; color:#FAF8F4">Read the Docs</a>
         </div>
       </div>
 
-      <div class="showcase-feature-panel">
-        <div class="feature-panel-card">
-          <div class="fpc-head">
-            <span class="fpc-badge">Scoping</span>
-            <h3>Why Scoped CSS in Go?</h3>
-          </div>
-          <p>Every <code>.kiw</code> component receives automatic <code>data-kiw-component</code> scope hashing at build time. No CSS collisions, no naming gymnastics, zero runtime cost.</p>
-          <ul class="fpc-list">
-            <li><span>✓</span> <b>Scoped by Default:</b> Styles remain strictly isolated to the component.</li>
-            <li><span>✓</span> <b>Global CSS via <code>:root</code>:</b> Theme tokens cascade cleanly across layouts.</li>
-            <li><span>✓</span> <b>No Bundler Required:</b> Built directly by the Go compiler without npm.</li>
-            <li><span>✓</span> <b>Light & Dark Mode:</b> Native token switching via <code>data-theme</code>.</li>
-          </ul>
+      <!-- Feature panel -->
+      <div class="card">
+        <div class="mb-4">
+          <span class="badge badge-secondary mb-2">Scoping</span>
+          <h3 class="text-xl font-black tracking-tight mt-2 text-fg dark:text-fg-dark">Why Scoped CSS in Go?</h3>
         </div>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-5">
+          Every <code class="code-inline">.kiw</code> component receives automatic <code class="code-inline">data-kiw-component</code> scope hashing at build time. No CSS collisions, no naming gymnastics, zero runtime cost.
+        </p>
+        <ul class="flex flex-col gap-3 p-0 m-0 list-none">
+          <li class="flex items-start gap-2.5 text-sm text-muted dark:text-muted-dark leading-snug">
+            <span class="text-primary font-black text-base shrink-0 leading-tight">✓</span>
+            <span><b class="text-fg dark:text-fg-dark">Scoped by Default:</b> Styles remain strictly isolated to the component.</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm text-muted dark:text-muted-dark leading-snug">
+            <span class="text-primary font-black text-base shrink-0 leading-tight">✓</span>
+            <span><b class="text-fg dark:text-fg-dark">Global CSS via <code class="code-inline">:root</code>:</b> Theme tokens cascade cleanly across layouts.</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm text-muted dark:text-muted-dark leading-snug">
+            <span class="text-primary font-black text-base shrink-0 leading-tight">✓</span>
+            <span><b class="text-fg dark:text-fg-dark">No Bundler Required:</b> Built directly by the Go compiler without npm.</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm text-muted dark:text-muted-dark leading-snug">
+            <span class="text-primary font-black text-base shrink-0 leading-tight">✓</span>
+            <span><b class="text-fg dark:text-fg-dark">Light &amp; Dark Mode:</b> Native token switching via <code class="code-inline">data-theme</code>.</span>
+          </li>
+        </ul>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- ECOSYSTEM SECTION -->
+<!-- =====================================================================
+     ECOSYSTEM
+     ===================================================================== -->
 {{component "Ecosystem" .}}
 
-<!-- FINAL HIGH-IMPACT CTA -->
-<section class="final-cta">
-  <div class="section-inner">
-    <div class="cta-card">
-      <span class="sub-badge">Ready to Build</span>
-      <h2>Start Building with Krewire Today</h2>
-      <p>Start with a lightweight static site, scale to a web monolith, then to distributed cloud services — one repository, one CLI, one configuration.</p>
-      <div class="cta-actions">
-        <a class="btn primary large" href="/docs/getting-started">Get Started — 5 Min →</a>
-        <a class="btn large" href="https://github.com/krewire/krewire" target="_blank" rel="noopener"><span>★</span> Star on GitHub</a>
+<!-- =====================================================================
+     FINAL CTA
+     ===================================================================== -->
+<section class="w-full bg-bg dark:bg-bg-dark py-12 lg:py-16">
+  <div class="container-site">
+    <div class="rounded-2xl text-center bg-bg-2 dark:bg-bg-dark-2 bg-dots px-5 py-12 md:px-10 lg:px-16 lg:py-16"
+         style="border:var(--pop-border); box-shadow:var(--pop-shadow-lg)">
+      <span class="badge badge-primary mb-4">Ready to Build</span>
+      <h2 class="font-black tracking-tight mb-3 text-fg dark:text-fg-dark"
+          style="font-size:clamp(22px,5vw,36px); letter-spacing:-0.03em">
+        Start Building with Krewire Today
+      </h2>
+      <p class="text-base text-muted dark:text-muted-dark leading-relaxed mx-auto mb-7" style="max-width:640px">
+        Start with a lightweight static site, scale to a web monolith, then to distributed cloud services — one repository, one CLI, one configuration.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+        <a href="/docs/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
+        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="btn btn-lg"><span>★</span> Star on GitHub</a>
       </div>
-      <div class="cta-terminal">
-        <code>kiw new my-app && cd my-app && kiw serve</code>
+      <div class="inline-block px-4 py-2 rounded-lg bg-bg dark:bg-bg-dark" style="border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">
+        <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw new my-app &amp;&amp; cd my-app &amp;&amp; kiw serve</code>
       </div>
     </div>
   </div>
@@ -319,872 +414,13 @@ function copyCmd(btn, text){
     navigator.clipboard.writeText(text).then(function(){
       var orig = btn.innerText;
       btn.innerText = "✓ Copied!";
-      btn.classList.add("copied");
-      setTimeout(function(){
-        btn.innerText = orig;
-        btn.classList.remove("copied");
-      }, 2000);
+      setTimeout(function(){ btn.innerText = orig; }, 2000);
     });
-  } else {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    try{
-      document.execCommand("copy");
-      var orig = btn.innerText;
-      btn.innerText = "✓ Copied!";
-      btn.classList.add("copied");
-      setTimeout(function(){
-        btn.innerText = orig;
-        btn.classList.remove("copied");
-      }, 2000);
-    }catch(err){}
-    document.body.removeChild(ta);
   }
 }
 </script>
 
 <style>
-/* COMMON UTILITIES */
-.section-inner{
-  max-width:80rem;
-  margin:0 auto;
-  padding:0 16px;
-}
-.section-head{
-  max-width:760px;
-  margin:0 auto 32px;
-  text-align:center;
-}
-.sub-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  color:var(--primary-content);
-  background:var(--primary);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  padding:3px 10px;
-  border-radius:6px;
-  margin-bottom:12px;
-}
-.section-head h2{
-  font-size:clamp(24px, 5.5vw, 38px);
-  font-weight:900;
-  letter-spacing:-.035em;
-  margin:0 0 12px;
-  line-height:1.15;
-}
-.section-head p{
-  color:var(--muted);
-  margin:0;
-  font-size:14.5px;
-  line-height:1.65;
-}
-.section-head p code{
-  font-family:ui-monospace, monospace;
-  font-size:13px;
-  background:var(--bg-2);
-  border:1.5px solid var(--border);
-  padding:2px 6px;
-  border-radius:6px;
-  font-weight:700;
-}
-
-/* BUTTONS */
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:11px 20px;
-  border-radius:10px;
-  border:var(--pop-border);
-  background:var(--bg);
-  color:var(--fg);
-  font-weight:900;
-  font-size:13.5px;
-  box-shadow:var(--pop-shadow);
-  transition:all .15s ease;
-  cursor:pointer;
-  min-height:44px;
-  text-decoration:none;
-}
-.btn:hover{
-  transform:translate(-2px, -2px);
-  box-shadow:var(--pop-shadow-lg);
-  background:var(--bg-2);
-  color:var(--fg);
-}
-.btn:active{
-  transform:translate(2px, 2px);
-  box-shadow:var(--pop-shadow-sm);
-}
-.btn.primary{
-  background:var(--primary);
-  color:var(--primary-content);
-}
-.btn.primary:hover{
-  background:var(--primary);
-  color:var(--primary-content);
-  filter:brightness(1.05);
-}
-.btn.large{
-  padding:13px 24px;
-  font-size:14.5px;
-}
-
-/* HERO SECTION */
-.hero{
-  padding:36px 0 28px;
-  background-color:var(--bg);
-  background-image:radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
-  background-size:18px 18px;
-  border-bottom:var(--pop-border);
-  width:100%;
-}
-.hero-inner{
-  max-width:80rem;
-  margin:0 auto;
-  padding:0 16px;
-  display:flex;
-  flex-direction:column;
-  gap:28px;
-}
-.hero-copy{
-  min-width:0;
-  width:100%;
-}
-.eyebrow{
-  font-size:11px;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  color:var(--primary-content);
-  background:var(--primary);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  padding:4px 10px;
-  border-radius:6px;
-  font-weight:900;
-  margin-bottom:14px;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  width:fit-content;
-  line-height:1.4;
-}
-.hero h1{
-  font-size:clamp(32px, 7vw, 56px);
-  font-weight:900;
-  line-height:1.06;
-  letter-spacing:-.04em;
-  margin:0 0 16px;
-  word-break:break-word;
-}
-.hero .lead{
-  font-size:15px;
-  color:var(--muted);
-  line-height:1.65;
-  margin:0 0 20px;
-  max-width:620px;
-}
-.hero .lead code{
-  font-family:ui-monospace, monospace;
-  font-size:13px;
-  background:var(--bg-2);
-  border:1.5px solid var(--border);
-  padding:2px 6px;
-  border-radius:6px;
-  font-weight:700;
-  color:var(--fg);
-}
-
-/* QUICK TERMINAL BAR */
-.quick-terminal{
-  margin-bottom:20px;
-  max-width:620px;
-}
-.terminal-bar{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:var(--bg-2);
-  border:var(--pop-border);
-  border-radius:10px;
-  box-shadow:var(--pop-shadow-sm);
-  padding:8px 12px;
-  overflow-x:auto;
-}
-.term-prompt{
-  font-family:ui-monospace, monospace;
-  color:var(--primary);
-  font-weight:900;
-  font-size:14px;
-  user-select:none;
-}
-.terminal-bar code{
-  font-family:ui-monospace, monospace;
-  font-size:12.5px;
-  font-weight:700;
-  color:var(--fg);
-  white-space:nowrap;
-  flex:1;
-}
-.btn-copy{
-  padding:5px 12px;
-  background:var(--secondary);
-  color:var(--secondary-content);
-  border:var(--pop-border-thin);
-  border-radius:6px;
-  box-shadow:1.5px 1.5px 0px var(--border);
-  font-size:11.5px;
-  font-weight:900;
-  cursor:pointer;
-  transition:all .15s ease;
-  white-space:nowrap;
-  flex-shrink:0;
-}
-.btn-copy:hover{
-  transform:translate(-1px, -1px);
-  box-shadow:2.5px 2.5px 0px var(--border);
-  background:var(--primary);
-  color:var(--primary-content);
-}
-.btn-copy:active{
-  transform:translate(1px, 1px);
-  box-shadow:1px 1px 0px var(--border);
-}
-.btn-copy.copied{
-  background:var(--primary);
-  color:var(--primary-content);
-}
-
-.hero .ctas{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  width:100%;
-}
-.meta{
-  margin-top:16px;
-  font-size:12px;
-  color:var(--muted);
-  font-weight:600;
-}
-.hero-art{
-  min-width:0;
-  width:100%;
-}
-
-/* TRUST BAR */
-.trust{
-  border-bottom:var(--pop-border);
-  background:var(--bg-2);
-  width:100%;
-  padding:14px 0;
-}
-.trust-inner{
-  max-width:80rem;
-  margin:0 auto;
-  padding:0 16px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.trust-label{
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  color:var(--secondary-content);
-  background:var(--secondary);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  padding:3px 9px;
-  border-radius:6px;
-  width:fit-content;
-}
-.trust-items{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px 14px;
-  font-size:13px;
-  color:var(--muted);
-  line-height:1.4;
-  font-weight:600;
-}
-.trust-items b{
-  color:var(--fg);
-}
-.trust-items code{
-  font-family:ui-monospace, monospace;
-  font-size:12px;
-  background:var(--bg);
-  border:1.5px solid var(--border);
-  padding:1px 6px;
-  border-radius:5px;
-  font-weight:700;
-  color:var(--fg);
-}
-.trust-items .dot{
-  display:none;
-}
-
-/* 8 WORKLOADS MATRIX */
-.workloads{
-  padding:48px 0 32px;
-  background-color:var(--bg);
-  border-bottom:var(--pop-border);
-  width:100%;
-}
-.workloads-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:16px;
-}
-.workload-card{
-  background:var(--bg);
-  border:var(--pop-border);
-  border-radius:14px;
-  padding:22px 18px;
-  box-shadow:var(--pop-shadow);
-  display:flex;
-  flex-direction:column;
-  transition:transform .15s ease, box-shadow .15s ease;
-  word-break:break-word;
-}
-.workload-card:hover{
-  transform:translate(-2px, -2px);
-  box-shadow:var(--pop-shadow-lg);
-}
-.workload-card.highlight{
-  background:linear-gradient(135deg, color-mix(in srgb, var(--primary) 12%, var(--bg)), var(--bg));
-}
-.card-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:12px;
-}
-.workload-icon{
-  width:42px;
-  height:42px;
-  display:grid;
-  place-items:center;
-  border-radius:8px;
-  background:var(--secondary);
-  color:var(--secondary-content);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  font-size:18px;
-  font-weight:900;
-}
-.workload-card.highlight .workload-icon{
-  background:var(--primary);
-  color:var(--primary-content);
-}
-.workload-tag{
-  font-size:10.5px;
-  font-weight:900;
-  padding:2.5px 8px;
-  border-radius:6px;
-  border:1.5px solid var(--border);
-  box-shadow:1.5px 1.5px 0px var(--border);
-  background:var(--bg-2);
-  color:var(--fg);
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  font-family:ui-monospace, monospace;
-}
-.workload-tag.primary-tag{
-  background:var(--primary);
-  color:var(--primary-content);
-}
-.workload-card h3{
-  margin:0 0 8px;
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:-.01em;
-}
-.workload-card p{
-  margin:0 0 16px;
-  color:var(--muted);
-  font-size:13.5px;
-  line-height:1.6;
-}
-.workload-cmd{
-  margin-top:auto;
-  padding:6px 10px;
-  background:var(--bg-2);
-  border:1.5px solid var(--border);
-  border-radius:6px;
-  box-shadow:1.5px 1.5px 0px var(--border);
-  width:fit-content;
-}
-.workload-cmd code{
-  font-family:ui-monospace, monospace;
-  font-size:12px;
-  font-weight:800;
-  color:var(--fg);
-}
-
-/* THREE STEPS / HOW IT WORKS */
-.how{
-  padding:48px 0 32px;
-  background-color:var(--bg-2);
-  background-image:radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
-  background-size:18px 18px;
-  border-bottom:var(--pop-border);
-  width:100%;
-}
-.steps-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:18px;
-}
-.step-card{
-  background:var(--bg);
-  border:var(--pop-border);
-  border-radius:14px;
-  padding:22px 18px;
-  box-shadow:var(--pop-shadow);
-  display:flex;
-  flex-direction:column;
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.step-card:hover{
-  transform:translate(-2px, -2px);
-  box-shadow:var(--pop-shadow-lg);
-}
-.step-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:12px;
-}
-.step-number{
-  width:36px;
-  height:36px;
-  display:grid;
-  place-items:center;
-  border-radius:8px;
-  background:var(--primary);
-  color:var(--primary-content);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  font-size:16px;
-  font-weight:900;
-}
-.step-tag{
-  font-size:10.5px;
-  font-weight:900;
-  padding:2.5px 8px;
-  border-radius:6px;
-  border:1.5px solid var(--border);
-  box-shadow:1.5px 1.5px 0px var(--border);
-  background:var(--secondary);
-  color:var(--secondary-content);
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  font-family:ui-monospace, monospace;
-}
-.step-card h3{
-  margin:0 0 6px;
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:-.01em;
-}
-.step-card p{
-  margin:0 0 14px;
-  color:var(--muted);
-  font-size:13.5px;
-  line-height:1.6;
-}
-.term-pre{
-  margin:auto 0 0;
-  background:#0B1F3B;
-  color:#FAF8F4;
-  border-radius:8px;
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  padding:12px 14px;
-  overflow-x:auto;
-  font-family:ui-monospace, monospace;
-  font-size:12.5px;
-  font-weight:700;
-  line-height:1.6;
-}
-html[data-theme="dark"] .term-pre{
-  background:#071426;
-  border-color:#FAF8F4;
-}
-
-/* WHY KREWIRE / ARCHITECTURE */
-.why{
-  padding:48px 0 32px;
-  background-color:var(--bg);
-  border-bottom:var(--pop-border);
-  width:100%;
-}
-.why-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:16px;
-}
-.why-card{
-  background:var(--bg);
-  border:var(--pop-border);
-  border-radius:14px;
-  padding:22px 18px;
-  box-shadow:var(--pop-shadow);
-  display:flex;
-  flex-direction:column;
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.why-card:hover{
-  transform:translate(-2px, -2px);
-  box-shadow:var(--pop-shadow-lg);
-}
-.why-icon-box{
-  width:42px;
-  height:42px;
-  display:grid;
-  place-items:center;
-  border-radius:8px;
-  background:var(--secondary);
-  color:var(--secondary-content);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  font-size:20px;
-  font-weight:900;
-  margin-bottom:14px;
-}
-.why-card h3{
-  margin:0 0 8px;
-  font-size:17px;
-  font-weight:900;
-  letter-spacing:-.01em;
-}
-.why-card p{
-  margin:0;
-  color:var(--muted);
-  font-size:13.5px;
-  line-height:1.65;
-}
-.why-card code{
-  font-family:ui-monospace, monospace;
-  font-size:12px;
-  background:var(--bg-2);
-  border:1.5px solid var(--border);
-  padding:1px 5px;
-  border-radius:5px;
-  font-weight:700;
-}
-
-/* DSL SHOWCASE */
-.showcase{
-  padding:48px 0 32px;
-  background-color:var(--bg-2);
-  background-image:radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
-  background-size:18px 18px;
-  border-bottom:var(--pop-border);
-  width:100%;
-}
-.showcase-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:20px;
-  align-items:start;
-}
-.showcase-code-panel{
-  background:#0B1F3B;
-  color:#FAF8F4;
-  border:var(--pop-border);
-  border-radius:14px;
-  box-shadow:var(--pop-shadow-lg);
-  overflow:hidden;
-}
-html[data-theme="dark"] .showcase-code-panel{
-  background:#071426;
-  border-color:#FAF8F4;
-}
-.panel-header{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:12px 16px;
-  background:#071426;
-  border-bottom:var(--pop-border-thin);
-}
-.panel-dots{
-  display:flex;
-  gap:6px;
-}
-.p-dot{
-  width:11px;
-  height:11px;
-  border-radius:50%;
-  border:1.5px solid #000000;
-}
-.p-dot.r{background:#FF3B2E}
-.p-dot.y{background:#ffbd2e}
-.p-dot.g{background:#39D353}
-.panel-file{
-  margin-left:auto;
-  font-family:ui-monospace, monospace;
-  font-size:11.5px;
-  font-weight:800;
-  color:#94a3b8;
-  letter-spacing:.05em;
-  text-transform:uppercase;
-}
-.panel-pre{
-  margin:0;
-  padding:20px 18px;
-  overflow-x:auto;
-  font-family:ui-monospace, monospace;
-  font-size:13px;
-  font-weight:600;
-  line-height:1.7;
-}
-.c{color:#64748b;font-style:italic}
-.k{color:#00D1C1;font-weight:700}
-.t{color:#39D353;font-weight:700}
-.panel-footer{
-  display:flex;
-  gap:10px;
-  padding:14px 16px;
-  background:#071426;
-  border-top:1.5px solid rgba(255,255,255,0.1);
-  flex-wrap:wrap;
-}
-
-.showcase-feature-panel{
-  display:flex;
-  flex-direction:column;
-}
-.feature-panel-card{
-  background:var(--bg);
-  border:var(--pop-border);
-  border-radius:14px;
-  padding:24px 20px;
-  box-shadow:var(--pop-shadow);
-}
-.fpc-head{
-  margin-bottom:12px;
-}
-.fpc-badge{
-  font-size:10.5px;
-  font-weight:900;
-  padding:2.5px 8px;
-  border-radius:6px;
-  border:1.5px solid var(--border);
-  box-shadow:1.5px 1.5px 0px var(--border);
-  background:var(--secondary);
-  color:var(--secondary-content);
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  font-family:ui-monospace, monospace;
-  display:inline-block;
-  margin-bottom:8px;
-}
-.feature-panel-card h3{
-  margin:0;
-  font-size:20px;
-  font-weight:900;
-  letter-spacing:-.02em;
-}
-.feature-panel-card p{
-  font-size:14px;
-  color:var(--muted);
-  line-height:1.65;
-  margin:0 0 18px;
-}
-.fpc-list{
-  list-style:none;
-  padding:0;
-  margin:0;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.fpc-list li{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  font-size:13.5px;
-  color:var(--muted);
-  line-height:1.5;
-}
-.fpc-list li span{
-  color:var(--primary);
-  font-weight:900;
-  font-size:15px;
-  line-height:1;
-}
-.fpc-list li b{
-  color:var(--fg);
-}
-.fpc-list code{
-  font-family:ui-monospace, monospace;
-  font-size:12px;
-  background:var(--bg-2);
-  border:1.5px solid var(--border);
-  padding:1px 5px;
-  border-radius:5px;
-  font-weight:700;
-  color:var(--fg);
-}
-
-/* FINAL CTA */
-.final-cta{
-  padding:44px 0 56px;
-  background-color:var(--bg);
-  width:100%;
-}
-.cta-card{
-  max-width:80rem;
-  margin:0 auto;
-  padding:40px 18px;
-  border:var(--pop-border);
-  border-radius:18px;
-  background:var(--bg-2);
-  background-image:radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
-  background-size:16px 16px;
-  box-shadow:var(--pop-shadow-lg);
-  text-align:center;
-}
-.cta-card h2{
-  font-size:clamp(24px, 5.5vw, 38px);
-  font-weight:900;
-  letter-spacing:-.03em;
-  margin:0 0 12px;
-}
-.cta-card p{
-  color:var(--muted);
-  margin:0 auto 24px;
-  max-width:640px;
-  font-size:14.5px;
-  line-height:1.65;
-}
-.cta-actions{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  width:100%;
-  justify-content:center;
-  align-items:center;
-}
-.cta-terminal{
-  margin-top:20px;
-  display:inline-block;
-  padding:8px 16px;
-  background:var(--bg);
-  border:var(--pop-border-thin);
-  border-radius:8px;
-  box-shadow:var(--pop-shadow-sm);
-}
-.cta-terminal code{
-  font-family:ui-monospace, monospace;
-  font-size:12.5px;
-  font-weight:800;
-  color:var(--fg);
-}
-
-/* ==========================================================================
-   VIEWPORT SM: SMALL SCREENS / LARGE PHONES & SMALL TABLETS (min-width: 640px)
-   ========================================================================== */
-@media (min-width: 640px){
-  .hero .ctas{
-    flex-direction:row;
-    width:auto;
-  }
-  .btn{
-    width:auto;
-  }
-  .trust-inner{
-    flex-direction:row;
-    justify-content:space-between;
-    align-items:center;
-  }
-  .trust-items{
-    font-size:12.5px;
-    gap:12px;
-  }
-  .trust-items .dot{
-    display:inline;
-    opacity:.4;
-  }
-  .workloads-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:16px;
-  }
-  .steps-grid{
-    grid-template-columns:repeat(3, minmax(0, 1fr));
-    gap:16px;
-  }
-  .why-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:16px;
-  }
-  .cta-actions{
-    flex-direction:row;
-    width:auto;
-  }
-}
-
-/* ==========================================================================
-   VIEWPORT MD: MEDIUM SCREENS / TABLETS & LAPTOPS (min-width: 768px)
-   ========================================================================== */
-@media (min-width: 768px){
-  .hero{
-    padding:52px 0 36px;
-  }
-  .hero-inner{
-    display:grid;
-    grid-template-columns:minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap:36px;
-    align-items:center;
-  }
-  .showcase-grid{
-    grid-template-columns:minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap:28px;
-  }
-  .cta-card{
-    padding:48px 32px;
-  }
-}
-
-/* ==========================================================================
-   VIEWPORT LG: LARGE SCREENS / DESKTOPS (min-width: 1024px)
-   ========================================================================== */
-@media (min-width: 1024px){
-  .hero{
-    padding:64px 0 44px;
-  }
-  .hero-inner{
-    gap:48px;
-  }
-  .workloads-grid{
-    grid-template-columns:repeat(4, minmax(0, 1fr));
-    gap:20px;
-  }
-  .why-grid{
-    grid-template-columns:repeat(4, minmax(0, 1fr));
-    gap:20px;
-  }
-  .cta-card{
-    padding:56px 40px;
-  }
-}
+/* Btn-copy hover handled in JS; dark code panels need explicit bg */
+.dark .showcase-code-panel { background: #071426; }
 </style>

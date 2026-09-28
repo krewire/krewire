@@ -2,80 +2,177 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================================
+   CSS CUSTOM PROPERTIES — design tokens for things Tailwind can't do inline
+   (pop shadows with var(), dot-grid background, show/hide sun/moon)
+   ========================================================================= */
 @layer base {
   :root {
-    --color-primary: #39D353;
-    --color-primary-light: #39D353;
-    --color-secondary: #00D1C1;
-    --color-accent: #FF3B2E;
-    --color-muted: #475569;
-    --color-border: rgba(11, 31, 59, 0.12);
-    --color-fg: #0B1F3B;
-    --color-bg: #FAF8F4;
-    --color-bg-2: #f0ede5;
+    --pop-border:     2.5px solid #0B1F3B;
+    --pop-border-thin: 2px solid #0B1F3B;
+    --pop-shadow:     4px 4px 0px #0B1F3B;
+    --pop-shadow-lg:  6px 6px 0px #0B1F3B;
+    --pop-shadow-sm:  2px 2px 0px #0B1F3B;
+    --dot-color:      rgba(11, 31, 59, 0.08);
+    --show-sun:       inline;
+    --show-moon:      none;
   }
 
   .dark {
-    --color-primary: #39D353;
-    --color-primary-light: #39D353;
-    --color-secondary: #00D1C1;
-    --color-accent: #FF3B2E;
-    --color-muted: #8fa2bc;
-    --color-border: rgba(250, 248, 244, 0.12);
-    --color-fg: #FAF8F4;
-    --color-bg: #0B1F3B;
-    --color-bg-2: #112646;
+    --pop-border:     2.5px solid #FAF8F4;
+    --pop-border-thin: 2px solid #FAF8F4;
+    --pop-shadow:     4px 4px 0px #39D353;
+    --pop-shadow-lg:  6px 6px 0px #39D353;
+    --pop-shadow-sm:  2px 2px 0px #39D353;
+    --dot-color:      rgba(250, 248, 244, 0.08);
+    --show-sun:       none;
+    --show-moon:      inline;
   }
 
-  * {
-    @apply box-border;
-  }
+  * { box-sizing: border-box; }
 
-  html {
-    @apply scroll-smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   body {
-    @apply m-0 font-sans bg-bg text-fg leading-relaxed antialiased;
+    @apply m-0 font-sans bg-bg dark:bg-bg-dark text-fg dark:text-fg-dark
+           leading-relaxed antialiased overflow-x-hidden;
   }
 
-  a {
-    @apply text-inherit no-underline;
-  }
-
-  a:hover {
-    @apply text-primary;
-  }
+  a { @apply text-inherit no-underline; }
+  a:hover { @apply text-primary; }
 }
 
+/* =========================================================================
+   COMPONENT LAYER — reusable patterns that would be verbose as pure utilities
+   ========================================================================= */
 @layer components {
-  .btn-primary, .btn.primary {
-    @apply bg-primary text-slate-950 border-primary font-semibold;
+
+  /* ── Container ── */
+  .container-site {
+    @apply max-w-container mx-auto px-4;
   }
 
-  .btn-primary:hover, .btn.primary:hover {
-    @apply brightness-105;
+  /* ── Pop shadow (uses CSS var so dark-mode override works) ── */
+  .shadow-pop    { box-shadow: var(--pop-shadow); }
+  .shadow-pop-lg { box-shadow: var(--pop-shadow-lg); }
+  .shadow-pop-sm { box-shadow: var(--pop-shadow-sm); }
+
+  /* ── Pop border ── */
+  .border-pop      { border: var(--pop-border); }
+  .border-pop-thin { border: var(--pop-border-thin); }
+
+  /* ── Dot grid background ── */
+  .bg-dots {
+    background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+    background-size: 18px 18px;
   }
 
-  .section-inner {
-    @apply max-w-7xl mx-auto px-4;
+  /* ── Badge / pill label ── */
+  .badge {
+    @apply inline-flex items-center gap-1 text-2xs font-black tracking-widest uppercase
+           px-2.5 py-0.5 rounded-md;
+    border: var(--pop-border-thin);
+    box-shadow: var(--pop-shadow-sm);
+  }
+  .badge-primary {
+    @apply bg-primary text-primary-content;
+  }
+  .badge-secondary {
+    @apply bg-secondary text-secondary-content;
+  }
+  .badge-muted {
+    @apply bg-bg-2 dark:bg-bg-dark-2 text-fg dark:text-fg-dark;
   }
 
+  /* ── Section header block ── */
   .section-head {
-    @apply max-w-2xl mx-auto mb-8;
+    @apply max-w-prose mx-auto mb-8 text-center;
   }
-
   .section-head h2 {
-    @apply text-3xl font-bold tracking-tight mb-2;
+    @apply font-black tracking-tight leading-tight mb-3 text-fg dark:text-fg-dark;
+    font-size: clamp(22px, 5vw, 36px);
+    letter-spacing: -0.035em;
   }
-
   .section-head p {
-    @apply text-muted text-base;
+    @apply text-muted dark:text-muted-dark text-base leading-relaxed;
   }
-}
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* ── Buttons ── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-black text-sm
+           rounded-[10px] px-5 py-2.5 min-h-[44px] cursor-pointer no-underline
+           transition-all duration-150;
+    border: var(--pop-border);
+    box-shadow: var(--pop-shadow);
+    @apply bg-bg dark:bg-bg-dark text-fg dark:text-fg-dark;
   }
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--pop-shadow-lg);
+    @apply bg-bg-2 dark:bg-bg-dark-2;
+  }
+  .btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--pop-shadow-sm);
+  }
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-content;
+    border: var(--pop-border);
+    box-shadow: var(--pop-shadow);
+  }
+  .btn-primary:hover {
+    @apply bg-primary text-primary-content brightness-105;
+    transform: translate(-2px, -2px);
+    box-shadow: var(--pop-shadow-lg);
+  }
+  .btn-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--pop-shadow-sm);
+  }
+
+  /* ── Card ── */
+  .card {
+    @apply flex flex-col bg-bg dark:bg-bg-dark rounded-xl p-5 transition-all duration-150;
+    border: var(--pop-border);
+    box-shadow: var(--pop-shadow);
+  }
+  .card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--pop-shadow-lg);
+  }
+
+  /* ── Icon box ── */
+  .icon-box {
+    @apply w-10 h-10 grid place-items-center rounded-lg text-lg font-black shrink-0;
+    border: var(--pop-border-thin);
+    box-shadow: var(--pop-shadow-sm);
+  }
+
+  /* ── Mono code snippet inline ── */
+  .code-inline {
+    @apply font-mono text-xs font-bold px-1.5 py-0.5 rounded-md;
+    @apply bg-bg-2 dark:bg-bg-dark-2;
+    border: 1.5px solid;
+    @apply border-border dark:border-border-dark;
+  }
+
+  /* ── Terminal pre block ── */
+  .term-block {
+    @apply font-mono text-sm leading-relaxed rounded-lg px-4 py-3 overflow-x-auto;
+    background: #0B1F3B;
+    color: #FAF8F4;
+    border: var(--pop-border-thin);
+    box-shadow: var(--pop-shadow-sm);
+  }
+  .dark .term-block {
+    background: #071426;
+    border-color: #FAF8F4;
+  }
+
+  /* ── Theme toggle sun/moon ── */
+  .sun-icon  { display: var(--show-sun); }
+  .moon-icon { display: var(--show-moon); }
 }

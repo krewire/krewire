@@ -1,205 +1,95 @@
-<section class="eco" id="ecosystem">
-  <div class="eco-head">
-    <span class="sub-badge">Official Ecosystem</span>
-    <h2>Ecosystem — One <code>kiw</code> for Everything</h2>
-    <p>Modular, high-performance Go libraries engineered to build every workload together or standalone.</p>
-  </div>
-  <div class="eco-grid">
-    <a class="eco-card" href="https://github.com/krewire/framework" target="_blank" rel="noopener">
-      <div class="eco-card-top">
-        <span class="eco-badge core">Core Engine</span>
-        <span class="eco-arrow">↗</span>
-      </div>
-      <h3>framework</h3>
-      <p>App · web · UI · runtime · worker · service · infra workloads in unified Go.</p>
-      <div class="eco-code"><code>github.com/krewire/framework</code></div>
-    </a>
-    <a class="eco-card" href="https://github.com/krewire/kiw" target="_blank" rel="noopener">
-      <div class="eco-card-top">
-        <span class="eco-badge cli">Developer CLI</span>
-        <span class="eco-arrow">↗</span>
-      </div>
-      <h3>kiw</h3>
-      <p>Developer multi-tool: instant scaffolding, fast builds, dev server, and deployment.</p>
-      <div class="eco-code"><code>github.com/krewire/kiw</code></div>
-    </a>
-    <a class="eco-card" href="https://github.com/krewire/libs" target="_blank" rel="noopener">
-      <div class="eco-card-top">
-        <span class="eco-badge libs">Foundation</span>
-        <span class="eco-arrow">↗</span>
-      </div>
-      <h3>libs</h3>
-      <p>Zero-dependency foundation: config loader, validation, terminal UI, and logging.</p>
-      <div class="eco-code"><code>github.com/krewire/libs</code></div>
-    </a>
-    <a class="eco-card" href="https://github.com/krewire/mdbind" target="_blank" rel="noopener">
-      <div class="eco-card-top">
-        <span class="eco-badge tool">Pipeline</span>
-        <span class="eco-arrow">↗</span>
-      </div>
-      <h3>mdbind</h3>
-      <p>Manuscript-to-book engine: structured markdown, frontmatter, and search indexing.</p>
-      <div class="eco-code"><code>github.com/krewire/mdbind</code></div>
-    </a>
-    <a class="eco-card" href="https://github.com/krewire/boost" target="_blank" rel="noopener">
-      <div class="eco-card-top">
-        <span class="eco-badge boost">AI Agents</span>
-        <span class="eco-arrow">↗</span>
-      </div>
-      <h3>boost</h3>
-      <p>Autonomous AI pair programming workflows, roles, and contributor guidelines.</p>
-      <div class="eco-code"><code>github.com/krewire/boost</code></div>
-    </a>
+<section id="ecosystem" class="w-full bg-bg-2 dark:bg-bg-dark-2 bg-dots py-12 lg:py-16" style="border-top:var(--pop-border); border-bottom:var(--pop-border)">
+  <div class="container-site">
+    <div class="section-head">
+      <span class="badge badge-primary mb-3">Official Ecosystem</span>
+      <h2>Ecosystem — One <code style="font-family:ui-monospace,monospace; font-size:.85em; background:var(--bg); border:1.5px solid var(--border); padding:1px 8px; border-radius:6px">kiw</code> for Everything</h2>
+      <p>Modular, high-performance Go libraries engineered to build every workload together or standalone.</p>
+    </div>
+
+    <!-- Grid: 1 col → sm: 2 col → lg: 5 col -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+
+      <a href="https://github.com/krewire/framework" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 word-break-all"
+         style="background:var(--bg); border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge badge-primary text-2xs font-mono">Core Engine</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">framework</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">App · web · UI · runtime · worker · service · infra workloads in unified Go.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/framework</code>
+        </div>
+      </a>
+
+      <a href="https://github.com/krewire/kiw" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150"
+         style="background:var(--bg); border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge badge-secondary text-2xs font-mono">Developer CLI</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Developer multi-tool: instant scaffolding, fast builds, dev server, and deployment.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/kiw</code>
+        </div>
+      </a>
+
+      <a href="https://github.com/krewire/libs" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150"
+         style="background:var(--bg); border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge text-2xs font-mono" style="background:#ffbd2e; color:#0B1F3B; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">Foundation</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">libs</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Zero-dependency foundation: config loader, validation, terminal UI, and logging.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/libs</code>
+        </div>
+      </a>
+
+      <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150"
+         style="background:var(--bg); border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge badge-muted text-2xs font-mono">Pipeline</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">mdbind</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Manuscript-to-book engine: structured markdown, frontmatter, and search indexing.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/mdbind</code>
+        </div>
+      </a>
+
+      <a href="https://github.com/krewire/boost" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 sm:col-span-2 lg:col-span-1"
+         style="background:var(--bg); border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge text-2xs font-mono" style="background:#FF3B2E; color:#ffffff; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">AI Agents</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">boost</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Autonomous AI pair programming workflows, roles, and contributor guidelines.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/boost</code>
+        </div>
+      </a>
+
+    </div>
   </div>
 </section>
 
 <style>
-.eco{
-  padding:44px 0 28px;
-  background-color:var(--bg-2);
-  background-image:radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
-  background-size:18px 18px;
-  border-top:var(--pop-border);
-  border-bottom:var(--pop-border);
-  width:100%;
+.eco-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--pop-shadow-lg);
 }
-.eco-head{
-  max-width:760px;
-  margin:0 auto 28px;
-  text-align:center;
-  padding:0 16px;
-}
-.sub-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  color:var(--primary-content);
-  background:var(--primary);
-  border:var(--pop-border-thin);
-  box-shadow:var(--pop-shadow-sm);
-  padding:3px 10px;
-  border-radius:6px;
-  margin-bottom:12px;
-}
-.eco-head h2{
-  font-size:clamp(24px, 5vw, 36px);
-  font-weight:900;
-  letter-spacing:-.03em;
-  margin:0 0 10px;
-}
-.eco-head h2 code{
-  font-family:ui-monospace, monospace;
-  font-size:.9em;
-  background:var(--bg);
-  border:1.5px solid var(--border);
-  padding:1px 8px;
-  border-radius:6px;
-}
-.eco-head p{
-  color:var(--muted);
-  margin:0;
-  font-size:14.5px;
-  line-height:1.6;
-}
-.eco-grid{
-  max-width:80rem;
-  margin:0 auto;
-  padding:0 16px;
-  display:grid;
-  grid-template-columns:1fr;
-  gap:16px;
-}
-.eco-card{
-  display:flex;
-  flex-direction:column;
-  padding:20px 18px;
-  border:var(--pop-border);
-  border-radius:14px;
-  background:var(--bg);
-  box-shadow:var(--pop-shadow);
-  transition:transform .15s ease, box-shadow .15s ease;
-  word-break:break-word;
-}
-.eco-card:hover{
-  transform:translate(-2px, -2px);
-  box-shadow:var(--pop-shadow-lg);
-}
-.eco-card-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:12px;
-}
-.eco-badge{
-  font-size:10.5px;
-  font-weight:900;
-  padding:2.5px 8px;
-  border-radius:6px;
-  border:1.5px solid var(--border);
-  box-shadow:1.5px 1.5px 0px var(--border);
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  font-family:ui-monospace, monospace;
-}
-.eco-badge.core{background:var(--primary);color:var(--primary-content)}
-.eco-badge.cli{background:var(--secondary);color:var(--secondary-content)}
-.eco-badge.libs{background:#ffbd2e;color:#0B1F3B}
-.eco-badge.tool{background:var(--bg-2);color:var(--fg)}
-.eco-badge.boost{background:var(--accent);color:#ffffff}
-.eco-arrow{
-  font-size:16px;
-  font-weight:900;
-  color:var(--muted);
-  transition:transform .15s ease;
-}
-.eco-card:hover .eco-arrow{
-  transform:translate(2px, -2px);
-  color:var(--primary);
-}
-.eco-card h3{
-  margin:0 0 6px;
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:-.01em;
-}
-.eco-card p{
-  margin:0 0 14px;
-  font-size:13px;
-  color:var(--muted);
-  line-height:1.6;
-}
-.eco-code{
-  margin-top:auto;
-  font-family:ui-monospace, monospace;
-  font-size:11.5px;
-  font-weight:700;
-  color:var(--muted);
-  background:var(--bg-2);
-  border:1.5px solid var(--border);
-  border-radius:6px;
-  padding:4px 8px;
-  width:fit-content;
-}
-
-@media(min-width: 640px){
-  .eco-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-  }
-  .eco-card:nth-child(5){
-    grid-column:span 2;
-  }
-}
-@media(min-width: 1024px){
-  .eco-grid{
-    grid-template-columns:repeat(5, minmax(0, 1fr));
-  }
-  .eco-card:nth-child(5){
-    grid-column:auto;
-  }
+.eco-card:hover .eco-arrow {
+  transform: translate(2px, -2px);
+  color: var(--primary);
 }
 </style>
