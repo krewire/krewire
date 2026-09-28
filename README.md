@@ -40,4 +40,4 @@ public/               # favicon.svg, copied verbatim
 
 ## Ecosystem
 
-Source lives across `krewire/*`: `framework`, `libs`, `mdbind`, `guild`, `kiw`. This site dogfoods `framework/web/ssg` + `framework/dsl` (`<markdown>`, `dict` helper, optional frontmatter) and validates the `site` path end-to-end.
+Source lives across `krewire/*`: `framework`, `libs`, `mdbind`, `boost`, `kiw`. This site dogfoods `framework/web/ssg` + `framework/dsl` (`<markdown>`, `dict` helper, optional frontmatter) and validates the `site` path end-to-end.

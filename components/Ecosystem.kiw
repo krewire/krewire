@@ -5,7 +5,7 @@
     <a class="item" href="https://github.com/krewire/framework"><b>framework</b><span>app · web · ui · runtime · worker · service · infra</span></a>
     <a class="item" href="https://github.com/krewire/libs"><b>libs</b><span>core + kern · config · validate · term</span></a>
     <a class="item" href="https://github.com/krewire/mdbind"><b>mdbind</b><span>book → site pipeline</span></a>
-    <a class="item" href="https://github.com/krewire/guild"><b>guild</b><span>AI agent template</span></a>
+    <a class="item" href="https://github.com/krewire/boost"><b>boost</b><span>AI agent template</span></a>
     <a class="item" href="https://github.com/krewire/kiw"><b>kiw</b><span>build · serve · dev · deploy</span></a>
   </div>
 </section>
