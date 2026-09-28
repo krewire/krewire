@@ -37,7 +37,7 @@ jobs:
         run: npm ci
 
       - name: Install kiw CLI
-        run: go install github.com/krewire/kiw/cmd/kiw@v0.2.0
+        run: GOPROXY=direct go install github.com/krewire/kiw/cmd/kiw@v0.3.2
 
       - name: Build static site
         run: |
@@ -46,6 +46,8 @@ jobs:
           # Verify required outputs exist
           test -f .krewire/build/index.html
           test -d .krewire/build/assets
+          test -f .krewire/build/docs/getting-started.html
+          test -f .krewire/build/scripts/install.sh
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
