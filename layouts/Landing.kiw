@@ -8,23 +8,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/tailwind.css">
-  <script>
-    (function(){
-      try{
-        var t = localStorage.getItem("krewire-theme") || "auto";
-        var m = t==="auto"? (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light") : t;
-        document.documentElement.dataset.theme = m;
-        document.documentElement.classList.toggle("dark", m==="dark");
-      }catch(e){}
-      window.krewireTheme={toggle:function(){
-        var cur=document.documentElement.dataset.theme;
-        var nxt=cur==="dark"?"light":"dark";
-        document.documentElement.dataset.theme=nxt;
-        document.documentElement.classList.toggle("dark", nxt==="dark");
-        try{localStorage.setItem("krewire-theme",nxt)}catch(e){}
-      }};
-    })();
-  </script>
+  <script src="/assets/app.js"></script>
 </head>
 <body>
 
@@ -169,32 +153,6 @@
     </div>
   </footer>
 
-  <!-- Mobile menu JS -->
-  <script>
-    (function(){
-      var toggler = document.getElementById('nav-toggler');
-      var menu    = document.getElementById('nav-mobile-menu');
-      if(!toggler || !menu) return;
-      toggler.addEventListener('click', function(){
-        var open = menu.classList.toggle('menu-open');
-        toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
-        if(open){
-          menu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
-          menu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
-        } else {
-          menu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-          menu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
-        }
-      });
-      menu.querySelectorAll('a').forEach(function(l){
-        l.addEventListener('click', function(){
-          menu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-          menu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0', 'menu-open');
-          toggler.setAttribute('aria-expanded', 'false');
-        });
-      });
-    })();
-  </script>
 </body>
 </html>
 

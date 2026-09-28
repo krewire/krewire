@@ -104,11 +104,11 @@ layout: Landing
     <!-- Grid: 1 col → sm: 2 col → lg: 4 col -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-      <!-- 1. APP (highlighted) -->
-      <div class="card" style="background:linear-gradient(135deg, color-mix(in srgb, #39D353 12%, var(--bg)), var(--bg))">
+      <!-- 1. APP -->
+      <div class="card">
         <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="icon-box bg-primary text-primary-content">▲</span>
-          <span class="badge badge-primary text-2xs font-mono">Fullstack</span>
+          <span class="icon-box bg-secondary text-secondary-content">▲</span>
+          <span class="badge badge-muted text-2xs font-mono">Fullstack</span>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">app</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Fullstack web monolith — compile your web interface, HTTP routing, and API handlers into a single static Go binary.</p>
@@ -435,17 +435,7 @@ p  { font-size: 15px; color: var(--muted); }
   </div>
 </section>
 
-<script>
-function copyCmd(btn, text){
-  if(navigator.clipboard && window.isSecureContext){
-    navigator.clipboard.writeText(text).then(function(){
-      var orig = btn.innerText;
-      btn.innerText = "✓ Copied!";
-      setTimeout(function(){ btn.innerText = orig; }, 2000);
-    });
-  }
-}
-</script>
+
 
 <style>
 /* Btn-copy hover handled in JS; dark code panels need explicit bg */

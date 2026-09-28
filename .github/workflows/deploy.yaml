@@ -46,10 +46,13 @@ jobs:
           # Apply modern documentation stylesheet & interactive reader scripts
           cp public/assets/mdbind.css .krewire/build/assets/mdbind.css
           cp public/assets/docs.js .krewire/build/assets/docs.js
+          cp public/assets/app.js .krewire/build/assets/app.js
           sed -i 's|</body>|<script src="/assets/docs.js"></script></body>|g' .krewire/build/docs/*.html .krewire/build/docs.html
+          find .krewire/build -name "*.html" -exec sed -i 's|</head>|<script src="/assets/app.js"></script></head>|g' {} +
           # Verify required outputs exist
           test -f .krewire/build/index.html
           test -d .krewire/build/assets
+          test -f .krewire/build/assets/app.js
           test -f .krewire/build/docs/getting-started.html
           test -f .krewire/build/scripts/install.sh
 
