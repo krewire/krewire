@@ -1,19 +1,92 @@
 ---
 title: "Getting Started"
-description: "From zero to site in 30 seconds"
+description: "Install kiw and go from zero to a running site in under 5 minutes."
 date: "2026-08-24"
 ---
 
 # Getting Started
 
-Krewire is Go-first. One CLI `kiw`, one config `krewire.yaml`.
+Krewire is Go-first. One CLI `kiw`, one config `krewire.yaml`, zero toolchain fatigue.
+
+## Step 1 — Install kiw
+
+Run the installer (Linux & macOS):
+
+```bash
+curl -fsSL https://krewire.com/scripts/install.sh | sh
+```
+
+This detects your OS and architecture, downloads the correct binary, and installs `kiw` to `/usr/local/bin`.
+
+**Requirements:** curl or wget. sudo is optional (installs to `~/.local/bin` without it).
+
+> **Go developers** can also install via `go install`:
+> ```bash
+> go install github.com/krewire/kiw/cmd/kiw@latest
+> ```
+
+Verify the installation:
+
+```bash
+kiw --version
+```
+
+---
+
+## Step 2 — Scaffold a new project
 
 ```bash
 kiw new my-site --site
 cd my-site
-kiw build
-kiw serve
 ```
+
+This generates a complete, production-ready project structure:
+
+```
+my-site/
+├── krewire.yaml        # project config
+├── pages/
+│   └── index.kiw       # → /
+├── layouts/
+│   └── Base.kiw        # wraps {{.Content}}
+├── components/         # reusable .kiw components
+└── public/             # static files (copied verbatim)
+```
+
+---
+
+## Step 3 — Start the dev server
+
+```bash
+kiw dev
+# ⚡ Ready at http://localhost:3000
+```
+
+Hot-reload on save — changes to `.kiw` files, layouts, and components reflect instantly.
+
+---
+
+## Step 4 — Build for production
+
+```bash
+kiw build
+```
+
+Output lands in `.krewire/build/` — a fully self-contained static site ready to deploy anywhere.
+
+---
+
+## Step 5 — Deploy
+
+```bash
+# GitHub Pages
+kiw deploy --target gh-pages
+
+# Or ship the Docker image
+docker compose up -d --build
+```
+
+---
 
 ## File-based routing
 
@@ -27,6 +100,8 @@ public/logo.svg          → copied verbatim
 ```
 
 No `go.mod` needed for `site` — `krewire.yaml` with `project.kind: site` is enough.
+
+---
 
 ## Frontmatter is optional
 
@@ -49,7 +124,10 @@ layout: Base
 <h1>{{.Title}}</h1>
 ```
 
+---
+
 ## Next
 
 - [Workloads](/docs/workloads) — the 8 kinds
 - [.kiw DSL](/docs/dsl) — HTML · CSS · JS/TS · Go · Rust in one file
+- [Security & HTTP API](/docs/security-and-api)
