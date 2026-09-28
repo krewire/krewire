@@ -1,20 +1,83 @@
-
 <div class="window">
-  <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">krewire.kiw</span></div>
+  <div class="bar">
+    <div class="dots">
+      <span class="dot r"></span>
+      <span class="dot y"></span>
+      <span class="dot g"></span>
+    </div>
+    <span class="title">pages/index.kiw</span>
+  </div>
   <pre><code><span class="c">---</span>
-<span class="k">title:</span> Hello
-<span class="k">layout:</span> Base
+<span class="k">title:</span> Hello Krewire
+<span class="k">layout:</span> Landing
+<span class="k">workload:</span> site
 <span class="c">---</span>
 <span class="t">&lt;h1&gt;</span>{{"{{"}}.Title{{"}}"}}<span class="t">&lt;/h1&gt;</span>
-<span class="t">&lt;style&gt;</span>h1{color:var(--primary)}<span class="t">&lt;/style&gt;</span></code></pre>
+<span class="t">&lt;p&gt;</span>One Go Framework. Every Workload.<span class="t">&lt;/p&gt;</span>
+
+<span class="t">&lt;style&gt;</span>
+h1 { color: var(--primary); font-weight: 900; }
+p  { font-size: 14px; color: var(--muted); }
+<span class="t">&lt;/style&gt;</span></code></pre>
 </div>
 
 <style>
-.window{background:#0a0a0a;color:#e5e7eb;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #1f2421}
-.bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#111413;border-bottom:1px solid #1f2421}
-.dot{width:10px;height:10px;border-radius:50%}.r{background:#ff5f56}.y{background:#ffbd2e}.g{background:#27c93f}
-.title{margin-left:auto;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:12px;color:#9ca3af}
-.window pre{margin:0;padding:18px 16px;overflow:auto}
-.window code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px;line-height:1.7}
-.c{color:#6b7280}.k{color:#ff8c42}.t{color:#93c5fd}
+.window{
+  background:#0B1F3B;
+  color:#FAF8F4;
+  border-radius:14px;
+  overflow:hidden;
+  border:var(--pop-border);
+  box-shadow:var(--pop-shadow-lg);
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+html[data-theme="dark"] .window{
+  background:#071426;
+  border-color:#FAF8F4;
+}
+.bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  background:#071426;
+  border-bottom:var(--pop-border-thin);
+}
+.dots{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  border:1.5px solid #000000;
+  display:inline-block;
+}
+.dot.r{background:#FF3B2E}
+.dot.y{background:#ffbd2e}
+.dot.g{background:#39D353}
+.title{
+  margin-left:auto;
+  font-size:11.5px;
+  font-weight:800;
+  color:#94a3b8;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.window pre{
+  margin:0;
+  padding:20px 18px;
+  overflow-x:auto;
+  line-height:1.7;
+}
+.window code{
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size:13px;
+  font-weight:600;
+}
+.c{color:#64748b;font-style:italic}
+.k{color:#00D1C1;font-weight:700}
+.t{color:#39D353;font-weight:700}
 </style>
