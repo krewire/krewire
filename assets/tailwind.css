@@ -4,23 +4,27 @@
 
 @layer base {
   :root {
-    --color-primary: #ff6b00;
-    --color-primary-light: #ff8c42;
-    --color-muted: #6b7280;
-    --color-border: rgba(10, 10, 10, 0.08);
-    --color-fg: #0a0a0a;
-    --color-bg: #ffffff;
-    --color-bg-2: #f6f8f7;
+    --color-primary: #39D353;
+    --color-primary-light: #39D353;
+    --color-secondary: #00D1C1;
+    --color-accent: #FF3B2E;
+    --color-muted: #475569;
+    --color-border: rgba(11, 31, 59, 0.12);
+    --color-fg: #0B1F3B;
+    --color-bg: #FAF8F4;
+    --color-bg-2: #f0ede5;
   }
 
   .dark {
-    --color-primary: #ff8c42;
-    --color-primary-light: #ff6b00;
-    --color-muted: #9ca3af;
-    --color-border: rgba(246, 248, 247, 0.12);
-    --color-fg: #f6f8f7;
-    --color-bg: #0a0a0a;
-    --color-bg-2: #111413;
+    --color-primary: #39D353;
+    --color-primary-light: #39D353;
+    --color-secondary: #00D1C1;
+    --color-accent: #FF3B2E;
+    --color-muted: #8fa2bc;
+    --color-border: rgba(250, 248, 244, 0.12);
+    --color-fg: #FAF8F4;
+    --color-bg: #0B1F3B;
+    --color-bg-2: #112646;
   }
 
   * {
@@ -45,28 +49,12 @@
 }
 
 @layer components {
-  .btn {
-    @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-full border font-semibold text-sm transition-all duration-150;
+  .btn-primary, .btn.primary {
+    @apply bg-primary text-slate-950 border-primary font-semibold;
   }
 
-  .btn-primary {
-    @apply bg-primary text-primary-content border-primary;
-  }
-
-  .btn-primary:hover {
+  .btn-primary:hover, .btn.primary:hover {
     @apply brightness-105;
-  }
-
-  .btn-large {
-    @apply px-5 py-3 text-base;
-  }
-
-  .card {
-    @apply rounded-2xl border border-border p-5 bg-bg shadow-sm transition-transform;
-  }
-
-  .card:hover {
-    @apply -translate-y-0.5 border-primary/25;
   }
 
   .section-inner {
