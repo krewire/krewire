@@ -56,7 +56,6 @@ layout: Landing
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
           <a href="/docs/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
           <a href="#workloads"            class="btn btn-lg">Explore 8 Workloads ↓</a>
-          <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="btn btn-lg"><span>★</span> GitHub</a>
         </div>
 
         <p class="text-xs font-semibold text-muted dark:text-muted-dark">Go 1.22+ · File-based routing · Scoped CSS · 100% Zero JS by default</p>
