@@ -5,12 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>{{.Title}}</title>
+  <meta name="description" content="Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config krewire.yaml.">
+  <link rel="canonical" href="https://krewire.com/">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+  <!-- OpenGraph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{.Title}}">
+  <meta property="og:description" content="Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config krewire.yaml.">
+  <meta property="og:url" content="https://krewire.com/">
+  <meta property="og:site_name" content="Krewire">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{.Title}}">
+  <meta name="twitter:description" content="Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config krewire.yaml.">
+
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/tailwind.css">
   <script src="/assets/app.js"></script>
 </head>
 <body>
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-content focus:font-bold focus:rounded-md focus:shadow-md">Skip to content</a>
 
   <!-- NAV -->
   <header class="sticky top-0 z-50 bg-bg dark:bg-bg-dark border-b border-pop w-full" style="border-bottom:var(--pop-border)">
@@ -87,7 +103,7 @@
   </header>
 
   <!-- PAGE CONTENT -->
-  <main>{{.Content}}</main>
+  <main id="main">{{.Content}}</main>
 
   <!-- FOOTER -->
   <footer class="bg-bg-2 dark:bg-bg-dark-2" style="border-top:var(--pop-border)">

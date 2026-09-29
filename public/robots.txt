@@ -1,0 +1,5 @@
+# robots.txt for https://krewire.com
+User-agent: *
+Allow: /
+
+Sitemap: https://krewire.com/sitemap.xml
