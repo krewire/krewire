@@ -44,22 +44,21 @@
           <div class="toc-subs">
             <a href="/docs/krewire-framework" class="toc-sub">1.1 Krewire Framework</a>
             <a href="/docs/why-krewire" class="toc-sub">1.2 Why Krewire?</a>
-            <a href="/docs/getting-started" class="toc-sub">1.3 Getting Started</a>
-            <a href="/docs/krewire-workloads" class="toc-sub">1.4 Krewire Workloads</a>
-            <a href="/docs/upgrade-guide" class="toc-sub">1.5 Upgrade Guide</a>
+            <a href="/docs/krewire-workloads" class="toc-sub">1.3 Krewire Workloads</a>
+            <a href="/docs/upgrade-guide" class="toc-sub">1.4 Upgrade Guide</a>
           </div>
         </div>
         <div class="toc-group open" data-group>
           <div class="toc-parent-row">
-            <a href="/quick-start" class="toc-link">2. Quick Start</a>
+            <a href="/getting-started" class="toc-link">2. Getting Started</a>
             <button class="toc-toggle" aria-expanded="true" aria-label="Toggle submenu">
               <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
             </button>
           </div>
           <div class="toc-subs">
-            <a href="/quick-start/installation" class="toc-sub">2.1 Installation</a>
-            <a href="/quick-start/configuration" class="toc-sub">2.2 Configuration</a>
-            <a href="/quick-start/directory-structure" class="toc-sub">2.3 Directory Structure</a>
+            <a href="/getting-started/installation" class="toc-sub">2.1 Installation</a>
+            <a href="/getting-started/configuration" class="toc-sub">2.2 Configuration</a>
+            <a href="/getting-started/directory-structure" class="toc-sub">2.3 Directory Structure</a>
           </div>
         </div>
       </nav>
@@ -70,7 +69,7 @@
   <footer class="footer">
     <div class="footer-inner mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-xs text-muted sm:px-6 lg:px-8">
       <span>© 2026 Krewire Contributors — Built 100% with Krewire `site` workload.</span>
-      <span><a href="https://github.com/krewire">github.com/krewire</a> · <a href="/docs/getting-started">Get Started</a></span>
+      <span><a href="https://github.com/krewire">github.com/krewire</a> · <a href="/getting-started">Get Started</a></span>
     </div>
   </footer>
   <script>

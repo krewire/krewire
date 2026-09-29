@@ -195,4 +195,4 @@ kiw build --target wasm
 
 By selecting a workload kind in `krewire.yaml`, developers access tailored ergonomics while retaining the universal benefits of the Go runtime and standard library.
 
-Proceed to [**1.5 Upgrade Guide →**](/docs/upgrade-guide) to understand versioning, deprecations, and configuration migrations.
+Proceed to [**1.4 Upgrade Guide →**](/docs/upgrade-guide) to understand versioning, deprecations, and configuration migrations.

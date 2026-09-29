@@ -54,7 +54,7 @@ layout: Landing
 
         <!-- CTAs: stacked on mobile, row on sm+ -->
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
-          <a href="/docs/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
+          <a href="/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
           <a href="#workloads"            class="btn btn-lg">Explore 8 Workloads ↓</a>
         </div>
 
@@ -389,7 +389,7 @@ p  { font-size: 15px; color: var(--muted); }
         <!-- Panel footer -->
         <div class="flex flex-wrap gap-2.5 px-4 py-4" style="background:#071426; border-top:1.5px solid rgba(255,255,255,0.1)">
           <a href="/docs/krewire-framework#4-the-kiw-component-dsl" class="btn btn-primary text-xs px-4 py-2 min-h-0">Explore DSL Syntax →</a>
-          <a href="/docs/getting-started"  class="btn text-xs px-4 py-2 min-h-0 text-fg dark:text-fg-dark" style="background:#0B1F3B; color:#FAF8F4">Read the Docs</a>
+          <a href="/getting-started"  class="btn text-xs px-4 py-2 min-h-0 text-fg dark:text-fg-dark" style="background:#0B1F3B; color:#FAF8F4">Read the Docs</a>
         </div>
       </div>
 
@@ -504,7 +504,7 @@ p  { font-size: 15px; color: var(--muted); }
         Start with a lightweight static site, scale to a web monolith, then to distributed cloud services — one repository, one CLI, one configuration.
       </p>
       <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-        <a href="/docs/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
+        <a href="/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
         <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="btn btn-lg"><span>★</span> Star on GitHub</a>
       </div>
       <div class="inline-flex items-center gap-2.5 rounded-[10px] px-3.5 py-2.5 bg-bg dark:bg-bg-dark max-w-md mx-auto overflow-x-auto"

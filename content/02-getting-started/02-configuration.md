@@ -160,4 +160,4 @@ KIW_ENV=production KIW_DEBUG=false kiw run
 
 ## Next Steps
 
-With your configuration in place, proceed to [**2.3 Directory Structure →**](/quick-start/directory-structure) to explore the standard directory layouts for each workload.
+With your configuration in place, proceed to [**2.3 Directory Structure →**](/getting-started/directory-structure) to explore the standard directory layouts for each workload.

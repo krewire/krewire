@@ -104,4 +104,4 @@ In Krewire, system growth is an **incremental upgrade**, not a rewrite. Your pro
 
 Krewire eliminates the cognitive overhead of modern web development. With one language, one CLI, and one unified configuration file, developers spend less time fighting build tools and more time shipping software.
 
-Next, see how quickly you can start building: proceed to [**1.3 Getting Started →**](/docs/getting-started).
+Next, explore the execution archetypes: proceed to [**1.3 Krewire Workloads →**](/docs/krewire-workloads) or jump directly to [**2. Getting Started →**](/getting-started).
