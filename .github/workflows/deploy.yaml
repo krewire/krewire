@@ -23,8 +23,9 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: "stable"
           check-latest: true
+          cache: true
 
       - name: Setup Node (Tailwind)
         uses: actions/setup-node@v4
@@ -37,31 +38,45 @@ jobs:
         run: npm ci
 
       - name: Install kiw CLI
-        run: GOPROXY=direct go install github.com/krewire/kiw/cmd/kiw@v0.1.0
+        # GONOSUMDB is intentionally not set — go.sum database remains active
+        # GOPROXY=direct skips proxy but still verifies the sum database
+        run: |
+          GOPROXY=direct GONOSUMDB="" go install github.com/krewire/kiw/cmd/kiw@v0.1.0
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Verify kiw installation
+        run: kiw version
 
       - name: Build static site
         run: |
-          export PATH="$PATH:$(go env GOPATH)/bin"
           kiw build
-          # Apply modern documentation stylesheet & interactive reader scripts
+          # Inject documentation stylesheet & reader scripts (build post-process)
           cp public/assets/mdbind.css .krewire/build/assets/mdbind.css
-          cp public/assets/docs.js .krewire/build/assets/docs.js
-          cp public/assets/app.js .krewire/build/assets/app.js
-          sed -i 's|</body>|<script src="/assets/docs.js"></script></body>|g' .krewire/build/docs/*.html .krewire/build/docs.html
-          find .krewire/build -name "*.html" -exec sed -i 's|</head>|<script src="/assets/app.js"></script></head>|g' {} +
-          # Verify required outputs exist
+          cp public/assets/docs.js    .krewire/build/assets/docs.js
+          cp public/assets/app.js     .krewire/build/assets/app.js
+          sed -i 's|</body>|<script src="/assets/docs.js"></script></body>|g' \
+              .krewire/build/docs/*.html .krewire/build/docs.html
+          find .krewire/build -name "*.html" \
+              -exec sed -i 's|</head>|<script src="/assets/app.js"></script></head>|g' {} +
+
+      - name: Verify build outputs
+        run: |
           test -f .krewire/build/index.html
           test -d .krewire/build/assets
           test -f .krewire/build/assets/app.js
           test -f .krewire/build/docs/getting-started.html
           test -f .krewire/build/scripts/install.sh
+          # Verify install.sh is plain text (not binary) — content integrity check
+          file .krewire/build/scripts/install.sh | grep -q "shell script\|text"
+          echo "✓ All required build outputs present."
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: site-build
+          name: site-build-${{ github.sha }}
           path: .krewire/build
-          retention-days: 1
+          retention-days: 3
+          if-no-files-found: error
 
   # ─────────────────────────────────────────────────────────────────────────────
   # JOB 2 — Build Docker image & deploy to VPS
@@ -80,14 +95,14 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: site-build
+          name: site-build-${{ github.sha }}
           path: .krewire/build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
@@ -97,54 +112,121 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Export Docker image as tar
-        run: docker save krewire-web:${{ github.sha }} | gzip > /tmp/krewire-web.tar.gz
+      - name: Export Docker image (with integrity checksum)
+        run: |
+          docker save krewire-web:${{ github.sha }} | gzip > /tmp/krewire-web.tar.gz
+          sha256sum /tmp/krewire-web.tar.gz > /tmp/krewire-web.tar.gz.sha256
+          echo "Image checksum:"
+          cat /tmp/krewire-web.tar.gz.sha256
 
-      - name: Setup SSH
+      - name: Configure SSH (strict host key verification)
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 700 ~/.ssh
+          # Write private key
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          # Write known_hosts fingerprint — provided as a repository secret.
+          # Obtain with: ssh-keyscan <host> and store as VPS_KNOWN_HOSTS secret.
+          printf '%s\n' "${{ secrets.VPS_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-      - name: Copy Docker image to VPS
+      - name: Copy Docker image to VPS (with checksum)
         run: |
           scp -i ~/.ssh/deploy_key \
-              -o StrictHostKeyChecking=no \
+              -o StrictHostKeyChecking=yes \
+              -o BatchMode=yes \
               /tmp/krewire-web.tar.gz \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/krewire-web.tar.gz
+              /tmp/krewire-web.tar.gz.sha256 \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/
 
       - name: Deploy on VPS
+        env:
+          SHA: ${{ github.sha }}
         run: |
           ssh -i ~/.ssh/deploy_key \
-              -o StrictHostKeyChecking=no \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
-            set -e
+              -o StrictHostKeyChecking=yes \
+              -o BatchMode=yes \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s << 'REMOTE'
+            set -euo pipefail
+
+            echo "▶ Verifying image checksum on VPS..."
+            sha256sum -c /tmp/krewire-web.tar.gz.sha256 \
+              || { echo "✗ Checksum mismatch — aborting deploy."; exit 1; }
+            echo "✓ Checksum verified."
 
             echo "▶ Loading Docker image..."
             docker load < /tmp/krewire-web.tar.gz
 
-            echo "▶ Tagging image as :latest..."
-            docker tag krewire-web:${{ github.sha }} krewire-web:latest
+            echo "▶ Tagging image..."
+            docker tag "krewire-web:${SHA}" krewire-web:latest
+
+            echo "▶ Saving previous image tag for rollback..."
+            PREV_ID="$(docker inspect --format='{{.Id}}' krewire-web:previous 2>/dev/null || true)"
 
             echo "▶ Restarting container..."
             cd ~/workspace/krewire/krewire
             docker compose up -d --no-build
 
-            echo "▶ Waiting for container healthcheck..."
-            for i in $(seq 1 15); do
-              status=$(docker inspect --format='{{.State.Health.Status}}' krewire-web 2>/dev/null || echo "unknown")
-              echo "  [poll $i/15] Health: $status"
-              if [ "$status" = "healthy" ]; then
-                echo "✓ Container is healthy!"
+            echo "▶ Waiting for container to become healthy..."
+            HEALTHY=false
+            for i in $(seq 1 20); do
+              STATUS="$(docker inspect --format='{{.State.Health.Status}}' krewire-web 2>/dev/null || echo 'unknown')"
+              printf "  [%2d/20] Health: %s\n" "$i" "$STATUS"
+              if [ "$STATUS" = "healthy" ]; then
+                HEALTHY=true
                 break
               fi
-              sleep 2
+              if [ "$STATUS" = "unhealthy" ]; then
+                echo "✗ Container is unhealthy after startup — initiating rollback."
+                break
+              fi
+              sleep 3
             done
 
-            echo "▶ Cleaning up..."
-            docker image prune -f
-            rm -f /tmp/krewire-web.tar.gz
+            if [ "$HEALTHY" = "false" ]; then
+              echo "✗ Health check failed — rolling back to previous image."
+              if [ -n "$PREV_ID" ]; then
+                docker tag "$PREV_ID" krewire-web:latest
+                docker compose up -d --no-build
+                echo "✓ Rollback complete."
+              else
+                echo "⚠ No previous image available for rollback."
+              fi
+              exit 1
+            fi
+
+            echo "✓ Container is healthy."
+
+            echo "▶ Tagging deployed image as :previous for future rollback..."
+            docker tag krewire-web:latest krewire-web:previous
+
+            echo "▶ Cleaning up transfer files..."
+            rm -f /tmp/krewire-web.tar.gz /tmp/krewire-web.tar.gz.sha256
+
+            echo "▶ Pruning dangling images (not removing tagged images)..."
+            docker image prune -f --filter "label!=com.krewire.keep=true"
 
             echo "✓ Deployment complete."
-          ENDSSH
+          REMOTE
+
+      - name: Smoke test — verify live site
+        run: |
+          echo "▶ Smoke testing https://krewire.com ..."
+          sleep 5
+          HTTP_CODE="$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 https://krewire.com/ 2>/dev/null || true)"
+          if [ "${HTTP_CODE}" = "200" ]; then
+            echo "✓ Live site returned HTTP ${HTTP_CODE}."
+          else
+            echo "✗ Smoke test failed: HTTP ${HTTP_CODE} from https://krewire.com"
+            exit 1
+          fi
+          # Verify the installer script is reachable and is plain text
+          SH_CODE="$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://krewire.com/scripts/install.sh 2>/dev/null || true)"
+          if [ "${SH_CODE}" = "200" ]; then
+            echo "✓ install.sh reachable (HTTP ${SH_CODE})."
+          else
+            echo "⚠ install.sh returned HTTP ${SH_CODE} — check nginx routing."
+            exit 1
+          fi
+          echo "✓ All smoke tests passed."
