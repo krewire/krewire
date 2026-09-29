@@ -43,7 +43,7 @@
       <nav class="hidden md:flex items-center gap-1 ml-auto">
         <a href="/getting-started" class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Get Started</a>
         <a href="/docs/krewire-workloads" class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Workloads</a>
-        <a href="/docs/krewire-framework#4-the-kiw-component-dsl" class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">DSL</a>
+        <a href="/getting-started/dsl"   class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">DSL</a>
         <a href="/docs"                 class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Docs</a>
         <a href="#ecosystem"            class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Ecosystem</a>
       </nav>
@@ -83,7 +83,7 @@
         <a href="/docs/krewire-workloads" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
           <span class="text-primary w-4">▦</span> 8 Workloads
         </a>
-        <a href="/docs/krewire-framework#4-the-kiw-component-dsl" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+        <a href="/getting-started/dsl"   class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
           <span class="text-primary w-4">◈</span> Component DSL
         </a>
         <a href="/docs"                 class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">

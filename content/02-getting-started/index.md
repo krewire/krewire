@@ -242,7 +242,7 @@ Krewire supports eight first-class workload archetypes. When bootstrapping a new
 
 ## 5. What is in this Chapter?
 
-This **Getting Started** chapter is divided into three focused, in-depth subchapters designed to give you complete mastery over the Krewire toolchain:
+This **Getting Started** chapter is divided into five focused, in-depth subchapters designed to give you complete mastery over the Krewire toolchain:
 
 <div class="overview-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin: 1.5rem 0;">
 
@@ -297,6 +297,40 @@ This **Getting Started** chapter is divided into three focused, in-depth subchap
     </ul>
   </div>
 
+  <div style="border: var(--pop-border); border-radius: 12px; padding: 1.5rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+      <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:var(--primary-content); font-weight:900; font-size:0.85rem; border-radius:6px;">2.4</span>
+      <h3 style="margin:0; font-size:1.15rem; font-weight:800;">
+        <a href="/getting-started/agentic-development" style="color:var(--primary); text-decoration:none;">Agentic Development →</a>
+      </h3>
+    </div>
+    <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
+      Equip your repositories with an autonomous AI agent guild using Krewire Boost. Master spec-driven engineering, the 6-step agent workflow, and automated quality gates.
+    </p>
+    <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:var(--muted);">
+      <li>Krewire Boost guild scaffolding (<code>kiw boost install</code>)</li>
+      <li><code>AGENTS.md</code> unified constitution & slash commands</li>
+      <li>OpenCode, Claude Code, and Cursor workflows</li>
+    </ul>
+  </div>
+
+  <div style="border: var(--pop-border); border-radius: 12px; padding: 1.5rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+      <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:var(--primary-content); font-weight:900; font-size:0.85rem; border-radius:6px;">2.5</span>
+      <h3 style="margin:0; font-size:1.15rem; font-weight:800;">
+        <a href="/getting-started/dsl" style="color:var(--primary); text-decoration:none;">DSL (.kiw) →</a>
+      </h3>
+    </div>
+    <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
+      Master Krewire's Single-File Component language. Learn YAML frontmatter, Go <code>html/template</code> body expressions, compile-time scoped CSS, client scripts, and embedded Markdown.
+    </p>
+    <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:var(--muted);">
+      <li>Single-File Component (SFC) architecture</li>
+      <li>Automatic scoped CSS (<code>data-kiw-component</code>)</li>
+      <li>Client script extraction & hydration tiers</li>
+    </ul>
+  </div>
+
 </div>
 
 ---
@@ -315,6 +349,7 @@ Keep these everyday `kiw` commands at your fingertips during development:
 | **`test`** | `kiw test` | Execute unit and integration tests across all packages. |
 | **`vet`** | `kiw vet` | Run standard Go static analysis (`go vet`) across the project. |
 | **`fmt`** | `kiw fmt --write` | Format all Go and `.kiw` component files according to conventions. |
+| **`boost`** | `kiw boost install [path]` | Install the Krewire Boost AI agent guild into the project. |
 | **`version`** | `kiw version` | Display current CLI and framework release versions. |
 | **`info`** | `kiw info` | Print detailed project environment and diagnostic information. |
 | **`help`** | `kiw help [command]` | Display comprehensive documentation for any CLI command. |

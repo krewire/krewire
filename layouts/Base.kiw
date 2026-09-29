@@ -59,6 +59,8 @@
             <a href="/getting-started/installation" class="toc-sub">2.1 Installation</a>
             <a href="/getting-started/configuration" class="toc-sub">2.2 Configuration</a>
             <a href="/getting-started/directory-structure" class="toc-sub">2.3 Directory Structure</a>
+            <a href="/getting-started/agentic-development" class="toc-sub">2.4 Agentic Development</a>
+            <a href="/getting-started/dsl" class="toc-sub">2.5 DSL (.kiw)</a>
           </div>
         </div>
       </nav>

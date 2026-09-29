@@ -197,4 +197,4 @@ The `kiw` compiler resolves all paths against these mappings automatically.
 
 With the installation, configuration, and directory layout understood, you are equipped to build robust applications across any Krewire workload.
 
-Proceed to explore the [**1.3 Krewire Workloads Matrix →**](/docs/krewire-workloads) or return to [**1. Overview →**](/docs).
+Proceed to [**2.4 Agentic Development →**](/getting-started/agentic-development) to equip your projects with autonomous AI coding agents.
