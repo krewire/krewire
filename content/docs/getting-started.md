@@ -126,8 +126,39 @@ layout: Base
 
 ---
 
+## Devtool Configuration (`krewire.yaml`)
+
+`krewire.yaml` is the dedicated configuration file for **`kiw` (the devtool)**. It configures devtool behavior and project metadata, keeping application runtime configuration decoupled:
+
+```yaml
+# krewire.yaml — Devtool & Build Configuration
+project:
+  name: my-site
+  kind: site
+  version: 0.1.0
+  author: Alice
+
+build:
+  output: .krewire/build
+
+dev:
+  port: 8080
+```
+
+### Separation of Concerns
+
+`krewire.yaml` is never used for runtime application state:
+
+- **Devtool & Build (`krewire.yaml`):** Pinned workload kind (`project.kind`), build output (`build.output`), dev server port (`dev.port`), and project identity (`name`, `version`, `author`).
+- **Application Pages & Content:** Page titles, descriptions, and slugs belong in page frontmatter (`pages/*.kiw`) or markdown metadata (`content/**/*.md`).
+- **UI & Navigation:** Navbar links, footer content, and theme palettes belong in layouts (`layouts/*.kiw`) and CSS design tokens (`theme.css`).
+- **Application Runtime:** Backend configs, database URLs, and environment variables belong in `.env` and compiled Go configuration (`internal/config`).
+
+---
+
 ## Next
 
 - [Workloads](/docs/workloads) — the 8 kinds
 - [.kiw DSL](/docs/dsl) — HTML · CSS · JS/TS · Go · Rust in one file
 - [Security & HTTP API](/docs/security-and-api)
+

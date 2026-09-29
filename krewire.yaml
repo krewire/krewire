@@ -1,40 +1,24 @@
+# Krewire Devtool Configuration (kiw)
+# Controls kiw devtool behavior within the project.
+# Application settings (titles, navigation, themes, etc.) belong in pages, layouts, and components.
+
 project:
+  name: "krewire"
   kind: site
+  version: "v0.3.2"
+  author: "Krewire Contributors"
+
+# Devtool build pipeline configuration
+build:
+  output: ".krewire/build"
+  base: "/"
+
+# Dev server configuration
+dev:
+  port: "8080"
+
+# Backward compatibility bindings for current CLI version
 version: "v0.3.2"
-title: "Krewire — One Go Framework for Every Workload"
-description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI, one config."
-base: "/"
-output: ".krewire/build"
 author: "Krewire Contributors"
-nav:
-  - text: "Docs"
-    url: "/docs"
-  - text: "GitHub"
-    url: "https://github.com/krewire/krewire"
-  - text: "Specs"
-    url: "https://github.com/krewire/framework/tree/main/docs/specs"
-footer: "© 2026 Krewire Contributors — v0.3.2. Built 100% with Krewire."
-theme:
-  default: "auto"
-  light:
-    primary: "#39D353"
-    primary-content: "#0B1F3B"
-    secondary: "#00D1C1"
-    secondary-content: "#0B1F3B"
-    accent: "#FF3B2E"
-    accent-content: "#ffffff"
-    base-1: "#FAF8F4"
-    base-1-content: "#0B1F3B"
-    base-2: "#f2ede4"
-    base-2-content: "#57677d"
-  dark:
-    primary: "#39D353"
-    primary-content: "#0B1F3B"
-    secondary: "#00D1C1"
-    secondary-content: "#0B1F3B"
-    accent: "#FF3B2E"
-    accent-content: "#ffffff"
-    base-1: "#0B1F3B"
-    base-1-content: "#FAF8F4"
-    base-2: "#112646"
-    base-2-content: "#9ab0ce"
+output: ".krewire/build"
+base: "/"

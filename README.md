@@ -30,7 +30,7 @@ The `main` branch is the source of truth. The production deployment is independe
 ## Structure (not too scoped)
 
 ```
-krewire.yaml          # kind: site, title, nav, footer, theme
+krewire.yaml          # devtool config: kind, build output, dev server, project metadata
 pages/                # file-based routes
 layouts/              # Base (shell) + Docs (sidebar)
 components/           # Hero, FeatureCard, CodeWindow, Ecosystem, Callout, DocNav (frontmatter-free)
