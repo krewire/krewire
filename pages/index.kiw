@@ -366,7 +366,7 @@ p  { font-size: 15px; color: var(--muted); }
 <span style="color:#39D353;font-weight:700">&lt;/style&gt;</span></code></pre>
         <!-- Panel footer -->
         <div class="flex flex-wrap gap-2.5 px-4 py-4" style="background:#071426; border-top:1.5px solid rgba(255,255,255,0.1)">
-          <a href="/docs/dsl"              class="btn btn-primary text-xs px-4 py-2 min-h-0">Explore DSL Syntax →</a>
+          <a href="/docs/krewire-framework#4-the-kiw-component-dsl" class="btn btn-primary text-xs px-4 py-2 min-h-0">Explore DSL Syntax →</a>
           <a href="/docs/getting-started"  class="btn text-xs px-4 py-2 min-h-0 text-fg dark:text-fg-dark" style="background:#0B1F3B; color:#FAF8F4">Read the Docs</a>
         </div>
       </div>

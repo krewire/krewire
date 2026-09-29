@@ -219,8 +219,9 @@ a:hover{color:var(--primary)}
 .footer{border-top:1px solid var(--border);margin-top:32px;background:var(--bg-2)}
 .footer-inner a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 
-/* small: <40rem drawer */
-@media (max-width: 39.99rem){
+/* small & medium: <64rem (md and below) drawer */
+@media (max-width: 63.99rem){
+  .sidebar-toggle{display:inline-flex !important}
   .site-sidebar{
     position:fixed;top:0;left:0;bottom:0;
     width:min(82vw,19rem);max-width:19rem;
@@ -236,12 +237,6 @@ a:hover{color:var(--primary)}
   html.sidebar-open .site-sidebar{transform:translateX(0)}
   html.sidebar-open .sidebar-overlay{opacity:1;pointer-events:auto;display:block}
   html.sidebar-open{overflow:hidden}
-}
-/* medium: 40–63.99rem */
-@media (min-width: 40rem) and (max-width: 63.99rem){
-  .site-layout{grid-template-columns:14rem minmax(0,1fr);gap:2rem;padding:1.5rem 1.25rem 2.5rem}
-  .site-sidebar{align-self:start;position:sticky;top:4.8rem;max-height:calc(100vh - 5.5rem);overflow-y:auto}
-  .sidebar-toggle,.sidebar-close,.sidebar-overlay{display:none !important}
 }
 /* large: 64rem+ */
 @media (min-width: 64rem){

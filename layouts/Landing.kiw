@@ -112,23 +112,24 @@
         <!-- Workloads col -->
         <div class="flex flex-col gap-2">
           <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">8 Workloads</strong>
-          <a href="/docs/workloads#app"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
-          <a href="/docs/workloads#cli"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
-          <a href="/docs/workloads#site"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
-          <a href="/docs/workloads#book"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs &amp; Books</a>
-          <a href="/docs/workloads#worker"  class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
-          <a href="/docs/workloads#service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
-          <a href="/docs/workloads#infra"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
-          <a href="/docs/workloads#runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
+          <a href="/docs/krewire-workloads#1-fullstack-monolith-app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
+          <a href="/docs/krewire-workloads#2-terminal-cli--tui-cli"  class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
+          <a href="/docs/krewire-workloads#3-static-site-generator-site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
+          <a href="/docs/krewire-workloads#4-technical-book-book"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs &amp; Books</a>
+          <a href="/docs/krewire-workloads#5-background-worker-worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
+          <a href="/docs/krewire-workloads#6-microservice-service"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
+          <a href="/docs/krewire-workloads#7-cloud-infrastructure-as-code-infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
+          <a href="/docs/krewire-workloads#8-webassembly-runtime-runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
         </div>
 
         <!-- Docs col -->
         <div class="flex flex-col gap-2">
           <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Documentation</strong>
-          <a href="/docs/getting-started"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Getting Started (5 min)</a>
-          <a href="/docs/workloads"           class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Workloads Architecture</a>
-          <a href="/docs/dsl"                 class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Component DSL (.kiw)</a>
-          <a href="/docs/security-and-api"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Security &amp; HTTP API</a>
+          <a href="/docs/krewire-framework"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.1 Krewire Framework</a>
+          <a href="/docs/why-krewire"         class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.2 Why Krewire?</a>
+          <a href="/docs/getting-started"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.3 Getting Started</a>
+          <a href="/docs/krewire-workloads"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.4 Krewire Workloads</a>
+          <a href="/docs/upgrade-guide"       class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.5 Upgrade Guide</a>
           <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener"
              class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Engineering Specs</a>
         </div>

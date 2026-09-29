@@ -1,5 +1,5 @@
 /* =============================================================================
-   MDBIND — Modern Reader & Documentation Stylesheet
+   mdbind — Modern Reader & Documentation Stylesheet
    Designed for Krewire Book & Documentation Workload
    Harmonized with Krewire Pop-Art / Neo-Brutalist Design System
    ============================================================================= */
@@ -332,9 +332,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
   border-bottom: var(--pop-border-thin);
+}
+
+.sidebar-head-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .sidebar .sidebar-title {
@@ -352,27 +364,113 @@ body {
   display: inline-block;
 }
 
+.toc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: var(--pop-border-thin);
+  background: var(--base-2);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted);
+  box-shadow: 1px 1px 0px var(--border);
+  transition: all 0.15s ease;
+}
+
+.toc-action-btn:hover {
+  background: var(--primary);
+  color: var(--primary-content);
+  transform: translate(-1px, -1px);
+}
+
 .sidebar-close {
   display: none;
   border: var(--pop-border-thin);
   background: var(--base-2);
-  border-radius: 8px;
-  width: 30px;
-  height: 30px;
-  font-size: 18px;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
   line-height: 1;
   cursor: pointer;
   color: var(--ink);
   font-weight: 900;
+  box-shadow: 1px 1px 0px var(--border);
+  transition: all 0.15s ease;
 }
 
 .sidebar-close:hover {
   background: var(--accent);
   color: var(--accent-content);
+  transform: translate(-1px, -1px);
 }
 
 .sidebar-overlay {
   display: none;
+}
+
+/* Sidebar Search Filter */
+.sidebar-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.sidebar-search .search-icon {
+  position: absolute;
+  left: 0.65rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.toc-search-input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0.42rem 1.8rem 0.42rem 2.05rem;
+  border-radius: 8px;
+  border: var(--pop-border-thin);
+  background: var(--base-2);
+  color: var(--ink);
+  box-shadow: var(--pop-shadow-sm);
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.toc-search-input::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.toc-search-input:focus {
+  background: var(--paper);
+  border-color: var(--primary);
+  box-shadow: 2px 2px 0px var(--primary);
+}
+
+.toc-search-clear {
+  position: absolute;
+  right: 0.4rem;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.toc-search-clear:hover {
+  color: var(--ink);
+  background: var(--neutral);
 }
 
 /* TOC Items */
@@ -392,6 +490,8 @@ body {
   font-weight: 600;
   border: 1px solid transparent;
   transition: all 0.15s ease;
+  position: relative;
+  min-width: 0;
 }
 
 .toc-link:hover, .toc-sub:hover {
@@ -411,8 +511,9 @@ body {
 }
 
 .toc-sub {
-  padding-left: 1.25rem;
+  padding: 0.38rem 0.6rem 0.38rem 0.75rem;
   font-size: 13px;
+  border-radius: 6px;
 }
 
 .toc-sub.active {
@@ -429,6 +530,7 @@ body {
   background: var(--base-3);
   color: var(--ink);
   border: 1px solid var(--neutral);
+  flex-shrink: 0;
 }
 
 .toc-link.active .num, .toc-sub.active .num {
@@ -437,15 +539,26 @@ body {
   border-color: var(--border);
 }
 
-/* TOC Groups */
+.toc-text {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* TOC Collapsible Groups */
 .toc-group {
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
 }
 
 .toc-parent-row {
   display: flex;
   align-items: center;
   gap: 4px;
+  border-radius: 8px;
 }
 
 .toc-parent-row .toc-link {
@@ -459,39 +572,66 @@ body {
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid transparent;
+  border: var(--pop-border-thin);
   border-radius: 6px;
-  background: transparent;
+  background: var(--base-2);
   color: var(--muted);
   cursor: pointer;
-  transition: all 0.15s ease;
+  box-shadow: 1px 1px 0px var(--border);
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .toc-toggle:hover {
-  background: var(--base-2);
+  background: var(--primary);
+  color: var(--primary-content);
+  transform: translate(-1px, -1px);
+}
+
+.toc-group.open > .toc-parent-row .toc-toggle {
+  background: var(--base-3);
   color: var(--ink);
 }
 
+.toc-group.open > .toc-parent-row .toc-toggle:hover {
+  background: var(--primary);
+  color: var(--primary-content);
+}
+
 .toc-toggle svg {
-  transition: transform 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toc-group.open > .toc-parent-row .toc-toggle svg {
   transform: rotate(90deg);
 }
 
+/* Collapsible Dropdown Submenu with Smooth Transition */
 .toc-subs {
-  display: none;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  display: flex;
   flex-direction: column;
   gap: 3px;
-  margin: 3px 0 6px;
+  margin: 0 0 0 0.85rem;
+  padding-left: 0.55rem;
   border-left: 2px solid var(--neutral);
-  margin-left: 0.8rem;
-  padding-left: 0.4rem;
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease,
+              margin 0.2s ease;
+  pointer-events: none;
 }
 
 .toc-group.open > .toc-subs {
-  display: flex;
+  max-height: 1200px;
+  opacity: 1;
+  margin: 4px 0 8px 0.85rem;
+  pointer-events: auto;
+}
+
+.toc-group.has-active > .toc-subs,
+.toc-group:has(.active) > .toc-subs {
+  border-left-color: var(--primary);
 }
 
 /* ── Content & Reader ─────────────────────────────────────────────────────── */
@@ -844,8 +984,12 @@ nav.pager a.next::before {
 }
 
 /* ── Responsive Breakpoints ───────────────────────────────────────────────── */
-/* Mobile Drawer (< 768px) */
-@media (max-width: 47.99rem) {
+/* Mobile & Tablet Drawer (md and below: < 1024px / < 64rem) */
+@media (max-width: 63.99rem) {
+  .sidebar-toggle {
+    display: inline-flex !important;
+  }
+
   .sidebar {
     position: fixed;
     top: 0;
@@ -894,11 +1038,18 @@ nav.pager a.next::before {
   }
 }
 
-/* Tablet & Desktop (>= 768px) */
-@media (min-width: 48rem) {
+/* Tablet refinement (48rem - 63.99rem / 768px - 1023px) */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
   .layout {
-    grid-template-columns: 16.5rem minmax(0, 1fr);
-    gap: 2.5rem;
+    padding: 2rem 1.5rem 3.5rem;
+  }
+}
+
+/* Desktop & Large Screens (lg and up: >= 1024px / >= 64rem) */
+@media (min-width: 64rem) {
+  .layout {
+    grid-template-columns: 18rem minmax(0, 1fr);
+    gap: 3.5rem;
     padding: 2.5rem 1.5rem 4rem;
   }
 
@@ -921,13 +1072,5 @@ nav.pager a.next::before {
 
   .sidebar-toggle, .sidebar-close, .sidebar-overlay {
     display: none !important;
-  }
-}
-
-/* Large Desktop (>= 1024px) */
-@media (min-width: 64rem) {
-  .layout {
-    grid-template-columns: 18rem minmax(0, 1fr);
-    gap: 3.5rem;
   }
 }

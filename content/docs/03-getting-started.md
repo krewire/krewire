@@ -4,7 +4,7 @@ description: "Install kiw and go from zero to a running site, app, or book in un
 date: "2026-09-29"
 ---
 
-# Getting Started with Krewire
+# Getting Started
 
 Krewire is a **unified Go framework for every workload** — web monoliths, static sites, documentation books, CLI tools, background workers, microservices, cloud infrastructure, and WebAssembly runtimes.
 
@@ -331,8 +331,7 @@ Krewire follows a clean separation between devtool settings and application data
 
 ## Next Steps
 
-Now that you have your project running, explore the rest of the documentation:
+Now that you have your project running, dive deeper into the ecosystem:
 
-- **[Site Workload](/docs/site)** — Deep dive into static site generation, content collections, and dynamic routes.
-- **[Book Workload](/docs/book)** — Organizing multi-chapter technical documentation and manuals.
-- **[Architecture & Specs](/docs/specs/architecture)** — How Krewire unifies Go workloads under a single kernel.
+- Proceed to [**1.4 Krewire Workloads →**](/docs/krewire-workloads) to explore the 8 workload kinds in detail.
+- Read [**1.5 Upgrade Guide →**](/docs/upgrade-guide) for versioning policies and configuration migrations.
