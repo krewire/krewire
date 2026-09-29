@@ -1138,3 +1138,104 @@ nav.pager a.next::before {
     display: none !important;
   }
 }
+
+/* ── Chapter Overview Grid & Cards ────────────────────────────────────────── */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.chapter-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: var(--pop-border);
+  border-radius: 12px;
+  padding: 1.4rem;
+  background: var(--base-2);
+  box-shadow: var(--pop-shadow-sm);
+  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+}
+
+.chapter-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--pop-shadow);
+  transform: translate(-2px, -2px);
+}
+
+.chapter-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.chapter-card-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  color: var(--primary-content);
+  font-weight: 900;
+  font-size: 0.85rem;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  box-shadow: 1.5px 1.5px 0px var(--border);
+  flex-shrink: 0;
+}
+
+.chapter-card-title {
+  margin: 0 !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+}
+
+.chapter-card-title a {
+  color: var(--ink) !important;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.15s ease;
+}
+
+.chapter-card-title a:hover {
+  color: var(--primary) !important;
+}
+
+.chapter-card-title .arrow {
+  color: var(--primary);
+  font-weight: 900;
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.chapter-card:hover .chapter-card-title .arrow {
+  transform: translateX(4px);
+}
+
+.chapter-card-desc {
+  margin-bottom: 0.95rem !important;
+  font-size: 0.88rem !important;
+  color: var(--base-2-content) !important;
+  line-height: 1.55 !important;
+  flex-grow: 1;
+}
+
+.chapter-card-list {
+  margin: 0 !important;
+  padding-left: 1.15rem !important;
+  font-size: 0.83rem !important;
+  color: var(--muted) !important;
+  line-height: 1.5 !important;
+}
+
+.chapter-card-list li {
+  margin-bottom: 0.25rem !important;
+}

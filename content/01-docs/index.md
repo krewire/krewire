@@ -25,40 +25,52 @@ Welcome to the **Krewire Documentation**.
 
 This **Overview** chapter introduces you to the core philosophy, technical architecture, and developer workflow of Krewire:
 
-<div class="overview-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+<div class="overview-grid">
 
-  <div style="border: var(--pop-border); border-radius: 10px; padding: 1.25rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <h3 style="margin-top:0; font-size:1.1rem; font-weight:800;">
-      <a href="/docs/krewire-framework" style="color:var(--primary); text-decoration:none;">1.1 Krewire Framework →</a>
-    </h3>
-    <p style="margin-bottom:0; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">1.1</span>
+      <h3 class="chapter-card-title">
+        <a href="/docs/krewire-framework">Krewire Framework <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
       Explore the modular monolith architecture, the package ecosystem (<code>framework</code>, <code>libs</code>, <code>kiw</code>, <code>mdbind</code>), and the core web engine.
     </p>
   </div>
 
-  <div style="border: var(--pop-border); border-radius: 10px; padding: 1.25rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <h3 style="margin-top:0; font-size:1.1rem; font-weight:800;">
-      <a href="/docs/why-krewire" style="color:var(--primary); text-decoration:none;">1.2 Why Krewire? →</a>
-    </h3>
-    <p style="margin-bottom:0; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">1.2</span>
+      <h3 class="chapter-card-title">
+        <a href="/docs/why-krewire">Why Krewire? <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
       Understand how Krewire solves modern toolchain fragmentation, replaces multi-language stacks, and enables progressive system growth without rewrites.
     </p>
   </div>
 
-  <div style="border: var(--pop-border); border-radius: 10px; padding: 1.25rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <h3 style="margin-top:0; font-size:1.1rem; font-weight:800;">
-      <a href="/docs/krewire-workloads" style="color:var(--primary); text-decoration:none;">1.3 Krewire Workloads →</a>
-    </h3>
-    <p style="margin-bottom:0; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">1.3</span>
+      <h3 class="chapter-card-title">
+        <a href="/docs/krewire-workloads">Krewire Workloads <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
       Deep dive into the 8 official workload kinds (<code>app</code>, <code>cli</code>, <code>site</code>, <code>book</code>, <code>worker</code>, <code>service</code>, <code>infra</code>, <code>runtime</code>).
     </p>
   </div>
 
-  <div style="border: var(--pop-border); border-radius: 10px; padding: 1.25rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <h3 style="margin-top:0; font-size:1.1rem; font-weight:800;">
-      <a href="/docs/upgrade-guide" style="color:var(--primary); text-decoration:none;">1.4 Upgrade Guide →</a>
-    </h3>
-    <p style="margin-bottom:0; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">1.4</span>
+      <h3 class="chapter-card-title">
+        <a href="/docs/upgrade-guide">Upgrade Guide <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
       Learn the SemVer zero-breakage promise, migration steps for <code>krewire.yaml</code> decoupling, and how to update CLI & framework dependencies.
     </p>
   </div>

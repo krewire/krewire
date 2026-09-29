@@ -14,7 +14,102 @@ Whether you are authoring a lightweight static documentation portal, developing 
 
 ---
 
-## 1. Prerequisites & System Verification
+## 1. What is in this Chapter?
+
+This **Getting Started** chapter is divided into five focused, in-depth subchapters designed to give you complete mastery over the Krewire toolchain:
+
+<div class="overview-grid">
+
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">2.1</span>
+      <h3 class="chapter-card-title">
+        <a href="/getting-started/installation">Installation <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
+      Complete installation instructions across Linux, macOS, and Windows. Learn automated shell scripting, Go source installation, cryptographic checksum validation, custom install paths, and shell tab completions.
+    </p>
+    <ul class="chapter-card-list">
+      <li>Automated shell installer & checksums</li>
+      <li><code>go install</code> & binary releases</li>
+      <li>Bash, Zsh, and Fish completions</li>
+    </ul>
+  </div>
+
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">2.2</span>
+      <h3 class="chapter-card-title">
+        <a href="/getting-started/configuration">Configuration <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
+      Deep dive into <code>krewire.yaml</code>: project metadata, build targets, server port bindings, asset directory mappings, documentation book integration, and task automation scripts.
+    </p>
+    <ul class="chapter-card-list">
+      <li>Canonical YAML schema specification</li>
+      <li>Environment variable overrides (<code>KIW_PORT</code>, <code>KIW_ENV</code>)</li>
+      <li>Task automation & custom scripts</li>
+    </ul>
+  </div>
+
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">2.3</span>
+      <h3 class="chapter-card-title">
+        <a href="/getting-started/directory-structure">Directory Structure <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
+      Explore the canonical directory layouts for every workload. Master the separation between presentation (<code>pages/</code>, <code>layouts/</code>, <code>components/</code>), static files (<code>public/</code>), manuscripts (<code>content/</code>), and private Go logic (<code>internal/</code>).
+    </p>
+    <ul class="chapter-card-list">
+      <li>Standard project anatomy & file roles</li>
+      <li>Workload-specific layout variants</li>
+      <li>Clean Architecture & SRP boundaries</li>
+    </ul>
+  </div>
+
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">2.4</span>
+      <h3 class="chapter-card-title">
+        <a href="/getting-started/agentic-development">Agentic Development <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
+      Equip your repositories with an autonomous AI agent guild using Krewire Boost. Master spec-driven engineering, the 6-step agent workflow, and automated quality gates.
+    </p>
+    <ul class="chapter-card-list">
+      <li>Krewire Boost guild scaffolding (<code>kiw boost install</code>)</li>
+      <li><code>AGENTS.md</code> unified constitution & slash commands</li>
+      <li>OpenCode, Claude Code, and Cursor workflows</li>
+    </ul>
+  </div>
+
+  <div class="chapter-card">
+    <div class="chapter-card-head">
+      <span class="chapter-card-num">2.5</span>
+      <h3 class="chapter-card-title">
+        <a href="/getting-started/dsl">DSL (.kiw) <span class="arrow">→</span></a>
+      </h3>
+    </div>
+    <p class="chapter-card-desc">
+      Master Krewire's Single-File Component language. Learn YAML frontmatter, Go <code>html/template</code> body expressions, compile-time scoped CSS, client scripts, and embedded Markdown.
+    </p>
+    <ul class="chapter-card-list">
+      <li>Single-File Component (SFC) architecture</li>
+      <li>Automatic scoped CSS (<code>data-kiw-component</code>)</li>
+      <li>Client script extraction & hydration tiers</li>
+    </ul>
+  </div>
+
+</div>
+
+---
+
+## 2. Prerequisites & System Verification
 
 Before building with Krewire, ensure your local development machine meets the baseline requirements. Krewire requires **no Node.js, no npm, no bundlers, and no external runtimes**—only standard Go and a Unix-compatible shell or Windows terminal.
 
@@ -45,7 +140,7 @@ printf "Go:      %s\nGit:     %s\nOS/Arch: %s/%s\n" \
 
 ---
 
-## 2. The Krewire Development Lifecycle
+## 3. The Krewire Development Lifecycle
 
 Traditional fullstack development often requires juggling multiple disjointed build tools: package managers (`npm`, `pnpm`), bundlers (`vite`, `webpack`), process supervisors, CSS processors, and deployment CLIs.
 
@@ -74,7 +169,7 @@ Krewire replaces this cognitive overhead with a unified, circular development li
 
 ---
 
-## 3. Hands-On 5-Minute Quickstart
+## 4. Hands-On 5-Minute Quickstart
 
 Follow this end-to-end tutorial to install `kiw`, scaffold a project, experience hot reloading, and generate a production build.
 
@@ -220,7 +315,7 @@ Visit `http://localhost:3000` to verify your optimized production artifact.
 
 ---
 
-## 4. Workload Archetype Selection Guide
+## 5. Workload Archetype Selection Guide
 
 Krewire supports eight first-class workload archetypes. When bootstrapping a new project, select the archetype that matches your architectural objective:
 
@@ -237,101 +332,6 @@ Krewire supports eight first-class workload archetypes. When bootstrapping a new
 
 > [!TIP]
 > **Progressive Growth:** You can start with `--site` and later evolve your codebase into an `--app` or extract parts into a `--service` without rewriting your component files or folder layouts.
-
----
-
-## 5. What is in this Chapter?
-
-This **Getting Started** chapter is divided into five focused, in-depth subchapters designed to give you complete mastery over the Krewire toolchain:
-
-<div class="overview-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin: 1.5rem 0;">
-
-  <div style="border: var(--pop-border); border-radius: 12px; padding: 1.5rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
-      <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:var(--primary-content); font-weight:900; font-size:0.85rem; border-radius:6px;">2.1</span>
-      <h3 style="margin:0; font-size:1.15rem; font-weight:800;">
-        <a href="/getting-started/installation" style="color:var(--primary); text-decoration:none;">Installation →</a>
-      </h3>
-    </div>
-    <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
-      Complete installation instructions across Linux, macOS, and Windows. Learn automated shell scripting, Go source installation, cryptographic checksum validation, custom install paths, and shell tab completions.
-    </p>
-    <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:var(--muted);">
-      <li>Automated shell installer & checksums</li>
-      <li><code>go install</code> & binary releases</li>
-      <li>Bash, Zsh, and Fish completions</li>
-    </ul>
-  </div>
-
-  <div style="border: var(--pop-border); border-radius: 12px; padding: 1.5rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
-      <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:var(--primary-content); font-weight:900; font-size:0.85rem; border-radius:6px;">2.2</span>
-      <h3 style="margin:0; font-size:1.15rem; font-weight:800;">
-        <a href="/getting-started/configuration" style="color:var(--primary); text-decoration:none;">Configuration →</a>
-      </h3>
-    </div>
-    <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
-      Deep dive into <code>krewire.yaml</code>: project metadata, build targets, server port bindings, asset directory mappings, documentation book integration, and task automation scripts.
-    </p>
-    <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:var(--muted);">
-      <li>Canonical YAML schema specification</li>
-      <li>Environment variable overrides (<code>KIW_PORT</code>, <code>KIW_ENV</code>)</li>
-      <li>Task automation & custom scripts</li>
-    </ul>
-  </div>
-
-  <div style="border: var(--pop-border); border-radius: 12px; padding: 1.5rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
-      <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:var(--primary-content); font-weight:900; font-size:0.85rem; border-radius:6px;">2.3</span>
-      <h3 style="margin:0; font-size:1.15rem; font-weight:800;">
-        <a href="/getting-started/directory-structure" style="color:var(--primary); text-decoration:none;">Directory Structure →</a>
-      </h3>
-    </div>
-    <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
-      Explore the canonical directory layouts for every workload. Master the separation between presentation (<code>pages/</code>, <code>layouts/</code>, <code>components/</code>), static files (<code>public/</code>), manuscripts (<code>content/</code>), and private Go logic (<code>internal/</code>).
-    </p>
-    <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:var(--muted);">
-      <li>Standard project anatomy & file roles</li>
-      <li>Workload-specific layout variants</li>
-      <li>Clean Architecture & SRP boundaries</li>
-    </ul>
-  </div>
-
-  <div style="border: var(--pop-border); border-radius: 12px; padding: 1.5rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
-      <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:var(--primary-content); font-weight:900; font-size:0.85rem; border-radius:6px;">2.4</span>
-      <h3 style="margin:0; font-size:1.15rem; font-weight:800;">
-        <a href="/getting-started/agentic-development" style="color:var(--primary); text-decoration:none;">Agentic Development →</a>
-      </h3>
-    </div>
-    <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
-      Equip your repositories with an autonomous AI agent guild using Krewire Boost. Master spec-driven engineering, the 6-step agent workflow, and automated quality gates.
-    </p>
-    <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:var(--muted);">
-      <li>Krewire Boost guild scaffolding (<code>kiw boost install</code>)</li>
-      <li><code>AGENTS.md</code> unified constitution & slash commands</li>
-      <li>OpenCode, Claude Code, and Cursor workflows</li>
-    </ul>
-  </div>
-
-  <div style="border: var(--pop-border); border-radius: 12px; padding: 1.5rem; background: var(--base-2); box-shadow: var(--pop-shadow-sm);">
-    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
-      <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:var(--primary-content); font-weight:900; font-size:0.85rem; border-radius:6px;">2.5</span>
-      <h3 style="margin:0; font-size:1.15rem; font-weight:800;">
-        <a href="/getting-started/dsl" style="color:var(--primary); text-decoration:none;">DSL (.kiw) →</a>
-      </h3>
-    </div>
-    <p style="margin-bottom:1rem; font-size:0.9rem; color:var(--base-2-content); line-height:1.5;">
-      Master Krewire's Single-File Component language. Learn YAML frontmatter, Go <code>html/template</code> body expressions, compile-time scoped CSS, client scripts, and embedded Markdown.
-    </p>
-    <ul style="margin:0; padding-left:1.2rem; font-size:0.85rem; color:var(--muted);">
-      <li>Single-File Component (SFC) architecture</li>
-      <li>Automatic scoped CSS (<code>data-kiw-component</code>)</li>
-      <li>Client script extraction & hydration tiers</li>
-    </ul>
-  </div>
-
-</div>
 
 ---
 
