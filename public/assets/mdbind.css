@@ -419,58 +419,122 @@ body {
   margin-bottom: 0.85rem;
 }
 
-.sidebar-search .search-icon {
+.sidebar-search .search-icon-box {
   position: absolute;
-  left: 0.65rem;
+  left: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--muted);
   pointer-events: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.sidebar-search:focus-within .search-icon-box {
+  color: var(--primary);
+  transform: scale(1.08);
 }
 
 .toc-search-input {
   width: 100%;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
-  padding: 0.42rem 1.8rem 0.42rem 2.05rem;
-  border-radius: 8px;
-  border: var(--pop-border-thin);
+  padding: 0.5rem 2.2rem 0.5rem 2.2rem;
+  border-radius: 9px;
+  border: var(--pop-border);
   background: var(--base-2);
   color: var(--ink);
   box-shadow: var(--pop-shadow-sm);
-  transition: all 0.15s ease;
+  transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
   outline: none;
+  line-height: 1.4;
+}
+
+.toc-search-input::-webkit-search-cancel-button,
+.toc-search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .toc-search-input::placeholder {
   color: var(--muted);
-  opacity: 0.8;
+  opacity: 0.75;
+  font-weight: 500;
+}
+
+.toc-search-input:hover {
+  border-color: var(--primary);
+  box-shadow: 2px 2px 0px var(--border);
 }
 
 .toc-search-input:focus {
-  background: var(--paper);
+  background: var(--base-1);
   border-color: var(--primary);
-  box-shadow: 2px 2px 0px var(--primary);
+  box-shadow: 3px 3px 0px var(--primary);
+  transform: translate(-1px, -1px);
+}
+
+.toc-search-kbd {
+  position: absolute;
+  right: 0.55rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 2.5px 5.5px;
+  border-radius: 5px;
+  background: var(--base-3);
+  color: var(--base-2-content);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 1px 1px 0px var(--border-subtle);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.sidebar-search:focus-within .toc-search-kbd {
+  opacity: 0.2;
 }
 
 .toc-search-clear {
   position: absolute;
-  right: 0.4rem;
-  width: 18px;
-  height: 18px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-size: 15px;
+  right: 0.45rem;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--base-3);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 0px var(--border);
+  transition: all 0.15s ease;
+  padding: 0;
 }
 
 .toc-search-clear:hover {
-  color: var(--ink);
-  background: var(--neutral);
+  background: var(--accent);
+  color: var(--accent-content);
+  border-color: var(--accent);
+  transform: scale(1.06);
+}
+
+.toc-no-results {
+  padding: 0.65rem 0.75rem;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  background: var(--base-2);
+  border: var(--pop-border-thin);
+  border-radius: 8px;
+  margin-bottom: 0.85rem;
+  box-shadow: var(--pop-shadow-sm);
 }
 
 /* TOC Items */

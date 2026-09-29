@@ -26,7 +26,6 @@
   <script src="/assets/app.js"></script>
 </head>
 <body>
-  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-content focus:font-bold focus:rounded-md focus:shadow-md">Skip to content</a>
 
   <!-- NAV -->
   <header class="sticky top-0 z-50 bg-bg dark:bg-bg-dark border-b border-pop w-full" style="border-bottom:var(--pop-border)">
