@@ -146,6 +146,7 @@
           <a href="/docs/getting-started"     class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.3 Getting Started</a>
           <a href="/docs/krewire-workloads"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.4 Krewire Workloads</a>
           <a href="/docs/upgrade-guide"       class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.5 Upgrade Guide</a>
+          <a href="/quick-start"              class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">2. Quick Start →</a>
           <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener"
              class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Engineering Specs</a>
         </div>

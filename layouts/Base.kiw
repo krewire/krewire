@@ -49,6 +49,19 @@
             <a href="/docs/upgrade-guide" class="toc-sub">1.5 Upgrade Guide</a>
           </div>
         </div>
+        <div class="toc-group open" data-group>
+          <div class="toc-parent-row">
+            <a href="/quick-start" class="toc-link">2. Quick Start</a>
+            <button class="toc-toggle" aria-expanded="true" aria-label="Toggle submenu">
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+            </button>
+          </div>
+          <div class="toc-subs">
+            <a href="/quick-start/installation" class="toc-sub">2.1 Installation</a>
+            <a href="/quick-start/configuration" class="toc-sub">2.2 Configuration</a>
+            <a href="/quick-start/directory-structure" class="toc-sub">2.3 Directory Structure</a>
+          </div>
+        </div>
       </nav>
     </aside>
     <div class="sidebar-overlay" id="site-sidebar-overlay" aria-hidden="true"></div>
