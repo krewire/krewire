@@ -16,9 +16,3 @@ build:
 # Dev server configuration
 dev:
   port: "8080"
-
-# Backward compatibility bindings for current CLI version
-version: "v0.1.0"
-author: "Krewire Contributors"
-output: ".krewire/build"
-base: "/"

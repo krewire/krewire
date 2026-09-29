@@ -58,9 +58,9 @@ You should see output similar to:
 
 ```text
 kiw Krewire Devtool
-  CLI          v0.3.3
-  Framework    Krewire Framework v0.3.1 (dev)
-  Libraries    github.com/krewire/libs v0.4.0 (dev)
+  CLI          v0.1.0
+  Framework    Krewire Framework v0.1.0 (dev)
+  Libraries    github.com/krewire/libs v0.1.0 (dev)
   Go           go1.27.1 (linux/amd64)
 ```
 
