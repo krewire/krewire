@@ -126,7 +126,7 @@ layout: Landing
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">cli</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Command-line utilities and interactive TUIs powered by a Bubble Tea-inspired reactive terminal interface engine.</p>
         <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
-          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --cli</code>
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw run</code>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ layout: Landing
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">site</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">High-performance static site generator with file-based routing, scoped <code class="code-inline">.kiw</code> components, and zero client-side JS.</p>
         <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
-          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --site</code>
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build</code>
         </div>
       </div>
 
@@ -152,7 +152,7 @@ layout: Landing
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">book</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Turn markdown manuscripts into structured documentation books with automatic indexing via <code class="code-inline">mdbind</code>.</p>
         <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
-          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --book</code>
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --target book</code>
         </div>
       </div>
 
@@ -165,7 +165,7 @@ layout: Landing
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">worker</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Asynchronous job queues, scheduled cron tasks, retry policies, backoff timers, and dead-letter queues via <code class="code-inline">framework/worker</code>.</p>
         <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
-          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw run --worker</code>
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw worker</code>
         </div>
       </div>
 
@@ -178,7 +178,7 @@ layout: Landing
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">service</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Distributed microservice architecture with service discovery, API gateway routing, rate limiting, and OpenTelemetry tracing.</p>
         <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
-          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw run --service</code>
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw run</code>
         </div>
       </div>
 
@@ -191,7 +191,7 @@ layout: Landing
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">infra</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Provider-agnostic infrastructure-as-code compiling directly to AWS, GCP, or Kubernetes specifications from Go declarations.</p>
         <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
-          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw infra apply</code>
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw deploy --target infra</code>
         </div>
       </div>
 
@@ -204,7 +204,7 @@ layout: Landing
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">runtime</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Compile Go into WebAssembly with virtual DOM diffing, reactive interactive islands, and partial client hydration.</p>
         <div class="mt-auto px-2.5 py-1.5 rounded-md w-fit bg-bg-2 dark:bg-bg-dark-2" style="border:1.5px solid var(--border); box-shadow:1.5px 1.5px 0 var(--border)">
-          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --wasm</code>
+          <code class="font-mono text-xs font-extrabold text-fg dark:text-fg-dark">kiw build --target wasm</code>
         </div>
       </div>
 
@@ -260,7 +260,7 @@ cd my-site</code></pre>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw dev</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">Instant hot-reload local development server with file-based routing and scoped CSS updates.</p>
         <pre class="term-block mt-auto text-xs"><code>kiw dev
-# ⚡ Ready at http://localhost:3000</code></pre>
+# ⚡ Ready at http://localhost:8080</code></pre>
       </div>
 
       <!-- Step 4: Deploy -->
@@ -351,7 +351,6 @@ cd my-site</code></pre>
         <pre class="m-0 px-5 py-5 overflow-x-auto font-mono text-sm leading-relaxed" style="color:#FAF8F4"><code><span style="color:#64748b;font-style:italic">---</span>
 <span style="color:#00D1C1;font-weight:700">title:</span> "Welcome to Krewire"
 <span style="color:#00D1C1;font-weight:700">layout:</span> Landing
-<span style="color:#00D1C1;font-weight:700">workload:</span> site
 <span style="color:#64748b;font-style:italic">---</span>
 
 <span style="color:#39D353;font-weight:700">&lt;section class="welcome"&gt;</span>

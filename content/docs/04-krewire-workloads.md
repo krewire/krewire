@@ -24,13 +24,13 @@ project:
 | Workload | Kind Name | Primary Use Case | CLI Execution | Key Packages |
 | :--- | :--- | :--- | :--- | :--- |
 | **Fullstack Monolith** | `app` | Web applications, SSR, JSON APIs, sessions, database access | `kiw run`, `kiw dev` | `framework/web`, `framework/app`, `framework/ui` |
-| **Terminal CLI & TUI** | `cli` | Command-line utilities, interactive developer TUIs | `kiw run`, `kiw build --cli` | `framework/tui`, `libs/term` |
-| **Static Site (SSG)** | `site` | Landing pages, marketing websites, blogs, portfolios | `kiw build --site`, `kiw serve` | `framework/web/ssg`, `framework/dsl` |
-| **Technical Book** | `book` | Multi-chapter documentation, books, software manuals | `kiw build --book`, `kiw serve` | `mdbind/book` |
-| **Background Worker** | `worker` | Asynchronous job queues, cron schedules, retries, DLQ | `kiw run --worker` | `framework/worker` |
-| **Microservice** | `service` | Distributed RPC/HTTP APIs, service registry, gateways | `kiw run --service` | `framework/service` |
-| **Cloud Infra (IaC)** | `infra` | Provider-agnostic cloud resource provisioning (AWS/K8s) | `kiw infra apply` | `framework/infra` |
-| **WASM Frontend** | `runtime` | Go-compiled client WebAssembly with reactive VDOM | `kiw build --wasm` | `framework/runtime` |
+| **Terminal CLI & TUI** | `cli` | Command-line utilities, interactive developer TUIs | `kiw run`, `kiw new my-cli --cli` | `framework/tui`, `libs/term` |
+| **Static Site (SSG)** | `site` | Landing pages, marketing websites, blogs, portfolios | `kiw build`, `kiw dev` | `framework/web/ssg`, `framework/dsl` |
+| **Technical Book** | `book` | Multi-chapter documentation, books, software manuals | `kiw build --target book`, `kiw dev` | `mdbind/book` |
+| **Background Worker** | `worker` | Asynchronous job queues, cron schedules, retries, DLQ | `kiw worker` | `framework/worker` |
+| **Microservice** | `service` | Distributed RPC/HTTP APIs, service registry, gateways | `kiw run`, `kiw dashboard` | `framework/service` |
+| **Cloud Infra (IaC)** | `infra` | Provider-agnostic cloud resource provisioning (AWS/K8s) | `kiw deploy --target infra` | `framework/infra` |
+| **WASM Frontend** | `runtime` | Go-compiled client WebAssembly with reactive VDOM | `kiw build --target wasm` | `framework/runtime` |
 
 ---
 
@@ -130,7 +130,7 @@ The `worker` workload runs background asynchronous job processors, distributed t
 ### Running
 
 ```bash
-kiw run --worker
+kiw worker --queue memory
 ```
 
 ---
@@ -149,7 +149,7 @@ The `service` workload equips high-throughput Go microservices with cloud-native
 ### Running
 
 ```bash
-kiw run --service
+kiw run
 ```
 
 ---
@@ -161,14 +161,14 @@ The `infra` workload allows developers to declare cloud architecture directly in
 ### Characteristics
 
 - **Declarative Go Structs:** Define VPCs, databases, object storage, and compute clusters using typed Go declarations instead of HCL or YAML.
-- **Deterministic Planning:** `kiw deploy --plan` generates an execution graph with zero side-effects before applying.
+- **Deterministic Planning:** `kiw deploy --target infra --plan` generates an execution graph with zero side-effects before applying.
 - **Provider Support:** Multi-cloud drivers covering AWS (ECS, Lambda, RDS, S3, CloudFront) and Kubernetes (Deployments, Services, Ingress).
 
 ### Running
 
 ```bash
-kiw deploy --plan
-kiw infra apply
+kiw deploy --target infra --plan
+kiw deploy --target infra
 ```
 
 ---
@@ -186,7 +186,7 @@ The `runtime` workload compiles Go directly to WebAssembly (`GOOS=js GOARCH=wasm
 ### Running
 
 ```bash
-kiw build --wasm
+kiw build --target wasm
 ```
 
 ---

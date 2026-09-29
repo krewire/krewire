@@ -10,7 +10,6 @@
   <pre><code><span class="c">---</span>
 <span class="k">title:</span> Hello Krewire
 <span class="k">layout:</span> Landing
-<span class="k">workload:</span> site
 <span class="c">---</span>
 <span class="t">&lt;h1&gt;</span>{{"{{"}}.Title{{"}}"}}<span class="t">&lt;/h1&gt;</span>
 <span class="t">&lt;p&gt;</span>One Go Framework. Every Workload.<span class="t">&lt;/p&gt;</span>
