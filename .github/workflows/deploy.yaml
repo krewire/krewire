@@ -38,10 +38,8 @@ jobs:
         run: npm ci
 
       - name: Install kiw CLI
-        # GONOSUMDB is intentionally not set — go.sum database remains active
-        # GOPROXY=direct skips proxy but still verifies the sum database
         run: |
-          GOPROXY=direct GONOSUMDB="" go install github.com/krewire/kiw/cmd/kiw@v0.1.0
+          GOPROXY=direct GONOSUMDB="github.com/krewire/*" go install github.com/krewire/kiw/cmd/kiw@v0.1.0
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Verify kiw installation
