@@ -145,8 +145,9 @@ jobs:
           ssh -i ~/.ssh/deploy_key \
               -o StrictHostKeyChecking=yes \
               -o BatchMode=yes \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s << 'REMOTE'
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s "${{ github.sha }}" << 'REMOTE'
             set -euo pipefail
+            SHA="$1"
 
             echo "▶ Verifying image checksum on VPS..."
             sha256sum -c /tmp/krewire-web.tar.gz.sha256 \
