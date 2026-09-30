@@ -142,11 +142,11 @@ In layout components (`layouts/*.kiw`), the page's rendered body is injected usi
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <header>{{component "Header" .}}</header>
+  <header><Header /></header>
   <main id="main">
     {{.Content}}
   </main>
-  <footer>{{component "Footer" .}}</footer>
+  <footer><Footer /></footer>
 </body>
 </html>
 ```
@@ -157,9 +157,14 @@ In layout components (`layouts/*.kiw`), the page's rendered body is injected usi
 
 Components located in the `components/` directory can be instantiated dynamically inside any page, layout, or other component using the `component` helper:
 
-```html
-{{component "ComponentName" .}}
+
+
 ```
+
+The equivalent template-helper form is `{{component "ComponentName" .}}`; both forms produce the same component composition.
+
+
+
 
 ### Example: Component with Scoped Props
 
@@ -186,7 +191,7 @@ Define `components/Alert.kiw`:
 Instantiate `Alert` inside `pages/index.kiw`:
 
 ```html
-{{component "Alert" (dict "Type" "warning" "Message" "Maintenance scheduled tonight at 23:00 UTC")}}
+<Alert Type="warning" Message="Maintenance scheduled tonight at 23:00 UTC" />
 ```
 
 ---
@@ -264,7 +269,8 @@ Krewire provides built-in template helper functions:
 
 | Helper | Syntax | Description |
 | :--- | :--- | :--- |
-| `component` | `{{component "Name" .}}` | Renders a child component with passed context. |
+| Component tags | `<Name />` | Renders a child component using JSX-like syntax. |
+| `component` | `{{component "Name" .}}` | Compatible template-helper form for rendering a child component with context or dict props. |
 | `t` / `translate` | `{{t "home.welcome"}}` | Translates a key using the active language bundle (`lang/*.json`). |
 | `tLocale` | `{{tLocale "fr" "home.welcome"}}` | Translates a key for a specific locale. |
 | `locales` | `{{locales}}` | Returns a list of all configured language codes. |

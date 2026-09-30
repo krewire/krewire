@@ -54,8 +54,8 @@ layout: Landing
 
         <!-- CTAs: stacked on mobile, row on sm+ -->
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
-          <a href="/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
-          <a href="#workloads"            class="btn btn-lg">Explore 8 Workloads ↓</a>
+          <Button Variant="primary" Size="lg" Href="/getting-started">Get Started — 5 Min →</Button>
+          <Button Variant="outline" Size="lg" Href="#workloads">Explore 8 Workloads ↓</Button>
         </div>
 
         <p class="text-xs font-semibold text-muted dark:text-muted-dark">Go 1.22+ · File-based routing · Scoped CSS · 100% Zero JS by default</p>
@@ -388,8 +388,8 @@ p  { font-size: 15px; color: var(--muted); }
 <span style="color:#39D353;font-weight:700">&lt;/style&gt;</span></code></pre>
         <!-- Panel footer -->
         <div class="flex flex-wrap gap-2.5 px-4 py-4" style="background:#071426; border-top:1.5px solid rgba(255,255,255,0.1)">
-          <a href="/getting-started/dsl" class="btn btn-primary text-xs px-4 py-2 min-h-0">Explore DSL Syntax →</a>
-          <a href="/getting-started"  class="btn text-xs px-4 py-2 min-h-0 text-fg dark:text-fg-dark" style="background:#0B1F3B; color:#FAF8F4">Read the Docs</a>
+          <Button Variant="primary" Size="sm" Href="/getting-started/dsl">Explore DSL Syntax →</Button>
+          <Button Variant="outline" Size="sm" Href="/getting-started">Read the Docs</Button>
         </div>
       </div>
 
@@ -504,8 +504,8 @@ p  { font-size: 15px; color: var(--muted); }
         Start with a lightweight static site, scale to a web monolith, then to distributed cloud services — one repository, one CLI, one configuration.
       </p>
       <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-        <a href="/getting-started" class="btn btn-primary btn-lg">Get Started — 5 Min →</a>
-        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="btn btn-lg"><span>★</span> Star on GitHub</a>
+        <Button Variant="primary" Size="lg" Href="/getting-started">Get Started — 5 Min →</Button>
+        <Button Variant="outline" Size="lg" Href="https://github.com/krewire/krewire" Target="_blank"><span>★</span> Star on GitHub</Button>
       </div>
       <div class="inline-flex items-center gap-2.5 rounded-[10px] px-3.5 py-2.5 bg-bg dark:bg-bg-dark max-w-md mx-auto overflow-x-auto"
            style="border:var(--pop-border); box-shadow:var(--pop-shadow-sm)">

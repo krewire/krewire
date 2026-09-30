@@ -87,7 +87,7 @@ layout: AppLayout
 ---
 
 ### `components/` (Reusable Scoped Blocks)
-Components are standalone `.kiw` files imported into pages or layouts via the `{{component "Name" .}}` template helper. Styles inside components are scoped automatically at compile time with zero CSS collisions.
+Components are standalone `.kiw` files composed with either the JSX-like `<ComponentName />` syntax or the compatible `{{component "Name" .}}` template helper. Styles inside components are scoped automatically at compile time with zero CSS collisions.
 
 ---
 
