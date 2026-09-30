@@ -6,7 +6,7 @@ date: "2026-09-29"
 
 # DSL (.kiw)
 
-The **`.kiw` Component DSL** (`github.com/framework/dsl`) is Krewire's unified, file-based component templating language. It brings modern Single-File Component (SFC) ergonomics—reminiscent of Astro, Svelte, or Vue—directly to the Go ecosystem without requiring Node.js, `npm`, webpack, or JavaScript build fatigue.
+The **`.kiw` Component DSL** (`github.com/krewire/kiw/dsl`) is Krewire's unified, file-based component templating language. It brings modern Single-File Component (SFC) ergonomics—reminiscent of Astro, Svelte, or Vue—directly to the Go ecosystem without requiring Node.js, `npm`, webpack, or JavaScript build fatigue.
 
 Every `.kiw` file encapsulates its metadata, markup, scoped styles, and client interactions in a single, readable file that compiles down to high-performance Go template trees and static assets in milliseconds.
 

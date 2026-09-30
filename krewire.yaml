@@ -8,6 +8,9 @@ project:
   version: "v0.1.0"
   author: "Krewire Contributors"
 
+# Content directory for documentation manuscripts (mdbind)
+input: "content/docs"
+
 # Devtool build pipeline configuration
 build:
   output: ".krewire/build"

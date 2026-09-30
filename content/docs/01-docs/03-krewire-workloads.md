@@ -25,7 +25,7 @@ project:
 | :--- | :--- | :--- | :--- | :--- |
 | **Fullstack Monolith** | `app` | Web applications, SSR, JSON APIs, sessions, database access | `kiw run`, `kiw dev` | `framework/web`, `framework/app`, `framework/ui` |
 | **Terminal CLI & TUI** | `cli` | Command-line utilities, interactive developer TUIs | `kiw run`, `kiw new my-cli --cli` | `framework/tui`, `libs/term` |
-| **Static Site (SSG)** | `site` | Landing pages, marketing websites, blogs, portfolios | `kiw build`, `kiw dev` | `framework/web/ssg`, `framework/dsl` |
+| **Static Site (SSG)** | `site` | Landing pages, marketing websites, blogs, portfolios | `kiw build`, `kiw dev` | `framework/web/ssg`, `kiw/dsl` |
 | **Technical Book** | `book` | Multi-chapter documentation, books, software manuals | `kiw build --target book`, `kiw dev` | `mdbind/book` |
 | **Background Worker** | `worker` | Asynchronous job queues, cron schedules, retries, DLQ | `kiw worker` | `framework/worker` |
 | **Microservice** | `service` | Distributed RPC/HTTP APIs, service registry, gateways | `kiw run`, `kiw dashboard` | `framework/service` |

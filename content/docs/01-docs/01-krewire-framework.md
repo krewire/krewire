@@ -16,15 +16,15 @@ The Krewire project is divided into focused, decoupled repositories that compose
 
 ```
 krewire/
-├── framework/    # Core runtime & web engine (web, ui, tui, dsl, app, worker, service, infra)
+├── framework/    # Core runtime & web engine (web, ui, tui, app, worker, service, infra)
 ├── libs/         # Low-level standard-library utilities (core, kern, term, config, validation)
-├── kiw/          # Unified developer CLI & task runner (kiw new, dev, build, run, test)
+├── kiw/          # Developer CLI, task runner, and .kiw DSL compiler (kiw new, dev, build, run, test)
 └── mdbind/       # Framework-free markdown manuscript & documentation book compiler
 ```
 
 - **`github.com/krewire/libs`**: The standard-library-only foundation. Contains `libs/core` (declarative workload registry and core domain models), `libs/kern` (the imperative execution kernel), `libs/term` (terminal rendering utilities), `libs/config` (typed configuration loaders), and `libs/validation` (struct tag validator).
-- **`github.com/krewire/framework`**: The high-level developer framework. Combines HTTP routing, the `.kiw` component engine, scoped styling, background worker harnesses, service discovery, and cloud IaC abstractions.
-- **`github.com/krewire/kiw`**: The single developer tool binary. Drives scaffolding, compilation, hot reloading, test execution, and deployment pipelines.
+- **`github.com/krewire/framework`**: The high-level developer framework. Combines HTTP routing, the component presentation layer, scoped styling, background worker harnesses, service discovery, and cloud IaC abstractions.
+- **`github.com/krewire/kiw`**: The developer CLI tool and `.kiw` DSL compiler (`github.com/krewire/kiw/dsl`). Drives scaffolding, compilation, hot reloading, test execution, and deployment pipelines.
 - **`github.com/krewire/mdbind`**: The independent markdown book engine powering `krewire.com/docs/` and standalone technical manuscripts.
 
 ---
@@ -39,7 +39,7 @@ In accordance with specification `KWF-ARCH-M8K2Q`, the framework follows a flat,
 | `framework/web/ssg` | File-based static site generator compiling `.kiw` files into optimized HTML/CSS assets. |
 | `framework/ui` | Theme engine, Light/Dark palettes, CSS design tokens, and scoped class scoping (`data-kiw-component`, `data-kiw-layout`). |
 | `framework/tui` | Command-line app harness, reactive terminal UI engine, POSIX flags, and `log/slog` structured logging. |
-| `framework/dsl` | Compiler for the unified `.kiw` component format (HTML, CSS, Go, and Markdown in one file). |
+| `kiw/dsl` | Compiler for the unified `.kiw` component format (HTML, CSS, Go, and Markdown in one file). |
 | `framework/assets` | Static asset manager with multi-source store (`dir` / `embed.FS`), ETag generation, Cache-Control headers, and fingerprint manifests. |
 | `framework/storage` | Key-value store abstraction with Memory and File backends, context cancellation, and DI provider binding. |
 | `framework/app` | Fullstack application assembly, Dependency Injection (DI) container, and modular monolith wiring (`KWF-5ZHQV`). |
