@@ -241,9 +241,7 @@ layout: Landing
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw install</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">One command installs the <code class="code-inline">kiw</code> CLI on Linux or macOS. No package manager needed.</p>
-        <pre class="term-block mt-auto text-xs"><code>curl -fsSL \
-  https://krewire.com/scripts/install.sh \
-  | sh</code></pre>
+        <Terminal Command="curl -fsSL https://krewire.com/scripts/install.sh | sh" Class="mt-auto" />
       </div>
 
       <!-- Step 2: Scaffold -->
@@ -254,8 +252,7 @@ layout: Landing
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw new</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">Generate a production-ready project template for any workload in under one second.</p>
-        <pre class="term-block mt-auto text-xs"><code>kiw new my-site --site
-cd my-site</code></pre>
+        <Terminal Command="kiw new my-site --site &amp;&amp; cd my-site" Class="mt-auto" />
       </div>
 
       <!-- Step 3: Develop -->
@@ -266,8 +263,7 @@ cd my-site</code></pre>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw dev</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">Instant hot-reload local development server with file-based routing and scoped CSS updates.</p>
-        <pre class="term-block mt-auto text-xs"><code>kiw dev
-# ⚡ Ready at http://localhost:8080</code></pre>
+        <Terminal Command="kiw dev" Class="mt-auto" />
       </div>
 
       <!-- Step 4: Deploy -->
@@ -278,8 +274,7 @@ cd my-site</code></pre>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">kiw deploy</h3>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-3">Compile into a single static binary or static asset bundle and ship to GitHub Pages or Docker.</p>
-        <pre class="term-block mt-auto text-xs"><code>kiw deploy --target gh-pages
-# ✓ Deployed successfully!</code></pre>
+        <Terminal Command="kiw deploy --target gh-pages" Class="mt-auto" />
       </div>
 
     </div>
@@ -397,7 +392,7 @@ p  { font-size: 15px; color: var(--muted); }
           </li>
           <li class="flex items-start gap-2.5 text-sm text-muted dark:text-muted-dark leading-snug">
             <span class="text-primary font-black text-base shrink-0 leading-tight">✓</span>
-            <span><b class="text-fg dark:text-fg-dark">No Bundler Required:</b> Built directly by the Go compiler without npm.</span>
+            <span><b class="text-fg dark:text-fg-dark">Built into <code class="code-inline">kiw</code>:</b> Compiled natively via <code class="code-inline">kiw/dsl</code> with zero npm or external bundler dependencies.</span>
           </li>
           <li class="flex items-start gap-2.5 text-sm text-muted dark:text-muted-dark leading-snug">
             <span class="text-primary font-black text-base shrink-0 leading-tight">✓</span>
