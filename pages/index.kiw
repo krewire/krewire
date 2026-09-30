@@ -32,24 +32,8 @@ layout: Landing
 
         <!-- Quick terminal: install first -->
         <div class="mb-5 max-w-lg flex flex-col gap-2">
-          <!-- Install -->
-          <div class="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 overflow-x-auto bg-bg-2 dark:bg-bg-dark-2"
-               style="border:var(--pop-border); box-shadow:var(--pop-shadow-sm)">
-            <span class="font-mono font-black text-primary text-sm shrink-0">$</span>
-            <code class="font-mono text-xs font-bold text-fg dark:text-fg-dark whitespace-nowrap flex-1">curl -fsSL https://krewire.com/scripts/install.sh | sh</code>
-            <button class="btn-copy shrink-0 text-xs font-black px-2.5 py-1 rounded-md bg-secondary text-secondary-content transition-all duration-150"
-                    style="border:var(--pop-border-thin); box-shadow:1.5px 1.5px 0px var(--border)"
-                    onclick="copyCmd(this,'curl -fsSL https://krewire.com/scripts/install.sh | sh')">Copy</button>
-          </div>
-          <!-- Then scaffold -->
-          <div class="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 overflow-x-auto bg-bg-2 dark:bg-bg-dark-2"
-               style="border:var(--pop-border); box-shadow:var(--pop-shadow-sm)">
-            <span class="font-mono font-black text-muted dark:text-muted-dark text-sm shrink-0">$</span>
-            <code class="font-mono text-xs font-bold text-fg dark:text-fg-dark whitespace-nowrap flex-1">kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw dev</code>
-            <button class="btn-copy shrink-0 text-xs font-black px-2.5 py-1 rounded-md bg-secondary text-secondary-content transition-all duration-150"
-                    style="border:var(--pop-border-thin); box-shadow:1.5px 1.5px 0px var(--border)"
-                    onclick="copyCmd(this,'kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw dev')">Copy</button>
-          </div>
+          <Terminal Command="curl -fsSL https://krewire.com/scripts/install.sh | sh" />
+          <Terminal Command="kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw dev" PromptColor="muted" />
         </div>
 
         <!-- CTAs: stacked on mobile, row on sm+ -->
@@ -507,13 +491,8 @@ p  { font-size: 15px; color: var(--muted); }
         <Button Variant="primary" Size="lg" Href="/getting-started">Get Started — 5 Min →</Button>
         <Button Variant="outline" Size="lg" Href="https://github.com/krewire/krewire" Target="_blank"><span>★</span> Star on GitHub</Button>
       </div>
-      <div class="inline-flex items-center gap-2.5 rounded-[10px] px-3.5 py-2.5 bg-bg dark:bg-bg-dark max-w-md mx-auto overflow-x-auto"
-           style="border:var(--pop-border); box-shadow:var(--pop-shadow-sm)">
-        <span class="font-mono font-black text-primary text-sm shrink-0">$</span>
-        <code class="font-mono text-xs font-bold text-fg dark:text-fg-dark whitespace-nowrap">kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw dev</code>
-        <button class="btn-copy shrink-0 text-xs font-black px-2.5 py-1 rounded-md bg-secondary text-secondary-content transition-all duration-150"
-                style="border:var(--pop-border-thin); box-shadow:1.5px 1.5px 0px var(--border)"
-                onclick="copyCmd(this,'kiw new my-app --site && cd my-app && kiw dev')">Copy</button>
+      <div class="max-w-md mx-auto text-left">
+        <Terminal Command="kiw new my-app --site &amp;&amp; cd my-app &amp;&amp; kiw dev" Class="bg-bg dark:bg-bg-dark" />
       </div>
     </div>
   </div>
