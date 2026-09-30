@@ -12,12 +12,12 @@
   <script src="/assets/app.js"></script>
 </head>
 <body>
-  {{component "Navbar" (dict "ShowSidebarToggle" true "Version" .Version)}}
+  <Navbar ShowSidebarToggle=true Version=.Version />
   <div class="site-layout" id="site-layout">
-    {{component "Sidebar" (dict "Title" "Navigate")}}
+    <Sidebar Title="Navigate" />
     <main class="site-main">{{.Content}}</main>
   </div>
-  {{component "Footer" (dict "Variant" "simple" "Version" .Version)}}
+  <Footer Variant="simple" Version=.Version />
   <script>
     (function(){
       var layout=document.getElementById('site-layout');

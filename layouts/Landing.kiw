@@ -29,13 +29,13 @@
 <body>
 
   <!-- NAVBAR -->
-  {{component "Navbar" (dict "ShowSidebarToggle" false "Version" .Version)}}
+  <Navbar ShowSidebarToggle=false Version=.Version />
 
   <!-- PAGE CONTENT -->
   <main id="main">{{.Content}}</main>
 
   <!-- FOOTER -->
-  {{component "Footer" (dict "Variant" "full" "Version" .Version)}}
+  <Footer Variant="full" Version=.Version />
 </body>
 </html>
 
