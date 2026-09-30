@@ -62,7 +62,7 @@ jobs:
           test -f .krewire/build/index.html
           test -d .krewire/build/assets
           test -f .krewire/build/assets/app.js
-          test -f .krewire/build/docs/getting-started.html
+          test -f .krewire/build/getting-started.html
           test -f .krewire/build/scripts/install.sh
           # Verify install.sh is plain text (not binary) — content integrity check
           file .krewire/build/scripts/install.sh | grep -q "shell script\|text"
