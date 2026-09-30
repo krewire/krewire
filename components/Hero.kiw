@@ -10,7 +10,7 @@
     </div>
     <div class="meta mt-4 text-xs text-muted"><span>Go 1.22+ · File-based routing · Scoped CSS · No JS by default</span></div>
   </div>
-  <div class="art min-w-0"><CodeWindow . /></div>
+  <div class="art min-w-0"><CodeWindow /></div>
 </section>
 
 <style>
