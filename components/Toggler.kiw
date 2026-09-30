@@ -1,0 +1,53 @@
+<button class="toggler {{.Class}}"
+        id="{{if .ID}}{{.ID}}{{else}}nav-toggler{{end}}"
+        aria-label="{{if .Label}}{{.Label}}{{else}}Toggle navigation menu{{end}}"
+        aria-expanded="false"
+        {{with .Controls}}aria-controls="{{.}}"{{end}}>
+  {{if eq .Variant "sidebar"}}
+  <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+  {{else}}
+  <span class="toggler-bar bar-1"></span>
+  <span class="toggler-bar bar-2"></span>
+  <span class="toggler-bar bar-3"></span>
+  {{end}}
+</button>
+
+<style>
+.toggler {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--fg);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.toggler:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.toggler-bar {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.toggler[aria-expanded="true"] .bar-1 {
+  transform: translateY(6px) rotate(45deg);
+}
+.toggler[aria-expanded="true"] .bar-2 {
+  opacity: 0;
+}
+.toggler[aria-expanded="true"] .bar-3 {
+  transform: translateY(-6px) rotate(-45deg);
+}
+</style>

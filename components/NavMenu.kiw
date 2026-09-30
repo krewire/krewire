@@ -1,0 +1,34 @@
+<nav class="nav-menu" aria-label="Main Navigation">
+  <a href="/getting-started" class="nav-menu-link">Get Started</a>
+  <a href="/docs/krewire-workloads" class="nav-menu-link">Workloads</a>
+  <a href="/getting-started/dsl" class="nav-menu-link">DSL</a>
+  <a href="/docs" class="nav-menu-link">Docs</a>
+  <a href="/#ecosystem" class="nav-menu-link">Ecosystem</a>
+</nav>
+
+<style>
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.nav-menu-link {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--fg);
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.nav-menu-link:hover {
+  background: var(--bg-2);
+  color: var(--primary);
+  text-decoration: none;
+}
+@media (max-width: 768px) {
+  .nav-menu {
+    display: none;
+  }
+}
+</style>

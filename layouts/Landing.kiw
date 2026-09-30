@@ -23,152 +23,19 @@
 
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/tailwind.css">
+  <link rel="stylesheet" href="/assets/forge.css">
   <script src="/assets/app.js"></script>
 </head>
 <body>
 
-  <!-- NAV -->
-  <header class="sticky top-0 z-50 bg-bg dark:bg-bg-dark border-b border-pop w-full" style="border-bottom:var(--pop-border)">
-    <div class="container-site flex items-center justify-between gap-3 py-3">
-
-      <!-- Brand -->
-      <a href="/" class="flex items-center gap-2 font-black tracking-tight text-fg dark:text-fg-dark shrink-0 no-underline hover:no-underline hover:text-fg dark:hover:text-fg-dark">
-        <span class="icon-box bg-primary text-primary-content w-8 h-8 text-base">◈</span>
-        <span class="text-base font-black tracking-tighter">Krewire</span>
-        <span class="badge badge-secondary font-mono text-2xs">v0.1.0</span>
-      </a>
-
-      <!-- Desktop nav links -->
-      <nav class="hidden md:flex items-center gap-1 ml-auto">
-        <a href="/getting-started" class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Get Started</a>
-        <a href="/docs/krewire-workloads" class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Workloads</a>
-        <a href="/getting-started/dsl"   class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">DSL</a>
-        <a href="/docs"                 class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Docs</a>
-        <a href="#ecosystem"            class="text-sm font-bold text-fg dark:text-fg-dark px-3 py-1.5 rounded-md hover:bg-bg-2 dark:hover:bg-bg-dark-2 hover:text-primary transition-all duration-150">Ecosystem</a>
-      </nav>
-
-      <!-- Actions -->
-      <div class="flex items-center gap-2">
-        <!-- GitHub button (desktop only) -->
-        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener"
-           class="hidden md:inline-flex items-center gap-1.5 btn btn-primary text-xs px-4 py-2 min-h-0">
-          <span>★</span><span>GitHub</span>
-        </a>
-
-        <!-- Theme toggle -->
-        <button onclick="window.krewireTheme.toggle()" aria-label="Toggle theme"
-                class="btn w-9 h-9 p-0 min-h-0 text-base">
-          <span class="sun-icon">☀</span><span class="moon-icon">☾</span>
-        </button>
-
-        <!-- Hamburger (mobile only) -->
-        <button id="nav-toggler" aria-label="Toggle menu" aria-expanded="false"
-                class="md:hidden btn w-9 h-9 p-0 min-h-0 flex-col gap-1 justify-center items-center">
-          <span class="nav-bar block w-4 h-0.5 bg-fg dark:bg-fg-dark rounded transition-all duration-200"></span>
-          <span class="nav-bar block w-4 h-0.5 bg-fg dark:bg-fg-dark rounded transition-all duration-200"></span>
-          <span class="nav-bar block w-4 h-0.5 bg-fg dark:bg-fg-dark rounded transition-all duration-200"></span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Mobile dropdown -->
-    <div id="nav-mobile-menu"
-         class="md:hidden absolute top-full left-0 w-full bg-bg dark:bg-bg-dark opacity-0 pointer-events-none -translate-y-2 transition-all duration-200"
-         style="border-bottom:var(--pop-border); box-shadow: 0 8px 0 rgba(0,0,0,0.1)">
-      <div class="container-site flex flex-col gap-1 py-4">
-        <a href="/getting-started" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
-          <span class="text-primary w-4">›</span> Get Started
-        </a>
-        <a href="/docs/krewire-workloads" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
-          <span class="text-primary w-4">▦</span> 8 Workloads
-        </a>
-        <a href="/getting-started/dsl"   class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
-          <span class="text-primary w-4">◈</span> Component DSL
-        </a>
-        <a href="/docs"                 class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
-          <span class="text-primary w-4">≡</span> Documentation
-        </a>
-        <a href="#ecosystem"            class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
-          <span class="text-primary w-4">⬢</span> Ecosystem
-        </a>
-        <hr class="my-1" style="border-color:var(--pop-border); border-width:1.5px">
-        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener"
-           class="mobile-link flex items-center justify-between gap-3 px-3 py-3 rounded-lg font-extrabold text-sm min-h-[44px] btn-primary transition-all duration-150"
-           style="border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">
-          <span>★ GitHub Repository</span><span>↗</span>
-        </a>
-      </div>
-    </div>
-  </header>
+  <!-- NAVBAR -->
+  {{component "Navbar" (dict "ShowSidebarToggle" false "Version" .Version)}}
 
   <!-- PAGE CONTENT -->
   <main id="main">{{.Content}}</main>
 
   <!-- FOOTER -->
-  <footer class="bg-bg-2 dark:bg-bg-dark-2" style="border-top:var(--pop-border)">
-    <div class="container-site pt-12 pb-8">
-
-      <!-- Footer grid: 1 col → sm: 2 col → md: 4 col -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8" style="border-bottom:var(--pop-border-thin)">
-
-        <!-- Brand col -->
-        <div class="sm:col-span-2 md:col-span-1">
-          <div class="flex items-center gap-2 font-black text-lg mb-3">
-            <span class="icon-box bg-primary text-primary-content w-7 h-7 text-sm">◈</span>
-            Krewire
-          </div>
-          <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-4">
-            One Go Framework for Every Workload.<br>
-            One CLI <code class="code-inline">kiw</code>, one config <code class="code-inline">krewire.yaml</code>.
-          </p>
-          <span class="badge badge-secondary text-2xs">Compiled Go · Zero Bloat</span>
-        </div>
-
-        <!-- Workloads col -->
-        <div class="flex flex-col gap-2">
-          <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">8 Workloads</strong>
-          <a href="/docs/krewire-workloads#1-fullstack-monolith-app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
-          <a href="/docs/krewire-workloads#2-terminal-cli--tui-cli"  class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
-          <a href="/docs/krewire-workloads#3-static-site-generator-site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
-          <a href="/docs/krewire-workloads#4-technical-book-book"    class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs &amp; Books</a>
-          <a href="/docs/krewire-workloads#5-background-worker-worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
-          <a href="/docs/krewire-workloads#6-microservice-service"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
-          <a href="/docs/krewire-workloads#7-cloud-infrastructure-as-code-infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
-          <a href="/docs/krewire-workloads#8-webassembly-runtime-runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
-        </div>
-
-        <!-- Docs col -->
-        <div class="flex flex-col gap-2">
-          <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Documentation</strong>
-          <a href="/docs/krewire-framework"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.1 Krewire Framework</a>
-          <a href="/docs/why-krewire"         class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.2 Why Krewire?</a>
-          <a href="/docs/krewire-workloads"   class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.3 Krewire Workloads</a>
-          <a href="/docs/upgrade-guide"       class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.4 Upgrade Guide</a>
-          <a href="/getting-started"          class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">2. Getting Started →</a>
-          <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener"
-             class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Engineering Specs</a>
-        </div>
-
-        <!-- Ecosystem col -->
-        <div class="flex flex-col gap-2">
-          <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Ecosystem</strong>
-          <a href="https://github.com/krewire/framework" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/framework</a>
-          <a href="https://github.com/krewire/kiw"       target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/kiw</a>
-          <a href="https://github.com/krewire/libs"      target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/libs</a>
-          <a href="https://github.com/krewire/mdbind"    target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/mdbind</a>
-          <a href="https://github.com/krewire/boost"     target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/boost</a>
-          <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Community Forum</a>
-        </div>
-      </div>
-
-      <!-- Footer bottom -->
-      <div class="pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-xs font-semibold text-muted dark:text-muted-dark">
-        <span>© 2026 Krewire Contributors — 100% built with Krewire <code class="code-inline">site</code> workload.</span>
-        <a href="https://github.com/krewire" target="_blank" rel="noopener" class="hover:text-primary transition-colors">github.com/krewire</a>
-      </div>
-    </div>
-  </footer>
-
+  {{component "Footer" (dict "Variant" "full" "Version" .Version)}}
 </body>
 </html>
 
