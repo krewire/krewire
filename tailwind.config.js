@@ -5,6 +5,7 @@ module.exports = {
     "components/**/*.kiw",
     "layouts/**/*.kiw",
     "content/**/*.md",
+    "../forge/components/**/*.kiw",
   ],
   darkMode: "class",
   theme: {
