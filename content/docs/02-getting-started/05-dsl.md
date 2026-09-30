@@ -155,10 +155,12 @@ In layout components (`layouts/*.kiw`), the page's rendered body is injected usi
 
 ## 4. Reusable Component Composition
 
-Components located in the `components/` directory can be instantiated dynamically inside any page, layout, or other component using the `component` helper:
+Components located in the `components/` directory (or embedded from `forge`) can be instantiated dynamically inside any page, layout, or other component using either custom component tags or the `component` helper:
 
-
-
+```html
+<!-- Tag-based invocation with attributes as props -->
+<Button Variant="primary" Href="/getting-started">Get Started</Button>
+<Alert Type="warning" Message="System update in progress" />
 ```
 
 The equivalent template-helper form is `{{component "ComponentName" .}}`; both forms produce the same component composition.
