@@ -3,7 +3,7 @@
     <span class="sidebar-title">{{if .Title}}{{.Title}}{{else}}Navigate{{end}}</span>
     <button class="sidebar-close" id="site-sidebar-close" aria-label="Close navigation">×</button>
   </div>
-  {{component "SideMenu" .}}
+  <SideMenu . />
 </aside>
 <div class="sidebar-overlay" id="site-sidebar-overlay" aria-hidden="true"></div>
 
