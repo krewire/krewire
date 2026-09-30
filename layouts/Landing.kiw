@@ -55,11 +55,20 @@
   --muted: #57677d;
   --border: #0B1F3B;
   --border-subtle: rgba(11,31,59,.18);
-  --radius: 10px;
+  --pop-border: 2.5px solid var(--border);
+  --pop-border-thin: 2px solid var(--border);
+  --pop-shadow: 4px 4px 0px var(--border);
+  --pop-shadow-lg: 6px 6px 0px var(--border);
+  --pop-shadow-sm: 2px 2px 0px var(--border);
+  --dot-color: rgba(11,31,59,.08);
+  --radius: 14px;
+  --shadow: var(--pop-shadow);
   --success: #39D353;
   --warning: #ffb703;
   --error: #FF3B2E;
   --info: #00D1C1;
+  --show-sun: inline;
+  --show-moon: none;
 }
 :root[data-theme="dark"], html[data-theme="dark"], .dark {
   --primary: #39D353 !important;
@@ -72,5 +81,14 @@
   --muted: #9ab0ce;
   --border: #FAF8F4;
   --border-subtle: rgba(250,248,244,.2);
+  --pop-border: 2.5px solid var(--border);
+  --pop-border-thin: 2px solid var(--border);
+  --pop-shadow: 4px 4px 0px var(--border);
+  --pop-shadow-lg: 6px 6px 0px var(--border);
+  --pop-shadow-sm: 2px 2px 0px var(--border);
+  --dot-color: rgba(250,248,244,.09);
+  --shadow: var(--pop-shadow);
+  --show-sun: none;
+  --show-moon: inline;
 }
 </style>
