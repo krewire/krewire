@@ -39,23 +39,57 @@ jobs:
 
       - name: Install kiw CLI
         run: |
-          GOPROXY=direct GONOSUMDB="github.com/krewire/*" go install github.com/krewire/kiw/cmd/kiw@v0.1.0
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          # Build kiw from the ecosystem's own sources rather than installing a
+          # published tag. `go install ...@v0.1.0` would resolve framework/libs/
+          # mdbind from the module proxy, i.e. the released code, which does not
+          # contain the site fixes on this branch. Cloning the modules and
+          # joining them with a go.work pins every dependency to this commit.
+          for repo in libs framework kiw mdbind hub ship forge boost; do
+            git clone --depth 1 --branch main "https://github.com/krewire/${repo}.git" "${RUNNER_TEMP}/krewire/${repo}"
+          done
+          cd "${RUNNER_TEMP}/krewire"
+          go work init
+          go work use ./libs ./framework ./kiw ./mdbind ./hub ./ship ./forge ./boost
+          go work sync
+          go build -o "${RUNNER_TEMP}/bin/kiw" ./kiw/cmd/kiw
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
 
       - name: Verify kiw installation
         run: kiw version
 
       - name: Build static site
         run: |
+          # `kiw build` emits the complete site, including the shared asset plan:
+          # every page already links style.css → tailwind.css → forge.css →
+          # theme.css → mdbind.css and the site scripts, in cascade order with
+          # ?v=<version> cache busting. No post-processing step may reorder or
+          # re-link those assets.
           kiw build
-          # Inject documentation stylesheet & reader scripts (build post-process)
-          cp public/assets/mdbind.css .krewire/build/assets/mdbind.css
-          cp public/assets/docs.js    .krewire/build/assets/docs.js
-          cp public/assets/app.js     .krewire/build/assets/app.js
-          sed -i 's|</body>|<script src="/assets/docs.js"></script></body>|g' \
-              .krewire/build/docs/*.html .krewire/build/docs.html
-          find .krewire/build -name "*.html" \
-              -exec sed -i 's|</head>|<script src="/assets/app.js"></script></head>|g' {} +
+
+      - name: Verify asset injection
+        run: |
+          cd .krewire/build
+          fail=0
+          # The cascade order must hold on every page, landing and docs alike.
+          for page in index.html docs.html getting-started/configuration.html; do
+            test -f "$page" || { echo "✗ missing page $page"; fail=1; continue; }
+            order=$(grep -o 'href="/assets/[a-z]*\.css[^"]*"' "$page" | sed 's|.*assets/||;s|?.*"||' | tr '\n' ' ')
+            if [ "$order" != "style.css tailwind.css forge.css theme.css mdbind.css " ]; then
+              echo "✗ $page asset order = $order"
+              fail=1
+            fi
+            # Every injected asset must be cache-busted, or a reader keeps a
+            # stale stylesheet on one page family and a fresh one on another.
+            if grep -q 'href="/assets/[a-z]*\.css"' "$page"; then
+              echo "✗ $page has an unversioned stylesheet"
+              fail=1
+            fi
+            # The reader script must come from the build, not from a sed patch.
+            grep -q '<script src="/assets/app.js?v=' "$page" || { echo "✗ $page missing app.js"; fail=1; }
+            grep -q '<script src="/assets/docs.js?v=' "$page" || { echo "✗ $page missing docs.js"; fail=1; }
+          done
+          [ "$fail" -eq 0 ] || { echo "✗ asset injection verification failed"; exit 1; }
+          echo "✓ Asset order and cache busting verified on landing and docs pages."
 
       - name: Verify build outputs
         run: |
