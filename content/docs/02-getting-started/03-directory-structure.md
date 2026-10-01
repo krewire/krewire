@@ -100,7 +100,9 @@ Stores Markdown documentation manuscripts compiled by `mdbind`. Numeric prefixes
 Files inside `public/` are served verbatim without preprocessing:
 - `public/favicon.svg` is served at `/favicon.svg`.
 - `public/robots.txt` is served at `/robots.txt`.
-- `public/assets/` contains client scripts and CSS stylesheets.
+- `public/assets/` contains client scripts and CSS stylesheets. Files ending
+  in `.css` or `.js` are linked into every page automatically — no `<link>`
+  or `<script>` tag in the layout is required.
 
 ---
 

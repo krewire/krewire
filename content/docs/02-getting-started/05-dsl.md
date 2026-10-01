@@ -139,7 +139,6 @@ In layout components (`layouts/*.kiw`), the page's rendered body is injected usi
 <head>
   <meta charset="utf-8">
   <title>{{.Title}}</title>
-  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
   <header><Header /></header>
@@ -150,6 +149,14 @@ In layout components (`layouts/*.kiw`), the page's rendered body is injected usi
 </body>
 </html>
 ```
+
+No `<link>` or `<script>` tag is needed for site CSS/JS: every file in
+`public/assets/` ending in `.css` or `.js` is injected automatically —
+stylesheets into `<head>`, scripts into `<head>` — with a `?v=<version>`
+cache-busting query derived from the project version. Writing a tag by hand
+still works; the pipeline never adds a second copy of an asset you linked
+yourself. See `auto_assets:` in [`krewire.yaml`](configuration) to turn
+injection off or exclude specific files.
 
 ---
 

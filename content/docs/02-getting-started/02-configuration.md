@@ -57,6 +57,13 @@ build:
 dev:
   port: "8080"                  # Local HTTP listening port for `kiw dev`
 
+# Automatic CSS/JS Injection (site kind; on by default)
+auto_assets:
+  enabled: true                 # Set false to link every asset by hand in layouts/
+  js_placement: "head"          # head (default, first-paint scripts) | body
+  exclude:                      # Never auto-inject these assets
+    - "*.min.css"
+
 # Documentation Book Pipeline (mdbind)
 book:
   mount: "/docs/"               # Mount path in output URL space (hybrid mode)
@@ -118,7 +125,30 @@ Configures local hot-reloading server behavior:
 
 ---
 
-### 3.4 Scripts Task Runner (`scripts:`)
+### 3.4 Auto Assets Block (`auto_assets:`)
+
+Applies to the `site` kind. By default the build injects a `<link
+rel="stylesheet">` into `<head>` and a `<script src>` into `<head>` for every
+`.css`/`.js` file under `public/assets/`, plus the generated scoped stylesheet
+`assets/style.css`. Layouts do not need to name them, and a tag you write by
+hand is never duplicated. Cache busting uses `?v=<project version>`.
+
+- **`enabled`:** `false` restores fully manual asset tags.
+- **`js_placement`:** `head` (default) keeps theme scripts running before first
+  paint; `body` appends them at the end of `<body>` instead.
+- **`exclude`:** Asset names, base names, or globs that must never be injected.
+
+```yaml
+auto_assets:
+  enabled: true
+  js_placement: "body"
+  exclude:
+    - "vendor.js"
+```
+
+---
+
+### 3.5 Scripts Task Runner (`scripts:`)
 
 Krewire includes an integrated task runner, eliminating the need for `Makefile` or external runners. Any task declared in `scripts:` can be executed directly via `kiw run <task>`:
 
