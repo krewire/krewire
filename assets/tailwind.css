@@ -29,7 +29,44 @@
     --show-moon:      inline;
   }
 
-  * { box-sizing: border-box; }
+  /* ── Custom Theme Scrollbar ── */
+  :root {
+    --scrollbar-track: #f0ede5;
+    --scrollbar-thumb: #0B1F3B;
+    --scrollbar-thumb-hover: #39D353;
+  }
+
+  .dark, [data-theme="dark"], :root[data-theme="dark"] {
+    --scrollbar-track: #112646;
+    --scrollbar-thumb: #57677d;
+    --scrollbar-thumb-hover: #39D353;
+  }
+
+  * {
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  /* WebKit & Chromium browsers */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 6px;
+    border: 2.5px solid var(--scrollbar-track);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+  ::-webkit-scrollbar-corner {
+    background: var(--scrollbar-track);
+  }
 
   html { scroll-behavior: smooth; }
 
