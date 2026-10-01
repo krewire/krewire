@@ -33,29 +33,27 @@ Below is the complete, canonical schema of `krewire.yaml` with production defaul
 
 # Project Identity & Workload Kind
 project:
-  name: "my-service"            # Unique project or module identifier
-  kind: "site"                  # Workload: app | cli | site | book | worker | service | infra | runtime
-  version: "v0.1.0"             # Semantic version string
-  author: "Engineering Team"    # Author or organization
+  name: "my-service"            # Project identifier (read by the site loader)
+  kind: "site"                  # Workload: app | cli | site | book | worker | service | infra | kernel
+  version: "v0.1.0"             # Semantic version injected as `.Version` into pages
   dirs:                         # Optional: Override canonical folder locations
     web: "web"                  # Web handlers and templates
     public: "public"            # Raw static assets
     internal: "internal"        # Private domain packages
     cmd: "cmd"                  # Executable entry points
 
+# Build Output & Content (top level — not nested under build:)
+output: ".krewire/build"        # Target compilation output directory
+base: "/"                       # URL base the site is served under
+input: "content"                # Content directory consumed by the book pipeline
+
 # Devtool Build Pipeline
 build:
-  output: ".krewire/build"      # Target compilation output directory
-  base: "/"                     # URL base the site is served under
   include:                      # Glob patterns for content inclusion
     - "**/*.md"
   exclude:                      # Glob patterns for exclusion
     - "**/README.md"
     - "**/readme.md"
-
-# Development Server
-dev:
-  port: "8080"                  # Local HTTP listening port for `kiw dev`
 
 # Automatic CSS/JS Injection (site kind; on by default)
 auto_assets:
@@ -63,6 +61,9 @@ auto_assets:
   js_placement: "head"          # head (default, first-paint scripts) | body
   exclude:                      # Never auto-inject these assets
     - "*.min.css"
+  order:                        # Pin where a specific asset loads
+    "assets/theme.css":
+      layer: "page"             # scoped | vendor | component | theme | book | page
 
 # Documentation Book Pipeline (mdbind)
 book:
@@ -98,34 +99,42 @@ The `project:` section defines the identity and workload behavior:
   - `worker`: Asynchronous background task processor (`kiw worker`)
   - `service`: High-throughput microservice (`kiw run`)
   - `infra`: Infrastructure as code in Go (`kiw deploy --target infra`)
-  - `runtime`: Go WebAssembly browser runtime (`kiw build --target wasm`)
+  - `kernel`: Scaffold-only project before it is equipped (`kiw init`)
 - **`dirs` (Optional):** Allows customization of the default directory layout if integrating Krewire into an existing repository layout.
 
 ---
 
-### 3.2 Build Block (`build:`)
+### 3.2 Output, Base & Input (top level)
 
-Controls asset compilation and artifact emission:
+These are top-level keys — they are **not** nested under `build:`:
 
 - **`output`:** The directory where compiled static files or assets are staged. Defaults to `.krewire/build`.
 - **`base`:** The URL prefix under which assets and pages are served. Defaults to `/`. For sites hosted under subpaths (e.g. `https://example.com/blog/`), set `base: "/blog/"`.
-- **`include` & `exclude`:** Glob patterns controlling which Markdown manuscripts or content files are processed.
+- **`input`:** The content directory consumed by the book (`mdbind`) pipeline. Defaults to `content`.
 
 ---
 
-### 3.3 Dev Server Block (`dev:`)
+### 3.3 Build Block (`build:`)
 
-Configures local hot-reloading server behavior:
+Controls which content files the pipeline processes:
 
-- **`port`:** Sets the TCP port `kiw dev` and `kiw serve` bind to (default: `8080`).
-- You can override this at runtime with the `--addr` flag:
-  ```bash
-  kiw dev --addr :3000
-  ```
+- **`include` & `exclude`:** Glob patterns controlling which Markdown manuscripts or content files are processed. Unset `include` defaults to `**/*.md`; unset `exclude` defaults to skipping `README.md`/`readme.md`. An empty list disables that filter.
 
 ---
 
-### 3.4 Auto Assets Block (`auto_assets:`)
+### 3.4 Dev Server Port
+
+There is no `dev:` block in `krewire.yaml`. The local server port is set
+per invocation with `--addr` (default `:8080`):
+
+```bash
+kiw dev --addr :3000
+kiw serve --addr :3000
+```
+
+---
+
+### 3.5 Auto Assets Block (`auto_assets:`)
 
 Applies to the `site` kind. By default the build injects a `<link
 rel="stylesheet">` into `<head>` and a `<script src>` into `<head>` for every
@@ -137,6 +146,21 @@ hand is never duplicated. Cache busting uses `?v=<project version>`.
 - **`js_placement`:** `head` (default) keeps theme scripts running before first
   paint; `body` appends them at the end of `<body>` instead.
 - **`exclude`:** Asset names, base names, or globs that must never be injected.
+- **`order`:** Pins one asset to a cascade layer, when the default position is
+  wrong for your project.
+
+Assets are **not** injected alphabetically — alphabetical order silently loads
+book content before the utilities meant to override it. They load in cascade
+order, so each layer can win over the previous one:
+
+| Layer         | Holds                                            |
+| ------------- | ------------------------------------------------ |
+| `scoped`      | styles generated from `<style>` in components/layouts |
+| `vendor`      | third-party output such as plugin CSS (Tailwind) |
+| `component`   | component-library styling (Forge)                |
+| `theme`       | theme variables and last-mile design overrides   |
+| `book`        | content-pipeline styling (mdbind)                |
+| `page`        | per-page overrides — always last                 |
 
 ```yaml
 auto_assets:
@@ -144,11 +168,14 @@ auto_assets:
   js_placement: "body"
   exclude:
     - "vendor.js"
+  order:
+    "assets/theme.css":
+      layer: "page"   # move the theme to last-mile
 ```
 
 ---
 
-### 3.5 Scripts Task Runner (`scripts:`)
+### 3.6 Scripts Task Runner (`scripts:`)
 
 Krewire includes an integrated task runner, eliminating the need for `Makefile` or external runners. Any task declared in `scripts:` can be executed directly via `kiw run <task>`:
 
@@ -178,7 +205,6 @@ Runtime configuration can be overridden using environment variables without modi
 | :--- | :--- | :--- |
 | `KIW_ENV` | `local`, `production`, `testing` | Sets active environment profile. |
 | `KIW_DEBUG` | `true`, `false`, `1`, `0` | Enables verbose debug logging and diagnostics. |
-| `KIW_PORT` | Port number (e.g. `8080`) | Overrides the HTTP dev server listening port. |
 
 Example:
 
