@@ -6,10 +6,10 @@
   <meta name="color-scheme" content="light dark">
   <title>{{.Title}}</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/assets/style.css">
-  <link rel="stylesheet" href="/assets/tailwind.css">
-  <link rel="stylesheet" href="/assets/forge.css">
-  <script src="/assets/app.js"></script>
+  <link rel="stylesheet" href="/assets/style.css?v=20261001-2">
+  <link rel="stylesheet" href="/assets/tailwind.css?v=20261001-2">
+  <link rel="stylesheet" href="/assets/forge.css?v=20261001-2">
+  <script src="/assets/app.js?v=20261001-2"></script>
 </head>
 <body>
   <Navbar ShowSidebarToggle=true Version=.Version />
