@@ -50,7 +50,11 @@ jobs:
           cd "${RUNNER_TEMP}/krewire"
           go work init
           go work use ./libs ./framework ./kiw ./mdbind ./hub ./ship ./forge ./boost
-          go work sync
+          # No `go work sync` here: it resolves every requirement through the
+          # module proxy, and the boost v0.1.0 tag predates the guild -> boost
+          # rename, so the proxy reports "module declares its path as
+          # github.com/krewire/guild". Workspace mode already resolves the eight
+          # modules to these checkouts, so the build needs no proxy lookup.
           go build -o "${RUNNER_TEMP}/bin/kiw" ./kiw/cmd/kiw
           echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
 
