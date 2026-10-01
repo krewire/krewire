@@ -8,7 +8,7 @@ date: "2026-09-29"
 
 Welcome to the **Krewire Documentation**.
 
-**Krewire** is an open-source, unified Go framework designed to eliminate toolchain fatigue across modern software engineering. It provides a single language (**Go**), a single command-line interface (**`kiw`**), and a unified devtool configuration (**`krewire.yaml`**) to build, test, and deploy **eight distinct workloads**:
+**Krewire** is an open-source, end-to-end **digital SDLC ecosystem**: one Go-native path from specification to production operations, held to three pillars — **secure**, **sustainable**, and **scalable**. It provides a single language (**Go**), a single command-line interface (**`kiw`**), and a unified devtool configuration (**`krewire.yaml`**) to build, test, and deploy **eight distinct workloads**:
 
 1. **Fullstack Web Monoliths (`app`)**
 2. **Terminal Interfaces & TUIs (`cli`)**
@@ -79,9 +79,19 @@ This **Overview** chapter introduces you to the core philosophy, technical archi
 
 ---
 
+## Three Pillars
+
+Everything Krewire ships is held to three pillars — **secure**, **sustainable**, and **scalable** — the filter a capability must pass before it lands:
+
+| Pillar | In one line |
+| :--- | :--- |
+| **Secure** | Security is the default: a stdlib-first dependency graph, OWASP/CWE-aligned controls, and secrets referenced — never stored. |
+| **Sustainable** | Near-zero cost, engineered: single static binaries, opt-in batteries, and no license fees — ever. |
+| **Scalable** | Growth without rewrite: the progressive pipeline from static site to services and infra, from a $5 VPS to hyperscale. |
+
 ## Core Tenets
 
-Krewire is engineered around four guiding pillars:
+Krewire is engineered around four guiding tenets:
 
 1. **Go as the Architectural Foundation**  
    Standard Go (`net/http`, `html/template`, `embed`, `context`, `slog`, `flag`) powers every layer. Single-binary deployments with embedded static assets ensure near-instant startups, negligible RAM usage, and zero runtime dependencies.

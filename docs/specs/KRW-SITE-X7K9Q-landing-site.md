@@ -11,7 +11,7 @@
 
 ## 1. Summary
 
-Build `krewire/krewire` (public repo) as the **unified site** for the Krewire ecosystem — **landing + documentation** — **100% built with the ecosystem itself** (file-based `.kiw` DSL, `krewire.yaml`, `pages/`/`components/`/`layouts/`/`content/`/`public/` → `krewire build` → `site/`), inspired by `laravel.com`'s clarity but Go-native and docs-ready. The site proves the `site` workload is production-ready for both marketing and long-form docs, validates the static-site pipeline (file-based routing, scoped CSS, theme toggle, asset hashing, content collections), and is prepared for deployment to the Krewire-hosted production machine via Docker — not too narrowly scoped to a one-page landing.
+Build `krewire/krewire` (public repo) as the **unified site** for the Krewire ecosystem — **landing + documentation** — **100% built with the ecosystem itself** (file-based `.kiw` DSL, `krewire.yaml`, `pages/`/`components/`/`layouts/`/`content/`/`public/` → `krewire build` → `site/`), inspired by `laravel.com`'s clarity but Go-native and docs-ready. The site proves the `site` workload is production-ready for both marketing and long-form docs, validates the static-site pipeline (file-based routing, scoped CSS, theme toggle, asset hashing, content collections), and is prepared for deployment to the Krewire-hosted production machine via Docker — not too narrowly scoped to a one-page landing. It also positions Krewire as an end-to-end digital SDLC ecosystem (specification → production operations) held to three pillars — secure, sustainable, scalable — through a dedicated "Three Pillars" section on the landing page.
 
 ## 2. Background & Context
 
@@ -61,6 +61,7 @@ Inspiration (not plagiarism): `laravel.com` distributes **laravel new**, code sn
 | KRW-LAND-020 | Components: `Hero.kiw` (title, subtitle, code window, CTAs), `FeatureCard.kiw`, `Ecosystem.kiw`, `CodeWindow.kiw`, `Section.kiw` — invocable via `{{component "Hero" .}}` | Must | MUST |
 | KRW-LAND-021 | Styles: scoped by default, `:root` global for theme vars `--color-primary`, `--show-sun/moon` from `framework/ui`; collected to `assets/style.css` | Must | MUST |
 | KRW-LAND-030 | Content: hero (tagline "One Go Framework. Every Workload." — Krewire's own positioning, not borrowed taglines, `kiw new my-app`, CTA), 8 workload cards, code snippet (file-based routing + .kiw DSL), ecosystem links, community placeholder | Must | MUST |
+| KRW-LAND-031 | Positioning: hero and a dedicated "Three Pillars" section state Krewire as an end-to-end digital SDLC ecosystem (specification → production operations) held to three pillars — secure · sustainable · scalable — referencing the canonical definitions in `internal/docs/project-vision.md` rather than restating them | Must | MUST |
 | KRW-LAND-040 | `public/` assets (favicon, logo) copied verbatim; no extra toolchain | Must | MUST |
 | KRW-LAND-050 | `krewire build` in repo root builds deterministic `site/`; `krewire serve` previews locally | Must | MUST |
 | KRW-LAND-060 | Deploy: Docker production deployment serves the built site output from the Krewire-hosted machine | Must | MUST |

@@ -1,6 +1,6 @@
 ---
 title: "Krewire — One Go Framework for Every Workload"
-description: "Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config krewire.yaml."
+description: "End-to-end digital SDLC ecosystem in Go — secure, sustainable, scalable. One CLI kiw, one config krewire.yaml, every workload: app, cli, site, book, worker, service, infra, runtime."
 layout: Landing
 ---
 
@@ -16,7 +16,7 @@ layout: Landing
         <!-- Eyebrow -->
         <div class="badge badge-primary mb-4">
           <span>◈</span>
-          <span>Unified Go Framework · v0.1.0 · Open Source</span>
+          <span>End-to-End Digital SDLC Ecosystem · v0.1.0 · Open Source</span>
         </div>
 
         <!-- Headline -->
@@ -27,7 +27,7 @@ layout: Landing
 
         <!-- Lead -->
         <p class="text-base text-muted dark:text-muted-dark leading-relaxed mb-5 max-w-lg">
-          From single-binary web monoliths to interactive TUIs, high-speed static sites, book pipelines, background workers, microservices, cloud infra, and Go WebAssembly runtimes — build everything in Go with one CLI <code class="code-inline">kiw</code> and zero JS fatigue.
+          Krewire is an end-to-end <b class="text-fg dark:text-fg-dark">digital SDLC ecosystem</b> — from the first line of the spec to production operations — built on three pillars: <b class="text-fg dark:text-fg-dark">secure</b>, <b class="text-fg dark:text-fg-dark">sustainable</b>, and <b class="text-fg dark:text-fg-dark">scalable</b>. From single-binary web monoliths to interactive TUIs, high-speed static sites, book pipelines, background workers, microservices, cloud infra, and Go WebAssembly runtimes — build everything in Go with one CLI <code class="code-inline">kiw</code> and zero JS fatigue.
         </p>
 
         <!-- Quick terminal: install first -->
@@ -42,7 +42,7 @@ layout: Landing
           <Button Variant="outline" Size="lg" Href="#workloads">Explore 8 Workloads ↓</Button>
         </div>
 
-        <p class="text-xs font-semibold text-muted dark:text-muted-dark">Go 1.22+ · File-based routing · Scoped CSS · 100% Zero JS by default</p>
+        <p class="text-xs font-semibold text-muted dark:text-muted-dark">Go 1.27.1+ · Spec to Production · File-based routing · Scoped CSS · 100% Zero JS by default</p>
       </div>
 
       <!-- Art / Code window -->
@@ -69,6 +69,54 @@ layout: Landing
       <span><b class="text-fg dark:text-fg-dark">&lt; 1ms</b> Cold Starts</span>
       <span class="hidden sm:inline opacity-40">·</span>
       <span>Single Config <code class="code-inline">krewire.yaml</code></span>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     THREE PILLARS
+     ===================================================================== -->
+<section id="pillars" class="w-full bg-bg-2 dark:bg-bg-dark-2 bg-dots py-12 lg:py-16" style="border-bottom:var(--pop-border)">
+  <div class="container-site">
+    <div class="section-head">
+      <span class="badge badge-primary mb-3">Three Pillars</span>
+      <h2>Secure. Sustainable. Scalable.</h2>
+      <p>Krewire is an end-to-end digital SDLC ecosystem — from the first line of the specification to running production. Every capability must pass all three pillars before it ships, and each claim traces to a spec, a test, or a gate.</p>
+    </div>
+
+    <!-- Grid: 1 col → md: 3 col -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+
+      <!-- Secure -->
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-primary text-primary-content text-xl">🛡</span>
+          <span class="badge badge-primary text-2xs font-mono">Pillar 01</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">Secure</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed">Security is a default, not a feature. A stdlib-first dependency graph, secure-by-default HTTP primitives, OWASP/CWE-aligned controls, secrets referenced — never stored — and WASM sandboxing keep the attack surface small and auditable.</p>
+      </div>
+
+      <!-- Sustainable -->
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-secondary text-secondary-content text-xl">🌱</span>
+          <span class="badge badge-secondary text-2xs font-mono">Pillar 02</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">Sustainable</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed">Software a single builder can still read, run, and afford a decade from now. Single static binaries with embedded assets, opt-in batteries that cost nothing when unused, boring proven parts, and no license fees — ever.</p>
+      </div>
+
+      <!-- Scalable -->
+      <div class="card">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="icon-box bg-primary text-primary-content text-xl">⚡</span>
+          <span class="badge badge-primary text-2xs font-mono">Pillar 03</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">Scalable</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed">Growth is additive, not a rewrite. The progressive pipeline takes a product from static site to monolith to workers, services, and infra — each stage an opt-in, reversible battery, from a $5 VPS to hyperscale.</p>
+      </div>
+
     </div>
   </div>
 </section>

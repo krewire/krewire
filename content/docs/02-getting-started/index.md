@@ -117,7 +117,7 @@ Before building with Krewire, ensure your local development machine meets the ba
 
 | Requirement | Supported Specifications | Verification Command | Notes |
 | :--- | :--- | :--- | :--- |
-| **Go Toolchain** | **Go 1.22 or higher** | `go version` | Required to compile Go packages and workloads. |
+| **Go Toolchain** | **Go 1.27.1 or higher** | `go version` | Required to compile Go packages and workloads. |
 | **Operating System** | Linux (Ubuntu, Debian, Fedora, Arch, Alpine)<br>macOS (12+ Monterey, Ventura, Sonoma)<br>Windows (10/11 via PowerShell / CMD / WSL2) | `uname -srm` (Unix)<br>`[System.Environment]::OSVersion` (Win) | Native multi-arch binaries provided for all platforms. |
 | **CPU Architecture** | `amd64` (x86_64), `arm64` (Apple Silicon, AWS Graviton) | `uname -m` | Zero emulation overhead. |
 | **Version Control** | `git` (2.30+) | `git --version` | Required for scaffolding and module resolution. |
@@ -136,7 +136,7 @@ printf "Go:      %s\nGit:     %s\nOS/Arch: %s/%s\n" \
 ```
 
 > [!NOTE]
-> If Go is not installed or your version is older than 1.22, download the official installer from [golang.org/dl](https://golang.org/dl) before continuing.
+> If Go is not installed or your version is older than 1.27.1, download the official installer from [golang.org/dl](https://golang.org/dl) before continuing.
 
 ---
 
@@ -195,7 +195,7 @@ kiw version
 
 *Expected output:*
 ```text
-kiw v0.1.0 (linux/amd64) built with go1.22
+kiw v0.1.0 (linux/amd64) built with go1.27.1
 ```
 
 ---
@@ -392,7 +392,7 @@ Keep these everyday `kiw` commands at your fingertips during development:
 
 ---
 
-### 3. Outdated Go Version (`requires go >= 1.22`)
+### 3. Outdated Go Version (`requires go >= 1.27.1`)
 
 **Cause:** Your system has an older Go distribution (e.g. Go 1.18 or 1.20) installed via standard OS package managers (such as older Ubuntu `apt`).
 

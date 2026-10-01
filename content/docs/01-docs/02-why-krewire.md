@@ -52,7 +52,26 @@ Krewire unifies all of these workloads under **Go**, **`kiw`**, and **`krewire.y
 
 ---
 
-## 3. Why Go as the Architectural Foundation?
+## 3. The Three Pillars: Secure, Sustainable, Scalable
+
+Krewire is not only a web framework — it is an end-to-end **digital SDLC
+ecosystem**, from the first line of the specification (upstream) to production
+operations and maintenance (downstream). Every capability it ships must pass
+three pillars before it lands:
+
+| Pillar | What it means | What it looks like in Krewire |
+| :--- | :--- | :--- |
+| **Secure** | Safety is the default, not an add-on or a paid tier. | Stdlib-first dependency graph, secure-by-default HTTP primitives, OWASP/CWE-aligned controls, `${env:NAME}` secrets, WASM sandboxing, and spec-traceable tests anyone can check. |
+| **Sustainable** | A single builder can still read, run, and afford it a decade from now. | Single static binaries with embedded assets, opt-in batteries that cost zero when unused, boring proven parts, no license fees, and a learn-by-shipping community. |
+| **Scalable** | Growth is additive, not a rewrite. | The progressive pipeline (below): each stage is an opt-in, reversible battery, so a $5 VPS product can reach hyperscale without being re-architected. |
+
+These pillars are why "Why Krewire?" has a concrete answer for every stage of
+the life cycle, not just for the code: one specification format, one config,
+one CLI, and one language — from `docs/specs/` to `kiw deploy`.
+
+---
+
+## 4. Why Go as the Architectural Foundation?
 
 Choosing Go is **architectural, not preferential**:
 
@@ -69,7 +88,7 @@ Choosing Go is **architectural, not preferential**:
 
 ---
 
-## 4. The Progressive Pipeline (`KWF-ARCH-P7L2Q`)
+## 5. The Progressive Pipeline (`KWF-ARCH-P7L2Q`)
 
 In Krewire, system growth is an **incremental upgrade**, not a rewrite. Your product evolves naturally through standardized pipeline stages:
 
@@ -100,7 +119,7 @@ In Krewire, system growth is an **incremental upgrade**, not a rewrite. Your pro
 
 ---
 
-## 5. Summary
+## 6. Summary
 
 Krewire eliminates the cognitive overhead of modern web development. With one language, one CLI, and one unified configuration file, developers spend less time fighting build tools and more time shipping software.
 

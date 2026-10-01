@@ -18,7 +18,7 @@ Before installing `kiw`, verify that your development environment satisfies the 
 | :--- | :--- | :--- |
 | **Operating System** | Linux (Ubuntu, Debian, Fedora, Arch, Alpine), macOS (12+), Windows (10/11) | Native binaries available for all platforms. |
 | **Architecture** | `amd64` (x86_64), `arm64` (Apple Silicon, ARM64 servers) | Verified multi-arch static builds. |
-| **Go Runtime** | **Go 1.22 or higher** | Required when building from source or running Go workloads. |
+| **Go Runtime** | **Go 1.27.1 or higher** | Required when building from source or running Go workloads. |
 | **Version Control** | `git` (2.30+) | Required for template bootstrapping and module fetching. |
 
 Check your current Go version:
