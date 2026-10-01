@@ -21,10 +21,10 @@
   <meta name="twitter:title" content="{{.Title}}">
   <meta name="twitter:description" content="Unified Go Framework for every workload — app, cli, site, book, worker, service, infra, runtime. One CLI kiw, one config krewire.yaml.">
 
-  <link rel="stylesheet" href="/assets/style.css?v=20261001-2">
-  <link rel="stylesheet" href="/assets/tailwind.css?v=20261001-2">
-  <link rel="stylesheet" href="/assets/forge.css?v=20261001-2">
-  <script src="/assets/app.js?v=20261001-2"></script>
+  <link rel="stylesheet" href="/assets/style.css?v=20261001-3">
+  <link rel="stylesheet" href="/assets/tailwind.css?v=20261001-3">
+  <link rel="stylesheet" href="/assets/forge.css?v=20261001-3">
+  <script src="/assets/app.js?v=20261001-3"></script>
 </head>
 <body>
 

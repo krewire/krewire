@@ -64,54 +64,110 @@ function fallbackCopy(text, cb) {
 
 window.copyCmd = copyCmd;
 
-// ── 3. Navbar Mobile Menu & Interactive Handlers ─────────────────────────────
-document.addEventListener('DOMContentLoaded', function () {
-  var toggler = document.getElementById('nav-toggler');
-  var menu = document.getElementById('nav-mobile-menu');
+// ── 3. Forge Drawer & Mobile Menu Controller ────────────────────────────────
+(function () {
+  'use strict';
 
-  if (toggler && menu) {
-    toggler.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var open = menu.classList.toggle('menu-open');
-      toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) {
-        menu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
-        menu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
-      } else {
-        menu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-        menu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
-      }
-    });
+  function getDrawerElements(id) {
+    var drawer = document.getElementById(id);
+    var backdrop = document.getElementById(id + '-backdrop') || document.querySelector('[data-drawer-backdrop="' + id + '"]');
+    var togglers = document.querySelectorAll('[data-drawer-toggle="' + id + '"], [aria-controls="' + id + '"]');
+    return { drawer: drawer, backdrop: backdrop, togglers: togglers };
+  }
 
-    // Close when clicking any link inside menu
-    menu.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
-        menu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-        menu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
-        menu.classList.remove('menu-open');
-        toggler.setAttribute('aria-expanded', 'false');
+  window.forgeDrawer = {
+    open: function (id) {
+      var els = getDrawerElements(id);
+      if (!els.drawer) return;
+      els.drawer.classList.add('drawer-open');
+      if (els.backdrop) els.backdrop.classList.add('backdrop-open');
+      els.togglers.forEach(function (btn) {
+        btn.setAttribute('aria-expanded', 'true');
+        btn.classList.add('is-active');
       });
-    });
+      document.body.classList.add('drawer-active');
+    },
+    close: function (id) {
+      var els = getDrawerElements(id);
+      if (!els.drawer) return;
+      els.drawer.classList.remove('drawer-open');
+      if (els.backdrop) els.backdrop.classList.remove('backdrop-open');
+      els.togglers.forEach(function (btn) {
+        btn.setAttribute('aria-expanded', 'false');
+        btn.classList.remove('is-active');
+      });
+      document.body.classList.remove('drawer-active');
+    },
+    toggle: function (id) {
+      var els = getDrawerElements(id);
+      if (!els.drawer) return;
+      if (els.drawer.classList.contains('drawer-open')) {
+        this.close(id);
+      } else {
+        this.open(id);
+      }
+    }
+  };
 
-    // Close when clicking anywhere outside
+  document.addEventListener('DOMContentLoaded', function () {
+    // Event delegation for drawers
     document.addEventListener('click', function (e) {
-      if (!menu.contains(e.target) && !toggler.contains(e.target)) {
-        if (menu.classList.contains('menu-open')) {
-          menu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-          menu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
-          menu.classList.remove('menu-open');
-          toggler.setAttribute('aria-expanded', 'false');
+      var toggleBtn = e.target.closest('[data-drawer-toggle]');
+      if (toggleBtn) {
+        var id = toggleBtn.getAttribute('data-drawer-toggle');
+        if (id) {
+          e.preventDefault();
+          window.forgeDrawer.toggle(id);
+          return;
+        }
+      }
+
+      var closeBtn = e.target.closest('[data-drawer-close]');
+      if (closeBtn) {
+        var id = closeBtn.getAttribute('data-drawer-close');
+        if (id) {
+          e.preventDefault();
+          window.forgeDrawer.close(id);
+          return;
+        }
+      }
+
+      var backdrop = e.target.closest('[data-drawer-backdrop]');
+      if (backdrop) {
+        var id = backdrop.getAttribute('data-drawer-backdrop');
+        if (id) {
+          e.preventDefault();
+          window.forgeDrawer.close(id);
+          return;
+        }
+      }
+
+      // Close drawer when clicking any link inside drawer body
+      var drawerLink = e.target.closest('.drawer a');
+      if (drawerLink) {
+        var drawer = drawerLink.closest('.drawer');
+        if (drawer && drawer.id) {
+          window.forgeDrawer.close(drawer.id);
         }
       }
     });
-  }
 
-  // Also bind any buttons with [data-theme-toggle]
-  document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      if (window.krewireTheme && window.krewireTheme.toggle) {
-        window.krewireTheme.toggle();
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.drawer.drawer-open').forEach(function (d) {
+          window.forgeDrawer.close(d.id);
+        });
       }
     });
+
+    // Theme switches
+    document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (window.krewireTheme && window.krewireTheme.toggle) {
+          window.krewireTheme.toggle();
+        }
+      });
+    });
   });
-});
+})();
