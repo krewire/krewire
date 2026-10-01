@@ -50,11 +50,14 @@ jobs:
           cd "${RUNNER_TEMP}/krewire"
           go work init
           go work use ./libs ./framework ./kiw ./mdbind ./hub ./ship ./forge ./boost
-          # No `go work sync` here: it resolves every requirement through the
-          # module proxy, and the boost v0.1.0 tag predates the guild -> boost
-          # rename, so the proxy reports "module declares its path as
-          # github.com/krewire/guild". Workspace mode already resolves the eight
-          # modules to these checkouts, so the build needs no proxy lookup.
+          # The workspace root is not a git repository, so go.work.sum is not
+          # cloned with the modules. Without it Go falls back to the module
+          # proxy, which still serves a stale boost@v0.1.0 that declares itself
+          # as github.com/krewire/guild and every build then fails with a
+          # module-path mismatch. GOPRIVATE keeps Go off the proxy for these
+          # paths; workspace mode already binds them to these checkouts.
+          export GOPRIVATE="github.com/krewire/*"
+          export GONOSUMDB="github.com/krewire/*"
           go build -o "${RUNNER_TEMP}/bin/kiw" ./kiw/cmd/kiw
           echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
 
