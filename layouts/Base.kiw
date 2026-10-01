@@ -6,7 +6,6 @@
   <meta name="color-scheme" content="light dark">
   <title>{{.Title}}</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  {{assetLinks .AssetVersion}}
 </head>
 <body>
   <Navbar ShowSidebarToggle=true Version=.Version />
