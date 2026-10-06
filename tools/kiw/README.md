@@ -1,10 +1,8 @@
-# Krewire
+# Krewire CLI (`kiw`)
 
-**Krewire** is the single CLI entry point for the entire Krewire ecosystem. It drives all eight project kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `infra`, `kernel`) from one binary, one config file (`krewire.yaml`), and one workflow. The binary is named **`kiw`** for fast typing; the module is `github.com/krewire/kiw`.
+**Krewire** CLI is the single entry point for the entire Krewire ecosystem. It drives all eight project kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `infra`, `kernel`) from one binary, one config file (`krewire.yaml`), and one workflow. The binary is named **`kiw`** for fast typing.
 
-The devtool dogfoods the unified framework's `tui` package, so the tool that manages the ecosystem is itself built on the stack it manages.
-
-> Unified vision: [`KWF-M8K2Q`](https://github.com/krewire/framework/blob/main/docs/specs/KWF-ARCH-M8K2Q-unified-framework-vision.md)
+The devtool dogfoods the monorepo's `packages/tui` package, so the tool that manages the ecosystem is itself built on the stack it manages.
 
 ## Commands
 
@@ -67,7 +65,7 @@ cd hello && go run . hello   # CLI example before equipping
 
 ## Design
 
-- **Dogfooding** — `cmd/kiw` is built on `github.com/krewire/framework/tui` with ecosystem exit codes (0/1/2) and `term` output.
+- **Dogfooding** — `cmd/kiw` is built on `github.com/krewire/krewire/packages/tui` with ecosystem exit codes (0/1/2) and `term` output.
 - **Single config** — all kinds use `krewire.yaml` only; no `ssg.yaml`.
 - **Kind dispatch** — `kiw info` prints the detected kind; `kiw build` picks the pipeline (SSG vs. book vs. binary vs. infra plan).
 

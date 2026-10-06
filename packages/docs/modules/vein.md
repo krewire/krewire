@@ -1,6 +1,6 @@
 # `vein`
 
-Import: `github.com/krewire/libs/vein`
+Import: `github.com/krewire/krewire/packages/vein`
 
 ## Purpose
 

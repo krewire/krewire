@@ -2,9 +2,7 @@
 
 A guild of AI agents tuned for the **unified Krewire framework** — one install gives any Krewire project (covering all eight kinds: `app`, `cli`, `site`, `book`, `worker`, `service`, `infra`, `kernel`) a set of agents, commands, and skills that already know the ecosystem's conventions: the full `kiw` command matrix, `krewire.yaml`-only config, spec-driven development, and quality gates.
 
-Krewire Boost is distributed as a Go module (`github.com/krewire/boost`) whose template is embedded and installed through the [`kiw` CLI](https://github.com/krewire/kiw).
-
-> Unified vision: [`KWF-M8K2Q`](../framework/docs/specs/KWF-ARCH-M8K2Q-unified-framework-vision.md)
+Krewire Boost is distributed as a package (`packages/boost`) in the Krewire monorepo whose template is embedded and installed through the `kiw` CLI.
 
 ## Features
 
@@ -74,7 +72,7 @@ Then, in your project:
 ## Using as a Library
 
 ```go
-import "github.com/krewire/boost"
+import "github.com/krewire/krewire/packages/boost"
 
 created, err := boost.Install("./my-project")
 if errors.Is(err, boost.ErrConflicts) {

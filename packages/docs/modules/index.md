@@ -1,6 +1,6 @@
-# Krewire Library Modules
+# Krewire Packages
 
-Module documentation catalog for `github.com/krewire/libs`.
+Documentation catalog for domain packages in `github.com/krewire/krewire`.
 
 | Module | Documentation | Focus |
 |---|---|---|

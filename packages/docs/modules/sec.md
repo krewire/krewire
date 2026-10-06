@@ -1,6 +1,6 @@
 # `sec`
 
-Import: `github.com/krewire/libs/sec`
+Import: `github.com/krewire/krewire/packages/sec`
 
 ## Purpose
 

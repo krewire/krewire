@@ -1,6 +1,6 @@
 # `auth`
 
-Import: `github.com/krewire/libs/auth`
+Import: `github.com/krewire/krewire/packages/auth`
 
 ## Purpose
 

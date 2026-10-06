@@ -1,6 +1,6 @@
 # `validation`
 
-Import: `github.com/krewire/libs/validation`
+Import: `github.com/krewire/krewire/packages/validation`
 
 ## Purpose
 

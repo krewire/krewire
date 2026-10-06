@@ -1,6 +1,6 @@
 # `config`
 
-Import: `github.com/krewire/libs/config`
+Import: `github.com/krewire/krewire/packages/config`
 
 ## Purpose
 

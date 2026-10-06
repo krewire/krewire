@@ -1,6 +1,6 @@
 # `storage`
 
-Import: `github.com/krewire/libs/storage`
+Import: `github.com/krewire/krewire/packages/storage`
 
 ## Purpose
 

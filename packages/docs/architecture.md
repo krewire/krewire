@@ -24,14 +24,12 @@ libs/
 - **Declarative + imperative control plane.** `core` (what is valid) + `kern` (how it runs) are the ecosystem's center; every repo imports `core` for types/rules, `framework`/`krewire` compose via `kern`. `core` is stdlib-only; `kern` is stdlib + `core` (no `framework` dependency, to avoid cycles).
 - **Modular at every Scope (SRP/SoC).** Even `Unit` is a module — one concern per file/package, no God Module. Industry: SRP (SOLID), Separation of Concerns (Parnas), High Cohesion/Low Coupling, Unix "Do one thing well". Applies from `libs/core.Scope` → `libs/core.Kind` → `libs/core.ScopeUnit`.
 - **Scope hierarchy as code.** `core.Scope` (`KWL-ARCH-J2K9Q`) codifies `Workspace → Module → Domain → Service → Unit` (Krewire Workspace = Go `go.work` at hub root; `Module ⊃ Service ⊃ Unit`, Unit = Go package / `pkg.Func`) with `ParseScope`/`Less()`; all specs/tests declare scope, enabling `kiw test --spec` filtering (KWL-TEST-P8M4L).
-- **Monorepo, independent versioning.** Each package is importable alone; consumers pull only what they need.
-- **Single config authority.** `config` + `validation` enforce the `krewire.yaml`-only rule for every workload; used by `framework`, `krewire`, and `mdbind`; business validation delegates to `core`.
-- **No re-implementation.** Where stdlib covers it (`flag`, `log/slog`, `os`), libs does not duplicate.
-- **Cross-repo replace for local dev.** `framework/go.mod` → `replace github.com/krewire/libs => ../libs` during development, removed before tag.
-
+- **Monorepo structure.** Each package under `packages/` is importable independently within `github.com/krewire/krewire`.
+- **Single config authority.** `config` + `validation` enforce the `krewire.yaml`-only rule for every workload; business validation delegates to `kern/model`.
+- **No re-implementation.** Where stdlib covers it (`flag`, `log/slog`, `os`), packages do not duplicate.
 
 ## Conventions
 
 - Documentation in English, Markdown, spec-driven (`docs/specs/`); requirements declare `Scope: Workspace/Module/Domain/Service/Unit` (`KWL-ARCH-J2K9Q`), tests declare `// Tests for <SpecID>` (`KWL-TEST-P8M4L`).
 - Quality gates: `gofmt -l .`, `go vet ./...`, `go test ./...` in each Go repo; per-kind `kiw build` / `kiw build --plan` spot-checks.
-- Cross-repo testing via `go.work` workspace (`./framework`, `./libs`, etc.) at hub root; `go work sync` updates `go.work.sum`.
+- Cross-repo testing via `go.work` workspace (`./krewire`, `./mdbind`) at workspace root; `go work sync` updates `go.work.sum`.

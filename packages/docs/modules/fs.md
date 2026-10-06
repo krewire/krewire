@@ -1,6 +1,6 @@
 # `fs`
 
-Import: `github.com/krewire/libs/fs`
+Import: `github.com/krewire/krewire/packages/fs`
 
 ## Purpose
 

@@ -1,6 +1,6 @@
 # `functional`
 
-Import: `github.com/krewire/libs/functional`
+Import: `github.com/krewire/krewire/packages/functional`
 
 ## Purpose
 

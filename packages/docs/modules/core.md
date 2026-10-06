@@ -1,6 +1,6 @@
 # `core`
 
-Import: `github.com/krewire/libs/core`
+Import: `github.com/krewire/krewire/packages/core`
 
 ## Purpose
 

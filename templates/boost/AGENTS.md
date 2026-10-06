@@ -86,18 +86,15 @@ project-specific `cmd/` binaries for build/serve/run.
   chapters with subchapters), assembled by mdbind; `input` configurable in
   `krewire.yaml` (legacy `manuscript/` still accepted); README/readme notes
   are excluded by default, tunable via `build.include/exclude`.
-- **Worker layout** — `worker:` key in `krewire.yaml`, jobs under `internal/worker/`, queues via `framework/worker`.
-- **Service layout** — `service:` key, registry/config/gateway/resilience via `framework/service`; modular monolith default, opt-in extraction.
-- **Infra layout** — `infra:` key, provider-agnostic declarations under `infra/` compiled by `framework/infra` to AWS/Kubernetes.
-- **Config struct** — typed `krewire.yaml` structs loaded with `libs/config`,
-  validated with `libs/validation` (`validate:"required"` tags) and business rules in `libs/core` (`Kind`/`Workload`/`SpecID`).
+- **Worker layout** — `worker:` key in `krewire.yaml`, jobs under `internal/worker/`, queues via `packages/cloud/worker`.
+- **Service layout** — `service:` key, registry/config/gateway/resilience via `packages/cloud/service`; modular monolith default, opt-in extraction.
+- **Infra layout** — `infra:` key, provider-agnostic declarations under `infra/` compiled by `packages/cloud/infra` to AWS/Kubernetes.
+- **Config struct** — typed `krewire.yaml` structs loaded with `packages/config`,
+  validated with `packages/validation` (`validate:"required"` tags) and business rules in `packages/kern/model` (`Kind`/`Workload`/`SpecID`).
 - **Exit codes** — `0` success, `1` runtime failure, `2` usage error
-  (`libs/core.ExitCodeSuccess/Failure/Usage`).
-- **Control plane** — `libs/core` (declarative: business rules, workload registry) + `libs/kern` (imperative: `Kernel`/`Module`/`Registry`/`Executor`/`Supervisor`) are the ecosystem center; `framework` and `kiw` compose via `kern`.
-- **Modules** — `github.com/krewire/framework` (unified framework: `tui`, `web`+`ssg`, `ui`, `app`, `runtime`, `worker`, `service`, `infra`), `github.com/krewire/libs` (`core`+`kern`+`config`/`validate`/`term`), `github.com/krewire/mdbind`,
-  `github.com/krewire/boost`. Cross-repo testing uses the hub `go.work`
-  workspace; temporary `replace` directives only for single-repo clones outside
-  the workspace.
+  (`packages/kern/errs.ExitCodeSuccess/Failure/Usage`).
+- **Control plane** — `packages/kern/model` (declarative: business rules, workload registry) + `packages/kern/lifecycle` (imperative: `Kernel`/`Module`/`Registry`/`Executor`/`Supervisor`) are the ecosystem center.
+- **Ecosystem Repositories** — 5 repositories: `krewire` (monorepo with domain packages, apps, `tools/kiw`, and `templates/boost`), `mdbind` (book compiler), `internal` (private docs), `krewire.com` (site), and `krewire.github.io` (community portal). Cross-repo testing uses the workspace `go.work`.
 
 ## Optional — The Krewire Way (Spec-Driven Development)
 

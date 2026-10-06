@@ -1,6 +1,6 @@
 # `markdown`
 
-Import: `github.com/krewire/libs/markdown`
+Import: `github.com/krewire/krewire/packages/markdown`
 
 ## Purpose
 

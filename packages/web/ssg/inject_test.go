@@ -191,3 +191,34 @@ func TestAutoInjectNoAssetsLeavesDocumentClean(t *testing.T) {
 		t.Errorf("nothing to inject, document must stay clean: %s", page)
 	}
 }
+
+func TestDebugKrewireGithubIo(t *testing.T) {
+	s, err := LoadFromDir("/home/reasvyn/workspace/krewire/krewire.github.io")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("auto.enabled: %v", s.auto.enabled)
+	css, js := s.autoAssetSet()
+	t.Logf("autoAssetSet css: %v, js: %v", css, js)
+	t.Logf("assets count: %d", len(s.assets))
+	for k := range s.assets {
+		t.Logf("asset in s.assets: %s", k)
+	}
+	p := s.plan()
+	for _, a := range p {
+		t.Logf("plan item: %+v", a)
+	}
+	inj := s.injectedPlan()
+	for _, a := range inj {
+		t.Logf("injected plan item: %+v", a)
+	}
+	out := t.TempDir()
+	if _, err := s.Build(out); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(out, "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("rendered index.html first 1500 chars:\n%s", string(b)[:1500])
+}

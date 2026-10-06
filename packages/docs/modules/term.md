@@ -1,6 +1,6 @@
 # `term`
 
-Import: `github.com/krewire/libs/term`
+Import: `github.com/krewire/krewire/packages/term`
 
 ## Purpose
 

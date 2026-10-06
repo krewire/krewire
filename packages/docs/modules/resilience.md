@@ -1,6 +1,6 @@
 # `resilience`
 
-Import: `github.com/krewire/libs/resilience`
+Import: `github.com/krewire/krewire/packages/resilience`
 
 ## Purpose
 

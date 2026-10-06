@@ -1,6 +1,6 @@
-# Krewire Libraries — Documentation
+# Krewire Packages — Documentation
 
-Krewire Libraries (`github.com/krewire/libs`) — Shared libraries for all 8 kinds.
+Krewire Packages — Shared domain packages and control plane for all 8 kinds.
 
 ## Contents
 
@@ -12,7 +12,7 @@ Krewire Libraries (`github.com/krewire/libs`) — Shared libraries for all 8 kin
 ## Getting Started
 
 - Read the project `README.md` for build/test instructions.
-- For the unified 9-workload matrix and roadmap, see [`project-vision.md`](https://github.com/krewire/internal/blob/main/docs/project-vision.md) (source spec [`KWF-ARCH-M8K2Q`](https://github.com/krewire/framework/blob/main/docs/specs/KWF-ARCH-M8K2Q-unified-framework-vision.md)).
+- For the unified workload matrix and roadmap, see [`project-vision.md`](https://github.com/krewire/internal/blob/main/docs/project-vision.md).
 
 ## Conventions
 

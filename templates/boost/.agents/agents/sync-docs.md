@@ -26,7 +26,7 @@ You are the docs synchronizer. Keep all Krewire documentation consistent with th
 
 4. **Spec location — specs live in `docs/specs/` of the owning repo.
 
-5. **Package name drift** — `framework/tui` must be used everywhere (`import "github.com/krewire/framework/tui"`), not `framework/cli`; `cli.` usages must be `tui.` in Go code. Check `docs/specs/index.md` Impl Path column.
+5. **Package name drift** — `packages/tui` must be used everywhere (`import "github.com/krewire/krewire/packages/tui"`), not `framework/cli`; `cli.` usages must be `tui.` in Go code. Check `docs/specs/index.md` Impl Path column.
 
 6. **Manuscript drift** — `docs/manuscript/01-introduction.md` and `03-framework.md` must describe unified 9-workload vision, not old meta-framework phrasing.
 

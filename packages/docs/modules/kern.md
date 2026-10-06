@@ -1,6 +1,6 @@
 # `kern`
 
-Import: `github.com/krewire/libs/kern`
+Import: `github.com/krewire/krewire/packages/kern`
 
 ## Purpose
 

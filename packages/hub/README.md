@@ -5,7 +5,7 @@
 ## Packages
 
 - **plugin** — Plugin contract and implementations for build-time extensions (Tailwind CSS, PostCSS, etc.)
-- **packages** — Package resolver chain (`plugin → Go module → npm`) powering `kiw add` and `kiw remove`
+- **resolver** — Package resolver chain (`plugin → Go module → npm`) powering `kiw add` and `kiw remove`
 
 ## Overview
 
@@ -23,7 +23,7 @@ hub provides the scalable plugin and package infrastructure for Krewire:
 ## Usage
 
 ```go
-import "github.com/krewire/hub/plugin"
+import "github.com/krewire/krewire/packages/hub/plugin"
 
 // Register a custom build plugin
 func init() {
@@ -31,15 +31,15 @@ func init() {
 }
 
 // Resolve and install packages
-import "github.com/krewire/hub/packages"
+import "github.com/krewire/krewire/packages/hub/resolver"
 
-resolved, _ := packages.DefaultChain().Resolve(packages.ParseSpec("twcss@latest"))
+resolved, _ := resolver.DefaultChain().Resolve(resolver.ParseSpec("twcss@latest"))
 resolved.Installer.Add(projectRoot, "latest")
 ```
 
 ## Architecture
 
-Part of the Krewire unified framework vision ([KWF-M8K2Q](https://github.com/krewire/framework/blob/main/docs/specs/KWF-ARCH-M8K2Q-unified-framework-vision.md)).
+Part of the Krewire unified architecture.
 
 - **Scalable** — New plugins require zero changes to the `kiw` CLI
 - **Optional** — Plugin build errors do not fail the core site build

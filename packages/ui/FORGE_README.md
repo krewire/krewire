@@ -50,7 +50,7 @@ so both work with no JavaScript.
 ## Installation
 
 ```bash
-go get github.com/krewire/forge
+go get github.com/krewire/krewire/packages/ui
 ```
 
 ---
@@ -65,8 +65,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/krewire/forge"
-	"github.com/krewire/forge/widget"
+	"github.com/krewire/krewire/packages/ui"
+	"github.com/krewire/krewire/packages/ui/widget"
 )
 
 func main() {
@@ -118,10 +118,10 @@ app.Dashboard("/metrics", dash)
 
 ## Ecosystem Integration
 
-Forge is an official sub-product in the Krewire ecosystem, designed to work seamlessly with:
-- [`krewire/framework`](https://github.com/krewire/framework): Fullstack web monoliths, HTTP routing, and workers.
-- [`krewire/libs`](https://github.com/krewire/libs): Core utilities, resilience, and logging.
-- [`krewire/kiw`](https://github.com/krewire/kiw): CLI devtool, scaffolding, and builds.
+Forge is an official package in the Krewire ecosystem (`packages/ui`), designed to work seamlessly with:
+- `packages/web`: Fullstack web routing, SSR, and middleware.
+- `packages/kern`: Core utilities, lifecycle, and logging.
+- `tools/kiw`: CLI devtool, scaffolding, and builds.
 
 ---
 
