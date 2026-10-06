@@ -1,0 +1,20 @@
+<kbd class="kiw-kbd {{if .Size}}kiw-kbd-{{.Size}}{{else}}kiw-kbd-md{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Kbd">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</kbd>
+
+<style>
+/* Kbd renders a keycap. It is decoration around an already-readable label, so
+   it is never announced on its own — callers put the shortcut in the text. */
+.kiw-kbd {
+  font-family: var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--fg, #0B1F3B);
+  background: var(--bg, #FAF8F4);
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  border-radius: calc(var(--radius, 10px) * 0.4);
+  box-shadow: 0 2px 0px var(--border, #0B1F3B);
+  white-space: nowrap;
+}
+.kiw-kbd-sm { font-size: 0.7rem; padding: 0.2rem 0.35rem; }
+.kiw-kbd-md { font-size: 0.78rem; padding: 0.3rem 0.5rem; }
+.kiw-kbd-lg { font-size: 0.9rem; padding: 0.4rem 0.65rem; }
+</style>

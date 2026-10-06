@@ -1,0 +1,57 @@
+{{/* Value is the percentage 0..100, not a raw count: the width must be a CSS
+     percentage, and a template cannot divide. Callers pass e.g. 42 for 42%. */}}
+<div class="kiw-progress {{if .Variant}}kiw-progress-{{.Variant}}{{else}}kiw-progress-primary{{end}} {{if .Size}}kiw-progress-{{.Size}}{{else}}kiw-progress-md{{end}} {{.Class}}"
+     {{with .ID}}id="{{.}}"{{end}}
+     role="progressbar"
+     aria-valuemin="0"
+     aria-valuemax="100"
+     aria-valuenow="{{if .Value}}{{.Value}}{{else}}0{{end}}"
+     {{with .Label}}aria-label="{{.}}"{{end}}
+     data-kiw-component="Progress">
+  <div class="kiw-progress-track">
+    <div class="kiw-progress-bar" style="width: {{if .Value}}{{.Value}}{{else}}0{{end}}%"></div>
+  </div>
+  {{if .ShowValue}}
+  <span class="kiw-progress-value">{{if .Value}}{{.Value}}{{else}}0{{end}}%</span>
+  {{end}}
+</div>
+
+<style>
+.kiw-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+.kiw-progress-track {
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-2, #f2ede4);
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+.kiw-progress-sm { height: 0.5rem; }
+.kiw-progress-md { height: 0.85rem; }
+.kiw-progress-lg { height: 1.2rem; }
+
+.kiw-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+.kiw-progress-primary .kiw-progress-bar { background: var(--primary, #39D353); }
+.kiw-progress-success .kiw-progress-bar { background: var(--success, #39D353); }
+.kiw-progress-warning .kiw-progress-bar { background: var(--warning, #ffb703); }
+.kiw-progress-error .kiw-progress-bar { background: var(--error, #FF3B2E); }
+
+.kiw-progress-value {
+  font-family: var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted, #57677d);
+  min-width: 3ch;
+  text-align: right;
+}
+</style>

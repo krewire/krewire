@@ -1,0 +1,33 @@
+{{if eq .As "span"}}
+<span class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} {{if .Weight}}kiw-text-{{.Weight}}{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</span>
+{{else if eq .As "small"}}
+<small class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{else}}kiw-text-sm{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} {{if .Weight}}kiw-text-{{.Weight}}{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</small>
+{{else if eq .As "strong"}}
+<strong class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} kiw-text-bold {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</strong>
+{{else}}
+<p class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} {{if .Weight}}kiw-text-{{.Weight}}{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</p>
+{{end}}
+
+<style>
+.kiw-text {
+  font-family: inherit;
+  line-height: 1.6;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+.kiw-text-xs { font-size: 0.75rem; }
+.kiw-text-sm { font-size: 0.875rem; }
+.kiw-text-base { font-size: 1rem; }
+.kiw-text-lg { font-size: 1.125rem; }
+.kiw-text-xl { font-size: 1.25rem; }
+
+.kiw-text-default { color: var(--fg, #0B1F3B); }
+.kiw-text-muted { color: var(--muted, #57677d); }
+.kiw-text-primary { color: var(--primary, #39D353); }
+.kiw-text-error { color: var(--error, #FF3B2E); }
+
+.kiw-text-normal { font-weight: 400; }
+.kiw-text-medium { font-weight: 500; }
+.kiw-text-semibold { font-weight: 600; }
+.kiw-text-bold { font-weight: 700; }
+</style>

@@ -1,0 +1,223 @@
+<div
+  id="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}"
+  class="drawer drawer-{{if .Side}}{{.Side}}{{else}}right{{end}} {{.Class}}"
+  role="dialog"
+  aria-modal="true"
+  aria-label="{{if .Title}}{{.Title}}{{else}}Drawer Navigation{{end}}"
+  data-kiw-component="Drawer">
+  
+  <div class="drawer-panel">
+    {{if or .Title (not .NoClose)}}
+    <div class="drawer-head">
+      <div class="drawer-title-area">
+        {{with .Title}}
+        <h3 class="drawer-title">{{.}}</h3>
+        {{end}}
+      </div>
+      <button
+        type="button"
+        class="drawer-close"
+        aria-label="Close drawer"
+        data-drawer-close="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}"
+        onclick="if(window.forgeDrawer){window.forgeDrawer.close('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}')}else{var d=document.getElementById('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}');if(d)d.classList.remove('drawer-open');var b=document.getElementById('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}-backdrop');if(b)b.classList.remove('backdrop-open');}">
+        ✕
+      </button>
+    </div>
+    {{end}}
+
+    <div class="drawer-body">
+      {{with .Body}}{{safeHTML .}}{{end}}
+    </div>
+
+    {{with .Footer}}
+    <div class="drawer-footer">
+      {{safeHTML .}}
+    </div>
+    {{end}}
+  </div>
+</div>
+
+{{if not .NoBackdrop}}
+<div
+  id="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}-backdrop"
+  class="drawer-backdrop {{.Class}}"
+  data-drawer-backdrop="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}"
+  onclick="if(window.forgeDrawer){window.forgeDrawer.close('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}')}else{var d=document.getElementById('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}');if(d)d.classList.remove('drawer-open');this.classList.remove('backdrop-open');}"
+  aria-hidden="true"></div>
+{{end}}
+
+<style>
+.drawer {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg, #FAF8F4);
+  color: var(--fg, #0B1F3B);
+  box-sizing: border-box;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s ease;
+}
+
+/* Side: Right (Default) */
+.drawer.drawer-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(85vw, 22rem);
+  max-width: 100vw;
+  height: 100vh;
+  border-left: var(--pop-border, 2.5px solid var(--border, #0B1F3B));
+  box-shadow: -4px 0 0 var(--border, #0B1F3B);
+  transform: translateX(100%);
+}
+.drawer.drawer-right.drawer-open {
+  transform: translateX(0) !important;
+}
+
+/* Side: Left */
+.drawer.drawer-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(85vw, 22rem);
+  max-width: 100vw;
+  height: 100vh;
+  border-right: var(--pop-border, 2.5px solid var(--border, #0B1F3B));
+  box-shadow: 4px 0 0 var(--border, #0B1F3B);
+  transform: translateX(-100%);
+}
+.drawer.drawer-left.drawer-open {
+  transform: translateX(0) !important;
+}
+
+/* Side: Top */
+.drawer.drawer-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-height: 85vh;
+  border-bottom: var(--pop-border, 2.5px solid var(--border, #0B1F3B));
+  box-shadow: 0 4px 0 var(--border, #0B1F3B);
+  transform: translateY(-100%);
+}
+.drawer.drawer-top.drawer-open {
+  transform: translateY(0) !important;
+}
+
+/* Side: Bottom */
+.drawer.drawer-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-height: 85vh;
+  border-top: var(--pop-border, 2.5px solid var(--border, #0B1F3B));
+  box-shadow: 0 -4px 0 var(--border, #0B1F3B);
+  transform: translateY(100%);
+}
+.drawer.drawer-bottom.drawer-open {
+  transform: translateY(0) !important;
+}
+
+/* Open State */
+.drawer.drawer-open {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.drawer-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: var(--bg-2, #f0ede5);
+  border-bottom: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  flex-shrink: 0;
+}
+
+.drawer-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--fg, #0B1F3B);
+}
+
+.drawer-close {
+  background: transparent;
+  border: 1.5px solid var(--border, #0B1F3B);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--fg, #0B1F3B);
+  transition: all 0.15s ease;
+}
+.drawer-close:hover {
+  background: var(--error, #FF3B2E);
+  color: #fff;
+  border-color: var(--error, #FF3B2E);
+}
+
+.drawer-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem 1.25rem;
+}
+
+.drawer-footer {
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-2, #f0ede5);
+  border-top: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  flex-shrink: 0;
+}
+
+/* Backdrop */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 31, 59, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 990;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.drawer-backdrop.backdrop-open {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Responsive visibility overrides */
+@media (min-width: 1024px) {
+  .drawer.lg\:hidden,
+  .drawer-backdrop.lg\:hidden {
+    display: none !important;
+  }
+}
+@media (min-width: 768px) {
+  .drawer.md\:hidden,
+  .drawer-backdrop.md\:hidden {
+    display: none !important;
+  }
+}
+</style>

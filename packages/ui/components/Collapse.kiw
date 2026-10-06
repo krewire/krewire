@@ -1,0 +1,63 @@
+{{/* Built on <details> so disclosure works with no JavaScript and stays
+     keyboard- and screen-reader-accessible for free. Open is the initial state. */}}
+<details class="kiw-collapse {{if .Variant}}kiw-collapse-{{.Variant}}{{end}} {{.Class}}"
+         {{with .ID}}id="{{.}}"{{end}}
+         {{if .Open}}open{{end}}
+         {{if .Name}}name="{{.}}"{{end}}
+         data-kiw-component="Collapse">
+  <summary class="kiw-collapse-summary">
+    {{if .Icon}}<span class="kiw-collapse-icon" aria-hidden="true">{{.Icon}}</span>{{end}}
+    <span class="kiw-collapse-title">{{.Title}}</span>
+    {{if .Badge}}<span class="kiw-collapse-badge">{{.Badge}}</span>{{end}}
+  </summary>
+  <div class="kiw-collapse-body">
+    {{.Body}}
+  </div>
+</details>
+
+<style>
+.kiw-collapse {
+  box-sizing: border-box;
+  margin-bottom: 0.75rem;
+  background: var(--bg, #FAF8F4);
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  border-radius: var(--radius, 10px);
+  overflow: hidden;
+}
+.kiw-collapse-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--fg, #0B1F3B);
+  list-style: none;
+  user-select: none;
+}
+/* Hide the default marker in WebKit and Firefox; the ::after chevron below is
+   the single indicator, so it rotates from one place. */
+.kiw-collapse-summary::-webkit-details-marker { display: none; }
+.kiw-collapse-summary::marker { content: ""; }
+.kiw-collapse-summary:hover { background: var(--bg-2, #f2ede4); }
+.kiw-collapse-summary:focus-visible { outline: 2px solid var(--primary, #39D353); outline-offset: -2px; }
+
+.kiw-collapse-title { flex: 1; }
+.kiw-collapse-badge {
+  font-family: var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  background: var(--bg-2, #f2ede4);
+  border: 1.5px solid var(--border, #0B1F3B);
+}
+
+.kiw-collapse-body {
+  padding: 0 1rem 1rem;
+  border-top: 1.5px solid var(--border, #0B1F3B);
+  padding-top: 0.85rem;
+  color: var(--fg, #0B1F3B);
+}
+.kiw-collapse-icon { line-height: 1; }
+</style>

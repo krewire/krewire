@@ -1,0 +1,96 @@
+<button
+  type="button"
+  class="hamburger inline-flex items-center justify-center p-0 min-h-0 shrink-0 cursor-pointer select-none {{.Class}}"
+  style="display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; min-width: 2.25rem; min-height: 2.25rem; padding: 0; background: var(--bg, #FAF8F4); border: 2px solid var(--border, #0B1F3B); border-radius: 6px; box-shadow: 2px 2px 0px var(--border, #0B1F3B); cursor: pointer;"
+  {{with .ID}}id="{{.}}"{{end}}
+  aria-label="{{if .Label}}{{.Label}}{{else}}Toggle navigation{{end}}"
+  aria-expanded="{{if .Expanded}}{{.Expanded}}{{else}}false{{end}}"
+  {{with .Controls}}aria-controls="{{.}}"{{end}}
+  {{with .DataDrawerToggle}}data-drawer-toggle="{{.}}"{{end}}
+  {{with .OnClick}}onclick="{{.}}"{{end}}
+  data-kiw-component="Hamburger">
+  <span class="hamburger-box" aria-hidden="true" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; width: 1.125rem; height: 0.875rem; flex-shrink: 0;">
+    <span class="hamburger-line line-1" style="display: block; width: 100%; height: 2px; min-height: 2px; background-color: var(--fg, #0B1F3B); border-radius: 1px;"></span>
+    <span class="hamburger-line line-2" style="display: block; width: 100%; height: 2px; min-height: 2px; background-color: var(--fg, #0B1F3B); border-radius: 1px;"></span>
+    <span class="hamburger-line line-3" style="display: block; width: 100%; height: 2px; min-height: 2px; background-color: var(--fg, #0B1F3B); border-radius: 1px;"></span>
+  </span>
+</button>
+
+<style>
+.hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  border-radius: var(--radius-sm, var(--radius, 6px));
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  background: var(--bg, #FAF8F4);
+  color: var(--fg, #0B1F3B);
+  cursor: pointer;
+  box-shadow: var(--pop-shadow-sm, var(--pop-sm, 2px 2px 0px var(--border, #0B1F3B)));
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+}
+.hamburger.hidden {
+  display: none !important;
+}
+@media (min-width: 1024px) {
+  .hamburger.lg\:hidden {
+    display: none !important;
+  }
+}
+@media (min-width: 768px) {
+  .hamburger.md\:hidden {
+    display: none !important;
+  }
+}
+.hamburger:hover {
+  background: var(--bg-2, #f2ede4);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--border, #0B1F3B);
+}
+.hamburger:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--border, #0B1F3B);
+}
+.hamburger-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 0.875rem;
+}
+.hamburger-line {
+  display: block;
+  width: 100%;
+  height: 2px;
+  min-height: 2px;
+  background-color: var(--fg, currentColor);
+  border-radius: 1px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease-in-out;
+  transform-origin: center;
+}
+
+/* Morphing animation to 'X' */
+.hamburger[aria-expanded="true"] .line-1,
+.hamburger.is-active .line-1 {
+  transform: translateY(6px) rotate(45deg);
+}
+.hamburger[aria-expanded="true"] .line-2,
+.hamburger.is-active .line-2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger[aria-expanded="true"] .line-3,
+.hamburger.is-active .line-3 {
+  transform: translateY(-6px) rotate(-45deg);
+}
+</style>

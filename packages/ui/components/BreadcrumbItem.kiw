@@ -1,0 +1,7 @@
+<li class="kiw-breadcrumb-entry">
+  {{if .Href}}
+  <a class="kiw-breadcrumb-item {{.Class}}" href="{{.Href}}" {{with .Target}}target="{{.}}" rel="noopener"{{end}} {{if .Current}}aria-current="page"{{end}} data-kiw-component="BreadcrumbItem">{{.Label}}</a>
+  {{else}}
+  <span class="kiw-breadcrumb-item is-current {{.Class}}" {{if .Current}}aria-current="page"{{end}} data-kiw-component="BreadcrumbItem">{{.Label}}</span>
+  {{end}}
+</li>

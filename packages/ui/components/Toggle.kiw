@@ -1,0 +1,29 @@
+<Button Id=.ID
+        Class=.Class
+        Variant=.Variant
+        Size=.Size
+        Disabled=.Disabled
+        OnClick=.OnClick
+        AriaLabel=.Label
+        AriaPressed=.Pressed>
+  {{if .Body}}
+    {{.Body}}
+  {{else}}
+    {{if .ActiveIcon}}<span class="toggle-icon-active">{{.ActiveIcon}}</span>{{end}}
+    {{if .InactiveIcon}}<span class="toggle-icon-inactive">{{.InactiveIcon}}</span>{{end}}
+    {{if .Text}}<span class="toggle-text">{{.Text}}</span>{{end}}
+  {{end}}
+</Button>
+
+<style>
+.toggle[aria-pressed="true"] .toggle-icon-inactive {
+  display: none !important;
+}
+.toggle[aria-pressed="false"] .toggle-icon-active {
+  display: none !important;
+}
+.toggle[aria-pressed="true"] {
+  background: var(--primary) !important;
+  color: var(--primary-content) !important;
+}
+</style>

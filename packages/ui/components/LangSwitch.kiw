@@ -1,0 +1,32 @@
+<button type="button"
+        class="lang-switch btn btn-outline {{.Class}}"
+        {{with .ID}}id="{{.}}"{{end}}
+        data-lang-toggle=""
+        aria-label="{{if .Label}}{{.Label}}{{else}}Toggle language{{end}}"
+        onclick="{{if .OnClick}}{{.OnClick}}{{else}}window.krewireI18n && window.krewireI18n.toggle(){{end}}"
+        data-kiw-component="LangSwitch">
+  <span class="lang-icon" aria-hidden="true">{{if .Icon}}{{.Icon}}{{else}}🌐{{end}}</span>
+  <span class="lang-code font-bold">{{if .Code}}{{.Code}}{{else}}EN{{end}}</span>
+</button>
+
+<style>
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+  min-height: 0;
+  cursor: pointer;
+  user-select: none;
+}
+.lang-icon {
+  font-size: 0.9rem;
+}
+.lang-code {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+</style>

@@ -1,0 +1,20 @@
+<button class="theme-switch btn w-9 h-9 p-0 min-h-0 text-base flex items-center justify-center rounded-full"
+        data-theme-toggle
+        aria-label="Toggle theme"
+        onclick="window.krewireTheme.toggle()">
+  <span class="sun sun-icon">☀</span>
+  <span class="moon moon-icon">☾</span>
+</button>
+
+<style>
+.sun-icon { display: var(--show-sun, inline); }
+.moon-icon { display: var(--show-moon, none); }
+html[data-theme="dark"] .sun-icon,
+.dark .sun-icon {
+  display: none !important;
+}
+html[data-theme="dark"] .moon-icon,
+.dark .moon-icon {
+  display: inline !important;
+}
+</style>

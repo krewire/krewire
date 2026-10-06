@@ -1,0 +1,6 @@
+<a href="{{if .Href}}{{.Href}}{{else}}/{{end}}"
+   class="brand flex items-center gap-2 font-black tracking-tight text-fg dark:text-fg-dark shrink-0 no-underline hover:no-underline hover:text-fg dark:hover:text-fg-dark {{.Class}}">
+  <span class="brand-icon icon-box bg-primary text-primary-content w-8 h-8 text-base flex items-center justify-center">{{if .Icon}}{{.Icon}}{{else}}◈{{end}}</span>
+  <span class="brand-name text-base font-black tracking-tighter">{{if .Name}}{{.Name}}{{else}}Krewire{{end}}</span>
+  <span class="brand-badge badge badge-secondary font-mono text-2xs" {{with .BadgeI18n}}data-i18n="{{.}}"{{end}}>{{if .Badge}}{{.Badge}}{{else if .Version}}{{.Version}}{{else}}v0.1.0{{end}}</span>
+</a>

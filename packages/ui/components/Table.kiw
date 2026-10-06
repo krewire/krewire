@@ -1,0 +1,48 @@
+<div class="kiw-table-wrapper {{if .Bordered}}is-bordered{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Table">
+  <table class="kiw-table {{if .Striped}}is-striped{{end}} {{if .Hover}}is-hover{{end}}">
+    {{.Body}}
+  </table>
+</div>
+
+<style>
+.kiw-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius, 10px);
+  box-sizing: border-box;
+}
+.kiw-table-wrapper.is-bordered {
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  box-shadow: var(--pop-sm, 2px 2px 0px var(--border, #0B1F3B));
+}
+.kiw-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--fg, #0B1F3B);
+  background: var(--bg, #FAF8F4);
+}
+.kiw-table th {
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  background: var(--bg-2, #f2ede4);
+  border-bottom: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+}
+.kiw-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border, #0B1F3B);
+}
+.kiw-table tr:last-child td {
+  border-bottom: none;
+}
+.kiw-table.is-striped tbody tr:nth-child(even) {
+  background: var(--bg-2, #f2ede4);
+}
+.kiw-table.is-hover tbody tr:hover {
+  background: rgba(57, 211, 83, 0.08);
+}
+</style>

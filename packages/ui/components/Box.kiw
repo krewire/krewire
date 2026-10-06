@@ -1,0 +1,40 @@
+<div class="kiw-box {{if .Variant}}kiw-box-{{.Variant}}{{end}} {{if .Shadow}}kiw-box-shadow{{end}} {{if .Border}}kiw-box-border{{end}} {{if .Rounded}}kiw-box-rounded{{end}} {{.Class}}"
+     {{with .ID}}id="{{.}}"{{end}}
+     data-kiw-component="Box">
+  {{.Body}}
+</div>
+
+<style>
+.kiw-box {
+  box-sizing: border-box;
+}
+.kiw-box-border {
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+}
+.kiw-box-rounded {
+  border-radius: var(--radius, 10px);
+}
+.kiw-box-shadow {
+  box-shadow: var(--pop-sm, 2px 2px 0px var(--border, #0B1F3B));
+}
+.kiw-box-default {
+  background: var(--bg, #FAF8F4);
+  color: var(--fg, #0B1F3B);
+}
+.kiw-box-surface {
+  background: var(--bg-2, #f2ede4);
+  color: var(--fg, #0B1F3B);
+}
+.kiw-box-primary {
+  background: var(--primary, #39D353);
+  color: var(--primary-content, #0B1F3B);
+}
+.kiw-box-card {
+  background: var(--bg, #FAF8F4);
+  color: var(--fg, #0B1F3B);
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  border-radius: var(--radius, 10px);
+  box-shadow: var(--pop, 4px 4px 0px var(--border, #0B1F3B));
+  padding: 1.25rem;
+}
+</style>

@@ -1,0 +1,34 @@
+<div class="kiw-container {{if .Size}}kiw-container-{{.Size}}{{else}}kiw-container-default{{end}} {{.Class}}"
+     {{with .ID}}id="{{.}}"{{end}}
+     data-kiw-component="Container">
+  {{.Body}}
+</div>
+
+<style>
+.kiw-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+@media (min-width: 640px) {
+  .kiw-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .kiw-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+.kiw-container-sm { max-width: 640px; }
+.kiw-container-md { max-width: 768px; }
+.kiw-container-lg { max-width: 1024px; }
+.kiw-container-xl { max-width: 1280px; }
+.kiw-container-full { max-width: 100%; }
+.kiw-container-default { max-width: 80rem; }
+</style>

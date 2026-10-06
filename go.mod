@@ -1,0 +1,17 @@
+module github.com/krewire/krewire
+
+go 1.27.1
+
+require (
+	github.com/chai2010/webp v1.4.0
+	github.com/disintegration/imaging v1.6.2
+	github.com/tdewolff/minify/v2 v2.24.19
+	github.com/yuin/goldmark v1.8.5
+	golang.org/x/net v0.59.0
+	gopkg.in/yaml.v3 v3.0.1
+)
+
+require (
+	github.com/tdewolff/parse/v2 v2.8.16 // indirect
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
+)

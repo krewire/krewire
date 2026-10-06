@@ -1,0 +1,25 @@
+<code class="kiw-code {{if .Variant}}kiw-code-{{.Variant}}{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Code">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</code>
+
+<style>
+/* Inline code: a pop-brutalist inset chip. Padded without a margin so it sits
+   inside running text without breaking the line rhythm. */
+.kiw-code {
+  font-family: var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 0.875em;
+  background: var(--bg-2, #f2ede4);
+  color: var(--fg, #0B1F3B);
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  border-radius: calc(var(--radius, 10px) * 0.4);
+  padding: 0.1em 0.35em;
+  white-space: nowrap;
+}
+.kiw-code-primary { color: var(--primary, #39D353); }
+.kiw-code-error { color: var(--error, #FF3B2E); }
+.kiw-code-muted { color: var(--muted, #57677d); }
+.kiw-code-plain {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+</style>

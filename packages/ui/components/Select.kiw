@@ -1,0 +1,49 @@
+<div class="field-group {{.Class}}">
+  {{with .Label}}
+  <label class="field-label" {{with $.ID}}for="{{.}}"{{end}}>
+    {{.}}
+    {{if $.Required}}<span class="field-required" aria-hidden="true">*</span>{{end}}
+  </label>
+  {{end}}
+  <div class="select-wrapper">
+    <select
+      name="{{.Name}}"
+      {{with .ID}}id="{{.}}"{{end}}
+      {{if .Required}}required{{end}}
+      {{if .Disabled}}disabled{{end}}
+      class="field-input field-select {{if .Error}}has-error{{end}}"
+      {{with .Help}}aria-describedby="{{$.ID}}-help"{{end}}
+    >
+      {{.Body}}
+    </select>
+    <div class="select-arrow" aria-hidden="true">▼</div>
+  </div>
+  {{with .Help}}
+  <span class="field-help" {{with $.ID}}id="{{.}}-help"{{end}}>{{.}}</span>
+  {{end}}
+  {{with .Error}}
+  <span class="field-error">{{.}}</span>
+  {{end}}
+</div>
+
+<style>
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+.field-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+.select-arrow {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 0.75rem;
+  color: var(--muted, #57677d);
+}
+</style>

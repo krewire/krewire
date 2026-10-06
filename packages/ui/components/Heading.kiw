@@ -1,0 +1,32 @@
+{{if eq .Level "1"}}
+<h1 class="kiw-heading kiw-h1 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h1>
+{{else if eq .Level "2"}}
+<h2 class="kiw-heading kiw-h2 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h2>
+{{else if eq .Level "3"}}
+<h3 class="kiw-heading kiw-h3 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h3>
+{{else if eq .Level "4"}}
+<h4 class="kiw-heading kiw-h4 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h4>
+{{else if eq .Level "5"}}
+<h5 class="kiw-heading kiw-h5 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h5>
+{{else if eq .Level "6"}}
+<h6 class="kiw-heading kiw-h6 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h6>
+{{else}}
+<h2 class="kiw-heading kiw-h2 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h2>
+{{end}}
+
+<style>
+.kiw-heading {
+  font-family: inherit;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--fg, #0B1F3B);
+  letter-spacing: -0.02em;
+  margin-top: 0;
+}
+.kiw-h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; }
+.kiw-h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+.kiw-h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); }
+.kiw-h4 { font-size: 1.25rem; }
+.kiw-h5 { font-size: 1.1rem; }
+.kiw-h6 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
+</style>

@@ -1,0 +1,49 @@
+<span class="kiw-tooltip {{if .Placement}}kiw-tooltip-{{.Placement}}{{else}}kiw-tooltip-top{{end}} {{.Class}}"
+      {{with .ID}}id="{{.}}"{{end}}
+      tabindex="0"
+      role="tooltip"
+      aria-label="{{.Text}}"
+      data-kiw-component="Tooltip">{{.Body}}</span>
+
+<style>
+/* CSS-only tooltip on hover and :focus-visible, so it is reachable by keyboard
+   as well as pointer. The bubble is a pseudo-element: no extra markup travels
+   through the render pipeline. */
+.kiw-tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 2px dotted var(--muted, #57677d);
+  cursor: help;
+}
+.kiw-tooltip::after {
+  content: attr(aria-label);
+  position: absolute;
+  left: 50%;
+  z-index: 50;
+  width: max-content;
+  max-width: 16rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--bg, #FAF8F4);
+  background: var(--fg, #0B1F3B);
+  border-radius: calc(var(--radius, 10px) * 0.5);
+  box-shadow: var(--pop-shadow-sm, 2px 2px 0px var(--border, #0B1F3B));
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+.kiw-tooltip-top::after { bottom: calc(100% + 8px); transform: translateX(-50%); }
+.kiw-tooltip-bottom::after { top: calc(100% + 8px); transform: translateX(-50%); }
+.kiw-tooltip-left::after { right: calc(100% + 8px); top: 50%; transform: translateY(-50%); }
+.kiw-tooltip-right::after { left: calc(100% + 8px); top: 50%; transform: translateY(-50%); }
+
+.kiw-tooltip:hover::after,
+.kiw-tooltip:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+.kiw-tooltip:focus-visible { outline: 2px solid var(--primary, #39D353); outline-offset: 3px; }
+</style>

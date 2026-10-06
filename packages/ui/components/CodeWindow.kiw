@@ -1,0 +1,88 @@
+<div class="code-window {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="CodeWindow">
+  <div class="code-window-bar">
+    <div class="code-window-dots" aria-hidden="true">
+      <span class="code-window-dot dot-red"></span>
+      <span class="code-window-dot dot-yellow"></span>
+      <span class="code-window-dot dot-green"></span>
+    </div>
+    <span class="code-window-title font-mono">{{if .Title}}{{.Title}}{{else}}terminal{{end}}</span>
+  </div>
+  <pre class="code-window-pre"><code class="code-window-code">{{if .Body}}{{.Body}}{{else}}<span class="c"># Krewire Devtool</span>
+<span class="p">$ </span><span class="k">kiw</span> new my-project --site
+<span class="p">$ </span><span class="k">cd</span> my-project &amp;&amp; <span class="k">kiw</span> dev
+<span class="t">✓ Ready at http://localhost:8080</span>{{end}}</code></pre>
+</div>
+
+<style>
+.code-window {
+  background: #0B1F3B;
+  color: #FAF8F4;
+  border-radius: var(--radius, 12px);
+  overflow: hidden;
+  box-shadow: var(--pop-lg, 6px 6px 0px var(--border, #0B1F3B));
+  border: var(--pop-border, 2.5px solid var(--border, #0B1F3B));
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+html[data-theme="dark"] .code-window {
+  background: #071426;
+  border-color: #FAF8F4;
+  box-shadow: 6px 6px 0px #39D353;
+}
+.code-window-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #112646;
+  border-bottom: 2px solid var(--border, #0B1F3B);
+}
+html[data-theme="dark"] .code-window-bar {
+  background: #0B1F3B;
+  border-bottom-color: #FAF8F4;
+}
+.code-window-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.code-window-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.3);
+  display: inline-block;
+}
+.dot-red { background: #FF3B2E; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #39D353; }
+.code-window-title {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8fa2bc;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.code-window-pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  line-height: 1.65;
+}
+.code-window-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: pre;
+  display: block;
+}
+.code-window .c { color: #8fa2bc; font-style: italic; }
+.code-window .k { color: #00D1C1; font-weight: 700; }
+.code-window .t { color: #39D353; font-weight: 700; }
+.code-window .p { color: #8fa2bc; user-select: none; }
+</style>

@@ -1,0 +1,31 @@
+<div class="field-group {{.Class}}">
+  {{with .Label}}
+  <label class="field-label" {{with $.ID}}for="{{.}}"{{end}}>
+    {{.}}
+    {{if $.Required}}<span class="field-required" aria-hidden="true">*</span>{{end}}
+  </label>
+  {{end}}
+  <textarea
+    name="{{.Name}}"
+    {{with .ID}}id="{{.}}"{{end}}
+    {{with .Placeholder}}placeholder="{{.}}"{{end}}
+    rows="{{if .Rows}}{{.Rows}}{{else}}4{{end}}"
+    {{if .Required}}required{{end}}
+    {{if .Disabled}}disabled{{end}}
+    class="field-input field-textarea {{if .Error}}has-error{{end}}"
+    {{with .Help}}aria-describedby="{{$.ID}}-help"{{end}}
+  >{{with .Value}}{{.}}{{end}}</textarea>
+  {{with .Help}}
+  <span class="field-help" {{with $.ID}}id="{{.}}-help"{{end}}>{{.}}</span>
+  {{end}}
+  {{with .Error}}
+  <span class="field-error">{{.}}</span>
+  {{end}}
+</div>
+
+<style>
+.field-textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+</style>

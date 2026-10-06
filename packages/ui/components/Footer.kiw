@@ -1,0 +1,127 @@
+{{if eq .Variant "simple"}}
+<footer class="bg-bg-2 dark:bg-bg-dark-2 py-6 text-xs text-muted dark:text-muted-dark" style="border-top:1px solid var(--border)">
+  <div class="container-site flex flex-wrap items-center justify-between gap-3">
+    <span>© 2026 Krewire Contributors — Built 100% with Krewire `site` workload.</span>
+    <span><a href="https://github.com/krewire" target="_blank" rel="noopener" class="hover:text-primary transition-colors">github.com/krewire</a> · <a href="/getting-started" class="hover:text-primary transition-colors">Get Started</a></span>
+  </div>
+</footer>
+{{else if eq .Variant "contributors"}}
+<footer class="bg-bg-2 dark:bg-bg-dark-2 footer" style="border-top:var(--pop-border)">
+  <div class="container-site pt-12 pb-8 footer-inner">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8 footer-grid" style="border-bottom:var(--pop-border-thin)">
+      <!-- Brand col -->
+      <div class="sm:col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 font-black text-lg mb-3 footer-brand">
+          <span class="icon-box bg-primary text-primary-content w-7 h-7 text-sm flex items-center justify-center brand-mark">◈</span>
+          <span data-i18n="footer.brand_title">Krewire Contributors</span>
+        </div>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-4 footer-desc" data-i18n-html="footer.desc_html">
+          Home of the Open Source Collective.<br>
+          Crafting an autonomous, sustainable, and scalable Go ecosystem at near-zero cost.
+        </p>
+      </div>
+
+      <!-- Repositories col -->
+      <div class="flex flex-col gap-2 footer-col">
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.col_repos">Repositories</strong>
+        <a href="https://github.com/krewire/framework" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">framework</a>
+        <a href="https://github.com/krewire/libs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">libs (Krewire Libs)</a>
+        <a href="https://github.com/krewire/kiw" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">kiw (cli)</a>
+        <a href="https://github.com/krewire/boost" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">boost (ai agent)</a>
+        <a href="https://github.com/krewire/hub" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">hub (plugins)</a>
+        <a href="https://github.com/krewire/ship" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">ship (deployer)</a>
+        <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">mdbind (compiler)</a>
+        <a href="https://github.com/krewire/forge" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">forge (app builder)</a>
+      </div>
+
+      <!-- Contribution col -->
+      <div class="flex flex-col gap-2 footer-col">
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.col_contrib">Contribution</strong>
+        <a href="#benefits" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.perks">Contributor Perks & Access</a>
+        <a href="#where-to-start" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.where_start">Where to Start (Nav Map)</a>
+        <a href="#get-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.getting_started">Getting Started</a>
+        <a href="#pathways" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.pathways">Contribution Pathways</a>
+        <a href="#standards" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.standards">The Krewire Way (Gates)</a>
+        <a href="#boost" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.guild">AI Boost Collaboration</a>
+        <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.kwf_specs">KWF Specs</a>
+      </div>
+
+      <!-- Community col -->
+      <div class="flex flex-col gap-2 footer-col">
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.col_community">Community</strong>
+        <a href="https://github.com/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.gh_org">GitHub Organization</a>
+        <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.discussions">Discussions</a>
+        <a href="https://github.com/krewire/framework/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.good_first">Good First Issues</a>
+        <a href="https://github.com/krewire/.github/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.coc">Code of Conduct</a>
+      </div>
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-xs font-semibold text-muted dark:text-muted-dark footer-bottom">
+      <span data-i18n-html="footer.bottom_rights_html">© 2026 Krewire Contributors — Built 100% with Krewire <code class="code-inline">site</code> workload (Dogfooding).</span>
+      <a href="https://github.com/krewire" target="_blank" rel="noopener" class="hover:text-primary transition-colors">github.com/krewire</a>
+    </div>
+  </div>
+</footer>
+{{else}}
+<footer class="bg-bg-2 dark:bg-bg-dark-2" style="border-top:var(--pop-border)">
+  <div class="container-site pt-12 pb-8">
+    <!-- Footer grid: 1 col → sm: 2 col → md: 4 col -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8" style="border-bottom:var(--pop-border-thin)">
+      <!-- Brand col -->
+      <div class="sm:col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 font-black text-lg mb-3">
+          <span class="icon-box bg-primary text-primary-content w-7 h-7 text-sm flex items-center justify-center">◈</span>
+          <span>Krewire</span>
+        </div>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-4">
+          One Go Framework for Every Workload.<br>
+          One CLI <code class="code-inline">kiw</code>, one config <code class="code-inline">krewire.yaml</code>.
+        </p>
+        <span class="badge badge-secondary text-2xs">Compiled Go · Zero Bloat</span>
+      </div>
+
+      <!-- Workloads col -->
+      <div class="flex flex-col gap-2">
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">8 Workloads</strong>
+        <a href="/docs/krewire-workloads#1-fullstack-monolith-app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
+        <a href="/docs/krewire-workloads#2-terminal-cli--tui-cli" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
+        <a href="/docs/krewire-workloads#3-static-site-generator-site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
+        <a href="/docs/krewire-workloads#4-technical-book-book" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs &amp; Books</a>
+        <a href="/docs/krewire-workloads#5-background-worker-worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
+        <a href="/docs/krewire-workloads#6-microservice-service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
+        <a href="/docs/krewire-workloads#7-cloud-infrastructure-as-code-infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
+        <a href="/docs/krewire-workloads#8-webassembly-runtime-runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
+      </div>
+
+      <!-- Docs col -->
+      <div class="flex flex-col gap-2">
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Documentation</strong>
+        <a href="/docs/krewire-framework" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.1 Krewire Framework</a>
+        <a href="/docs/why-krewire" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.2 Why Krewire?</a>
+        <a href="/docs/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.3 Getting Started</a>
+        <a href="/docs/krewire-workloads" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.4 Krewire Workloads</a>
+        <a href="/docs/upgrade-guide" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.5 Upgrade Guide</a>
+        <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Engineering Specs</a>
+      </div>
+
+      <!-- Ecosystem col -->
+      <div class="flex flex-col gap-2">
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Ecosystem</strong>
+        <a href="https://github.com/krewire/framework" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/framework</a>
+        <a href="https://github.com/krewire/kiw" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/kiw</a>
+        <a href="https://github.com/krewire/libs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/libs</a>
+        <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/mdbind</a>
+        <a href="https://github.com/krewire/boost" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/boost</a>
+        <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Community Forum</a>
+      </div>
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-xs font-semibold text-muted dark:text-muted-dark">
+      <span>© 2026 Krewire Contributors — 100% built with Krewire <code class="code-inline">site</code> workload.</span>
+      <a href="https://github.com/krewire" target="_blank" rel="noopener" class="hover:text-primary transition-colors">github.com/krewire</a>
+    </div>
+  </div>
+</footer>
+{{end}}

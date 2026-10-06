@@ -1,0 +1,111 @@
+<nav class="side-menu" id="site-toc" aria-label="Documentation Table of Contents">
+  <div class="toc-group open" data-group>
+    <div class="toc-parent-row">
+      <a href="/docs" class="toc-link">1. Overview</a>
+      <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+    </div>
+    <div class="toc-subs">
+      <a href="/docs/krewire-framework" class="toc-sub">1.1 Krewire Framework</a>
+      <a href="/docs/why-krewire" class="toc-sub">1.2 Why Krewire?</a>
+      <a href="/docs/krewire-workloads" class="toc-sub">1.3 Krewire Workloads</a>
+      <a href="/docs/upgrade-guide" class="toc-sub">1.4 Upgrade Guide</a>
+    </div>
+  </div>
+  <div class="toc-group open" data-group>
+    <div class="toc-parent-row">
+      <a href="/getting-started" class="toc-link">2. Getting Started</a>
+      <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+    </div>
+    <div class="toc-subs">
+      <a href="/getting-started/installation" class="toc-sub">2.1 Installation</a>
+      <a href="/getting-started/configuration" class="toc-sub">2.2 Configuration</a>
+      <a href="/getting-started/directory-structure" class="toc-sub">2.3 Directory Structure</a>
+      <a href="/getting-started/agentic-development" class="toc-sub">2.4 Agentic Development</a>
+      <a href="/getting-started/dsl" class="toc-sub">2.5 DSL (.kiw)</a>
+    </div>
+  </div>
+</nav>
+
+<style>
+.side-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.toc-group {
+  border-radius: 8px;
+}
+.toc-parent-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.toc-parent-row .toc-link {
+  flex: 1;
+}
+.toc-link, .toc-sub {
+  display: block;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.toc-link:hover, .toc-sub:hover {
+  background: var(--bg-2);
+  color: var(--primary);
+  text-decoration: none;
+}
+.toc-link.active, .toc-sub.active {
+  background: var(--bg-2);
+  color: var(--primary);
+  font-weight: 800;
+}
+.toc-sub {
+  padding-left: 1.4rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.toc-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.toc-toggle:hover {
+  background: var(--bg-2);
+  color: var(--fg);
+}
+.toc-toggle svg {
+  transition: transform 0.18s ease;
+}
+.toc-group.open > .toc-parent-row .toc-toggle svg {
+  transform: rotate(90deg);
+}
+.toc-subs {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 6px;
+  border-left: 1.5px solid var(--border);
+  margin-left: 0.85rem;
+  padding-left: 0.5rem;
+}
+.toc-group.open > .toc-subs {
+  display: flex;
+}
+</style>

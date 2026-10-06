@@ -1,0 +1,46 @@
+{{if .Src}}
+<img class="kiw-avatar {{if .Size}}kiw-avatar-{{.Size}}{{else}}kiw-avatar-md{{end}} {{if .Shape}}kiw-avatar-{{.Shape}}{{else}}kiw-avatar-circle{{end}} {{.Class}}"
+     src="{{.Src}}"
+     alt="{{.Alt}}"
+     {{with .ID}}id="{{.}}"{{end}}
+     loading="lazy"
+     decoding="async"
+     data-kiw-component="Avatar">
+{{else}}
+<span class="kiw-avatar kiw-avatar-{{if .Size}}{{.Size}}{{else}}md{{end}} kiw-avatar-{{if .Shape}}{{.Shape}}{{else}}circle{{end}} kiw-avatar-initials {{.Class}}"
+      {{with .ID}}id="{{.}}"{{end}}
+      {{if .Alt}}role="img" aria-label="{{.Alt}}"{{else}}aria-hidden="true"{{end}}
+      data-kiw-component="Avatar">{{.Initials}}</span>
+{{end}}
+
+<style>
+.kiw-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow: hidden;
+  object-fit: cover;
+  background: var(--primary, #39D353);
+  color: var(--primary-content, #0B1F3B);
+  font-family: var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-weight: 800;
+  text-transform: uppercase;
+  user-select: none;
+}
+.kiw-avatar-circle { border-radius: 50%; }
+.kiw-avatar-square { border-radius: var(--radius, 10px); }
+.kiw-avatar-xs { width: 1.5rem; height: 1.5rem; font-size: 0.6rem; }
+.kiw-avatar-sm { width: 2rem; height: 2rem; font-size: 0.75rem; }
+.kiw-avatar-md { width: 2.75rem; height: 2.75rem; font-size: 0.95rem; }
+.kiw-avatar-lg { width: 3.5rem; height: 3.5rem; font-size: 1.2rem; }
+.kiw-avatar-xl { width: 5rem; height: 5rem; font-size: 1.75rem; }
+
+/* An initials avatar with no image needs a border to match the pop style; an
+   <img> carries its own, and a border would double up on the source. */
+.kiw-avatar-initials {
+  border: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  box-shadow: var(--pop-shadow-sm, 2px 2px 0px var(--border, #0B1F3B));
+}
+</style>

@@ -1,0 +1,36 @@
+<a href="{{if .Href}}{{.Href}}{{else}}#{{end}}"
+   class="kiw-link {{if .Variant}}kiw-link-{{.Variant}}{{else}}kiw-link-default{{end}} {{.Class}}"
+   {{with .ID}}id="{{.}}"{{end}}
+   {{if .External}}target="_blank" rel="noopener noreferrer"{{end}}
+   data-kiw-component="Link">
+  {{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}
+</a>
+
+<style>
+.kiw-link {
+  color: var(--primary, #39D353);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease, text-decoration-color 0.15s ease;
+}
+.kiw-link:hover {
+  opacity: 0.85;
+}
+.kiw-link-subtle {
+  color: var(--fg, #0B1F3B);
+  text-decoration: none;
+}
+.kiw-link-subtle:hover {
+  text-decoration: underline;
+}
+.kiw-link-muted {
+  color: var(--muted, #57677d);
+  text-decoration: none;
+}
+.kiw-link-muted:hover {
+  color: var(--fg, #0B1F3B);
+  text-decoration: underline;
+}
+</style>

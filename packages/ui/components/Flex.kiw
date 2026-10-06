@@ -1,0 +1,32 @@
+<div class="kiw-flex {{if .Direction}}kiw-flex-{{.Direction}}{{else}}kiw-flex-row{{end}} {{if .Gap}}kiw-flex-gap-{{.Gap}}{{else}}kiw-flex-gap-md{{end}} {{if .Align}}kiw-flex-align-{{.Align}}{{else}}kiw-flex-align-center{{end}} {{if .Justify}}kiw-flex-justify-{{.Justify}}{{end}} {{if .Wrap}}kiw-flex-wrap{{end}} {{.Class}}"
+     {{with .ID}}id="{{.}}"{{end}}
+     data-kiw-component="Flex">
+  {{.Body}}
+</div>
+
+<style>
+.kiw-flex {
+  display: flex;
+  box-sizing: border-box;
+}
+.kiw-flex-row { flex-direction: row; }
+.kiw-flex-col { flex-direction: column; }
+.kiw-flex-wrap { flex-wrap: wrap; }
+
+.kiw-flex-gap-none { gap: 0; }
+.kiw-flex-gap-xs { gap: 0.25rem; }
+.kiw-flex-gap-sm { gap: 0.5rem; }
+.kiw-flex-gap-md { gap: 1rem; }
+.kiw-flex-gap-lg { gap: 1.5rem; }
+.kiw-flex-gap-xl { gap: 2rem; }
+
+.kiw-flex-align-start { align-items: flex-start; }
+.kiw-flex-align-center { align-items: center; }
+.kiw-flex-align-end { align-items: flex-end; }
+.kiw-flex-align-stretch { align-items: stretch; }
+
+.kiw-flex-justify-start { justify-content: flex-start; }
+.kiw-flex-justify-center { justify-content: center; }
+.kiw-flex-justify-end { justify-content: flex-end; }
+.kiw-flex-justify-between { justify-content: space-between; }
+</style>

@@ -1,0 +1,46 @@
+<div class="kiw-tabs {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Tabs">
+  <div class="kiw-tabs-list" role="tablist" aria-label="{{with .Label}}{{.}}{{else}}Tabs{{end}}">
+    {{.Body}}
+  </div>
+</div>
+
+<style>
+/* Tabs are styled here, but switching is the host's job: Forge renders no
+   JavaScript. The list is a tablist so an assistive technology announces the
+   relationship; the host adds role="tab"/role="tabpanel" and the aria wiring
+   when it drives the panel itself. */
+.kiw-tabs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: var(--pop-border-thin, 2px solid var(--border, #0B1F3B));
+  margin-bottom: 1rem;
+}
+.kiw-tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--muted, #57677d);
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius, 10px) var(--radius, 10px) 0 0;
+  margin-bottom: -2px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.12s ease, background-color 0.12s ease;
+  white-space: nowrap;
+}
+.kiw-tab:hover { color: var(--fg, #0B1F3B); background: var(--bg-2, #f2ede4); }
+.kiw-tab:focus-visible { outline: 2px solid var(--primary, #39D353); outline-offset: 2px; }
+/* The active tab is marked by the host (aria-selected) so styling never
+   contradicts what assistive technology reports. */
+.kiw-tab[aria-selected="true"],
+.kiw-tab.is-active {
+  color: var(--fg, #0B1F3B);
+  background: var(--bg, #FAF8F4);
+  border-bottom-color: var(--border, #0B1F3B);
+}
+</style>

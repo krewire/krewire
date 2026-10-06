@@ -1,0 +1,18 @@
+<form action="{{if .Action}}{{.Action}}{{else}}#{{end}}"
+      method="{{if .Method}}{{.Method}}{{else}}POST{{end}}"
+      {{with .Enctype}}enctype="{{.}}"{{end}}
+      class="kiw-form {{.Class}}"
+      {{with .ID}}id="{{.}}"{{end}}
+      data-kiw-component="Form">
+  {{.Body}}
+</form>
+
+<style>
+.kiw-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+</style>
