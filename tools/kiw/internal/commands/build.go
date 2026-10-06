@@ -225,6 +225,15 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (kern.E
 		return fail(err), nil, nil
 	}
 	warnAutoAssetErrors(site)
+	// Post-render build pass: plugins that scan generated HTML artifacts
+	// (such as Tailwind) re-run to capture classes emitted by component expansions.
+	for _, p := range plugin.Registry {
+		if p.Detect(root) {
+			if err := p.Build(root, outDir); err != nil {
+				slog.Warn("plugin post-build failed", "plugin", p.Name(), "err", err)
+			}
+		}
+	}
 	for _, p := range created {
 		fmt.Println("created " + p)
 	}

@@ -203,3 +203,17 @@ func TestDesugarTemplate_DeeplyNestedComponentInBody(t *testing.T) {
 		t.Errorf("grandchild tag survived as raw markup:\n%s", out)
 	}
 }
+
+func TestParseKiw_PreservesExternalScriptTags(t *testing.T) {
+	src := `<div>content</div><script src="/assets/app.js" defer></script>`
+	mod, err := ParseKiw(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(mod.Body, `<script src="/assets/app.js" defer></script>`) {
+		t.Errorf("expected external script to be preserved in body, got %q", mod.Body)
+	}
+	if len(mod.Scripts) != 0 {
+		t.Errorf("expected 0 inline scripts extracted, got %d", len(mod.Scripts))
+	}
+}

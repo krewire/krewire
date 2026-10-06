@@ -327,6 +327,11 @@ func ParseKiw(src string) (*KiwModule, error) {
 		}
 		attrs := parseAttrs(sm[1])
 		content := strings.TrimSpace(sm[2])
+		// External HTML script tags (e.g. <script src="/assets/app.js"></script>)
+		// without inline content should remain in the template markup.
+		if attrs["src"] != "" && content == "" {
+			continue
+		}
 		m.Scripts = append(m.Scripts, content)
 		lang := strings.ToLower(attrs["lang"])
 		hydrate := strings.ToLower(attrs["hydrate"])
@@ -348,7 +353,17 @@ func ParseKiw(src string) (*KiwModule, error) {
 			Content: content,
 		})
 	}
-	body = scriptRe.ReplaceAllString(body, "")
+	body = scriptRe.ReplaceAllStringFunc(body, func(match string) string {
+		sm := scriptRe.FindStringSubmatch(match)
+		if len(sm) >= 3 {
+			attrs := parseAttrs(sm[1])
+			content := strings.TrimSpace(sm[2])
+			if attrs["src"] != "" && content == "" {
+				return match
+			}
+		}
+		return ""
+	})
 
 	markdowns := markdownRe.FindAllStringSubmatch(body, -1)
 	for _, mm := range markdowns {
