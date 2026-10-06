@@ -16,17 +16,20 @@ import (
 
 // RegisterInit registers flags for the init command.
 func RegisterInit(fs *flag.FlagSet) {
+	fs.Bool("force", false, "force reset krewire.yaml without interactive confirmation")
+	fs.Bool("f", false, "short alias for --force")
 	fs.Bool("site", false, "equip a declarative static site (ssg: key in krewire.yaml)")
 	fs.Bool("book", false, "equip a manuscript book (mdbind)")
 	fs.Bool("cli", false, "equip a command-line application (framework/tui)")
+	fs.Bool("app", false, "equip a fullstack monolith application")
 	fs.String("template", "", "bootstrap from a remote git template (git URL)")
 	fs.String("title", "", "site title for the site and book variants")
 }
 
-// RunInit equips the project in the current directory (or an optional
-// positional target) with the requested variant. With no variant flag the
-// project is equipped as a fullstack monolith. Config lives exclusively in
-// krewire.yaml — no ssg.yaml is produced.
+// RunInit initializes a minimal Krewire Ecosystem project in the target directory
+// (default: current directory), creating krewire.yaml, .gitignore, and running git init.
+// If krewire.yaml already exists, it prompts the user to reset it to default (or resets with --force).
+// If a variant flag is given, it equips that variant into the project.
 func RunInit(fs *flag.FlagSet) kern.ExitCode {
 	dir := fs.Arg(0)
 	if dir == "" {
@@ -37,12 +40,48 @@ func RunInit(fs *flag.FlagSet) kern.ExitCode {
 		return fail(err)
 	}
 
+	name := filepath.Base(dir)
+	if name == "/" || name == "." || name == "" {
+		name = "krewire-project"
+	}
+
+	force := flagBool(fs, "force") || flagBool(fs, "f")
+
+	// 1. Run minimal Krewire Ecosystem initialization (git init, .gitignore, krewire.yaml)
+	initCreated, err := scaffold.Init(scaffold.InitOptions{
+		Dir:   dir,
+		Name:  name,
+		Force: force,
+		ConfirmReset: func() bool {
+			fmt.Printf("krewire.yaml already exists in %s.\nReset to default configuration? [y/N]: ", dir)
+			var resp string
+			_, _ = fmt.Scanln(&resp)
+			resp = strings.ToLower(strings.TrimSpace(resp))
+			return resp == "y" || resp == "yes"
+		},
+	})
+	if err != nil {
+		return fail(err)
+	}
+
 	templateURL := flagValue(fs, "template")
 	site := flagBool(fs, "site")
 	book := flagBool(fs, "book")
 	cli := flagBool(fs, "cli")
-	if count := boolCount(site, book, cli, templateURL != ""); count > 1 {
-		fmt.Fprintln(os.Stderr, "kiw init: choose one variant: --site, --book, --cli, or --template")
+	app := flagBool(fs, "app")
+
+	hasVariant := site || book || cli || app || templateURL != ""
+	if !hasVariant {
+		slog.Info("initialized minimal Krewire project", "dir", dir, "files", len(initCreated))
+		for _, path := range initCreated {
+			fmt.Println("created " + path)
+		}
+		fmt.Printf("Initialized empty Krewire project in %s\n", dir)
+		return kern.ExitCodeSuccess
+	}
+
+	if count := boolCount(site, book, cli, app, templateURL != ""); count > 1 {
+		fmt.Fprintln(os.Stderr, "kiw init: choose at most one variant: --site, --book, --cli, --app, or --template")
 		return kern.ExitCodeUsage
 	}
 
@@ -54,34 +93,38 @@ func RunInit(fs *flag.FlagSet) kern.ExitCode {
 	switch {
 	case site:
 		opts.Variant = scaffold.VariantStatic
+		opts.Name = name
+		opts.Title = firstNonEmpty(opts.Title, name)
 	case book:
 		opts.Variant = scaffold.VariantBook
+		opts.Name = name
+		opts.Title = firstNonEmpty(opts.Title, name)
 	case cli:
 		opts.Variant = scaffold.VariantCLI
-	case templateURL != "":
-		opts.Variant = scaffold.VariantTemplate
-	default:
-		opts.Variant = scaffold.VariantApp
-	}
-
-	switch opts.Variant {
-	case scaffold.VariantApp, scaffold.VariantCLI:
-		mod, err := gomod.Find(dir)
-		if err != nil {
-			return usageOrFail(kern.WithHint(
-				kern.UsageError("kiw init: not inside a Go module"),
-				"run 'kiw new <project>' first, then 'kiw init --cli' (or another variant) inside it",
-			))
+		mod, _ := gomod.Find(dir)
+		if mod != nil {
+			opts.Module = mod.Path
+		} else {
+			opts.Module = name
 		}
-		opts.Module = mod.Path
-		opts.Name = moduleBase(opts.Module)
+		opts.Name = name
 		fw, libs := resolveVersions()
 		opts.FrameworkVersion = fw
 		opts.LibsVersion = libs
-	case scaffold.VariantStatic, scaffold.VariantBook:
-		name := filepath.Base(dir)
+	case templateURL != "":
+		opts.Variant = scaffold.VariantTemplate
+	default: // app
+		opts.Variant = scaffold.VariantApp
+		mod, _ := gomod.Find(dir)
+		if mod != nil {
+			opts.Module = mod.Path
+		} else {
+			opts.Module = name
+		}
 		opts.Name = name
-		opts.Title = firstNonEmpty(opts.Title, name)
+		fw, libs := resolveVersions()
+		opts.FrameworkVersion = fw
+		opts.LibsVersion = libs
 	}
 
 	created, err := scaffold.Equip(opts)

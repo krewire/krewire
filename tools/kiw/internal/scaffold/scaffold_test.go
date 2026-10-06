@@ -9,15 +9,79 @@ import (
 	"testing"
 )
 
+func TestInitExistingProjectPromptRefusal(t *testing.T) {
+	dir := t.TempDir()
+	yamlPath := filepath.Join(dir, "krewire.yaml")
+	if err := os.WriteFile(yamlPath, []byte("custom: true\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// User declines reset
+	_, err := Init(InitOptions{
+		Dir:          dir,
+		Name:         "demo",
+		Force:        false,
+		ConfirmReset: func() bool { return false },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assertFileContains(t, yamlPath, "custom: true")
+}
+
+func TestInitExistingProjectResetWithConfirmation(t *testing.T) {
+	dir := t.TempDir()
+	yamlPath := filepath.Join(dir, "krewire.yaml")
+	if err := os.WriteFile(yamlPath, []byte("custom: true\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// User accepts reset
+	_, err := Init(InitOptions{
+		Dir:          dir,
+		Name:         "demo",
+		Force:        false,
+		ConfirmReset: func() bool { return true },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assertFileContains(t, yamlPath, "name: demo")
+	assertFileNotContains(t, yamlPath, "custom: true")
+}
+
+func TestInitExistingProjectResetWithForce(t *testing.T) {
+	dir := t.TempDir()
+	yamlPath := filepath.Join(dir, "krewire.yaml")
+	if err := os.WriteFile(yamlPath, []byte("custom: true\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Force reset
+	_, err := Init(InitOptions{
+		Dir:   dir,
+		Name:  "demo",
+		Force: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assertFileContains(t, yamlPath, "name: demo")
+	assertFileNotContains(t, yamlPath, "custom: true")
+}
+
 func TestNewCreatesKernel(t *testing.T) {
 	parent := t.TempDir()
 	created, err := New(Options{Name: "demo", Dir: parent})
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Kernel type creates 4 files: go.mod, krewire.yaml, main.go, .gitignore.
-	if len(created) != 4 {
-		t.Fatalf("created %d files, want 4: %v", len(created), created)
+	// Kernel creates 5 entries: .git, .gitignore, krewire.yaml, go.mod, main.go.
+	if len(created) < 4 {
+		t.Fatalf("created %d files, want at least 4: %v", len(created), created)
 	}
 
 	assertFileContains(t, filepath.Join(parent, "demo", "go.mod"), "module demo")

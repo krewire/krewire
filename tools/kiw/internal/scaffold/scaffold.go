@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -76,8 +77,84 @@ func main() {
 }
 `
 
-// New generates a new minimal Krewire project kernel — go.mod, krewire.yaml,
-// main.go, and .gitignore — and returns the created paths relative to Dir.
+// InitOptions configures the minimal Krewire initialization in an existing or new directory.
+type InitOptions struct {
+	Dir          string
+	Name         string
+	Force        bool        // Overwrite krewire.yaml without prompting
+	ConfirmReset func() bool // Prompt callback when krewire.yaml already exists
+}
+
+// Init initializes a minimal Krewire Ecosystem project:
+// 1. Ensures directory exists.
+// 2. Initializes git repository if .git does not exist.
+// 3. Creates .gitignore if absent.
+// 4. Creates or resets krewire.yaml to default settings (with confirmation if existing).
+func Init(opts InitOptions) ([]string, error) {
+	if opts.Dir == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		opts.Dir = wd
+	}
+	if err := os.MkdirAll(opts.Dir, 0o755); err != nil {
+		return nil, err
+	}
+
+	if opts.Name == "" {
+		opts.Name = filepath.Base(opts.Dir)
+	}
+
+	var created []string
+
+	// 1. git init if .git is not present
+	gitDir := filepath.Join(opts.Dir, ".git")
+	if _, err := os.Stat(gitDir); os.IsNotExist(err) {
+		cmd := exec.Command("git", "init")
+		cmd.Dir = opts.Dir
+		if err := cmd.Run(); err == nil {
+			created = append(created, ".git")
+		}
+	}
+
+	// 2. .gitignore
+	giPath := filepath.Join(opts.Dir, gitignoreFile)
+	if _, err := os.Stat(giPath); os.IsNotExist(err) {
+		if err := writeFile(giPath, []byte(gitignoreTemplate(opts.Name))); err != nil {
+			return nil, err
+		}
+		created = append(created, gitignoreFile)
+	}
+
+	// 3. krewire.yaml
+	yamlPath := filepath.Join(opts.Dir, krewireYaml)
+	yamlContent := fmt.Sprintf("project:\n  name: %s\n  version: 0.1.0\n", opts.Name)
+
+	if _, err := os.Stat(yamlPath); err == nil {
+		// Existing project: reset to default with confirmation
+		shouldReset := opts.Force
+		if !shouldReset && opts.ConfirmReset != nil {
+			shouldReset = opts.ConfirmReset()
+		}
+		if shouldReset {
+			if err := writeFile(yamlPath, []byte(yamlContent)); err != nil {
+				return nil, err
+			}
+			created = append(created, krewireYaml+" (reset to default)")
+		}
+	} else {
+		// New creation
+		if err := writeFile(yamlPath, []byte(yamlContent)); err != nil {
+			return nil, err
+		}
+		created = append(created, krewireYaml)
+	}
+
+	return created, nil
+}
+
+// New generates a new minimal Krewire project kernel and returns the created paths relative to Dir.
 func New(opts Options) ([]string, error) {
 	if opts.Name == "" {
 		return nil, fmt.Errorf("project name is required")
@@ -107,13 +184,33 @@ func New(opts Options) ([]string, error) {
 		return nil, ErrProjectExists
 	}
 
-	var created []string
-	for _, f := range kernel(opts.Name, module) {
-		if err := writeFile(filepath.Join(target, f.name), []byte(f.body)); err != nil {
-			return nil, err
-		}
-		created = append(created, filepath.Join(opts.Name, f.name))
+	initCreated, err := Init(InitOptions{
+		Dir:  target,
+		Name: opts.Name,
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	var created []string
+	for _, f := range initCreated {
+		created = append(created, filepath.Join(opts.Name, f))
+	}
+
+	// Add go.mod and placeholder main.go if not present
+	goModPath := filepath.Join(target, goModFile)
+	if _, err := os.Stat(goModPath); os.IsNotExist(err) {
+		if err := writeFile(goModPath, []byte(fmt.Sprintf("module %s\n\ngo %s\n", module, GoVersion))); err == nil {
+			created = append(created, filepath.Join(opts.Name, goModFile))
+		}
+	}
+	mainPath := filepath.Join(target, mainGo)
+	if _, err := os.Stat(mainPath); os.IsNotExist(err) {
+		if err := writeFile(mainPath, []byte(kernelBody)); err == nil {
+			created = append(created, filepath.Join(opts.Name, mainGo))
+		}
+	}
+
 	return created, nil
 }
 
