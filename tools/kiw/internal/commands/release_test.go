@@ -18,7 +18,7 @@ func TestRunReleaseDryRunDoesNotMutate(t *testing.T) {
 	releaseApply = false
 	releaseNotes = false
 
-	releaseModules = append(releaseModules, "libs")
+	releaseModules = append(releaseModules, "krewire")
 
 	if got := RunRelease(flag.NewFlagSet("release", flag.ContinueOnError)); got != kern.ExitCodeSuccess {
 		t.Errorf("RunRelease dry-run = %v, want ExitCodeSuccess", got)

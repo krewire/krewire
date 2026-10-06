@@ -41,25 +41,11 @@ func TestKWN_VS_005_HumanVersion_SingleLeadingV(t *testing.T) {
 
 // Spec: KWN-JB7PW RND-VS-009 Scope: Unit
 func TestKWN_VS_009_QualifiedVersion_MarksWorkspaceBuilds(t *testing.T) {
-	for _, path := range []string{buildinfo.ModWeb, buildinfo.ModLibs} {
-		got := qualifiedVersion(path)
-		if strings.Contains(got, "devel") {
-			t.Errorf("qualifiedVersion(%q) = %q, must never print devel", path, got)
-		}
-		if !strings.HasSuffix(got, "(dev)") {
-			t.Errorf("qualifiedVersion(%q) = %q, want a (dev) marker in workspace builds", path, got)
-		}
+	got := qualifiedVersion(buildinfo.ModKrewire)
+	if strings.Contains(got, "devel") {
+		t.Errorf("qualifiedVersion(%q) = %q, must never print devel", buildinfo.ModKrewire, got)
 	}
-}
-
-// Spec: KWN-JB7PW S1 Scope: Unit
-func TestKWN_JB7PW_S1_ResolveVersions_MatchInfoPaths(t *testing.T) {
-	fw, libs := resolveVersions()
-	if fw == "" || libs == "" {
-		t.Fatalf("resolveVersions = (%q, %q), want usable versions", fw, libs)
-	}
-	if fw != moduleVersion(buildinfo.ModWeb) || libs != moduleVersion(buildinfo.ModLibs) {
-		t.Errorf("resolveVersions (%q, %q) disagrees with moduleVersion paths (%q, %q)",
-			fw, libs, moduleVersion(buildinfo.ModWeb), moduleVersion(buildinfo.ModLibs))
+	if !strings.HasSuffix(got, "(dev)") {
+		t.Errorf("qualifiedVersion(%q) = %q, want a (dev) marker in workspace builds", buildinfo.ModKrewire, got)
 	}
 }

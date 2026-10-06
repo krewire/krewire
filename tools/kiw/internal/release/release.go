@@ -1,12 +1,5 @@
 // Package release implements the Krewire ecosystem release topology and the
 // version-bump propagation used by `kiw release`.
-//
-// Every module declares its version and its minimum required versions of other
-// modules in `<module>/version.go` (see AGENTS.md, "Version compatibility").
-// This package turns a "release module X" decision into a concrete plan of
-// source edits: bump X's own Version, and raise every dependent module's
-// EcosystemRequires[X] minimum to the new version. It mirrors each module's
-// go.mod dependency edges so releases stay mutually compatible.
 package release
 
 import (
@@ -18,7 +11,6 @@ import (
 
 	krewire "github.com/krewire/krewire"
 	"github.com/krewire/krewire/packages/kern"
-	"github.com/krewire/krewire/tools/kiw/internal/version"
 	"github.com/krewire/mdbind"
 )
 
@@ -26,15 +18,8 @@ import (
 type ModuleName string
 
 const (
-	ModuleKern      ModuleName = "kern"
-	ModuleLibs      ModuleName = "libs"
-	ModuleFramework ModuleName = "framework"
-	ModuleHub       ModuleName = "hub"
-	ModuleTesting   ModuleName = "testing"
-	ModuleMdbind    ModuleName = "mdbind"
-	ModuleBoost     ModuleName = "boost"
-	ModuleShip      ModuleName = "ship"
-	ModuleKiw       ModuleName = "kiw"
+	ModuleKrewire ModuleName = "krewire"
+	ModuleMdbind  ModuleName = "mdbind"
 )
 
 // Manifest describes a module's location and version file within the workspace.
@@ -47,24 +32,14 @@ type Manifest struct {
 
 // Modules lists the ecosystem modules in dependency order (dependencies first).
 var Modules = []Manifest{
-	{Name: "kern", Dir: "packages/kern", VersionFile: "packages/kern/version/version.go"},
-	{Name: "libs", Dir: "packages", VersionFile: "version.go"},
-	{Name: "hub", Dir: "packages/hub", VersionFile: "version.go"},
-	{Name: "testing", Dir: "packages/testing", VersionFile: "version.go"},
-	{Name: "mdbind", Dir: "tools/mdbind", VersionFile: "tools/mdbind/version.go"},
-	{Name: "boost", Dir: "templates/boost", VersionFile: "templates/boost/version.go"},
-	{Name: "kiw", Dir: "tools/kiw", VersionFile: "tools/kiw/internal/version/version.go"},
+	{Name: "krewire", Dir: ".", VersionFile: "version.go"},
+	{Name: "mdbind", Dir: "../mdbind", VersionFile: "../mdbind/version.go"},
 }
 
-// dependents maps each module to the modules that require it (reverse of go.mod).
+// dependents maps each module to the modules that require it.
 var dependents = map[string][]string{
-	"kern":    {"libs", "hub", "testing", "mdbind", "boost", "kiw"},
-	"libs":    {"hub", "mdbind", "boost", "kiw"},
-	"hub":     {"kiw"},
-	"testing": {"kiw"},
-	"mdbind":  {"kiw"},
-	"boost":   {"kiw"},
-	"kiw":     {},
+	"krewire": {"mdbind"},
+	"mdbind":  {},
 }
 
 // ManifestFor returns the manifest for name.
@@ -81,29 +56,49 @@ func manifest(name string) Manifest {
 
 func ident(name string) string {
 	switch ModuleName(name) {
-	case ModuleLibs:
-		return "ModuleLibs"
-	case ModuleFramework:
-		return "ModuleFramework"
+	case ModuleKrewire:
+		return "ModuleKrewire"
 	case ModuleMdbind:
 		return "ModuleMdbind"
-	case ModuleKiw:
-		return "ModuleKiw"
-	case ModuleBoost:
-		return "ModuleBoost"
-	case ModuleShip:
-		return "ModuleShip"
-	case ModuleHub:
-		return "ModuleHub"
 	}
 	return ""
 }
 
-// CurrentVersion returns the version declared by a module's version.go, read
-// from the compiled constant so the plan always reflects the source of truth.
+// BumpType selects which semver component to increment.
+type BumpType string
+
+type BumpKind = BumpType
+
+const (
+	BumpPatch BumpType = "patch"
+	BumpMinor BumpType = "minor"
+	BumpMajor BumpType = "major"
+)
+
+// ParseBump parses a string into a BumpType.
+func ParseBump(s string) (BumpType, error) {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "patch", "p", "":
+		return BumpPatch, nil
+	case "minor", "m":
+		return BumpMinor, nil
+	case "major":
+		return BumpMajor, nil
+	default:
+		return "", fmt.Errorf("invalid bump kind %q: want patch, minor, or major", s)
+	}
+}
+
+// CheckTierCompliance validates licensing and tier gates for workspace modules.
+func CheckTierCompliance(root string) error {
+	return nil
+}
+
+// CurrentVersion returns the currently compiled Version of module name.
+// For the CLI and local packages, it reads directly from krewire.Version.
 func CurrentVersion(name string) (kern.Version, error) {
 	switch ModuleName(name) {
-	case ModuleLibs, ModuleHub, ModuleKern, ModuleTesting, ModuleBoost, ModuleKiw:
+	case ModuleKrewire:
 		return krewire.Version, nil
 	case ModuleMdbind:
 		return kern.MustParseVersion(mdbind.Version.String()), nil
@@ -113,154 +108,144 @@ func CurrentVersion(name string) (kern.Version, error) {
 }
 
 // RequiredVersion returns the minimum version that dependent currently requires
-// of name, read from its compiled EcosystemRequires map.
+// of name.
 func RequiredVersion(dependent, name string) (kern.Version, bool) {
 	switch ModuleName(dependent) {
-	case ModuleLibs, ModuleHub, ModuleKern, ModuleTesting, ModuleBoost:
-		return kern.Version{}, false
 	case ModuleMdbind:
-		for k, v := range mdbind.EcosystemRequires {
-			if string(k) == name {
-				return kern.MustParseVersion(v.String()), true
-			}
+		if name == string(ModuleKrewire) {
+			return krewire.Version, true
 		}
-		return kern.Version{}, false
-	case ModuleKiw:
-		v, ok := version.EcosystemRequires[name]
-		return v, ok
 	}
 	return kern.Version{}, false
 }
 
-// BumpKind selects which SemVer component to increment.
-type BumpKind string
-
-const (
-	BumpPatch BumpKind = "patch"
-	BumpMinor BumpKind = "minor"
-	BumpMajor BumpKind = "major"
-)
-
-// ParseBump validates and converts s to a BumpKind.
-func ParseBump(s string) (BumpKind, error) {
-	switch BumpKind(s) {
-	case BumpPatch, BumpMinor, BumpMajor:
-		return BumpKind(s), nil
-	}
-	return "", fmt.Errorf("invalid bump %q: want patch|minor|major", s)
-}
-
-// Bump returns v incremented per k.
-func Bump(v kern.Version, k BumpKind) kern.Version {
-	switch k {
+// Bump returns a new Version with the chosen semver component incremented.
+func Bump(v kern.Version, b BumpType) kern.Version {
+	switch b {
 	case BumpMajor:
-		return kern.Version{Major: v.Major + 1}
+		return kern.Version{Major: v.Major + 1, Minor: 0, Patch: 0}
 	case BumpMinor:
-		return kern.Version{Major: v.Major, Minor: v.Minor + 1}
-	default: // patch
+		return kern.Version{Major: v.Major, Minor: v.Minor + 1, Patch: 0}
+	case BumpPatch:
 		return kern.Version{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}
+	default:
+		return v
 	}
 }
 
-// Edit is a single planned source change.
+// Edit describes one replacement to be made in a version file.
 type Edit struct {
 	Module  string
-	File    string // workspace-relative path
+	File    string
 	Summary string
-	From    string // exact substring to replace (asserted unique in the file)
+	From    string
 	To      string
 }
 
-// Plan computes the edits for releasing the given modules with the given bump.
-// For each released module it bumps its own Version and, for every dependent,
-// raises that dependent's EcosystemRequires[released] minimum to the new version.
-func Plan(released []string, bump BumpKind) ([]Edit, error) {
-	seen := map[string]bool{}
+// Plan computes the exact file edits required to release the named modules.
+func Plan(targets []string, b BumpType) ([]Edit, error) {
 	var edits []Edit
-	for _, r := range released {
-		if seen[r] {
-			continue
-		}
-		seen[r] = true
-		cur, err := CurrentVersion(r)
+	seen := map[string]bool{}
+
+	for _, name := range targets {
+		cur, err := CurrentVersion(name)
 		if err != nil {
 			return nil, err
 		}
-		nv := Bump(cur, bump)
-		m := manifest(r)
+		next := Bump(cur, b)
+
+		m := manifest(name)
+		if m.Name == "" {
+			return nil, fmt.Errorf("no manifest for %q", name)
+		}
+		from := versionDecl(name, cur.String())
+		to := versionDecl(name, next.String())
 		edits = append(edits, Edit{
-			Module:  r,
+			Module:  name,
 			File:    m.VersionFile,
-			Summary: fmt.Sprintf("bump %s %s -> %s", r, cur.String(), nv.String()),
-			From:    versionDecl(r, cur.String()),
-			To:      versionDecl(r, nv.String()),
+			Summary: fmt.Sprintf("bump %s %s -> %s", name, cur, next),
+			From:    from,
+			To:      to,
 		})
-		for _, d := range dependents[r] {
-			req, ok := RequiredVersion(d, r)
+
+		for _, dep := range dependents[name] {
+			key := dep + ":" + name
+			if seen[key] {
+				continue
+			}
+			reqVer, ok := RequiredVersion(dep, name)
 			if !ok {
 				continue
 			}
-			dm := manifest(d)
+			if reqVer.IsCompatible(next) {
+				continue
+			}
+			depM := manifest(dep)
+			if depM.Name == "" {
+				continue
+			}
+			seen[key] = true
 			edits = append(edits, Edit{
-				Module:  d,
-				File:    dm.VersionFile,
-				Summary: fmt.Sprintf("raise %s requires %s -> %s", d, r, nv.String()),
-				From:    reqDecl(r, req.String()),
-				To:      reqDecl(r, nv.String()),
+				Module:  dep,
+				File:    depM.VersionFile,
+				Summary: fmt.Sprintf("raise %s requires %s -> %s", dep, name, next),
+				From:    reqDecl(name, reqVer.String()),
+				To:      reqDecl(name, next.String()),
 			})
 		}
 	}
+
 	sort.Slice(edits, func(i, j int) bool {
-		if edits[i].Module != edits[j].Module {
-			return edits[i].Module < edits[j].Module
+		if edits[i].File != edits[j].File {
+			return edits[i].File < edits[j].File
 		}
-		return edits[i].File < edits[j].File
+		return edits[i].Summary < edits[j].Summary
 	})
+
 	return edits, nil
 }
 
-// Apply writes the planned edits to disk under root. When dryRun is true it
-// only validates that each edit is applicable (unique match) without writing.
-// It returns the list of files that were actually modified.
+func versionDecl(name, ver string) string {
+	return fmt.Sprintf(`var Version = kern.MustParseVersion("%s")`, ver)
+}
+
+func reqDecl(name, ver string) string {
+	return fmt.Sprintf(`"%s": kern.MustParseVersion("%s"),`, name, ver)
+}
+
+// Apply executes a list of Edits against the filesystem.
 func Apply(edits []Edit, root string, dryRun bool) ([]string, error) {
 	var modified []string
 	for _, e := range edits {
-		p := filepath.Join(root, e.File)
-		data, err := os.ReadFile(p)
-		if err != nil {
-			return modified, err
-		}
-		count := strings.Count(string(data), e.From)
-		if count == 0 {
-			return modified, fmt.Errorf("release: %q not found in %s", e.From, e.File)
-		}
-		if count > 1 {
-			return modified, fmt.Errorf("release: %q is ambiguous (%d matches) in %s", e.From, count, e.File)
+		targetPath := e.File
+		if root != "" && !filepath.IsAbs(targetPath) {
+			targetPath = filepath.Join(root, targetPath)
 		}
 		if dryRun {
+			modified = append(modified, targetPath)
 			continue
 		}
-		updated := strings.Replace(string(data), e.From, e.To, 1)
-		if err := os.WriteFile(p, []byte(updated), 0o644); err != nil {
-			return modified, err
+		data, err := os.ReadFile(targetPath)
+		if err != nil {
+			return nil, fmt.Errorf("read %s: %w", targetPath, err)
 		}
-		modified = append(modified, e.File)
+		content := string(data)
+		if !strings.Contains(content, e.From) {
+			return nil, fmt.Errorf("%s: target text not found: %q", targetPath, e.From)
+		}
+		replaced := strings.Replace(content, e.From, e.To, 1)
+		if err := os.WriteFile(targetPath, []byte(replaced), 0o644); err != nil {
+			return nil, fmt.Errorf("write %s: %w", targetPath, err)
+		}
+		modified = append(modified, targetPath)
 	}
 	return modified, nil
 }
 
-func versionDecl(name string, v string) string {
-	if name == string(ModuleLibs) || name == string(ModuleKern) {
-		return fmt.Sprintf("CurrentVersion = MustParseVersion(\"%s\")", v)
+func mustCur(name string) kern.Version {
+	v, err := CurrentVersion(name)
+	if err != nil {
+		panic(err)
 	}
-	return fmt.Sprintf("var Version = kern.MustParseVersion(\"%s\")", v)
-}
-
-func reqDecl(name string, v string) string {
-	return fmt.Sprintf("%s: kern.MustParseVersion(\"%s\")", ident(name), v)
-}
-
-// CheckTierCompliance validates that all modules in root comply with their open-core tier.
-func CheckTierCompliance(root string) error {
-	return nil
+	return v
 }

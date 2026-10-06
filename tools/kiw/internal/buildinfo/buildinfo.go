@@ -1,18 +1,16 @@
 // Package buildinfo resolves module versions for the devtool: from Go build
-// metadata first, falling back to the modules' own declared versions when the
-// binary was built inside a Go workspace (go.work), where metadata records
-// "(devel)" instead of a tag.
+// metadata first, falling back to the master Krewire version.
 package buildinfo
 
 import (
 	"runtime/debug"
+	"strings"
 
 	krewire "github.com/krewire/krewire"
 )
 
 const (
-	ModWeb  = "github.com/krewire/krewire/packages/web"
-	ModLibs = "github.com/krewire/krewire/packages"
+	ModKrewire = "github.com/krewire/krewire"
 )
 
 // DevelVersion is the version Go records for modules built from source
@@ -26,6 +24,9 @@ func ModuleVersion(path string) string {
 	if !ok {
 		return ""
 	}
+	if bi.Main.Path == path {
+		return bi.Main.Version
+	}
 	for _, dep := range bi.Deps {
 		if dep.Path == path {
 			return dep.Version
@@ -34,24 +35,18 @@ func ModuleVersion(path string) string {
 	return ""
 }
 
-// KnownVersion returns the version declared by the workspace-local Krewire
-// module at path, or "" for unknown paths.
+// KnownVersion returns the master version declared by the Krewire monorepo.
 func KnownVersion(path string) string {
-	switch path {
-	case ModWeb, ModLibs:
+	if path == ModKrewire || path == "" {
 		return krewire.VersionString()
 	}
 	return ""
 }
 
-// ResolveVersion returns the effective version of the module at path and how
-// it was resolved. fromSource is true when the binary was built from
-// workspace sources (metadata records "(devel)") and the version comes from
-// the module's declared constant rather than a released tag. version is ""
-// when unknown.
+// ResolveVersion returns the effective version of the module at path.
 func ResolveVersion(path string) (version string, fromSource bool) {
 	v := ModuleVersion(path)
-	if v != "" && v != DevelVersion {
+	if v != "" && v != DevelVersion && !strings.HasPrefix(v, "v0.0.0-") && !strings.Contains(v, "+dirty") {
 		return v, false
 	}
 	if known := KnownVersion(path); known != "" {

@@ -39,9 +39,8 @@ func RunInfo(_ *flag.FlagSet) kern.ExitCode {
 	yellow := func(s string) string { return tm.Paint(s, term.ColorYellow, nil) }
 
 	fmt.Println(boldDim("─ Environment ─────────────────────────────────"))
-	printKV(tm, "CLI", cyan("Krewire v"+version.Version.String()), dim)
-	printKV(tm, "Web", cyan("Krewire Web "+qualifiedVersion(buildinfo.ModWeb)), dim)
-	printKV(tm, "Libraries", cyan(buildinfo.ModLibs+" "+qualifiedVersion(buildinfo.ModLibs)), dim)
+	printKV(tm, "CLI", cyan("kiw v"+version.Version.String()), dim)
+	printKV(tm, "Ecosystem", cyan("Krewire "+qualifiedVersion(buildinfo.ModKrewire)), dim)
 	printKV(tm, "Go", dim(runtime.Version()+" ")+yellow("("+runtime.GOOS+"/"+runtime.GOARCH+")"), dim)
 	printKV(tm, "Env", green(resolvedEnvLabel(cfg)), dim)
 	printKV(tm, "Debug", dim(fmt.Sprintf("%t", cfg.ResolveDebug("", false))), dim)

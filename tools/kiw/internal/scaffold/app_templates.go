@@ -35,13 +35,10 @@ func detectLocalPaths(startDir string) (string, string) {
 }
 
 func goModTemplate(module, frameworkVersion, libsVersion, frameworkPath, libsPath string) string {
-	mod := fmt.Sprintf("module %s\n\ngo %s\n\nrequire (\n\t%s %s\n\t%s %s\n)",
-		module, GoVersion, buildinfo.ModWeb, pinnedVersion(frameworkVersion), buildinfo.ModLibs, pinnedVersion(libsVersion))
+	mod := fmt.Sprintf("module %s\n\ngo %s\n\nrequire (\n\t%s %s\n)",
+		module, GoVersion, buildinfo.ModKrewire, pinnedVersion(frameworkVersion))
 	if frameworkPath != "" {
-		mod += fmt.Sprintf("\n\nreplace %s => %s", buildinfo.ModWeb, frameworkPath)
-	}
-	if libsPath != "" {
-		mod += fmt.Sprintf("\nreplace %s => %s", buildinfo.ModLibs, libsPath)
+		mod += fmt.Sprintf("\n\nreplace %s => %s", buildinfo.ModKrewire, frameworkPath)
 	}
 	return mod + "\n"
 }
