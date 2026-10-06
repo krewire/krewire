@@ -81,6 +81,10 @@ type (
 	//
 	// Alias of model.Scope.
 	Scope = model.Scope
+	// Tier is an ecosystem ladder rung (free -> pro -> team -> enterprise).
+	//
+	// Alias of model.Tier.
+	Tier = model.Tier
 	// Status is the implementation status of a workload.
 	//
 	// Alias of model.Status.
@@ -162,6 +166,11 @@ const (
 	KindService = model.KindService
 	KindInfra   = model.KindInfra
 	KindKernel  = model.KindKernel
+
+	TierFree       = model.TierFree
+	TierPro        = model.TierPro
+	TierTeam       = model.TierTeam
+	TierEnterprise = model.TierEnterprise
 )
 
 var (
@@ -185,6 +194,9 @@ var (
 
 	AllScopes  = model.AllScopes
 	ParseScope = model.ParseScope
+
+	AllTiers  = model.AllTiers
+	ParseTier = model.ParseTier
 
 	ValidateKrewireYamlPath = model.ValidateKrewireYamlPath
 	NewDomainEvent          = model.NewDomainEvent

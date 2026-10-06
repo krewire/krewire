@@ -28,12 +28,13 @@ type Manifest struct {
 	Name        string
 	Dir         string // workspace-relative directory
 	VersionFile string // workspace-relative path to the file declaring Version
+	Tier        kern.Tier
 }
 
 // Modules lists the ecosystem modules in dependency order (dependencies first).
 var Modules = []Manifest{
-	{Name: "krewire", Dir: ".", VersionFile: "version.go"},
-	{Name: "mdbind", Dir: "../mdbind", VersionFile: "../mdbind/version.go"},
+	{Name: "krewire", Dir: ".", VersionFile: "version.go", Tier: kern.TierFree},
+	{Name: "mdbind", Dir: "../mdbind", VersionFile: "../mdbind/version.go", Tier: kern.TierFree},
 }
 
 // dependents maps each module to the modules that require it.
@@ -89,8 +90,46 @@ func ParseBump(s string) (BumpType, error) {
 	}
 }
 
+// CurrentTier returns the declared Tier of module name.
+func CurrentTier(name string) (kern.Tier, error) {
+	switch ModuleName(name) {
+	case ModuleKrewire:
+		return krewire.Tier, nil
+	case ModuleMdbind:
+		return mdbind.Tier, nil
+	default:
+		return "", fmt.Errorf("unknown module %q", name)
+	}
+}
+
 // CheckTierCompliance validates licensing and tier gates for workspace modules.
+// All code in krewire/krewire is 100% open source. This gate ensures modules declare
+// valid tiers (currently free-tier) and preserve their open source licensing.
 func CheckTierCompliance(root string) error {
+	for _, m := range Modules {
+		if !m.Tier.IsValid() {
+			return fmt.Errorf("module %q has invalid tier %q: want free, pro, team, or enterprise", m.Name, m.Tier)
+		}
+		curTier, err := CurrentTier(m.Name)
+		if err == nil && curTier != m.Tier {
+			return fmt.Errorf("module %q manifest tier %q does not match compiled tier %q", m.Name, m.Tier, curTier)
+		}
+		if root != "" {
+			licPath := filepath.Join(root, m.Dir, "LICENSE")
+			if _, err := os.Stat(licPath); os.IsNotExist(err) {
+				altPath := filepath.Join(root, m.Name, "LICENSE")
+				if _, aerr := os.Stat(altPath); aerr == nil {
+					licPath = altPath
+				}
+			}
+			if data, err := os.ReadFile(licPath); err == nil {
+				content := string(data)
+				if !strings.Contains(content, "MIT License") && !strings.Contains(content, "Permission is hereby granted") {
+					return fmt.Errorf("module %q license at %s must be open source", m.Name, licPath)
+				}
+			}
+		}
+	}
 	return nil
 }
 

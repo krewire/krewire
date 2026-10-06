@@ -3,7 +3,7 @@
 **kern** is the Krewire Kernel — the bottom layer of the Krewire ecosystem.
 
 ```go
-import "github.com/krewire/kern"
+import "github.com/krewire/krewire/packages/kern"
 ```
 
 ## Packages
@@ -14,7 +14,7 @@ needs a single import to reach the whole kernel.
 | Package | Role |
 |---|---|
 | [`errs`](./errs) | Errors, exit codes, diagnostics, stack traces |
-| [`model`](./model) | `Kind`, `Project`, `Scope`, `DomainEvent`, and the generic `Matrix`/`OptInRule` shapes |
+| [`model`](./model) | `Kind`, `Project`, `Scope`, `Tier`, `DomainEvent`, and the generic `Matrix`/`OptInRule` shapes |
 | [`spec`](./spec) | `SpecID`, `RequirementID` |
 | [`version`](./version) | The `Version` value type and its semver rules |
 | [`lifecycle`](./lifecycle) | `Kernel`, `Registry`, `Executor`, `Supervisor` |
@@ -38,7 +38,7 @@ it. It ships:
 
 - no module roster
 - no ecosystem version matrix
-- no licensing or tier policy
+- no module tier assignments (only the generic `Tier` vocabulary shape)
 - no workload table
 
 Those are ecosystem facts. They live in the layer above, written in the shapes

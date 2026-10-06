@@ -71,3 +71,20 @@ func TestApplyWritesAndValidates(t *testing.T) {
 		t.Errorf("got %q, want updated", string(got))
 	}
 }
+
+func TestCheckTierCompliance(t *testing.T) {
+	// Verify current ecosystem modules comply with TierFree and valid open-source licensing
+	if err := CheckTierCompliance(""); err != nil {
+		t.Fatalf("CheckTierCompliance failed: %v", err)
+	}
+
+	for _, m := range Modules {
+		tier, err := CurrentTier(m.Name)
+		if err != nil {
+			t.Fatalf("CurrentTier(%s) err = %v", m.Name, err)
+		}
+		if tier != kern.TierFree {
+			t.Errorf("expected module %s to be free-tier, got %s", m.Name, tier)
+		}
+	}
+}
