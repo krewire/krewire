@@ -159,23 +159,35 @@ func New(opts Options) ([]string, error) {
 	if opts.Name == "" {
 		return nil, fmt.Errorf("project name is required")
 	}
-	if !namePattern.MatchString(opts.Name) {
+
+	cleanedPath := filepath.Clean(opts.Name)
+	projectName := filepath.Base(cleanedPath)
+	if projectName == "." || projectName == "/" || projectName == "" {
+		projectName = "krewire-project"
+	}
+
+	if !namePattern.MatchString(projectName) {
 		return nil, ErrInvalidName
 	}
-	if opts.Dir == "" {
+
+	var target string
+	if filepath.IsAbs(cleanedPath) {
+		target = cleanedPath
+	} else if opts.Dir != "" {
+		target = filepath.Join(opts.Dir, cleanedPath)
+	} else {
 		wd, err := os.Getwd()
 		if err != nil {
 			return nil, err
 		}
-		opts.Dir = wd
+		target = filepath.Join(wd, cleanedPath)
 	}
 
 	module := opts.Module
 	if module == "" {
-		module = opts.Name
+		module = projectName
 	}
 
-	target := filepath.Join(opts.Dir, opts.Name)
 	empty, err := targetEmpty(target)
 	if err != nil {
 		return nil, err
@@ -186,7 +198,7 @@ func New(opts Options) ([]string, error) {
 
 	initCreated, err := Init(InitOptions{
 		Dir:  target,
-		Name: opts.Name,
+		Name: projectName,
 	})
 	if err != nil {
 		return nil, err

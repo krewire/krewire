@@ -42,9 +42,24 @@ func RunNew(fs *flag.FlagSet) kern.ExitCode {
 	}
 
 	parentDir := flagValue(fs, "dir")
+	cleanedPath := filepath.Clean(name)
+	projectName := filepath.Base(cleanedPath)
+	if projectName == "." || projectName == "/" || projectName == "" {
+		projectName = "krewire-project"
+	}
+
 	modulePath := flagValue(fs, "module")
 	if modulePath == "" {
-		modulePath = name
+		modulePath = projectName
+	}
+
+	var targetDir string
+	if filepath.IsAbs(cleanedPath) {
+		targetDir = cleanedPath
+	} else if parentDir != "" {
+		targetDir = filepath.Join(parentDir, cleanedPath)
+	} else {
+		targetDir = cleanedPath
 	}
 
 	// 1. Run minimal Init (git init, .gitignore, krewire.yaml) in the target directory
@@ -56,11 +71,10 @@ func RunNew(fs *flag.FlagSet) kern.ExitCode {
 		return commandError(err)
 	}
 
-	targetDir := filepath.Join(firstNonEmpty(parentDir, "."), name)
-
 	// 2. Run scaffolding (default is fullstack monolith VariantApp)
 	opts := scaffold.EquipOptions{
 		Dir:         targetDir,
+		Name:        projectName,
 		Title:       flagValue(fs, "title"),
 		TemplateURL: templateURL,
 	}

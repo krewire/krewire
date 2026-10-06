@@ -98,6 +98,36 @@ func TestNewCreatesKernel(t *testing.T) {
 	assertFileContains(t, filepath.Join(parent, "demo", ".gitignore"), "/demo")
 }
 
+func TestNewNestedPathResolution(t *testing.T) {
+	parent := t.TempDir()
+	created, err := New(Options{Name: "services/auth", Dir: parent})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(created) < 4 {
+		t.Fatalf("created %d files, want at least 4", len(created))
+	}
+	assertFileContains(t, filepath.Join(parent, "services", "auth", "krewire.yaml"), "name: auth")
+	assertFileContains(t, filepath.Join(parent, "services", "auth", "go.mod"), "module auth")
+	if _, err := os.Stat(filepath.Join(parent, "services", "auth", ".git")); err != nil {
+		t.Errorf("expected .git in nested target: %v", err)
+	}
+}
+
+func TestInitNestedPathResolution(t *testing.T) {
+	parent := t.TempDir()
+	target := filepath.Join(parent, "deep", "nested", "site")
+	created, err := Init(InitOptions{Dir: target})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(created) < 2 {
+		t.Fatalf("created %d files, want at least 2", len(created))
+	}
+	assertFileContains(t, filepath.Join(target, "krewire.yaml"), "name: site")
+	assertFileContains(t, filepath.Join(target, ".gitignore"), "/site")
+}
+
 func TestNewModuleOverride(t *testing.T) {
 	parent := t.TempDir()
 	if _, err := New(Options{Name: "demo", Dir: parent, Module: "github.com/acme/demo"}); err != nil {
@@ -123,7 +153,7 @@ func TestNewRefusesNonEmptyDirectory(t *testing.T) {
 
 func TestNewInvalidName(t *testing.T) {
 	parent := t.TempDir()
-	if _, err := New(Options{Name: "a/b", Dir: parent}); !errors.Is(err, ErrInvalidName) {
+	if _, err := New(Options{Name: "invalid:name", Dir: parent}); !errors.Is(err, ErrInvalidName) {
 		t.Errorf("New() error = %v, want ErrInvalidName", err)
 	}
 }
