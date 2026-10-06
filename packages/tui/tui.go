@@ -26,6 +26,7 @@ type Command struct {
 	About    string
 	Group    string
 	Example  string
+	Hidden   bool
 	Register func(*flag.FlagSet)
 	Run      func(*flag.FlagSet) errs.ExitCode
 }
@@ -45,6 +46,12 @@ func (c *Command) WithGroup(group string) *Command {
 // WithExample sets an example invocation and returns the command.
 func (c *Command) WithExample(example string) *Command {
 	c.Example = example
+	return c
+}
+
+// WithHidden marks the command as hidden from general help output.
+func (c *Command) WithHidden(hidden bool) *Command {
+	c.Hidden = hidden
 	return c
 }
 
@@ -291,6 +298,9 @@ func (a *App) printHelp() {
 		groups := a.groupedCommands()
 		maxLen := 0
 		for _, c := range a.commands {
+			if c.Hidden {
+				continue
+			}
 			if len(c.Name) > maxLen {
 				maxLen = len(c.Name)
 			}
@@ -330,6 +340,9 @@ func (a *App) groupedCommands() []cmdGroup {
 	seen := map[string]int{}
 	var groups []cmdGroup
 	for _, c := range a.commands {
+		if c.Hidden {
+			continue
+		}
 		g := c.Group
 		if g == "" {
 			g = "other"

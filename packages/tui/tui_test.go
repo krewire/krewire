@@ -91,3 +91,30 @@ func TestRunCommandHelpAliases(t *testing.T) {
 		}
 	}
 }
+
+func TestHiddenCommandCanRunAndIsHiddenFromGeneralHelp(t *testing.T) {
+	called := false
+	hiddenHandler := func(*flag.FlagSet) errs.ExitCode {
+		called = true
+		return errs.ExitCodeSuccess
+	}
+	app := NewApp("demo", "0.1.0").
+		Command(NewCommand("secret", "secret easter egg", nil, hiddenHandler).WithHidden(true)).
+		Command(NewCommand("ping", "ping command", nil, successHandler))
+	app.stderr = io.Discard
+
+	// Should still execute directly
+	if got := app.Run([]string{"secret"}); got != errs.ExitCodeSuccess || !called {
+		t.Errorf("Run(secret) = %v, called = %v", got, called)
+	}
+
+	// Should not be in general help listing
+	groups := app.groupedCommands()
+	for _, g := range groups {
+		for _, cmd := range g.cmds {
+			if cmd.Name == "secret" {
+				t.Errorf("hidden command %q found in groupedCommands", cmd.Name)
+			}
+		}
+	}
+}

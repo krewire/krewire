@@ -24,14 +24,11 @@
       <!-- Repositories col -->
       <div class="flex flex-col gap-2 footer-col">
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.col_repos">Repositories</strong>
-        <a href="https://github.com/krewire/framework" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">framework</a>
-        <a href="https://github.com/krewire/libs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">libs (Krewire Libs)</a>
-        <a href="https://github.com/krewire/kiw" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">kiw (cli)</a>
-        <a href="https://github.com/krewire/boost" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">boost (ai agent)</a>
-        <a href="https://github.com/krewire/hub" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">hub (plugins)</a>
-        <a href="https://github.com/krewire/ship" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">ship (deployer)</a>
-        <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">mdbind (compiler)</a>
-        <a href="https://github.com/krewire/forge" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">forge (app builder)</a>
+        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire (core monorepo)</a>
+        <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">mdbind (book engine)</a>
+        <a href="https://github.com/krewire/internal" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">internal (docs hub)</a>
+        <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.com (portal)</a>
+        <a href="https://github.com/krewire/krewire.github.io" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.github.io (community)</a>
       </div>
 
       <!-- Contribution col -->
@@ -75,7 +72,7 @@
           <span>Krewire</span>
         </div>
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-4">
-          One Go Framework for Every Workload.<br>
+          Modular Go Libraries for Every Workload.<br>
           One CLI <code class="code-inline">kiw</code>, one config <code class="code-inline">krewire.yaml</code>.
         </p>
         <span class="badge badge-secondary text-2xs">Compiled Go · Zero Bloat</span>

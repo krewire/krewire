@@ -34,7 +34,8 @@ func main() {
 		Command(tui.NewCommand("boost", "install the Boost AI agent template into a project", commands.RegisterBoost, commands.RunBoost).WithGroup("ship").WithExample("kiw boost install")).
 		Command(tui.NewCommand("guild", "alias for kiw boost", commands.RegisterGuild, commands.RunGuild).WithGroup("ship").WithExample("kiw guild install")).
 		Command(tui.NewCommand("release", "bump versions and stage a release across modules", commands.RegisterRelease, commands.RunRelease).WithGroup("ship").WithExample("kiw release framework --bump minor --apply")).
-		Command(tui.NewCommand("generate", "generate code (handlers, migrations, specs)", commands.RegisterGenerate, commands.RunGenerate).WithGroup("project").WithExample("kiw generate --kind handler --name CreateUser"))
+		Command(tui.NewCommand("generate", "generate code (handlers, migrations, specs)", commands.RegisterGenerate, commands.RunGenerate).WithGroup("project").WithExample("kiw generate --kind handler --name CreateUser")).
+		Command(tui.NewCommand("kiw", "easter egg: playful client catcalls to developers", commands.RegisterKiw, commands.RunKiw).WithHidden(true).WithExample("kiw kiw"))
 
 	os.Exit(int(app.Run(os.Args[1:])))
 }
