@@ -1,0 +1,190 @@
+package commands
+
+import (
+	"context"
+	"errors"
+	"flag"
+	"fmt"
+	"log/slog"
+	"net/http"
+	"os"
+	"os/exec"
+	"os/signal"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"time"
+
+	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/tools/kiw/internal/config"
+	"github.com/krewire/krewire/tools/kiw/internal/shape"
+)
+
+// RegisterDev registers flags for the dev command.
+func RegisterDev(fs *flag.FlagSet) {
+	fs.String("addr", "", "listen address for the app (default :8080)")
+	fs.Duration("interval", 500*time.Millisecond, "file-watch polling interval")
+	fs.String("output", "", "output directory (default .krewire/build)")
+	fs.String("o", "", "output directory (shorthand for --output)")
+	fs.String("input", "", "content directory (default content)")
+	fs.String("base", "", "URL base the site will be served under (default /)")
+	registerRuntimeFlags(fs)
+}
+
+// RunDev runs the project in dev mode. For an app it rebuilds and restarts
+// the child on change; for site/book projects it runs a live development server
+// with file watching and auto-rebuild.
+func RunDev(fs *flag.FlagSet) kern.ExitCode {
+	rt, code := bootRuntime(fs)
+	if code != kern.ExitCodeSuccess {
+		return code
+	}
+
+	explicit := firstNonEmpty(flagValue(fs, "kind"), rt.cfg.Kind())
+	res, err := shape.Detect(rt.root, explicit)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
+		return kern.ExitCodeUsage
+	}
+
+	switch res.Kind {
+	case shape.KindApp, shape.KindCLI:
+		return devApp(rt, fs)
+	case shape.KindSite, shape.KindBook:
+		return devSite(rt, fs)
+	default:
+		fmt.Fprintln(os.Stderr, "kiw dev: no project found — run 'kiw new <project>' first")
+		return kern.ExitCodeUsage
+	}
+}
+
+// devSite runs a live development server for static sites and book projects,
+// rebuilding into .krewire/build whenever source files change.
+func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
+	root, cfg := rt.root, rt.cfg
+	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
+	interval := fs.Lookup("interval").Value
+	every := 500 * time.Millisecond
+	if d, err := time.ParseDuration(interval.String()); err == nil && d > 0 {
+		every = d
+	}
+
+	buildSite := func() kern.ExitCode {
+		return RunBuild(fs)
+	}
+
+	slog.Info("building site for development")
+	if code := buildSite(); code != kern.ExitCodeSuccess {
+		slog.Error("initial site build failed")
+		return code
+	}
+
+	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
+
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: extensionlessFS(outDir),
+	}
+
+	serverErrCh := make(chan error, 1)
+	go func() {
+		displayAddr := addr
+		if strings.HasPrefix(displayAddr, ":") {
+			displayAddr = "http://localhost" + displayAddr
+		} else {
+			displayAddr = "http://" + displayAddr
+		}
+		slog.Info("dev server running", "url", displayAddr, "dir", outDir)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErrCh <- err
+		}
+	}()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(sigCh)
+
+	watcher := newWatcher(root, every, cfg)
+	slog.Info("watching for changes", "root", root, "interval", every)
+
+	for {
+		select {
+		case err := <-serverErrCh:
+			return fail(err)
+		case sig := <-sigCh:
+			slog.Info("dev received signal, stopping server", "signal", sig)
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+			_ = srv.Shutdown(ctx)
+			return kern.ExitCodeSuccess
+		case <-watcher.Changed():
+			watcher.Reset()
+			slog.Info("change detected, rebuilding...")
+			if code := buildSite(); code != kern.ExitCodeSuccess {
+				slog.Error("site rebuild failed; keeping previous preview server running", "code", code)
+				continue
+			}
+			slog.Info("site rebuilt successfully")
+		}
+	}
+}
+
+// devApp runs the app, watching the module and declared asset/markup roots,
+// rebuilding and restarting on change. A failed rebuild keeps the previous
+// child running (RND-DEV-002).
+func devApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
+	root, cfg := rt.root, rt.cfg
+	env, debug := rt.env, rt.debug
+	dir, err := os.MkdirTemp("", "krewire-dev-")
+	if err != nil {
+		return fail(err)
+	}
+	defer os.RemoveAll(dir)
+
+	bin := filepath.Join(dir, "app")
+	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
+	interval := fs.Lookup("interval").Value
+	every := 500 * time.Millisecond
+	if d, err := time.ParseDuration(interval.String()); err == nil && d > 0 {
+		every = d
+	}
+
+	build := func() error {
+		cmd := exec.Command("go", "build", "-o", bin, ".")
+		cmd.Dir = root
+		cmd.Stdout = os.Stderr
+		cmd.Stderr = os.Stderr
+		slog.Info("dev build")
+		return cmd.Run()
+	}
+	if err := build(); err != nil {
+		return fail(err)
+	}
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(sigCh)
+
+	watcher := newWatcher(root, every, cfg)
+	restart := func() { restartApp(bin, root, addr, env, debug) }
+
+	restart()
+	slog.Info("watching for changes", "root", root, "interval", every)
+	for {
+		select {
+		case sig := <-sigCh:
+			slog.Info("dev received signal, stopping app", "signal", sig)
+			stopChild()
+			return kern.ExitCodeSuccess
+		case <-watcher.Changed():
+			watcher.Reset()
+			slog.Info("change detected")
+			if err := build(); err != nil {
+				slog.Error("dev build failed; keeping previous process running", "error", err)
+				continue
+			}
+			stopChild()
+			restart()
+		}
+	}
+}

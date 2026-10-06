@@ -1,0 +1,596 @@
+package commands
+
+import (
+	"flag"
+	"fmt"
+	"log/slog"
+	"os"
+	"path"
+	"path/filepath"
+	"sort"
+	"strings"
+
+	"github.com/krewire/krewire/packages/hub/plugin"
+	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/runtime/build"
+	"github.com/krewire/krewire/packages/ui"
+	"github.com/krewire/krewire/packages/web/ssg"
+	"github.com/krewire/krewire/tools/kiw/internal/config"
+	"github.com/krewire/krewire/tools/kiw/internal/gomod"
+	"github.com/krewire/mdbind/book"
+)
+
+// RegisterBuild registers flags for the build command.
+func RegisterBuild(fs *flag.FlagSet) {
+	fs.String("input", "", "content directory (default content)")
+	fs.String("output", "", "output directory (default .krewire/build)")
+	fs.String("o", "", "output directory (shorthand for --output)")
+	fs.String("include", "", "comma-separated content glob patterns to build (default **/*.md)")
+	fs.String("exclude", "", "comma-separated content globs to skip (default **/README.md,**/readme.md)")
+	fs.String("base", "", "URL base the site will be served under (default /)")
+	fs.String("title", "", "site title (defaults to the project name)")
+	fs.String("author", "", "site author")
+	fs.String("theme", "", "theme mode: auto, light, dark, or off (default auto)")
+	fs.String("target", "ssg", "build target: ssg, book, or wasm (default ssg)")
+}
+
+// RunBuild builds the current project's website. It supports both declarative
+// shapes — a krewire.yaml with an `ssg:` key or pages/*.kiw built with
+// web/ssg, and content/**/*.md built with mdbind — and allows them to
+// coexist for progressive enhancement (a docs site can start as book and
+// grow a custom ssg site without rewrite). When both are present both are
+// built into the same output (shared .krewire/build default); the book then
+// suppresses its root TOC so the ssg landing page owns "/".
+func RunBuild(fs *flag.FlagSet) kern.ExitCode {
+	root, err := findRoot()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
+		return kern.ExitCodeUsage
+	}
+	cfg, err := config.Load(root)
+	if err != nil {
+		return fail(err)
+	}
+	hasPages := hasDir(root, "pages")
+	hasSSG := cfg.IsSSG()
+	hasBook := hasDir(root, "content") || hasDir(root, "manuscript")
+	if !hasPages && !hasSSG && !hasBook {
+		fmt.Fprintln(os.Stderr, "kiw: no website found — add pages/*.kiw, an `ssg:` key to krewire.yaml, or a content/ directory")
+		return kern.ExitCodeUsage
+	}
+	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
+	pruneStale(outDir)
+	var firstErr kern.ExitCode = kern.ExitCodeSuccess
+	built := false
+	// assetPlan is the resolved CSS/JS order reported by the ssg half. A book
+	// mounted into the same output reuses it verbatim instead of keeping its own
+	// copy of the asset list (AGENTS.md § No Hardcoding).
+	var planCSS, planJS []string
+	if hasPages {
+		code, css, js := buildSSGFromFile(root, cfg, fs)
+		planCSS, planJS = css, js
+		if code != kern.ExitCodeSuccess {
+			firstErr = code
+		} else {
+			built = true
+		}
+	} else if hasSSG {
+		code, css, js := buildSSGFromConfig(root, cfg, fs)
+		planCSS, planJS = css, js
+		if code != kern.ExitCodeSuccess {
+			firstErr = code
+		} else {
+			built = true
+		}
+	}
+	if hasBook {
+		hybrid := hasPages || hasSSG
+		if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != kern.ExitCodeSuccess {
+			if firstErr == kern.ExitCodeSuccess {
+				firstErr = code
+			}
+		} else {
+			built = true
+		}
+	}
+	if flagValue(fs, "target") == "wasm" {
+		if code := buildWASM(root, cfg, fs); code != kern.ExitCodeSuccess {
+			return code
+		}
+		built = true
+	}
+	if built {
+		writeManifest(outDir, collectCreated(outDir))
+	}
+	if !built {
+		return firstErr
+	}
+	return kern.ExitCodeSuccess
+}
+
+// manifestName is the build manifest written into the output directory; it
+// lists every file the last successful build produced so the next run can
+// prune stale artifacts (e.g. pages dropped by new exclude rules).
+const manifestName = ".kiw-build-manifest"
+
+// readManifest returns the relative paths recorded in outDir's manifest.
+func readManifest(outDir string) []string {
+	data, err := os.ReadFile(filepath.Join(outDir, manifestName))
+	if err != nil {
+		return nil
+	}
+	var out []string
+	for _, line := range strings.Split(string(data), "\n") {
+		if line = strings.TrimSpace(line); line != "" {
+			out = append(out, filepath.Clean(line))
+		}
+	}
+	return out
+}
+
+// writeManifest records rel (slash-separated) paths as the current build
+// output. Missing entries from a previous manifest were already pruned.
+func writeManifest(outDir string, rel []string) {
+	sort.Strings(rel)
+	body := strings.Join(rel, "\n") + "\n"
+	if err := os.WriteFile(filepath.Join(outDir, manifestName), []byte(body), 0o644); err != nil {
+		slog.Warn("kiw build: could not write build manifest", "err", err)
+	}
+}
+
+// pruneStale deletes files recorded by the previous manifest that still
+// exist, plus empty parent directories inside outDir. Only manifest-listed
+// files are touched — anything else in the output directory is left alone.
+func pruneStale(outDir string) {
+	old := readManifest(outDir)
+	if len(old) == 0 {
+		return
+	}
+	for _, rel := range old {
+		p := filepath.Join(outDir, filepath.FromSlash(rel))
+		if err := os.Remove(p); err == nil {
+			slog.Debug("pruned stale output", "file", rel)
+		}
+	}
+	removeEmptyDirs(outDir)
+	os.Remove(filepath.Join(outDir, manifestName))
+}
+
+// removeEmptyDirs prunes now-empty directories under root (deepest first).
+func removeEmptyDirs(root string) {
+	var dirs []string
+	filepath.WalkDir(root, func(p string, d os.DirEntry, err error) error {
+		if err == nil && d.IsDir() && p != root {
+			dirs = append(dirs, p)
+		}
+		return nil
+	})
+	sort.Sort(sort.Reverse(sort.StringSlice(dirs)))
+	for _, d := range dirs {
+		os.Remove(d)
+	}
+}
+
+// collectCreated walks outDir and lists every regular file relative to it,
+// excluding the manifest itself.
+func collectCreated(outDir string) []string {
+	var out []string
+	filepath.WalkDir(outDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		rel, rerr := filepath.Rel(outDir, p)
+		if rerr != nil || rel == manifestName {
+			return nil
+		}
+		out = append(out, filepath.ToSlash(rel))
+		return nil
+	})
+	return out
+}
+
+// buildSSGFromFile builds the project's SSG site from the file-based layout
+// (pages/, components/, layouts/, content/, public/) using
+// ssg.LoadFromDir. krewire.yaml supplies metadata (title, description, theme)
+// and output dir.
+//
+// Detected plugins (e.g. Tailwind via tailwind.config.js) run first and their
+// CSS/JS output paths are declared to the site, so `kiw build` auto-injects the
+// matching tags — the layout never names plugin assets by hand.
+func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (kern.ExitCode, []string, []string) {
+	output := firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output, config.DefaultOutput)
+	outDir := joinRoot(root, output, config.DefaultOutput)
+	slog.Info("building SSG site from file layout", "root", root, "output", outDir)
+	site, err := ssg.LoadFromDir(root)
+	if err != nil {
+		return fail(err), nil, nil
+	}
+	// Run detected plugins (Tailwind is the first; others follow the same pattern).
+	for _, p := range plugin.Registry {
+		if !p.Detect(root) {
+			continue
+		}
+		slog.Info("plugin detected", "plugin", p.Name())
+		if err := p.Build(root, outDir); err != nil {
+			slog.Warn("plugin build failed", "plugin", p.Name(), "err", err)
+			continue
+		}
+		slog.Info("plugin built", "plugin", p.Name())
+		if ap, ok := p.(plugin.AssetProvider); ok {
+			site.DeclareAsset(ap.Assets(root)...)
+		}
+	}
+	created, err := site.Build(outDir)
+	if err != nil {
+		return fail(err), nil, nil
+	}
+	warnAutoAssetErrors(site)
+	for _, p := range created {
+		fmt.Println("created " + p)
+	}
+	css, js := site.InjectedAssets()
+	return kern.ExitCodeSuccess, css, js
+}
+
+// buildSSGFromConfig builds the project's SSG site from the `ssg:` section
+// of krewire.yaml. Top-level fields (title, output, theme) are merged into the
+// ssg.Config so they don't need to be repeated under ssg:.
+func buildSSGFromConfig(root string, cfg *config.Config, fs *flag.FlagSet) (kern.ExitCode, []string, []string) {
+	ssgCfg := cfg.ToSSGConfig()
+	output := firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output, config.DefaultOutput)
+	outDir := joinRoot(root, output, config.DefaultOutput)
+	slog.Info("building SSG site from krewire.yaml", "output", outDir)
+	site, created, err := ssg.BuildFromConfigSite(ssgCfg, outDir)
+	if err != nil {
+		return fail(err), nil, nil
+	}
+	warnAutoAssetErrors(site)
+	for _, p := range created {
+		fmt.Println("created " + p)
+	}
+	css, js := site.InjectedAssets()
+	return kern.ExitCodeSuccess, css, js
+}
+
+// buildManuscript renders the project's content/ directory with mdbind.
+// Settings come from krewire.yaml in the project root, overridden by flags.
+// In a hybrid project (ssg pages present) the book suppresses its generated
+// root TOC so the ssg landing page owns "/". Include/exclude path globs
+// resolve flag > krewire.yaml `build:` > mdbind defaults (README skipped).
+func buildManuscript(root string, cfg *config.Config, fs *flag.FlagSet, hybrid bool, planCSS, planJS []string) kern.ExitCode {
+	title := firstNonEmpty(flagValue(fs, "title"), cfg.Title, moduleName(root))
+	input := firstNonEmpty(flagValue(fs, "input"), cfg.Input)
+	if input == "" {
+		input = config.DefaultInput
+		if !hasDir(root, input) && hasDir(root, "manuscript") {
+			input = "manuscript"
+		}
+	}
+	include := globList(fs, "include", cfg.Build.Include)
+	exclude := globList(fs, "exclude", cfg.Build.Exclude)
+	bcfg := book.Config{
+		Input:      joinRoot(root, input, config.DefaultInput),
+		Output:     joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput),
+		Title:      title,
+		Author:     firstNonEmpty(flagValue(fs, "author"), cfg.Author),
+		BasePath:   firstNonEmpty(flagValue(fs, "base"), cfg.Base, "/"),
+		Version:    cfg.Version,
+		NavLinks:   navFromConfig(cfg.Nav),
+		FooterText: cfg.Footer,
+		Theme:      bookThemeFrom(fs, cfg.Theme),
+		MountPath:  cfg.Book.Mount,
+		NoRootTOC:  hybrid && cfg.Book.TOC == nil,
+		Include:    include,
+		Exclude:    exclude,
+	}
+	slog.Info("building site with mdbind", "input", bcfg.Input, "output", bcfg.Output)
+	if hybrid {
+		// The ssg half owns the site's asset order. Reuse the plan it reported
+		// instead of repeating the list here, so the book pages and the landing
+		// page can never load stylesheets in different orders
+		// (AGENTS.md § No Hardcoding).
+		//
+		// mdbind links its own stylesheet last by itself, so the site's copy of
+		// that entry is dropped to avoid a duplicate <link>.
+		bcfg.ExtraCSS = versionedAssetURLs(withoutAsset(planCSS, book.StylesheetName), cfg.Version)
+		bcfg.ExtraJS = versionedAssetURLs(planJS, cfg.Version)
+	}
+	created, err := book.Build(bcfg)
+	if err != nil {
+		return fail(err)
+	}
+	for _, path := range created {
+		fmt.Println("created " + path)
+	}
+	return kern.ExitCodeSuccess
+}
+
+// warnAutoAssetErrors surfaces asset-layer configuration problems (FRK-AS-074).
+// The build keeps going with the default order, but a typo such as
+// `auto_assets.order: {theme.css: {layer: last-milee}}` must not be silently
+// ignored — it would reorder assets invisibly, which is exactly the class of
+// drift the shared plan exists to prevent.
+func warnAutoAssetErrors(site *ssg.Site) {
+	for _, err := range site.AutoAssetErrors() {
+		slog.Warn("kiw build: auto_assets config ignored", "err", err)
+	}
+}
+
+// versionedAssetURLs appends the product version as a cache-busting query,
+// matching what the ssg half injects so both halves refresh together. The rule
+// itself lives in framework/web/ssg (VersionedURLs) — this only forwards to it,
+// so the devtool and the generator cannot disagree on the query format.
+func versionedAssetURLs(urls []string, version string) []string {
+	return ssg.VersionedURLs(urls, version)
+}
+
+// withoutAsset drops the entry naming asset from an asset plan. Plan URLs are
+// "/assets/<name>", so the base name is compared.
+func withoutAsset(urls []string, asset string) []string {
+	base := path.Base(strings.TrimPrefix(asset, "/"))
+	out := make([]string, 0, len(urls))
+	for _, u := range urls {
+		if path.Base(u) == base {
+			continue
+		}
+		out = append(out, u)
+	}
+	return out
+}
+
+// buildWASM compiles the project's WASM entry point (KWF-T4X9P FRK-WASM-002).
+func buildWASM(root string, cfg *config.Config, fs *flag.FlagSet) kern.ExitCode {
+	entry := firstNonEmpty(cfg.Wasm.Entry, "./wasm")
+	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
+	name := firstNonEmpty(cfg.Wasm.Name, "runtime")
+
+	slog.Info("building WASM module", "entry", entry, "output", outDir)
+	artifacts, err := build.BuildWASM(build.Config{
+		Entry:  entry,
+		OutDir: outDir,
+		Name:   name,
+	})
+	if err != nil {
+		return fail(err)
+	}
+	fp := build.Fingerprint(artifacts.Digest)
+	slog.Info("WASM build complete", "wasm", filepath.Base(artifacts.WASM), "js", filepath.Base(artifacts.JS), "fingerprint", fp)
+	fmt.Printf("created %s (fingerprint: %s)\n", artifacts.WASM, fp)
+	return kern.ExitCodeSuccess
+}
+
+// globList resolves a repeatable/comma-separated glob flag over its
+// krewire.yaml fallback. Unset everywhere returns nil (mdbind defaults);
+// an explicitly empty value disables that filter side.
+func globList(fs *flag.FlagSet, name string, fallback []string) []string {
+	raw := flagValue(fs, name)
+	if raw == "" {
+		return fallback
+	}
+	var out []string
+	for _, part := range strings.Split(raw, ",") {
+		if part = strings.TrimSpace(part); part != "" {
+			out = append(out, part)
+		}
+	}
+	if out == nil {
+		out = []string{}
+	}
+	return out
+}
+
+// themeFrom resolves the theme from the --theme flag and krewire.yaml,
+// defaulting to auto. A mode of off disables the switcher.
+func themeFrom(fs *flag.FlagSet, cfg *config.Theme) *ui.Theme {
+	mode := strings.ToLower(strings.TrimSpace(flagValue(fs, "theme")))
+	if mode == "" && cfg != nil {
+		mode = strings.ToLower(strings.TrimSpace(cfg.Default))
+	}
+	if mode == "" {
+		mode = "auto"
+	}
+	switch mode {
+	case "off", "none", "disabled":
+		return nil
+	}
+	t := &ui.Theme{Default: mode}
+	if cfg != nil {
+		t.Light = cfg.Light.UI(ui.DefaultLightPalette)
+		t.Dark = cfg.Dark.UI(ui.DefaultDarkPalette)
+	}
+	return t
+}
+
+// bookThemeFrom resolves the mdbind theme from the same flag/config as
+// themeFrom but returns the book's local Theme type so mdbind can stay
+// framework-free. The two themes stay in sync so a project can depend on
+// both framework and mdbind and keep a single krewire.yaml.
+func bookThemeFrom(fs *flag.FlagSet, cfg *config.Theme) *book.Theme {
+	mode := strings.ToLower(strings.TrimSpace(flagValue(fs, "theme")))
+	if mode == "" && cfg != nil {
+		mode = strings.ToLower(strings.TrimSpace(cfg.Default))
+	}
+	if mode == "" {
+		mode = "auto"
+	}
+	switch mode {
+	case "off", "none", "disabled":
+		return nil
+	}
+	t := &book.Theme{Default: mode}
+	if cfg != nil {
+		t.Light = bookPalette(cfg.Light, book.DefaultLightPalette)
+		t.Dark = bookPalette(cfg.Dark, book.DefaultDarkPalette)
+	}
+	return t
+}
+
+func bookPalette(p config.Palette, defaults book.Palette) book.Palette {
+	out := defaults
+	if p.Base1 != "" {
+		out.Base1 = book.Color(p.Base1)
+	}
+	if p.Base1Content != "" {
+		out.Base1Content = book.Color(p.Base1Content)
+	}
+	if p.Base2 != "" {
+		out.Base2 = book.Color(p.Base2)
+	}
+	if p.Base2Content != "" {
+		out.Base2Content = book.Color(p.Base2Content)
+	}
+	if p.Base3 != "" {
+		out.Base3 = book.Color(p.Base3)
+	}
+	if p.Base3Content != "" {
+		out.Base3Content = book.Color(p.Base3Content)
+	}
+	if p.Primary != "" {
+		out.Primary = book.Color(p.Primary)
+	}
+	if p.PrimaryContent != "" {
+		out.PrimaryContent = book.Color(p.PrimaryContent)
+	}
+	if p.Secondary != "" {
+		out.Secondary = book.Color(p.Secondary)
+	}
+	if p.SecondaryContent != "" {
+		out.SecondaryContent = book.Color(p.SecondaryContent)
+	}
+	if p.Accent != "" {
+		out.Accent = book.Color(p.Accent)
+	}
+	if p.AccentContent != "" {
+		out.AccentContent = book.Color(p.AccentContent)
+	}
+	if p.Ghost != "" {
+		out.Ghost = book.Color(p.Ghost)
+	}
+	if p.GhostContent != "" {
+		out.GhostContent = book.Color(p.GhostContent)
+	}
+	if p.Neutral != "" {
+		out.Neutral = book.Color(p.Neutral)
+	}
+	if p.NeutralContent != "" {
+		out.NeutralContent = book.Color(p.NeutralContent)
+	}
+	if p.Success != "" {
+		out.Success = book.Color(p.Success)
+	}
+	if p.SuccessContent != "" {
+		out.SuccessContent = book.Color(p.SuccessContent)
+	}
+	if p.Info != "" {
+		out.Info = book.Color(p.Info)
+	}
+	if p.InfoContent != "" {
+		out.InfoContent = book.Color(p.InfoContent)
+	}
+	if p.Warning != "" {
+		out.Warning = book.Color(p.Warning)
+	}
+	if p.WarningContent != "" {
+		out.WarningContent = book.Color(p.WarningContent)
+	}
+	if p.Error != "" {
+		out.Error = book.Color(p.Error)
+	}
+	if p.ErrorContent != "" {
+		out.ErrorContent = book.Color(p.ErrorContent)
+	}
+	return out
+}
+
+// navFromConfig converts krewire.yaml nav links into book links.
+func navFromConfig(links []config.Link) []book.Link {
+	if len(links) == 0 {
+		return nil
+	}
+	out := make([]book.Link, 0, len(links))
+	for _, l := range links {
+		out = append(out, book.Link{Text: l.Text, URL: l.URL})
+	}
+	return out
+}
+
+// firstNonEmpty returns the first non-empty string among the arguments.
+func firstNonEmpty(vals ...string) string {
+	for _, v := range vals {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
+// findRoot locates the project root walking up from the working directory.
+// For app/cli/worker/service it is the Go module root (go.mod). For site/book
+// which have no entry point, krewire.yaml or a declarative layout (pages/,
+// content/, manuscript/) is sufficient (KWF-DF3PL FRK-FLS-001/002, KWL-K1N2Q).
+func findRoot() (string, error) {
+	cur, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	cur, err = filepath.Abs(cur)
+	if err != nil {
+		return "", err
+	}
+	for {
+		if info, err := os.Stat(filepath.Join(cur, "go.mod")); err == nil && !info.IsDir() {
+			return cur, nil
+		}
+		if info, err := os.Stat(filepath.Join(cur, "krewire.yaml")); err == nil && !info.IsDir() {
+			return cur, nil
+		}
+		if info, err := os.Stat(filepath.Join(cur, "pages")); err == nil && info.IsDir() {
+			return cur, nil
+		}
+		for _, marker := range []string{"content", "manuscript"} {
+			if info, err := os.Stat(filepath.Join(cur, marker)); err == nil && info.IsDir() {
+				return cur, nil
+			}
+		}
+		parent := filepath.Dir(cur)
+		if parent == cur {
+			return "", fmt.Errorf("not inside a Go module — run 'kiw new <project>' first")
+		}
+		cur = parent
+	}
+}
+
+// joinRoot resolves a flag value relative to the project root, falling back to
+// def when the flag is unset.
+func joinRoot(root, value, def string) string {
+	if value == "" {
+		value = def
+	}
+	if filepath.IsAbs(value) {
+		return value
+	}
+	return filepath.Join(root, value)
+}
+
+// hasDir reports whether path exists inside root as a directory.
+func hasDir(root, path string) bool {
+	info, err := os.Stat(filepath.Join(root, path))
+	return err == nil && info.IsDir()
+}
+
+// hasFile reports whether path exists inside root as a regular file.
+func hasFile(root, path string) bool {
+	info, err := os.Stat(filepath.Join(root, path))
+	return err == nil && !info.IsDir()
+}
+
+// moduleName returns the last path element of the module declared in root's
+// go.mod.
+func moduleName(root string) string {
+	mod, err := gomod.Read(filepath.Join(root, "go.mod"))
+	if err != nil || mod.Path == "" {
+		return filepath.Base(root)
+	}
+	parts := strings.Split(strings.TrimSuffix(mod.Path, "/"), "/")
+	return parts[len(parts)-1]
+}

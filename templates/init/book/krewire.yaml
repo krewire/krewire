@@ -1,0 +1,8 @@
+project:
+  name: {{.Name}}
+  kind: book
+  version: 0.1.0
+
+book:
+  content_dir: content
+  output_dir: .krewire/build

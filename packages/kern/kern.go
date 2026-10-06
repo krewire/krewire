@@ -38,14 +38,20 @@
 package kern
 
 import (
+	"github.com/krewire/krewire/packages/kern/env"
 	"github.com/krewire/krewire/packages/kern/errs"
 	"github.com/krewire/krewire/packages/kern/lifecycle"
+	"github.com/krewire/krewire/packages/kern/log"
 	"github.com/krewire/krewire/packages/kern/model"
 	"github.com/krewire/krewire/packages/kern/spec"
 	"github.com/krewire/krewire/packages/kern/version"
 )
 
 type (
+	// Env is the target environment a workload runs in.
+	//
+	// Alias of env.Env.
+	Env = env.Env
 	// Attr is one structured key/value pair attached to an error.
 	//
 	// Alias of errs.Attr.
@@ -147,6 +153,15 @@ const (
 	ExitCodeSuccess = errs.ExitCodeSuccess
 	ExitCodeFailure = errs.ExitCodeFailure
 	ExitCodeUsage   = errs.ExitCodeUsage
+
+	KindApp     = model.KindApp
+	KindCLI     = model.KindCLI
+	KindSite    = model.KindSite
+	KindBook    = model.KindBook
+	KindWorker  = model.KindWorker
+	KindService = model.KindService
+	KindInfra   = model.KindInfra
+	KindKernel  = model.KindKernel
 )
 
 var (
@@ -179,6 +194,18 @@ var (
 
 	MustParseVersion = version.MustParseVersion
 	ParseVersion     = version.ParseVersion
+
+	ParseEnv      = env.ParseEnv
+	DefaultEnv    = env.DefaultEnv
+	EnvLocal      = env.EnvLocal
+	EnvProduction = env.EnvProduction
+	EnvTesting    = env.EnvTesting
+	Envs          = env.Envs
+
+	SetupLogger   = log.Setup
+	InstallLogger = log.Install
+	LogError      = log.LogError
+	ErrAttrs      = log.ErrAttrs
 
 	NewKernel     = lifecycle.New
 	NewRegistry   = lifecycle.NewRegistry

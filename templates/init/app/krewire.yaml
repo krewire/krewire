@@ -1,0 +1,7 @@
+project:
+  name: {{.Name}}
+  kind: app
+  version: 0.1.0
+
+app:
+  port: 8080
