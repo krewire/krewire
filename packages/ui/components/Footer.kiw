@@ -84,7 +84,7 @@
         <a href="/docs/krewire-workloads#1-fullstack-monolith-app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
         <a href="/docs/krewire-workloads#2-terminal-cli--tui-cli" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
         <a href="/docs/krewire-workloads#3-static-site-generator-site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
-        <a href="/docs/krewire-workloads#4-technical-book-book" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs &amp; Books</a>
+        <a href="/docs/krewire-workloads#4-technical-book-book" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs & Books</a>
         <a href="/docs/krewire-workloads#5-background-worker-worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
         <a href="/docs/krewire-workloads#6-microservice-service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
         <a href="/docs/krewire-workloads#7-cloud-infrastructure-as-code-infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>

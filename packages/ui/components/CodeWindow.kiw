@@ -9,7 +9,7 @@
   </div>
   <pre class="code-window-pre"><code class="code-window-code">{{if .Body}}{{.Body}}{{else}}<span class="c"># Krewire Devtool</span>
 <span class="p">$ </span><span class="k">kiw</span> new my-project --site
-<span class="p">$ </span><span class="k">cd</span> my-project &amp;&amp; <span class="k">kiw</span> dev
+<span class="p">$ </span><span class="k">cd</span> my-project && <span class="k">kiw</span> dev
 <span class="t">✓ Ready at http://localhost:8080</span>{{end}}</code></pre>
 </div>
 
