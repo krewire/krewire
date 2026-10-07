@@ -1,13 +1,13 @@
-<section id="ecosystem" class="w-full bg-bg-2 dark:bg-bg-dark-2 py-12 lg:py-16 {{.Class}}" style="border-top:var(--pop-border); border-bottom:var(--pop-border)" data-kiw-component="Ecosystem">
+<section id="ecosystem" class="w-full bg-bg-2 dark:bg-bg-dark-2 py-10 sm:py-12 md:py-14 lg:py-16 {{.Class}}" style="border-top:var(--pop-border); border-bottom:var(--pop-border)" data-kiw-component="Ecosystem">
   <div class="container-site">
-    <div class="section-head mb-8">
+    <div class="section-head mb-6 sm:mb-8">
       <span class="badge badge-primary mb-3">Official Ecosystem</span>
       <h2 class="w-full max-w-3xl mx-auto text-center font-black tracking-tight mb-2 text-fg dark:text-fg-dark">5 Git Repositories — Unified Architecture</h2>
       <p class="w-full max-w-2xl mx-auto text-center text-sm md:text-base text-muted dark:text-muted-dark">The entire Krewire ecosystem is organized into exactly 5 focused repositories that compose cleanly.</p>
     </div>
 
-    <!-- Grid: 1 col → sm: 2 col → lg: 5 col -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <!-- Grid: 1 col on mobile → 2 col on sm → 3 col on md → 5 col on lg -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 md:gap-4 lg:gap-5">
 
       <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 word-break-all bg-bg dark:bg-bg-dark"
