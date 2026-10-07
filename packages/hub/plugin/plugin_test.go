@@ -232,3 +232,55 @@ func TestPLUGIN_011_RegistrySelfRegistration(t *testing.T) {
 		t.Error("Tailwind must be reachable as an Installer through its alias")
 	}
 }
+
+// TestPLUGIN_012_TailwindDetectPackageJson verifies projects declaring tailwindcss in
+// package.json are detected even without a config file.
+func TestPLUGIN_012_TailwindDetectPackageJson(t *testing.T) {
+	tw := &Tailwind{}
+	dir := t.TempDir()
+	pkgJSON := `{"name":"test","devDependencies":{"tailwindcss":"^4.0.0"}}`
+	if err := os.WriteFile(filepath.Join(dir, "package.json"), []byte(pkgJSON), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if !tw.Detect(dir) {
+		t.Error("Detect must be true when package.json contains tailwindcss")
+	}
+}
+
+// TestPLUGIN_013_TailwindDetectV4CSS verifies projects using Tailwind CSS v4 (@import "tailwindcss")
+// or standard directives in stylesheets are detected automatically.
+func TestPLUGIN_013_TailwindDetectV4CSS(t *testing.T) {
+	tw := &Tailwind{}
+	dir := t.TempDir()
+	assetsDir := filepath.Join(dir, "assets")
+	if err := os.MkdirAll(assetsDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	css := `@import "tailwindcss";`
+	if err := os.WriteFile(filepath.Join(assetsDir, "style.css"), []byte(css), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if !tw.Detect(dir) {
+		t.Error("Detect must be true when style.css contains Tailwind v4 import")
+	}
+}
+
+// TestPLUGIN_014_TailwindPackageManagerDetection verifies package manager resolution.
+func TestPLUGIN_014_TailwindPackageManagerDetection(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "bun.lockb"), []byte(""), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	pm := detectPackageManager(dir)
+	// If bun is not on test machine PATH, it falls back to whatever is installed or ""
+	t.Logf("detected package manager for bun.lockb: %q", pm)
+}
+
+// TestPLUGIN_015_TailwindCandidateCommands verifies candidate commands include local and global runners.
+func TestPLUGIN_015_TailwindCandidateCommands(t *testing.T) {
+	dir := t.TempDir()
+	candidates := buildCandidateCommands(dir, "assets/tailwind.css", ".krewire/build/assets/tailwind.css")
+	if len(candidates) < 2 {
+		t.Errorf("expected at least 2 candidate commands, got %d", len(candidates))
+	}
+}

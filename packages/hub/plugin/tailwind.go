@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/krewire/krewire/packages/kern"
 )
@@ -20,7 +21,7 @@ func init() {
 // (or ./node_modules/.bin/tailwindcss if npx is not available). Failures are
 // logged as warnings and do not fail the overall site build — Tailwind is
 // an optional plugin, not a core requirement.
-// Tailwind plugin constants. The config filenames are checked in three places
+// Tailwind plugin constants. The config filenames are checked in multiple places
 // (Detect, Remove, ensureTailwindConfig), so they live here as one list rather
 // than being repeated inline.
 const (
@@ -28,8 +29,7 @@ const (
 	tailwindConfigFile = "tailwind.config.js"
 	// tailwindNpmPackage is the npm package installed by Add and removed by Remove.
 	tailwindNpmPackage = "tailwindcss"
-	// tailwindAssetPath is the logical asset path Tailwind emits, relative to the
-	// project root; the build output uses the same path under outDir.
+	// tailwindAssetPath is the default logical asset path Tailwind emits.
 	tailwindAssetPath = "assets/tailwind.css"
 	// projectDirPerm is the mode for directories Add and Build create.
 	projectDirPerm = 0o755
@@ -42,7 +42,9 @@ const (
 var tailwindConfigFiles = []string{
 	tailwindConfigFile,
 	"tailwind.config.cjs",
+	"tailwind.config.mjs",
 	"tailwind.config.ts",
+	"tailwind.config.json",
 }
 
 type Tailwind struct{}
@@ -52,73 +54,199 @@ func (t *Tailwind) Name() string { return "tailwind" }
 func (t *Tailwind) Aliases() []string { return []string{"twcss", "tailwindcss"} }
 
 func (t *Tailwind) Version() kern.Version {
-	return kern.MustParseVersion("3.4.0") // Tailwind CSS v3.4.0
+	return kern.MustParseVersion("3.4.0") // Tailwind CSS baseline
 }
 
 func (t *Tailwind) Detect(root string) bool {
+	// 1. Check for standard Tailwind config files (Tailwind v3 & v4 legacy)
 	for _, name := range tailwindConfigFiles {
 		if _, err := os.Stat(filepath.Join(root, name)); err == nil {
 			return true
 		}
 	}
+
+	// 2. Check for package.json declaring tailwindcss dependency
+	pkgPath := filepath.Join(root, "package.json")
+	if data, err := os.ReadFile(pkgPath); err == nil {
+		s := string(data)
+		if strings.Contains(s, `"tailwindcss"`) || strings.Contains(s, `"@tailwindcss/cli"`) {
+			return true
+		}
+	}
+
+	// 3. Check for Tailwind CSS directives in common stylesheet locations (Tailwind v3 & v4)
+	candidateCSS := []string{
+		tailwindAssetPath,
+		"assets/style.css",
+		"assets/app.css",
+		"styles/tailwind.css",
+	}
+	for _, rel := range candidateCSS {
+		p := filepath.Join(root, filepath.FromSlash(rel))
+		if data, err := os.ReadFile(p); err == nil {
+			content := string(data)
+			if strings.Contains(content, "@tailwind") ||
+				strings.Contains(content, `@import "tailwindcss"`) ||
+				strings.Contains(content, `@import 'tailwindcss'`) ||
+				strings.Contains(content, "@theme") {
+				return true
+			}
+		}
+	}
+
 	return false
 }
 
+// resolveInputPath determines the input stylesheet to process.
+func (t *Tailwind) resolveInputPath(root string) string {
+	defaultInput := filepath.Join(root, filepath.FromSlash(tailwindAssetPath))
+	if _, err := os.Stat(defaultInput); err == nil {
+		return tailwindAssetPath
+	}
+
+	// Check other stylesheet locations for tailwind directives
+	candidates := []string{
+		"assets/style.css",
+		"assets/app.css",
+		"styles/tailwind.css",
+	}
+	for _, rel := range candidates {
+		p := filepath.Join(root, filepath.FromSlash(rel))
+		if data, err := os.ReadFile(p); err == nil {
+			content := string(data)
+			if strings.Contains(content, "@tailwind") ||
+				strings.Contains(content, `@import "tailwindcss"`) ||
+				strings.Contains(content, `@import 'tailwindcss'`) {
+				return rel
+			}
+		}
+	}
+
+	return tailwindAssetPath
+}
+
 func (t *Tailwind) Build(root, outDir string) error {
-	input := filepath.Join(root, filepath.FromSlash(tailwindAssetPath))
+	relInput := t.resolveInputPath(root)
+	input := filepath.Join(root, filepath.FromSlash(relInput))
 	if _, err := os.Stat(input); err != nil {
-		slog.Warn("tailwind: "+tailwindAssetPath+" not found, skipping", "root", root)
+		slog.Warn("tailwind: "+relInput+" not found, skipping", "root", root)
 		return nil
 	}
-	output := filepath.Join(outDir, filepath.FromSlash(tailwindAssetPath))
+	output := filepath.Join(outDir, filepath.FromSlash(relInput))
 	if err := os.MkdirAll(filepath.Dir(output), projectDirPerm); err != nil {
 		return fmt.Errorf("tailwind: mkdir: %w", err)
 	}
 
-	// Prefer local binary, fall back to npx
-	candidates := [][]string{
-		{"./node_modules/.bin/" + tailwindNpmPackage, "-i", input, "-o", output, "--minify"},
-		{"npx", tailwindNpmPackage, "-i", input, "-o", output, "--minify"},
-	}
+	// Discover candidate CLI runners in priority order:
+	// 1. Local project node_modules binaries (v3 & v4)
+	// 2. Standalone binary in PATH or project bin (official standalone CLI for Go setups without Node)
+	// 3. Alternative package managers (bunx, pnpm, yarn)
+	// 4. Fallback npx
+	candidates := buildCandidateCommands(root, input, output)
+
 	var lastErr error
 	for _, args := range candidates {
 		bin := args[0]
-		if _, err := exec.LookPath(bin); err != nil && bin != "npx" {
+		if _, err := exec.LookPath(bin); err != nil && !filepath.IsAbs(bin) && !strings.Contains(bin, "/") {
 			continue
 		}
+		if strings.Contains(bin, "/") {
+			if _, err := os.Stat(filepath.Join(root, bin)); err != nil {
+				continue
+			}
+		}
+
 		slog.Info("tailwind: building", "input", input, "output", output, "cmd", args)
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Dir = root
 		if out, err := cmd.CombinedOutput(); err != nil {
 			lastErr = fmt.Errorf("tailwind: %v: %s", err, string(out))
-			slog.Warn("tailwind: build failed, skipping", "err", lastErr)
+			slog.Warn("tailwind: build attempt failed", "runner", bin, "err", lastErr)
 			continue
 		}
 		slog.Info("tailwind: built", "output", output)
 		return nil
 	}
 	if lastErr != nil {
-		slog.Warn("tailwind: CLI not available, skipping", "err", lastErr, "hint", "npm install -D "+tailwindNpmPackage)
+		slog.Warn("tailwind: CLI not available or build failed, skipping", "err", lastErr, "hint", "install tailwindcss standalone CLI or npm install -D tailwindcss")
 	}
 	return nil
 }
 
-// Assets implements plugin.AssetProvider: Tailwind always emits
-// assets/tailwind.css, so `kiw build` links it without a manual <link> tag.
+func buildCandidateCommands(root, input, output string) [][]string {
+	var candidates [][]string
+
+	// 1. Local node_modules
+	candidates = append(candidates,
+		[]string{"./node_modules/.bin/" + tailwindNpmPackage, "-i", input, "-o", output, "--minify"},
+		[]string{"./node_modules/.bin/@tailwindcss/cli", "-i", input, "-o", output, "--minify"},
+	)
+
+	// 2. Standalone binary in project or PATH
+	if _, err := os.Stat(filepath.Join(root, "bin/tailwindcss")); err == nil {
+		candidates = append(candidates, []string{"./bin/tailwindcss", "-i", input, "-o", output, "--minify"})
+	}
+	if _, err := os.Stat(filepath.Join(root, "tailwindcss")); err == nil {
+		candidates = append(candidates, []string{"./tailwindcss", "-i", input, "-o", output, "--minify"})
+	}
+	if _, err := exec.LookPath("tailwindcss"); err == nil {
+		candidates = append(candidates, []string{"tailwindcss", "-i", input, "-o", output, "--minify"})
+	}
+
+	// 3. Bun runners
+	if _, err := exec.LookPath("bun"); err == nil {
+		candidates = append(candidates,
+			[]string{"bunx", "tailwindcss", "-i", input, "-o", output, "--minify"},
+			[]string{"bunx", "@tailwindcss/cli", "-i", input, "-o", output, "--minify"},
+		)
+	}
+
+	// 4. PNPM / Yarn runners
+	if _, err := exec.LookPath("pnpm"); err == nil {
+		candidates = append(candidates, []string{"pnpm", "exec", "tailwindcss", "-i", input, "-o", output, "--minify"})
+		candidates = append(candidates, []string{"pnpm", "dlx", "tailwindcss", "-i", input, "-o", output, "--minify"})
+	}
+	if _, err := exec.LookPath("yarn"); err == nil {
+		candidates = append(candidates, []string{"yarn", "tailwindcss", "-i", input, "-o", output, "--minify"})
+	}
+
+	// 5. NPX fallback
+	candidates = append(candidates,
+		[]string{"npx", tailwindNpmPackage, "-i", input, "-o", output, "--minify"},
+		[]string{"npx", "@tailwindcss/cli", "-i", input, "-o", output, "--minify"},
+	)
+
+	return candidates
+}
+
+// Assets implements plugin.AssetProvider: returns logical asset paths Tailwind emits.
 func (t *Tailwind) Assets(root string) []string {
-	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(tailwindAssetPath))); err != nil {
+	relInput := t.resolveInputPath(root)
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(relInput))); err != nil {
 		return nil
 	}
-	return []string{tailwindAssetPath}
+	return []string{relInput}
 }
 
 const tailwindConfigTemplate = `/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["pages/**/*.kiw","components/**/*.kiw","layouts/**/*.kiw","content/**/*.md"],
+  content: [
+    "pages/**/*.{kiw,html,md}",
+    "components/**/*.{kiw,html}",
+    "layouts/**/*.{kiw,html}",
+    "content/**/*.{md,markdown,html}",
+    ".krewire/build/**/*.html",
+    "**/*.go",
+  ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        primary: "var(--color-primary)",
+        primary: "var(--color-primary, var(--forge-primary, #39D353))",
+        secondary: "var(--color-secondary, var(--forge-secondary, #00D1C1))",
+        accent: "var(--color-accent, var(--forge-accent, #FF3B2E))",
+        surface: "var(--color-surface, var(--forge-surface, #ffffff))",
+        muted: "var(--color-muted, var(--forge-muted, #57677d))",
       },
     },
   },
@@ -131,7 +259,7 @@ const tailwindInputTemplate = `@tailwind base;
 @tailwind utilities;
 `
 
-// Add installs tailwind at version ("" or "latest" means latest) — part of scalable plugin system.
+// Add installs tailwind at version ("" or "latest" means latest) using detected package manager.
 func (t *Tailwind) Add(root, version string) error {
 	if version == "" || version == "latest" {
 		version = "latest"
@@ -147,8 +275,8 @@ func (t *Tailwind) Add(root, version string) error {
 	if err := ensureTailwindInput(root); err != nil {
 		return err
 	}
-	if err := npmInstall(root, pkg, true); err != nil {
-		slog.Warn("tailwind: npm install failed, config files still created", "err", err, "hint", "run npm install -D "+pkg+" manually")
+	if err := installPackage(root, pkg, true); err != nil {
+		slog.Warn("tailwind: package install failed, config files still created", "err", err, "hint", "run npm/bun/pnpm install -D "+pkg+" manually")
 		return err
 	}
 	slog.Info("tailwind: installed", "package", pkg)
@@ -179,8 +307,8 @@ func (t *Tailwind) Remove(root string) error {
 			slog.Info("tailwind: kept customized " + tailwindAssetPath)
 		}
 	}
-	if err := npmUninstall(root, tailwindNpmPackage); err != nil {
-		slog.Warn("tailwind: npm uninstall failed", "err", err)
+	if err := uninstallPackage(root, tailwindNpmPackage); err != nil {
+		slog.Warn("tailwind: package uninstall failed", "err", err)
 		return err
 	}
 	if removed == 0 {
@@ -218,32 +346,105 @@ func ensureTailwindInput(root string) error {
 	return nil
 }
 
-func npmInstall(root, pkg string, dev bool) error {
-	args := []string{"install", pkg}
-	if dev {
-		args = []string{"install", "-D", pkg}
+// detectPackageManager finds bun, pnpm, yarn, or npm based on lockfile presence and PATH.
+func detectPackageManager(root string) string {
+	if _, err := os.Stat(filepath.Join(root, "bun.lockb")); err == nil {
+		if _, err := exec.LookPath("bun"); err == nil {
+			return "bun"
+		}
 	}
-	if _, err := exec.LookPath("npm"); err != nil {
-		return fmt.Errorf("npm not found in PATH")
+	if _, err := os.Stat(filepath.Join(root, "bun.lock")); err == nil {
+		if _, err := exec.LookPath("bun"); err == nil {
+			return "bun"
+		}
 	}
-	cmd := exec.Command("npm", args...)
+	if _, err := os.Stat(filepath.Join(root, "pnpm-lock.yaml")); err == nil {
+		if _, err := exec.LookPath("pnpm"); err == nil {
+			return "pnpm"
+		}
+	}
+	if _, err := os.Stat(filepath.Join(root, "yarn.lock")); err == nil {
+		if _, err := exec.LookPath("yarn"); err == nil {
+			return "yarn"
+		}
+	}
+	if _, err := exec.LookPath("npm"); err == nil {
+		return "npm"
+	}
+	if _, err := exec.LookPath("bun"); err == nil {
+		return "bun"
+	}
+	if _, err := exec.LookPath("pnpm"); err == nil {
+		return "pnpm"
+	}
+	if _, err := exec.LookPath("yarn"); err == nil {
+		return "yarn"
+	}
+	return ""
+}
+
+func installPackage(root, pkg string, dev bool) error {
+	pm := detectPackageManager(root)
+	if pm == "" {
+		return fmt.Errorf("no package manager (npm, bun, pnpm, yarn) found in PATH")
+	}
+
+	var args []string
+	switch pm {
+	case "bun":
+		args = []string{"add", pkg}
+		if dev {
+			args = []string{"add", "-d", pkg}
+		}
+	case "pnpm":
+		args = []string{"add", pkg}
+		if dev {
+			args = []string{"add", "-D", pkg}
+		}
+	case "yarn":
+		args = []string{"add", pkg}
+		if dev {
+			args = []string{"add", "-D", pkg}
+		}
+	default: // npm
+		args = []string{"install", pkg}
+		if dev {
+			args = []string{"install", "-D", pkg}
+		}
+	}
+
+	cmd := exec.Command(pm, args...)
 	cmd.Dir = root
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("npm install %s: %v: %s", pkg, err, string(out))
+		return fmt.Errorf("%s %s %s: %v: %s", pm, args[0], pkg, err, string(out))
 	}
 	return nil
 }
 
-func npmUninstall(root, pkg string) error {
-	if _, err := exec.LookPath("npm"); err != nil {
-		return fmt.Errorf("npm not found in PATH")
+func uninstallPackage(root, pkg string) error {
+	pm := detectPackageManager(root)
+	if pm == "" {
+		return fmt.Errorf("no package manager (npm, bun, pnpm, yarn) found in PATH")
 	}
-	cmd := exec.Command("npm", "uninstall", pkg)
+
+	var args []string
+	switch pm {
+	case "bun":
+		args = []string{"remove", pkg}
+	case "pnpm":
+		args = []string{"remove", pkg}
+	case "yarn":
+		args = []string{"remove", pkg}
+	default:
+		args = []string{"uninstall", pkg}
+	}
+
+	cmd := exec.Command(pm, args...)
 	cmd.Dir = root
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("npm uninstall %s: %v: %s", pkg, err, string(out))
+		return fmt.Errorf("%s %s %s: %v: %s", pm, args[0], pkg, err, string(out))
 	}
 	return nil
 }

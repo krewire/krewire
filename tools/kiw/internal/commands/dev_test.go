@@ -75,3 +75,28 @@ func TestCopyDir(t *testing.T) {
 		t.Errorf("copied content = %q, want b", got)
 	}
 }
+
+func TestWatcherDetectsTailwindConfigChange(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "tailwind.config.js")
+	if err := os.WriteFile(cfgPath, []byte("module.exports = {}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	w := newWatcher(dir, 20*time.Millisecond, nil)
+	defer func() { close(w.done) }()
+
+	select {
+	case <-w.Changed():
+		t.Fatal("must not signal on initial scan")
+	case <-time.After(60 * time.Millisecond):
+	}
+
+	if err := os.WriteFile(cfgPath, []byte("module.exports = { darkMode: 'class' }\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-w.Changed():
+	case <-time.After(500 * time.Millisecond):
+		t.Fatal("expected change signal for tailwind.config.js edit")
+	}
+}
