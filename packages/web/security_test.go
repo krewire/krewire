@@ -268,3 +268,33 @@ func findCookie(rec *httptest.ResponseRecorder, name string) *http.Cookie {
 }
 
 func cookieLine(c *http.Cookie) string { return c.Name + "=" + c.Value }
+
+func TestMaxBodySize_RejectsOversizedPayload(t *testing.T) {
+	r := NewRouter()
+	r.Use(MaxBodySize(10)) // 10 bytes limit
+	r.Post("/upload", func(w http.ResponseWriter, req *http.Request, p Params) {
+		buf := make([]byte, 20)
+		_, err := req.Body.Read(buf)
+		if err != nil {
+			http.Error(w, "payload too large", http.StatusRequestEntityTooLarge)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+
+	// 5 bytes: allowed
+	rec1 := httptest.NewRecorder()
+	req1 := httptest.NewRequest(http.MethodPost, "/upload", strings.NewReader("short"))
+	r.ServeHTTP(rec1, req1)
+	if rec1.Code != http.StatusOK {
+		t.Fatalf("expected 200 for 5 bytes, got %d", rec1.Code)
+	}
+
+	// 25 bytes: rejected
+	rec2 := httptest.NewRecorder()
+	req2 := httptest.NewRequest(http.MethodPost, "/upload", strings.NewReader("this payload exceeds the limit"))
+	r.ServeHTTP(rec2, req2)
+	if rec2.Code != http.StatusRequestEntityTooLarge {
+		t.Fatalf("expected 413 for oversized body, got %d", rec2.Code)
+	}
+}

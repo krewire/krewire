@@ -1,7 +1,11 @@
 // Tests for KWN-TEST-P0FWA
 package commands
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 // Spec: KWN-TEST-P0FWA Scope: Unit
 func TestIsSpecID_Valid(t *testing.T) {
@@ -61,5 +65,35 @@ func TestIsKnownTestFlag_Valid(t *testing.T) {
 	}
 	if isKnownTestFlag("--unknown") {
 		t.Error("isKnownTestFlag --unknown should be false")
+	}
+}
+
+func TestAuditSecurityPosture(t *testing.T) {
+	tmp := t.TempDir()
+	cleanYAML := `project:
+  name: safe-app
+  kind: app
+auth:
+  secret: "${env:APP_SECRET}"
+`
+	if err := os.WriteFile(filepath.Join(tmp, "krewire.yaml"), []byte(cleanYAML), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	issues := auditSecurityPosture(tmp)
+	if len(issues) != 0 {
+		t.Fatalf("expected 0 issues for clean config, got: %v", issues)
+	}
+
+	leakyYAML := `project:
+  name: leaky-app
+auth:
+  password: supersecretpassword
+`
+	if err := os.WriteFile(filepath.Join(tmp, "krewire.yaml"), []byte(leakyYAML), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	issues = auditSecurityPosture(tmp)
+	if len(issues) != 1 {
+		t.Fatalf("expected 1 issue for leaky config, got: %v", issues)
 	}
 }

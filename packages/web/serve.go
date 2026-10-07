@@ -81,11 +81,13 @@ func serveAsset(w http.ResponseWriter, name, body string) {
 // prevent connection exhaustion and Slowloris attacks.
 func (a *App) Serve(ctx context.Context, addr string) error {
 	srv := &http.Server{
-		Addr:         addr,
-		Handler:      a.Handler(),
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		Addr:              addr,
+		Handler:           a.Handler(),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		MaxHeaderBytes:    1 << 20, // 1 MB
 	}
 
 	errCh := make(chan error, 1)

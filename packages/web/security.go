@@ -145,3 +145,19 @@ func randomToken() string {
 	}
 	return hex.EncodeToString(b)
 }
+
+// MaxBodySize returns a middleware limiting maximum request body bytes
+// to prevent denial-of-service via memory exhaustion.
+func MaxBodySize(maxBytes int64) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// RateLimit returns a middleware enforcing rate limits (re-exported from sec).
+func RateLimit(rps float64, burst int, opts ...sec.RateLimitOption) Middleware {
+	return Middleware(sec.RateLimit(rps, burst, opts...))
+}
