@@ -3,7 +3,11 @@
     <span class="sidebar-title text-xs font-black tracking-wider uppercase text-muted dark:text-muted-dark">{{if .Title}}{{.Title}}{{else}}Navigate{{end}}</span>
     <button class="md:hidden btn w-8 h-8 p-0 min-h-0 flex items-center justify-center text-lg sidebar-close" id="site-sidebar-close" aria-label="Close navigation">×</button>
   </div>
-  <SideMenu />
+  {{if .Body}}
+    {{.Body}}
+  {{else}}
+    <SideMenu />
+  {{end}}
 </aside>
 <div class="sidebar-overlay" id="site-sidebar-overlay" aria-hidden="true"></div>
 

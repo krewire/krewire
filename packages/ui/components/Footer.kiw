@@ -33,12 +33,12 @@
       <!-- Contribution col -->
       <div class="flex flex-col gap-2 footer-col">
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.col_contrib">Contribution</strong>
-        <a href="#benefits" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.perks">Contributor Perks & Access</a>
-        <a href="#where-to-start" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.where_start">Where to Start (Nav Map)</a>
-        <a href="#get-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.getting_started">Getting Started</a>
-        <a href="#pathways" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.pathways">Contribution Pathways</a>
-        <a href="#standards" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.standards">The Krewire Way (Gates)</a>
-        <a href="#boost" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.guild">AI Boost Collaboration</a>
+        <a href="/#benefits" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.perks">Contributor Perks & Access</a>
+        <a href="/#where-to-start" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.where_start">Where to Start (Nav Map)</a>
+        <a href="/docs/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.getting_started">Getting Started</a>
+        <a href="/#pathways" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.pathways">Contribution Pathways</a>
+        <a href="/#standards" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.standards">The Krewire Way (Gates)</a>
+        <a href="/#boost" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.guild">AI Boost Collaboration</a>
         <a href="https://github.com/krewire/krewire/tree/main/docs/specs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.kwf_specs">Specs</a>
       </div>
 
@@ -93,7 +93,7 @@
       <!-- Docs col -->
       <div class="flex flex-col gap-2">
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.docs_title">Documentation</strong>
-        <a href="/docs" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1. Overview</a>
+        <a href="/docs/overview" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1. Overview</a>
         <a href="/docs/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">2. Getting Started</a>
         <a href="/docs/workloads" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">3. Workloads in Depth</a>
         <a href="/docs/cli-reference" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">4. CLI Reference</a>

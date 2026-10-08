@@ -21,7 +21,7 @@
       {{end}}
       {{if .HideGitHub}}
       {{else}}
-      <a href="{{if .GitHubURL}}{{.GitHubURL}}{{else}}https://github.com/krewire/krewire.com{{end}}" target="_blank" rel="noopener"
+      <a href="{{if .GitHubURL}}{{.GitHubURL}}{{else}}https://github.com/krewire/krewire{{end}}" target="_blank" rel="noopener"
          class="hidden lg:inline-flex items-center gap-1.5 btn btn-primary text-xs px-4 py-2 min-h-0">
         <span>★</span><span>GitHub</span>
       </a>
@@ -50,7 +50,7 @@
         <span class="text-primary w-4 font-black">⬢</span> <span data-i18n="nav.ecosystem">Ecosystem</span>
       </a>
       <hr class="my-2" style="border-color:var(--pop-border); border-width:1.5px">
-      <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener"
+      <a href="{{if .GitHubURL}}{{.GitHubURL}}{{else}}https://github.com/krewire/krewire{{end}}" target="_blank" rel="noopener"
          class="mobile-link flex items-center justify-between gap-3 px-3 py-3 rounded-lg font-extrabold text-sm min-h-[44px] btn-primary transition-all duration-150"
          style="border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">
         <span>★ GitHub Repository</span><span>↗</span>
