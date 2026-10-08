@@ -7,10 +7,9 @@
       </button>
     </div>
     <div class="toc-subs">
-      <a href="/docs/overview/krewire-framework" class="toc-sub">1.1 Krewire Framework</a>
-      <a href="/docs/overview/why-krewire" class="toc-sub">1.2 Why Krewire?</a>
-      <a href="/docs/overview/krewire-workloads" class="toc-sub">1.3 Krewire Workloads</a>
-      <a href="/docs/overview/upgrade-guide" class="toc-sub">1.4 Upgrade Guide</a>
+      <a href="/docs/overview/why-krewire" class="toc-sub">1.1 Why Krewire?</a>
+      <a href="/docs/overview/krewire-workloads" class="toc-sub">1.2 Krewire Workloads</a>
+      <a href="/docs/overview/upgrade-guide" class="toc-sub">1.3 Upgrade Guide</a>
     </div>
   </div>
   <div class="toc-group open" data-group>

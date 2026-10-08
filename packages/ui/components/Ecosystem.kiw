@@ -2,12 +2,12 @@
   <div class="container-site">
     <div class="section-head mb-6 sm:mb-8">
       <span class="badge badge-primary mb-3" data-i18n="ecosystem.badge">Official Ecosystem</span>
-      <h2 class="w-full max-w-3xl mx-auto text-center font-black tracking-tight mb-2 text-fg dark:text-fg-dark" data-i18n="ecosystem.title">5 Git Repositories — Unified Architecture</h2>
-      <p class="w-full max-w-2xl mx-auto text-center text-sm md:text-base text-muted dark:text-muted-dark" data-i18n="ecosystem.lead">The entire Krewire ecosystem is organized into exactly 5 focused repositories that compose cleanly.</p>
+      <h2 class="w-full max-w-3xl mx-auto text-center font-black tracking-tight mb-2 text-fg dark:text-fg-dark" data-i18n="ecosystem.title">4 Git Repositories — Unified Architecture</h2>
+      <p class="w-full max-w-2xl mx-auto text-center text-sm md:text-base text-muted dark:text-muted-dark" data-i18n="ecosystem.lead">The public Krewire ecosystem is organized into 4 focused repositories that compose cleanly.</p>
     </div>
 
-    <!-- Grid: 1 col on mobile → 2 col on sm → 3 col on md → 5 col on lg -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 md:gap-4 lg:gap-5">
+    <!-- Grid: 1 col on mobile → 2 col on sm → 4 col on lg -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-4 lg:gap-5">
 
       <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 word-break-all bg-bg dark:bg-bg-dark"
@@ -37,19 +37,7 @@
         </div>
       </a>
 
-      <a href="https://github.com/krewire/internal" target="_blank" rel="noopener"
-         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
-         style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
-        <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="badge text-2xs font-mono" style="background:#ffbd2e; color:#0B1F3B; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)" data-i18n="ecosystem.internal_badge">Docs Hub</span>
-          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
-        </div>
-        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">internal</h3>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.internal_desc">Documentation hub: ADRs, technical roadmaps, contributor guides, and research.</p>
-        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
-          <code>github.com/krewire/internal</code>
-        </div>
-      </a>
+
 
       <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"

@@ -26,7 +26,6 @@
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.col_repos">Repositories</strong>
         <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire (core monorepo)</a>
         <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">mdbind (book engine)</a>
-        <a href="https://github.com/krewire/internal" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">internal (docs hub)</a>
         <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.com (portal)</a>
         <a href="https://github.com/krewire/krewire.github.io" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.github.io (community)</a>
       </div>
@@ -40,7 +39,7 @@
         <a href="#pathways" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.pathways">Contribution Pathways</a>
         <a href="#standards" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.standards">The Krewire Way (Gates)</a>
         <a href="#boost" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.guild">AI Boost Collaboration</a>
-        <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.kwf_specs">KWF Specs</a>
+        <a href="https://github.com/krewire/krewire/tree/main/docs/specs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.kwf_specs">Specs</a>
       </div>
 
       <!-- Community col -->
@@ -48,7 +47,7 @@
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.col_community">Community</strong>
         <a href="https://github.com/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.gh_org">GitHub Organization</a>
         <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.discussions">Discussions</a>
-        <a href="https://github.com/krewire/framework/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.good_first">Good First Issues</a>
+        <a href="https://github.com/krewire/krewire/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.good_first">Good First Issues</a>
         <a href="https://github.com/krewire/.github/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.coc">Code of Conduct</a>
       </div>
     </div>
@@ -107,7 +106,6 @@
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.ecosystem_title">Ecosystem</strong>
         <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire (core monorepo)</a>
         <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">mdbind (book engine)</a>
-        <a href="https://github.com/krewire/internal" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">internal (docs hub)</a>
         <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.com (portal)</a>
         <a href="https://github.com/krewire/krewire.github.io" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.github.io (community)</a>
       </div>
