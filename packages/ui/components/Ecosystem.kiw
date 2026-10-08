@@ -1,9 +1,9 @@
 <section id="ecosystem" class="w-full bg-bg-2 dark:bg-bg-dark-2 py-10 sm:py-12 md:py-14 lg:py-16 {{.Class}}" style="border-top:var(--pop-border); border-bottom:var(--pop-border)" data-kiw-component="Ecosystem">
   <div class="container-site">
     <div class="section-head mb-6 sm:mb-8">
-      <span class="badge badge-primary mb-3">Official Ecosystem</span>
-      <h2 class="w-full max-w-3xl mx-auto text-center font-black tracking-tight mb-2 text-fg dark:text-fg-dark">5 Git Repositories — Unified Architecture</h2>
-      <p class="w-full max-w-2xl mx-auto text-center text-sm md:text-base text-muted dark:text-muted-dark">The entire Krewire ecosystem is organized into exactly 5 focused repositories that compose cleanly.</p>
+      <span class="badge badge-primary mb-3" data-i18n="ecosystem.badge">Official Ecosystem</span>
+      <h2 class="w-full max-w-3xl mx-auto text-center font-black tracking-tight mb-2 text-fg dark:text-fg-dark" data-i18n="ecosystem.title">5 Git Repositories — Unified Architecture</h2>
+      <p class="w-full max-w-2xl mx-auto text-center text-sm md:text-base text-muted dark:text-muted-dark" data-i18n="ecosystem.lead">The entire Krewire ecosystem is organized into exactly 5 focused repositories that compose cleanly.</p>
     </div>
 
     <!-- Grid: 1 col on mobile → 2 col on sm → 3 col on md → 5 col on lg -->
@@ -13,11 +13,11 @@
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 word-break-all bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
         <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="badge badge-primary text-2xs font-mono">Core Monorepo</span>
+          <span class="badge badge-primary text-2xs font-mono" data-i18n="ecosystem.core_badge">Core Monorepo</span>
           <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">krewire</h3>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Core packages, apps, devtool CLI (<code>kiw</code>), and Boost agent templates in Go.</p>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.core_desc">Core packages, apps, devtool CLI (<code>kiw</code>), and Boost agent templates in Go.</p>
         <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
           <code>github.com/krewire/krewire</code>
         </div>
@@ -27,11 +27,11 @@
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
         <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="badge badge-secondary text-2xs font-mono">Book Engine</span>
+          <span class="badge badge-secondary text-2xs font-mono" data-i18n="ecosystem.book_badge">Book Engine</span>
           <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">mdbind</h3>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Standalone Markdown book and docs site builder powering the book workload.</p>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.book_desc">Standalone Markdown book and docs site builder powering the book workload.</p>
         <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
           <code>github.com/krewire/mdbind</code>
         </div>
@@ -41,11 +41,11 @@
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
         <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="badge text-2xs font-mono" style="background:#ffbd2e; color:#0B1F3B; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">Docs Hub</span>
+          <span class="badge text-2xs font-mono" style="background:#ffbd2e; color:#0B1F3B; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)" data-i18n="ecosystem.internal_badge">Docs Hub</span>
           <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">internal</h3>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Documentation hub: ADRs, technical roadmaps, contributor guides, and research.</p>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.internal_desc">Documentation hub: ADRs, technical roadmaps, contributor guides, and research.</p>
         <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
           <code>github.com/krewire/internal</code>
         </div>
@@ -55,11 +55,11 @@
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
         <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="badge badge-muted text-2xs font-mono">Portal Site</span>
+          <span class="badge badge-muted text-2xs font-mono" data-i18n="ecosystem.portal_badge">Portal Site</span>
           <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">krewire.com</h3>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Official production website and documentation portal built with site kind & .kiw DSL.</p>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.portal_desc">Official production website and documentation portal built with site kind & .kiw DSL.</p>
         <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
           <code>github.com/krewire/krewire.com</code>
         </div>
@@ -69,11 +69,11 @@
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 sm:col-span-2 lg:col-span-1 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
         <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="badge text-2xs font-mono" style="background:#FF3B2E; color:#ffffff; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)">Community</span>
+          <span class="badge text-2xs font-mono" style="background:#FF3B2E; color:#ffffff; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)" data-i18n="ecosystem.community_badge">Community</span>
           <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">krewire.github.io</h3>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3">Community portal for contributors, releases, guides, and sponsorships.</p>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.community_desc">Community portal for contributors, releases, guides, and sponsorships.</p>
         <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
           <code>github.com/krewire/krewire.github.io</code>
         </div>

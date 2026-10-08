@@ -71,52 +71,51 @@
           <span class="icon-box bg-primary text-primary-content w-7 h-7 text-sm flex items-center justify-center">◈</span>
           <span>Krewire</span>
         </div>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-4">
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed mb-4" data-i18n-html="footer.tagline_html">
           Modular Go Libraries for Every Workload.<br>
           One CLI <code class="code-inline">kiw</code>, one config <code class="code-inline">krewire.yaml</code>.
         </p>
-        <span class="badge badge-secondary text-2xs">Compiled Go · Zero Bloat</span>
+        <span class="badge badge-secondary text-2xs" data-i18n="footer.badge">Compiled Go · Zero Bloat</span>
       </div>
 
       <!-- Workloads col -->
       <div class="flex flex-col gap-2">
-        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">8 Workloads</strong>
-        <a href="/docs/krewire-workloads#1-fullstack-monolith-app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
-        <a href="/docs/krewire-workloads#2-terminal-cli--tui-cli" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
-        <a href="/docs/krewire-workloads#3-static-site-generator-site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
-        <a href="/docs/krewire-workloads#4-technical-book-book" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs & Books</a>
-        <a href="/docs/krewire-workloads#5-background-worker-worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
-        <a href="/docs/krewire-workloads#6-microservice-service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
-        <a href="/docs/krewire-workloads#7-cloud-infrastructure-as-code-infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
-        <a href="/docs/krewire-workloads#8-webassembly-runtime-runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.workloads_title">8 Workloads</strong>
+        <a href="/workloads/app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
+        <a href="/workloads/cli" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
+        <a href="/workloads/site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
+        <a href="/workloads/book" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs & Books</a>
+        <a href="/workloads/worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
+        <a href="/workloads/service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
+        <a href="/workloads/infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
+        <a href="/workloads/runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
       </div>
 
       <!-- Docs col -->
       <div class="flex flex-col gap-2">
-        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Documentation</strong>
-        <a href="/docs/krewire-framework" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.1 Krewire Framework</a>
-        <a href="/docs/why-krewire" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.2 Why Krewire?</a>
-        <a href="/docs/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.3 Getting Started</a>
-        <a href="/docs/krewire-workloads" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.4 Krewire Workloads</a>
-        <a href="/docs/upgrade-guide" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1.5 Upgrade Guide</a>
-        <a href="https://github.com/krewire/framework/tree/main/docs/specs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Engineering Specs</a>
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.docs_title">Documentation</strong>
+        <a href="/docs" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1. Overview</a>
+        <a href="/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">2. Getting Started</a>
+        <a href="/workloads" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">3. Workloads in Depth</a>
+        <a href="/cli-reference" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">4. CLI Reference</a>
+        <a href="/packages" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">5. Packages & Libraries</a>
+        <a href="/guides" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">6. Architecture & Guides</a>
       </div>
 
       <!-- Ecosystem col -->
       <div class="flex flex-col gap-2">
-        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1">Ecosystem</strong>
-        <a href="https://github.com/krewire/framework" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/framework</a>
-        <a href="https://github.com/krewire/kiw" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/kiw</a>
-        <a href="https://github.com/krewire/libs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/libs</a>
-        <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/mdbind</a>
-        <a href="https://github.com/krewire/boost" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire/boost</a>
-        <a href="https://github.com/orgs/krewire/discussions" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Community Forum</a>
+        <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.ecosystem_title">Ecosystem</strong>
+        <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire (core monorepo)</a>
+        <a href="https://github.com/krewire/mdbind" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">mdbind (book engine)</a>
+        <a href="https://github.com/krewire/internal" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">internal (docs hub)</a>
+        <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.com (portal)</a>
+        <a href="https://github.com/krewire/krewire.github.io" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.github.io (community)</a>
       </div>
     </div>
 
     <!-- Footer bottom -->
     <div class="pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-xs font-semibold text-muted dark:text-muted-dark">
-      <span>© 2026 Krewire Contributors — 100% built with Krewire <code class="code-inline">site</code> workload.</span>
+      <span data-i18n-html="footer.copyright_html">© 2026 Krewire Contributors — 100% built with Krewire <code class="code-inline">site</code> workload.</span>
       <a href="https://github.com/krewire" target="_blank" rel="noopener" class="hover:text-primary transition-colors">github.com/krewire</a>
     </div>
   </div>
