@@ -34,13 +34,13 @@
   <!-- Mobile navigation drawer -->
   <Drawer ID="nav-mobile-menu" Side="right" Title="Menu" Class="lg:hidden">
     <div class="flex flex-col gap-1">
-      <a href="/getting-started" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+      <a href="/docs/getting-started" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
         <span class="text-primary w-4 font-black">›</span> <span data-i18n="nav.get_started">Get Started</span>
       </a>
-      <a href="/docs/krewire-workloads" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+      <a href="/docs/workloads" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
         <span class="text-primary w-4 font-black">▦</span> <span data-i18n="nav.workloads">8 Workloads</span>
       </a>
-      <a href="/getting-started/dsl" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
+      <a href="/docs/getting-started/dsl" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
         <span class="text-primary w-4 font-black">◈</span> <span data-i18n="nav.dsl">Component DSL</span>
       </a>
       <a href="/docs" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">

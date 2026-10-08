@@ -81,25 +81,25 @@
       <!-- Workloads col -->
       <div class="flex flex-col gap-2">
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.workloads_title">8 Workloads</strong>
-        <a href="/workloads/app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
-        <a href="/workloads/cli" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
-        <a href="/workloads/site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
-        <a href="/workloads/book" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs & Books</a>
-        <a href="/workloads/worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
-        <a href="/workloads/service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
-        <a href="/workloads/infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
-        <a href="/workloads/runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
+        <a href="/docs/workloads/app" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">app — Fullstack Monolith</a>
+        <a href="/docs/workloads/cli" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cli — Terminal TUI</a>
+        <a href="/docs/workloads/site" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">site — Scoped SSG</a>
+        <a href="/docs/workloads/book" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">book — Docs & Books</a>
+        <a href="/docs/workloads/worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
+        <a href="/docs/workloads/service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
+        <a href="/docs/workloads/infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
+        <a href="/docs/workloads/runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
       </div>
 
       <!-- Docs col -->
       <div class="flex flex-col gap-2">
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mb-1" data-i18n="footer.docs_title">Documentation</strong>
         <a href="/docs" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">1. Overview</a>
-        <a href="/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">2. Getting Started</a>
-        <a href="/workloads" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">3. Workloads in Depth</a>
-        <a href="/cli-reference" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">4. CLI Reference</a>
-        <a href="/packages" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">5. Packages & Libraries</a>
-        <a href="/guides" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">6. Architecture & Guides</a>
+        <a href="/docs/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">2. Getting Started</a>
+        <a href="/docs/workloads" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">3. Workloads in Depth</a>
+        <a href="/docs/cli-reference" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">4. CLI Reference</a>
+        <a href="/docs/packages" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">5. Packages & Libraries</a>
+        <a href="/docs/guides" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">6. Architecture & Guides</a>
       </div>
 
       <!-- Ecosystem col -->
