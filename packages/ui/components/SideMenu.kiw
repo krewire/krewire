@@ -28,6 +28,66 @@
       <a href="/getting-started/dsl" class="toc-sub">2.5 DSL (.kiw)</a>
     </div>
   </div>
+  <div class="toc-group open" data-group>
+    <div class="toc-parent-row">
+      <a href="/workloads" class="toc-link">3. Workloads in Depth</a>
+      <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+    </div>
+    <div class="toc-subs">
+      <a href="/workloads/app" class="toc-sub">3.1 Fullstack Monolith (app)</a>
+      <a href="/workloads/cli" class="toc-sub">3.2 Terminal CLI & TUI (cli)</a>
+      <a href="/workloads/site" class="toc-sub">3.3 Static Site (site)</a>
+      <a href="/workloads/book" class="toc-sub">3.4 Documentation Book (book)</a>
+      <a href="/workloads/worker" class="toc-sub">3.5 Background Worker (worker)</a>
+      <a href="/workloads/service" class="toc-sub">3.6 Microservice (service)</a>
+      <a href="/workloads/infra" class="toc-sub">3.7 Cloud Infrastructure (infra)</a>
+      <a href="/workloads/runtime" class="toc-sub">3.8 WebAssembly Runtime (runtime)</a>
+    </div>
+  </div>
+  <div class="toc-group open" data-group>
+    <div class="toc-parent-row">
+      <a href="/cli-reference" class="toc-link">4. CLI Reference</a>
+      <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+    </div>
+    <div class="toc-subs">
+      <a href="/cli-reference/commands" class="toc-sub">4.1 Command Catalog</a>
+      <a href="/cli-reference/configuration" class="toc-sub">4.2 Configuration Schema</a>
+      <a href="/cli-reference/scripting" class="toc-sub">4.3 Task Automation & Scripting</a>
+    </div>
+  </div>
+  <div class="toc-group open" data-group>
+    <div class="toc-parent-row">
+      <a href="/packages" class="toc-link">5. Packages & Libraries</a>
+      <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+    </div>
+    <div class="toc-subs">
+      <a href="/packages/kern" class="toc-sub">5.1 Kernel & Model (kern)</a>
+      <a href="/packages/web-and-app" class="toc-sub">5.2 Web & Application (web, app)</a>
+      <a href="/packages/security-and-auth" class="toc-sub">5.3 Security & Auth (sec, auth)</a>
+      <a href="/packages/ui-and-tui" class="toc-sub">5.4 User Interfaces (ui, tui)</a>
+      <a href="/packages/storage-and-fs" class="toc-sub">5.5 Storage & Filesystem</a>
+      <a href="/packages/resilience-and-testing" class="toc-sub">5.6 Resilience & Testing</a>
+    </div>
+  </div>
+  <div class="toc-group open" data-group>
+    <div class="toc-parent-row">
+      <a href="/guides" class="toc-link">6. Architecture & Guides</a>
+      <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+    </div>
+    <div class="toc-subs">
+      <a href="/guides/spec-driven-development" class="toc-sub">6.1 Spec-Driven Development</a>
+      <a href="/guides/open-core-and-licensing" class="toc-sub">6.2 Open Core & Licensing</a>
+      <a href="/guides/deployment-and-operations" class="toc-sub">6.3 Deployment & Operations</a>
+    </div>
+  </div>
 </nav>
 
 <style>
