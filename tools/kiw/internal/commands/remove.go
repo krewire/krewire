@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/krewire/krewire/packages/hub/resolver"
 	"github.com/krewire/krewire/packages/kern"
-	"github.com/krewire/krewire/tools/kiw/internal/packages"
 )
 
 func RegisterRemove(fs *flag.FlagSet) {}
@@ -23,15 +23,16 @@ func RunRemove(fs *flag.FlagSet) kern.ExitCode {
 	if err != nil {
 		return fail(err)
 	}
-	chain := packages.DefaultChain()
+	chain := resolver.DefaultChain()
 	for _, raw := range args {
-		spec, err := packages.ParseSpec(raw)
+		spec, err := resolver.ParseSpec(raw)
 		if err != nil {
 			// For remove, allow bare names without version parsing strictness
-			spec = packages.Spec{Name: raw, Raw: raw}
+			spec = resolver.Spec{Name: raw, Raw: raw}
 		}
 		// Strip version for remove; only name matters
-		spec.Version = ""
+		spec.RawVer = ""
+		spec.Version = kern.Version{}
 		resolved, err := chain.Resolve(spec)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "cannot resolve %q: %v\n", raw, err)

@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/krewire/krewire/packages/hub/resolver"
 	"github.com/krewire/krewire/packages/kern"
-	"github.com/krewire/krewire/tools/kiw/internal/packages"
 )
 
 func RegisterAdd(fs *flag.FlagSet) {
@@ -28,9 +28,9 @@ func RunAdd(fs *flag.FlagSet) kern.ExitCode {
 	if err != nil {
 		return fail(err)
 	}
-	chain := packages.DefaultChain()
+	chain := resolver.DefaultChain()
 	for _, raw := range args {
-		spec, err := packages.ParseSpec(raw)
+		spec, err := resolver.ParseSpec(raw)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "invalid package %q: %v\n", raw, err)
 			return kern.ExitCodeUsage
