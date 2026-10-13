@@ -1,9 +1,14 @@
 package sec
 
-// Tests for SEC-A03-002, SEC-A05-001.
+// Tests for SEC-A03-002, SEC-A05-001, SEC-A06-001.
 import (
+	"go/parser"
+	"go/token"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -81,5 +86,51 @@ func TestSecurityHeadersCustom(t *testing.T) {
 	}
 	if h.Get("Permissions-Policy") != "geolocation=()" {
 		t.Errorf("Permissions-Policy = %q", h.Get("Permissions-Policy"))
+	}
+}
+
+// Spec: KWL-O10SC SEC-A06-001 Scope: Unit
+func TestSEC_A06_001_DependencyHygiene(t *testing.T) {
+	// 1. Verify packages/auth imports only standard library packages.
+	authDir := filepath.Join("..", "auth")
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, authDir, func(fi os.FileInfo) bool {
+		return !strings.HasSuffix(fi.Name(), "_test.go")
+	}, parser.ImportsOnly)
+	if err != nil {
+		t.Fatalf("ParseDir auth: %v", err)
+	}
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Files {
+			for _, imp := range file.Imports {
+				path := strings.Trim(imp.Path.Value, `"`)
+				firstPart := strings.Split(path, "/")[0]
+				if strings.Contains(firstPart, ".") {
+					t.Errorf("packages/auth imports non-stdlib package %q in %v", path, file.Name)
+				}
+			}
+		}
+	}
+
+	// 2. Verify packages/sec third-party imports are restricted to pinned golang.org/x/net/html.
+	secDir := "."
+	pkgsSec, err := parser.ParseDir(fset, secDir, func(fi os.FileInfo) bool {
+		return !strings.HasSuffix(fi.Name(), "_test.go")
+	}, parser.ImportsOnly)
+	if err != nil {
+		t.Fatalf("ParseDir sec: %v", err)
+	}
+	for _, pkg := range pkgsSec {
+		for _, file := range pkg.Files {
+			for _, imp := range file.Imports {
+				path := strings.Trim(imp.Path.Value, `"`)
+				firstPart := strings.Split(path, "/")[0]
+				if strings.Contains(firstPart, ".") {
+					if path != "github.com/krewire/krewire/packages/auth" && !strings.HasPrefix(path, "golang.org/x/net/html") {
+						t.Errorf("packages/sec imports unauthorized third-party package %q in %v", path, file.Name)
+					}
+				}
+			}
+		}
 	}
 }
