@@ -167,3 +167,30 @@ func TestKWN_WS_CMD_007_RunWsExec_AggregatesMemberFailures(t *testing.T) {
 		t.Errorf("exec without command = %v, want Usage", code)
 	}
 }
+
+// Spec: KWN-Q3M8V WS-CMD-008 Scope: Unit
+func TestKWN_WS_CMD_008_HelpTextDocumentsSubcommandsExamplesAndTypes(t *testing.T) {
+	out, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("help")) })
+	if code != kern.ExitCodeUsage {
+		t.Fatalf("help exit code = %v, want Usage", code)
+	}
+
+	// Subcommands
+	for _, sub := range []string{"info", "list", "add", "remove", "sync", "exec"} {
+		if !strings.Contains(out, sub) {
+			t.Errorf("help text missing subcommand %q", sub)
+		}
+	}
+
+	// Examples
+	if !strings.Contains(out, "Examples:") || !strings.Contains(out, "kiw ws info") {
+		t.Errorf("help text missing examples section")
+	}
+
+	// Four workspace types
+	for _, wsType := range []string{"monorepo", "multi-repo", "multi-project", "microservices"} {
+		if !strings.Contains(out, wsType) {
+			t.Errorf("help text missing workspace type %q", wsType)
+		}
+	}
+}
