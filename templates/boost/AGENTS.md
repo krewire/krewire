@@ -165,11 +165,12 @@ Commit focuses on one logical change. Do not commit unrelated files or secrets.
 Before committing, check `git status`/`git diff` and never commit secrets.
 **Do not commit large changes in a single commit** — split large changes into multiple small, atomic commits, each with a clear scope and message. Large commits make review difficult and increase risk of conflicts.
 
-## Documentation
+## Documentation & Progress Tracking
 
 - Update README/docs when public behavior changes.
-- For complex features/design, projects following the Krewire way capture the
-  design as a spec in `docs/specs/` before implementing.
+- Track specifications and implementation progress as GitHub Issues with label `spec` and task checklists (`- [ ]` / `- [x]`).
+- Tests cite `// Tests for <SpecID>` and `// Spec: <SpecID> <ReqID>` for deterministic verification.
+- Query tasks via `gh issue list --label spec --json number,title,url` and update checklist on completion.
 
 ## Project-Specific Customization
 
