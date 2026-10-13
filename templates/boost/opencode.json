@@ -3,7 +3,7 @@
   "plugin": [
     "@capybearista/opencode-agents-loader"
   ],
-  "default_agent": "build",
+  "default_agent": "builder",
   "permission": {
     "edit": "ask",
     "bash": {

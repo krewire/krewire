@@ -1,3 +1,4 @@
+// Tests for KWG-K2N7Q
 package boost
 
 import (
@@ -8,13 +9,34 @@ import (
 	"testing"
 )
 
+// Spec: KWG-K2N7Q GLD-TRD-001 Scope: Template
+// Spec: KWG-K2N7Q GLD-TRD-002 Scope: SDLC Triads
+// Spec: KWG-K2N7Q GLD-TRD-010 Scope: Embed & Managed
 func TestTemplateEmbedded(t *testing.T) {
 	for _, want := range []string{
 		"AGENTS.md",
 		"opencode.json",
-		".agents/agents/build.md",
-		".agents/commands/kickoff.md",
-		".agents/skills/project-init/SKILL.md",
+		".agents/agents/planner.md",
+		".agents/commands/plan.md",
+		".agents/skills/planning/SKILL.md",
+		".agents/agents/designer.md",
+		".agents/commands/design.md",
+		".agents/skills/designing/SKILL.md",
+		".agents/agents/builder.md",
+		".agents/commands/build.md",
+		".agents/skills/building/SKILL.md",
+		".agents/agents/tester.md",
+		".agents/commands/test.md",
+		".agents/skills/testing/SKILL.md",
+		".agents/agents/deployer.md",
+		".agents/commands/deploy.md",
+		".agents/skills/deploying/SKILL.md",
+		".agents/agents/maintainer.md",
+		".agents/commands/maintain.md",
+		".agents/skills/maintaining/SKILL.md",
+		".agents/rules/global-standards.md",
+		".agents/rules/global-security.md",
+		".agents/rules/global-conventions.md",
 	} {
 		if _, err := Template.Open(want); err != nil {
 			t.Errorf("Template missing %s: %v", want, err)
@@ -129,4 +151,57 @@ func contains(haystack []string, needle string) bool {
 
 func hasPrefixAlias(s, prefix string) bool {
 	return strings.HasPrefix(s, prefix)
+}
+
+// Spec: KWG-K2N7Q GLD-TRD-001 Scope: Triad Integrity
+// Spec: KWG-K2N7Q GLD-TRD-002 Scope: SDLC Lifecycles
+// Spec: KWG-K2N7Q GLD-TRD-003 Scope: Cross-cutting Triads
+// Spec: KWG-K2N7Q GLD-TRD-004 Scope: Governance Triads
+func TestAgentTriadInventory(t *testing.T) {
+	triads := []struct {
+		agent   string
+		command string
+		skill   string
+	}{
+		// SDLC phases
+		{"planner", "plan", "planning"},
+		{"designer", "design", "designing"},
+		{"builder", "build", "building"},
+		{"tester", "test", "testing"},
+		{"deployer", "deploy", "deploying"},
+		{"maintainer", "maintain", "maintaining"},
+		// Cross-cutting specialists
+		{"auditor", "audit", "auditing"},
+		{"decomposer", "decompose", "decomposing"},
+		{"explorer", "explore", "exploring"},
+		{"writer", "write", "writing"},
+		{"automator", "automate", "automating"},
+		{"tracker", "track", "tracking"},
+		// Governance & Multi-agent
+		{"leader", "lead", "leading"},
+		{"manager", "manage", "managing"},
+		{"orchestrator", "orchestrate", "orchestrating"},
+		{"supervisor", "supervise", "supervising"},
+		{"customizer", "customize", "customizing"},
+		{"housekeeper", "housekeep", "housekeeping"},
+		{"learner", "learn", "learning"},
+		{"researcher", "research", "researching"},
+		{"thinker", "think", "thinking"},
+	}
+
+	for _, tr := range triads {
+		agentPath := filepath.Join(".agents", "agents", tr.agent+".md")
+		cmdPath := filepath.Join(".agents", "commands", tr.command+".md")
+		skillPath := filepath.Join(".agents", "skills", tr.skill, "SKILL.md")
+
+		if _, err := Template.Open(agentPath); err != nil {
+			t.Errorf("missing agent %s: %v", agentPath, err)
+		}
+		if _, err := Template.Open(cmdPath); err != nil {
+			t.Errorf("missing command %s: %v", cmdPath, err)
+		}
+		if _, err := Template.Open(skillPath); err != nil {
+			t.Errorf("missing skill %s: %v", skillPath, err)
+		}
+	}
 }

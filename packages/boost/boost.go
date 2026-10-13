@@ -99,7 +99,9 @@ func managed() []string {
 		".agents/agents",
 		".agents/commands",
 		".agents/skills",
-		".agents/context",
+		".agents/rules",
+		".agents/templates",
+		".agents/tools",
 	}
 }
 
