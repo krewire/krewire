@@ -17,7 +17,7 @@ Ordered by **impact-to-effort** (high impact, low effort first) and **dependency
 | [KWL-R934Y](https://github.com/krewire/krewire/issues/14) | Terminal I/O & Rendering | Draft | KWL-M1ZKS |
 | [KWL-K4T7W](https://github.com/krewire/krewire/issues/9) | Environments & Debug Mode | Draft | KWL-M1ZKS, KWL-W0J2X, KWL-2X1QZ |
 | [KWL-P8W2N](https://github.com/krewire/krewire/issues/10) | Error Handling, Stack Traces & Structured Logging | Draft | KWL-M1ZKS, KWL-W0J2X, KWL-K4T7W |
-| [KWL-Q3N8P](https://github.com/krewire/krewire/issues/12) | Shared Markdown Renderer (Goldmark) | Draft | KWL-M1ZKS, KWF-PT8OD, KWM-FX9H2 |
+| [KWL-Q3N8P](https://github.com/krewire/krewire/issues/12) | Shared Markdown Renderer (Goldmark) | Done | KWL-M1ZKS, KWF-PT8OD, KWM-FX9H2 |
 | [KWL-O10SC](https://github.com/krewire/krewire/issues/13) | OWASP Top 10 Security Controls | Implemented | KWL-M1ZKS |
 | [KWL-N8K4V](https://github.com/krewire/krewire/issues/35) | Native Zero-Dependency Markdown Parser | Planned | KWL-M1ZKS |
 
