@@ -1,35 +1,21 @@
-// Package markdown provides the shared Goldmark-based Markdown renderer for
+// Package markdown provides the shared native zero-dependency Markdown renderer for
 // the Krewire ecosystem. Both mdbind (book) and framework/web/ssg + dsl use it
 // so a docs site can start as a lightweight manuscript and progressively
 // enhance to a full ssg site without re-parsing or duplicated dependencies.
-// It is the leaf Package that allows mdbind and framework to be depended on
-// together (KWF-M8K2Q, KWM-FX9H2).
 package markdown
 
 import (
-	"bytes"
 	"errors"
 	"regexp"
 	"strings"
-
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
-	htmlrenderer "github.com/yuin/goldmark/renderer/html"
 )
 
 // ErrSanitize reports a malformed HTML fragment. It never occurs for
-// well-formed Goldmark output; it exists so callers can distinguish an
+// well-formed parser output; it exists so callers can distinguish an
 // internal failure from a policy decision to strip content.
 var ErrSanitize = errors.New("markdown: sanitize")
 
-var gold = goldmark.New(
-	goldmark.WithExtensions(extension.GFM),
-	goldmark.WithParserOptions(parser.WithAutoHeadingID()),
-	goldmark.WithRendererOptions(htmlrenderer.WithUnsafe()),
-)
-
-// Render converts Markdown src to HTML using Goldmark GFM + AutoHeadingID.
+// Render converts Markdown src to HTML using native GFM + AutoHeadingID.
 //
 // SECURITY: raw HTML is preserved because the Krewire ecosystem relies on it
 // (`.kiw` components, framework/dsl, mdbind books). Render therefore trusts its
@@ -39,11 +25,7 @@ var gold = goldmark.New(
 // user-generated or CMS-supplied Markdown, use RenderSafe instead, which
 // sanitizes the HTML output against an allowlist.
 func Render(src []byte) (string, error) {
-	var buf bytes.Buffer
-	if err := gold.Convert(src, &buf); err != nil {
-		return "", err
-	}
-	out := buf.String()
+	out := parseAndRenderBlocks(src)
 	return StripScriptURLs(out)
 }
 
@@ -53,11 +35,8 @@ func Render(src []byte) (string, error) {
 // user profiles. Raw HTML such as <script>, <iframe>, and event handlers
 // (onerror, onload, ...) is removed while structural markup survives.
 func RenderSafe(src []byte) (string, error) {
-	var buf bytes.Buffer
-	if err := gold.Convert(src, &buf); err != nil {
-		return "", err
-	}
-	return Sanitize(buf.String())
+	out := parseAndRenderBlocks(src)
+	return Sanitize(out)
 }
 
 var absLinkRe = regexp.MustCompile(`(href|src)="/([^"]*)"`)
