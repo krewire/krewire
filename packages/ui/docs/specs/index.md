@@ -5,7 +5,7 @@ app/UI builder.
 
 | SpecID    | Title                                  | Status | Impl Status | Depends On |
 | --------- | -------------------------------------- | ------ | ----------- | ---------- |
-| [KWF-M4R8T](./KWF-COMP-M4R8T-forge-atomic-components.md) | Forge Atomic `.kiw` Component Library | Draft | Shipped | KWL-KIW-001 |
+| [KWF-M4R8T](https://github.com/krewire/krewire/issues/17) | Forge Atomic `.kiw` Component Library | Draft | Shipped | KWL-KIW-001 |
 
 ## Conventions
 
@@ -21,7 +21,7 @@ app/UI builder.
 ## Component Contract Summary
 
 The rules a new component must satisfy are in
-[KWF-M4R8T](./KWF-COMP-M4R8T-forge-atomic-components.md). The short version:
+[KWF-M4R8T](https://github.com/krewire/krewire/issues/17). The short version:
 
 - A component is one `.kiw` file in `components/`, embedded automatically.
 - It carries a `data-kiw-component="<Name>"` hook and its own `<style>` block.

@@ -5,8 +5,8 @@ and its Go module (`github.com/krewire/guild`).
 
 | SpecID    | Title                                                          | Status | Depends On |
 | --------- | -------------------------------------------------------------- | ------ | ---------- |
-| [KWG-P9ZT4](./KWG-INSTALL-P9ZT4-guild-module-install.md) | Guild Module & Install Library | Draft | — |
-| [KWG-K2N7Q](./KWG-ECO-K2N7Q-krewire-native-guild-template.md) | Krewire-Native Guild Template | Done | KWG-P9ZT4 |
+| [KWG-P9ZT4](https://github.com/krewire/krewire/issues/3) | Guild Module & Install Library | Draft | — |
+| [KWG-K2N7Q](https://github.com/krewire/krewire/issues/2) | Krewire-Native Guild Template | Done | KWG-P9ZT4 |
 
 ## Conventions
 
