@@ -7,7 +7,7 @@ Ordered by **impact-to-effort** (high impact, low effort first) and **dependency
 | SpecID    | Title                                      | Status | Depends On |
 | --------- | ------------------------------------------ | ------ | ---------- |
 | [KWN-Z0VFC](https://github.com/krewire/krewire/issues/24)      | Krewire Devtool — Initial Specification | Draft | — |
-| [KWN-6K41E](https://github.com/krewire/krewire/issues/30) | krewire run/dev/deploy              | Draft | KWN-Z0VFC |
+| [KWN-6K41E](https://github.com/krewire/krewire/issues/30) | kiw run/dev/deploy — Fullstack Project Commands | Done | KWN-Z0VFC |
 | [KWN-SCRIPT-9F3KQ](https://github.com/krewire/krewire/issues/32) | kiw Script Runner — `kiw run <task>` and `kiw run file.go` | Draft | KWN-6K41E, KWN-Q7X4M, KWN-Z0VFC |
 | [KWN-RD3WS](https://github.com/krewire/krewire/issues/31) | Project Scaffolding                  | Draft | KWN-Z0VFC |
 | [KWN-7QM2X](https://github.com/krewire/krewire/issues/28) | Init Project Variants                    | Draft | KWN-RD3WS |
@@ -16,8 +16,8 @@ Ordered by **impact-to-effort** (high impact, low effort first) and **dependency
 | [KWN-BNKJC](https://github.com/krewire/krewire/issues/26) | Project Information                  | Draft | KWN-Z0VFC |
 | [KWN-P0FWA](https://github.com/krewire/krewire/issues/33)  | Project Validation                   | Draft | KWN-Z0VFC |
 | [KWN-JB7PW](https://github.com/krewire/krewire/issues/27)   | Version Reporting                     | Draft | KWN-Z0VFC |
-| [KWN-MZ4LE](https://github.com/krewire/krewire/issues/25) | krewire guild install Command        | Draft | KWN-Z0VFC |
-| [KWN-Q3M8V](https://github.com/krewire/krewire/issues/34) | Workspace Command — Multi-Repo & Monorepo Workflows | Draft | KWN-Z0VFC |
+| [KWN-MZ4LE](https://github.com/krewire/krewire/issues/25) | kiw boost install Command (alias kiw guild install) | Done | KWN-Z0VFC |
+| [KWN-Q3M8V](https://github.com/krewire/krewire/issues/34) | Workspace Command — Multi-Repo & Monorepo Workflows | Done | KWN-Z0VFC |
 | [KWN-Q7X4M](https://github.com/krewire/krewire/issues/23) | Config Directory & Dotenv (provider → config/ → .env → krewire.yaml) | Draft | KWL-K4T7W, KWL-2X1QZ, KWN-RD3WS |
 | [KWN-CONF-MRCN](https://github.com/krewire/krewire/issues/22) | Multi-Runtime Unified Configuration | Draft | KWN-Q7X4M, KWN-RD3WS |
 | [KWN-L4RVE](https://github.com/krewire/krewire/issues/18) | Krewire × Laravel Coexistence & Integration | Draft | KWN-GUILD-MZ4LE, KWN-RD3WS, KWN-RUN-6K41E, KWF-L5H2F |
