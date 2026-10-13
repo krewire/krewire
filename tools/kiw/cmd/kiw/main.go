@@ -20,7 +20,7 @@ func main() {
 		Command(tui.NewCommand("init", "equip the project with a variant: monolith, --site, --book, --cli, or --template", commands.RegisterInit, commands.RunInit).WithGroup("project").WithExample("kiw init --site")).
 		Command(tui.NewCommand("build", "build the current project's website", commands.RegisterBuild, commands.RunBuild).WithGroup("build").WithExample("kiw build")).
 		Command(tui.NewCommand("serve", "preview the current project's website over HTTP", commands.RegisterServe, commands.RunServe).WithGroup("build").WithExample("kiw serve --port 3000")).
-		Command(tui.NewCommand("run", "build and run the current app, a Go file, or a task from krewire.yaml", commands.RegisterRun, commands.RunRun).WithGroup("develop").WithExample("kiw run [task|path/to/file.go] [-- args]")).
+		Command(tui.NewCommand("run", "build and run the current app, a Go file, or a task from krewire.yaml\n\nModes:\n  kiw run [args...]         build and run project app/cli binary\n  kiw run <file.go> [args]  execute standalone Go file with project environment\n  kiw run <task>            run a named task defined under scripts in krewire.yaml", commands.RegisterRun, commands.RunRun).WithGroup("develop").WithExample("kiw run [task|path/to/file.go] [-- args]")).
 		Command(tui.NewCommand("dev", "run the current app in dev mode with auto-restart", commands.RegisterDev, commands.RunDev).WithGroup("develop").WithExample("kiw dev")).
 		Command(tui.NewCommand("test", "run the tests of the current project", commands.RegisterTest, commands.RunTest).WithGroup("develop").WithExample("kiw test")).
 		Command(tui.NewCommand("vet", "run go vet and security audit on the current project", commands.RegisterVet, commands.RunVet).WithGroup("develop").WithExample("kiw vet --sec")).

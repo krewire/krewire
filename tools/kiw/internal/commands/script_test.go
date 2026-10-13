@@ -187,3 +187,23 @@ func TestIsGoFileArg(t *testing.T) {
 		}
 	}
 }
+
+// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-007 Scope: Module
+func TestKWN_SCR_007_InfoListsScripts(t *testing.T) {
+	dir := t.TempDir()
+	body := `title: Demo
+scripts:
+  build-all: "go build ./..."
+  test-unit: "go test ./..."
+`
+	if err := os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	chdir(t, dir)
+	fs := flag.NewFlagSet("info", flag.ContinueOnError)
+	code := RunInfo(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Errorf("RunInfo = %d want 0", code)
+	}
+}
+
