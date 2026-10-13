@@ -1,9 +1,14 @@
+// Tests for KWL-MARKDOWN-Q3N8P
 package commands
 
 import (
+	"flag"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/packages/web/ssg"
 	"github.com/krewire/mdbind/book"
 )
@@ -78,3 +83,66 @@ func TestWithoutAssetKeepsUnrelatedEntries(t *testing.T) {
 		t.Errorf("got %v, want the plan unchanged", got)
 	}
 }
+
+// Spec: KWL-MARKDOWN-Q3N8P KWL-MD-008 Scope: Integration
+func TestKWL_MD_008_ProgressiveBuild_BothManuscriptAndSSG(t *testing.T) {
+	dir := t.TempDir()
+	outDir := filepath.Join(dir, ".krewire", "build")
+
+	configContent := `
+name: test-progressive
+`
+	if err := os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte(configContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	layoutsDir := filepath.Join(dir, "layouts")
+	if err := os.MkdirAll(layoutsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(layoutsDir, "Base.kiw"), []byte("<html><head><title>{{.Title}}</title></head><body>{{.Content}}</body></html>\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	pagesDir := filepath.Join(dir, "pages")
+	if err := os.MkdirAll(pagesDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	pageContent := "---\ntitle: Home\nlayout: Base\n---\n<h1>Landing Page</h1>\n"
+	if err := os.WriteFile(filepath.Join(pagesDir, "index.kiw"), []byte(pageContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	bookDir := filepath.Join(dir, "manuscript")
+	if err := os.MkdirAll(bookDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(bookDir, "intro.md"), []byte("# Intro\nBook content here.\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	fs := flag.NewFlagSet("build", flag.ContinueOnError)
+	RegisterBuild(fs)
+
+	origWd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origWd)
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	code := RunBuild(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("RunBuild failed with exit code %v", code)
+	}
+
+	if _, err := os.Stat(filepath.Join(outDir, "index.html")); err != nil {
+		t.Errorf("expected ssg index.html in output: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "intro.html")); err != nil {
+		t.Errorf("expected book intro.html in output: %v", err)
+	}
+}
+
