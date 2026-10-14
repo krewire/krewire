@@ -204,8 +204,10 @@ var (
 	ParseSpecID        = spec.ParseSpecID
 	ParseRequirementID = spec.ParseRequirementID
 
-	MustParseVersion = version.MustParseVersion
-	ParseVersion     = version.ParseVersion
+	MustParseVersion            = version.MustParseVersion
+	ParseVersion                = version.ParseVersion
+	CheckEcosystemCompatibility = version.CheckEcosystemCompatibility
+	CheckCompatibility          = version.CheckCompatibility
 
 	ParseEnv      = env.ParseEnv
 	DefaultEnv    = env.DefaultEnv

@@ -125,3 +125,52 @@ func TestKWL_CORE_044_VersionLiterals(t *testing.T) {
 		t.Fatalf("CurrentVersion %q does not round-trip: %v", CurrentVersion.String(), err)
 	}
 }
+
+// Spec: KWL-CORE-K1N2Q KWL-CORE-043 Scope: Unit
+func TestKWL_CORE_043_CheckCompatibility(t *testing.T) {
+	actual := map[string]Version{
+		"core":   MustParseVersion("0.1.2"),
+		"mdbind": MustParseVersion("0.1.0"),
+		"kiw":    MustParseVersion("0.1.0"),
+	}
+
+	// Case 1: All satisfied
+	reqsGood := map[string]map[string]Version{
+		"kiw": {
+			"core":   MustParseVersion("0.1.0"),
+			"mdbind": MustParseVersion("0.1.0"),
+		},
+	}
+	if issues := CheckCompatibility(actual, reqsGood); len(issues) > 0 {
+		t.Fatalf("CheckCompatibility returned unexpected issues: %v", issues)
+	}
+	if err := CheckEcosystemCompatibility(reqsGood["kiw"], actual); err != nil {
+		t.Fatalf("CheckEcosystemCompatibility returned unexpected error: %v", err)
+	}
+
+	// Case 2: Incompatible version (minor mismatch in 0.x)
+	reqsBad := map[string]map[string]Version{
+		"kiw": {
+			"core": MustParseVersion("0.2.0"),
+		},
+	}
+	if issues := CheckCompatibility(actual, reqsBad); len(issues) != 1 {
+		t.Fatalf("CheckCompatibility expected 1 issue, got: %v", issues)
+	}
+	if err := CheckEcosystemCompatibility(reqsBad["kiw"], actual); err == nil {
+		t.Fatal("CheckEcosystemCompatibility expected error, got nil")
+	}
+
+	// Case 3: Missing dependency
+	reqsMissing := map[string]map[string]Version{
+		"kiw": {
+			"unknown": MustParseVersion("1.0.0"),
+		},
+	}
+	if issues := CheckCompatibility(actual, reqsMissing); len(issues) != 1 {
+		t.Fatalf("CheckCompatibility expected 1 missing issue, got: %v", issues)
+	}
+	if err := CheckEcosystemCompatibility(reqsMissing["kiw"], actual); err == nil {
+		t.Fatal("CheckEcosystemCompatibility expected missing module error, got nil")
+	}
+}

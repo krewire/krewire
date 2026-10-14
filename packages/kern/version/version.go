@@ -182,3 +182,37 @@ func (v Version) IsCompatible(required Version) bool {
 
 // CurrentVersion is the kern module's own version. Bump per release.
 var CurrentVersion = MustParseVersion("0.1.0")
+
+// CheckEcosystemCompatibility verifies that actual versions satisfy required versions,
+// returning the first compatibility error encountered (fail-fast).
+func CheckEcosystemCompatibility(required, actual map[string]Version) error {
+	for name, req := range required {
+		act, ok := actual[name]
+		if !ok {
+			return fmt.Errorf("module %q is required at %s but is not present", name, req)
+		}
+		if !act.IsCompatible(req) {
+			return fmt.Errorf("module %q version %s is not compatible with required %s", name, act, req)
+		}
+	}
+	return nil
+}
+
+// CheckCompatibility checks all consumer requirements against actual versions,
+// collecting and returning all compatibility issues.
+func CheckCompatibility(actual map[string]Version, reqs map[string]map[string]Version) []error {
+	var issues []error
+	for consumer, deps := range reqs {
+		for dep, required := range deps {
+			act, ok := actual[dep]
+			if !ok {
+				issues = append(issues, fmt.Errorf("%s requires %s@%s but %s is not in workspace", consumer, dep, required, dep))
+				continue
+			}
+			if !act.IsCompatible(required) {
+				issues = append(issues, fmt.Errorf("%s requires %s@%s, got %s", consumer, dep, required, act))
+			}
+		}
+	}
+	return issues
+}

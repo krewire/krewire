@@ -41,19 +41,7 @@ func RunCompat(_ *flag.FlagSet) kern.ExitCode {
 		reqs["mdbind"][string(k)] = kern.MustParseVersion(v.String())
 	}
 
-	var issues []error
-	for consumer, deps := range reqs {
-		for dep, required := range deps {
-			act, ok := actual[dep]
-			if !ok {
-				issues = append(issues, fmt.Errorf("%s requires %s@%s but %s is not in workspace", consumer, dep, required, dep))
-				continue
-			}
-			if !act.IsCompatible(required) {
-				issues = append(issues, fmt.Errorf("%s requires %s@%s, got %s", consumer, dep, required, act))
-			}
-		}
-	}
+	issues := kern.CheckCompatibility(actual, reqs)
 	if len(issues) == 0 {
 		fmt.Println("ok: all module version declarations are mutually compatible")
 		return kern.ExitCodeSuccess
