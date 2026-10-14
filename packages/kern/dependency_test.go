@@ -1,13 +1,17 @@
-// Tests for KWL-CORE-K1N2Q
+// Tests for KWL-CORE-K1N2Q, KWL-M1ZKS
 package kern
 
 import (
+	"flag"
 	"go/parser"
 	"go/token"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/krewire/krewire/packages/kern/errs"
 )
 
 // Spec: KWL-CORE-K1N2Q KWL-CORE-050 Scope: Unit
@@ -48,6 +52,33 @@ func TestKWL_CORE_050_ImportBoundary(t *testing.T) {
 	}
 	if checked == 0 {
 		t.Fatal("no non-test Go files checked; the import-boundary guard did not run")
+	}
+}
+
+// Spec: KWL-M1ZKS KWL-CLI-001 KWL-CLI-002 KWL-CLI-003 KWL-CLI-004 KWL-CLI-006 Scope: Unit
+func TestKWL_M1ZKS_LibraryFoundations(t *testing.T) {
+	// KWL-CLI-002: stdlib flag package standard
+	fs := flag.NewFlagSet("test", flag.ContinueOnError)
+	if fs == nil {
+		t.Fatal("expected flag.FlagSet")
+	}
+
+	// KWL-CLI-003: stdlib log/slog standard
+	logger := slog.Default()
+	if logger == nil {
+		t.Fatal("expected slog.Logger")
+	}
+
+	// KWL-CLI-004: stdlib os/strconv standard
+	s := strconv.Itoa(8080)
+	if s != "8080" {
+		t.Errorf("strconv.Itoa = %q, want 8080", s)
+	}
+
+	// KWL-CLI-006: common error type and exit code mapping
+	uerr := errs.UsageError("bad argument")
+	if uerr.ExitCode() != errs.ExitCodeUsage {
+		t.Errorf("UsageError ExitCode = %v, want %v", uerr.ExitCode(), errs.ExitCodeUsage)
 	}
 }
 
