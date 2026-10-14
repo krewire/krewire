@@ -1,3 +1,4 @@
+// Tests for KWL-P8W2N
 package errs
 
 import (
@@ -7,6 +8,7 @@ import (
 	"testing"
 )
 
+// Spec: KWL-P8W2N KWL-ERRV-008 Scope: Unit
 func TestWithAttrs(t *testing.T) {
 	base := errors.New("disk full")
 	wrapped := WithAttrs(WithStack(WithAttrs(base, Attr{Key: "path", Value: "/tmp/a.yaml"})), Attr{Key: "step", Value: "build"})
@@ -34,6 +36,7 @@ func TestWithAttrs(t *testing.T) {
 	}
 }
 
+// Spec: KWL-P8W2N KWL-ERRV-009 Scope: Unit
 func TestHintOf(t *testing.T) {
 	base := FailureError("config invalid")
 	deep := WithHint(base, "check project.kind in krewire.yaml")
@@ -53,6 +56,7 @@ func TestHintOf(t *testing.T) {
 	}
 }
 
+// Spec: KWL-P8W2N KWL-ERRV-010 Scope: Unit
 func TestFormatTree(t *testing.T) {
 	inner := errors.New("open krewire.yaml: no such file or directory")
 	err := WithStack(fmt.Errorf("cannot read config: %w",

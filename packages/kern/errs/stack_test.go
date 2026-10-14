@@ -1,3 +1,4 @@
+// Tests for KWL-P8W2N
 package errs
 
 import (
@@ -6,6 +7,7 @@ import (
 	"testing"
 )
 
+// Spec: KWL-P8W2N KWL-ERRV-001 KWL-ERRV-002 Scope: Unit
 func TestWithStack(t *testing.T) {
 	if WithStack(nil) != nil {
 		t.Error("WithStack(nil) should be nil")
@@ -28,5 +30,20 @@ func TestWithStack(t *testing.T) {
 	}
 	if StackOf(base) != nil {
 		t.Error("StackOf(unstacked) should be nil")
+	}
+}
+
+// Spec: KWL-P8W2N KWL-ERRV-003 Scope: Package
+func TestWithStack_DoubleWrap(t *testing.T) {
+	base := errors.New("root failure")
+	stacked1 := WithStack(base)
+	stacked2 := WithStack(stacked1)
+
+	frames := StackOf(stacked2)
+	if len(frames) == 0 {
+		t.Fatal("StackOf returned 0 frames on double stacked error")
+	}
+	if !errors.Is(stacked2, base) {
+		t.Error("errors.Is failed on double stacked error")
 	}
 }
