@@ -38,6 +38,11 @@ jobs:
         run: |
           test -z "$(gofmt -l .)"
 
+      - name: Verify Module Checksums (go mod verify)
+        working-directory: krewire
+        run: |
+          go mod verify
+
       - name: Vet All Packages
         working-directory: krewire
         run: |

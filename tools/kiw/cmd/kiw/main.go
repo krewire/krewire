@@ -23,7 +23,7 @@ func main() {
 		Command(tui.NewCommand("run", "build and run the current app, a Go file, or a task from krewire.yaml\n\nModes:\n  kiw run [args...]         build and run project app/cli binary\n  kiw run <file.go> [args]  execute standalone Go file with project environment\n  kiw run <task>            run a named task defined under scripts in krewire.yaml", commands.RegisterRun, commands.RunRun).WithGroup("develop").WithExample("kiw run [task|path/to/file.go] [-- args]")).
 		Command(tui.NewCommand("dev", "run the current app in dev mode with auto-restart", commands.RegisterDev, commands.RunDev).WithGroup("develop").WithExample("kiw dev")).
 		Command(tui.NewCommand("test", "run the tests of the current project", commands.RegisterTest, commands.RunTest).WithGroup("develop").WithExample("kiw test")).
-		Command(tui.NewCommand("vet", "run go vet and security audit on the current project", commands.RegisterVet, commands.RunVet).WithGroup("develop").WithExample("kiw vet --sec")).
+		Command(tui.NewCommand("vet", "run go vet, security posture audit, and vulnerability checks", commands.RegisterVet, commands.RunVet).WithGroup("develop").WithExample("kiw vet --sec --vuln")).
 		Command(tui.NewCommand("fmt", "check formatting with gofmt/go fmt", commands.RegisterFmt, commands.RunFmt).WithGroup("develop").WithExample("kiw fmt --write")).
 		Command(tui.NewCommand("add", "add a package or plugin (package@version, @latest for latest)", commands.RegisterAdd, commands.RunAdd).WithGroup("project").WithExample("kiw add twcss@latest")).
 		Command(tui.NewCommand("remove", "remove a package or plugin", commands.RegisterRemove, commands.RunRemove).WithGroup("project").WithExample("kiw remove twcss")).

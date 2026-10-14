@@ -1,0 +1,43 @@
+name: Security & Vulnerability Audit
+
+on:
+  schedule:
+    # Run every Monday at 02:00 UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  govulncheck:
+    name: Continuous Vulnerability Audit (govulncheck)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout krewire
+        uses: actions/checkout@v4
+        with:
+          path: krewire
+
+      - name: Checkout mdbind sibling
+        uses: actions/checkout@v4
+        with:
+          repository: krewire/mdbind
+          path: mdbind
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+          check-latest: true
+
+      - name: Verify Module Checksums
+        working-directory: krewire
+        run: |
+          go mod verify
+
+      - name: Install govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Run govulncheck
+        working-directory: krewire
+        run: |
+          govulncheck ./...

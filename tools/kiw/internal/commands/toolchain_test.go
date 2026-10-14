@@ -1,7 +1,8 @@
-// Tests for KWN-TEST-P0FWA
+// Tests for KWN-TEST-P0FWA and KWL-L0-GOVUL
 package commands
 
 import (
+	"flag"
 	"os"
 	"path/filepath"
 	"testing"
@@ -213,5 +214,41 @@ func TestSimpleFail(t *testing.T) {
 	code := RunTest(nil)
 	if code != kern.ExitCodeFailure {
 		t.Fatalf("got exit code %v, want ExitCodeFailure (1)", code)
+	}
+}
+
+// Spec: KWL-L0-GOVUL REQ-L0-011 Scope: Service
+func TestKWL_L0_GOVUL_REQ_L0_011_RunVetVuln(t *testing.T) {
+	orig, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+
+	goMod := "module example.com/testvuln\n\ngo 1.27.1\n"
+	if err := os.WriteFile(filepath.Join(tmp, "go.mod"), []byte(goMod), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	mainCode := `package main
+
+func main() {}
+`
+	if err := os.WriteFile(filepath.Join(tmp, "main.go"), []byte(mainCode), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.Chdir(tmp); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(orig) }()
+
+	fs := flag.NewFlagSet("vet", flag.ContinueOnError)
+	RegisterVet(fs)
+	_ = fs.Set("vuln", "true")
+
+	code := RunVet(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("got exit code %v, want ExitCodeSuccess (0)", code)
 	}
 }

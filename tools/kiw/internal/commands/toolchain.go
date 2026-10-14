@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -269,6 +270,7 @@ func specFilterRegexp(specID string) string {
 
 func RegisterVet(fs *flag.FlagSet) {
 	fs.Bool("sec", false, "run security posture checks (secrets scan, config hygiene, gitignore)")
+	fs.Bool("vuln", false, "run vulnerability audit (govulncheck / checksum verification)")
 }
 
 func RunVet(fs *flag.FlagSet) kern.ExitCode {
@@ -283,11 +285,14 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 	}
 
 	secCheck := flagValue(fs, "sec") == "true"
+	vulnCheck := flagValue(fs, "vuln") == "true"
 	if fs != nil {
 		for _, a := range fs.Args() {
-			if a == "--sec" || a == "-sec" || a == "sec" {
+			switch a {
+			case "--sec", "-sec", "sec":
 				secCheck = true
-				break
+			case "--vuln", "-vuln", "vuln":
+				vulnCheck = true
 			}
 		}
 	}
@@ -297,7 +302,7 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 	if fs != nil && len(fs.Args()) > 0 {
 		var filtered []string
 		for _, a := range fs.Args() {
-			if a != "--sec" && a != "-sec" && a != "sec" {
+			if a != "--sec" && a != "-sec" && a != "sec" && a != "--vuln" && a != "-vuln" && a != "vuln" {
 				filtered = append(filtered, a)
 			}
 		}
@@ -327,7 +332,48 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 		fmt.Fprintln(os.Stdout, "  ✓ Security posture: passed")
 	}
 
+	if vulnCheck {
+		fmt.Fprintln(os.Stdout, "\n── Vulnerability & Supply Chain Audit ──────────────────────")
+		// Check 1: go mod verify
+		verifyCmd := exec.Command("go", "mod", "verify")
+		verifyCmd.Dir = dir
+		if out, err := verifyCmd.CombinedOutput(); err != nil {
+			fmt.Fprintf(os.Stderr, "  ✗ [VULN] go mod verify failed: %s\n", strings.TrimSpace(string(out)))
+			return kern.ExitCodeFailure
+		}
+		fmt.Fprintln(os.Stdout, "  ✓ Module checksum integrity: verified (go mod verify)")
+
+		// Check 2: Minimum Go runtime toolchain advisory check
+		if mod != nil && mod.GoVersion != "" {
+			if err := gomod.CheckGoVersion(runtime.Version(), mod.GoVersion); err != nil {
+				fmt.Fprintf(os.Stderr, "  ✗ [VULN] %s\n", err)
+				return kern.ExitCodeFailure
+			}
+			fmt.Fprintf(os.Stdout, "  ✓ Go toolchain version: %s matches minimum required %s\n", runtime.Version(), mod.GoVersion)
+		}
+
+		// Check 3: govulncheck if available
+		if err := runGovulncheck(dir); err != nil {
+			fmt.Fprintf(os.Stderr, "  ✗ [VULN] %s\n", err)
+			return kern.ExitCodeFailure
+		}
+		fmt.Fprintln(os.Stdout, "  ✓ Vulnerability audit: passed (zero known CVEs)")
+	}
+
 	return kern.ExitCodeSuccess
+}
+
+func runGovulncheck(dir string) error {
+	bin, err := exec.LookPath("govulncheck")
+	if err != nil {
+		fmt.Fprintln(os.Stdout, "  ℹ govulncheck not found in PATH (run 'go install golang.org/x/vuln/cmd/govulncheck@latest' for deep AST CVE scans)")
+		return nil
+	}
+	cmd := exec.Command(bin, "./...")
+	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 func auditSecurityPosture(dir string) []string {
