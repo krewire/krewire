@@ -55,29 +55,100 @@ krewire/
 
 ## 3. Layering Invariants & Dependency Rules
 
-The monorepo enforces **strict downward-only dependencies** (`KWL-LAYER-001`, verified in [`layering_test.go`](../../packages/kern/layering_test.go)):
+The Krewire architecture strictly enforces a **topological Directed Acyclic Graph (DAG)** where import dependencies may **only point strictly downward**. Lateral coupling between distinct domains is minimized, and upward imports are strictly prohibited.
 
-```text
-templates/boost (Guild)
-       │
-       ▼
-tools/kiw (CLI)
-       │
-       ▼
-packages/* (Domain Packages)
-       │
-       ▼
-packages/kern (Kernel Executor & Model)
-       │
-       ▼
-Go Standard Library
+---
+
+### 3.1. Architectural Tier Hierarchy
+
+```mermaid
+flowchart TD
+    subgraph T5 ["Tier 5: Scaffolding & Agentic Blueprints"]
+        Templates["templates/boost, templates/init, templates/new"]
+    end
+
+    subgraph T4 ["Tier 4: Unified Developer Tooling"]
+        KiwCLI["tools/kiw (CLI Binary)"]
+    end
+
+    subgraph T3 ["Tier 3: Modular Domain Libraries"]
+        WebRuntime["web, runtime, ui, tui"]
+        SecuritySys["sec, auth, config, validation, storage, fs, file"]
+        PlatformUtil["cloud, testing, hub, resilience, markdown, i18n"]
+    end
+
+    subgraph T2 ["Tier 2: Kernel Execution & Supervision"]
+        KernLifecycle["packages/kern (Lifecycle, Supervisor, Env, Log)"]
+    end
+
+    subgraph T1 ["Tier 1: Declarative Core & Domain Invariants"]
+        KernModel["packages/kern/model, packages/kern/errs"]
+    end
+
+    subgraph T0 ["Tier 0: Platform Foundation"]
+        StdLib["Go Standard Library (1.27.1+)"]
+    end
+
+    Templates --> KiwCLI
+    Templates --> T3
+    KiwCLI --> T3
+    KiwCLI --> T2
+    KiwCLI --> T1
+    WebRuntime --> KernLifecycle
+    SecuritySys --> KernLifecycle
+    PlatformUtil --> KernLifecycle
+    KernLifecycle --> KernModel
+    KernModel --> StdLib
 ```
 
-### Layering Rules:
-1. **Kern is the Floor (`KWL-LAYER-002`):** `packages/kern` sits at layer 0. It requires no other ecosystem module. `packages/kern/model` imports exclusively from standard library packages and its internal `errs` package.
-2. **No Upward or Lateral Leaks:** No package or library may ever import `tools/kiw`. Domain packages (`packages/*`) may only import downwards.
-3. **No Ecosystem Names in Kernel (`KERN-LAYER-001`):** The kernel must never hardcode ecosystem module names or paths in constants, lookup tables, or strings. The module roster is dynamically derived from `go.work` and module metadata to ensure true zero-friction scalability.
-4. **CLI Reuses Packages:** `tools/kiw` imports domain packages directly (e.g. `packages/hub/resolver`, `packages/tui`). Logic is never duplicated between CLI and domain packages.
+---
+
+### 3.2. Tier Definitions & Allowable Edges
+
+| Tier | Tier Name | Module Scope | Allowed Imports | Strictly Prohibited Imports |
+|---|---|---|---|---|
+| **Tier 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Tiers 0, 1, 2, 3, 4 | External project application code |
+| **Tier 4** | Developer Tooling | `tools/kiw` | Tiers 0, 1, 2, 3 | Tier 5, Consumer application binaries |
+| **Tier 3** | Domain Libraries | `packages/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Tiers 0, 1, 2, Sibling Tier 3 (strictly acyclic) | Tiers 4, 5 (`tools/kiw` or `templates/*`) |
+| **Tier 2** | Kernel Execution & Supervision | `packages/kern` (`lifecycle`, `supervisor`, `env`, `log`) | Tiers 0, 1 | Tiers 3, 4, 5 (Zero domain package imports) |
+| **Tier 1** | Declarative Core Foundation | `packages/kern/model`, `packages/kern/errs` | Tier 0 (Stdlib only) | Tiers 2, 3, 4, 5, Third-party packages |
+| **Tier 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
+
+---
+
+### 3.3. The Six Core Layering Invariants
+
+The monorepo enforces six non-negotiable architectural invariants via automated test guards:
+
+#### Invariant 1: Downward-Only Directionality (`KWL-LAYER-001`)
+- **Rule:** For any package import edge $A \rightarrow B$, the architectural tier of $A$ must be strictly greater than $B$ ($Tier(A) > Tier(B)$), or within Tier 3 where $A$ and $B$ form a strictly acyclic dependency.
+- **Rationale:** Prevents circular dependencies, simplifies mental models, and ensures leaf packages can be compiled, benchmarked, and audited in total isolation.
+- **Enforcement:** Verified via AST analysis in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go#L202) (`TestKWL_LAYER_001_DownwardImportsOnly`).
+
+#### Invariant 2: Kernel Floor Invariant (`KWL-LAYER-002`)
+- **Rule:** `packages/kern` sits at the floor of the ecosystem dependency graph ($Depth(\text{kern}) = 0$ above stdlib). It requires no other ecosystem module.
+- **Rationale:** If the kernel depended on a domain package (such as `web` or `config`), every package in the ecosystem would transitively drag those dependencies along, destroying modularity.
+- **Enforcement:** Verified in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go#L240) (`TestKWL_LAYER_002_KernIsTheFloor`).
+
+#### Invariant 3: Zero-Ecosystem Coupling in Kernel (`KERN-LAYER-001`)
+- **Rule:** The kernel must contain **zero** references, string literals, or constants naming higher-layer modules or packages (`github.com/krewire/*`).
+- **Rationale:** True scalability requires that adding a new package to `packages/` never requires a corresponding code edit in `packages/kern`. The ecosystem roster is derived dynamically at runtime from `go.work` and module descriptors.
+- **Enforcement:** Verified via AST literal inspection in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go#L265) (`TestKERN_LAYER_001_NoEcosystemNames`).
+
+#### Invariant 4: Hermetic Core Boundary (`KWL-CORE-050`)
+- **Rule:** `packages/kern/model` may import **only** the Go standard library and its internal `errs` sibling. It must never import external third-party dependencies or other Krewire packages.
+- **Rationale:** Ensures that business models, workload definitions, and scope hierarchies are 100% portable, pure, and immune to third-party vulnerability churn.
+- **Enforcement:** Verified in [`packages/kern/dependency_test.go`](../../packages/kern/dependency_test.go#L18) (`TestKWL_CORE_050_ImportBoundary`).
+
+#### Invariant 5: Complete Tooling Isolation (No `kiw` Imports)
+- **Rule:** No package under `packages/` or `templates/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
+- **Rationale:** Developer tooling consumes domain libraries; libraries never consume developer tooling. Logic needed by both must reside in a domain package (e.g. `packages/hub/resolver`, `packages/tui`), never inside CLI commands.
+- **Enforcement:** Enforced at compile time and validated during package build pipelines.
+
+#### Invariant 6: Opt-In Battery Boundaries (`OptInRule`)
+- **Rule:** Packages classified as specialized batteries for a specific workload kind (e.g. `cloud/worker`, `web/ssg`) are blocked from uninvited cross-import by non-owning kinds unless explicitly opted in.
+- **Rationale:** Guarantees that lightweight workloads (such as `cli` or `kernel`) incur zero binary weight or initialization cost from features they do not use.
+- **Enforcement:** Enforced via declarative opt-in policies in [`packages/kern/model/project.go`](../../packages/kern/model/project.go#L82) (`ViolatesOptIn`).
 
 ---
 
