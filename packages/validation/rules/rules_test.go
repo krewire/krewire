@@ -1,3 +1,4 @@
+// Tests for KWL-LHANF
 package rules
 
 import (
@@ -11,6 +12,7 @@ func str(s string) reflect.Value { return reflect.ValueOf(s) }
 // num returns a reflect.Value for the given int, used by numeric rules.
 func num(i int) reflect.Value { return reflect.ValueOf(i) }
 
+// Spec: KWL-LHANF VAL-RL-001 VAL-OR-001 Scope: Unit
 // TestRULES_001_Required verifies the zero-value semantics for each kind a
 // required check must treat as absent.
 func TestRULES_001_Required(t *testing.T) {
@@ -41,6 +43,7 @@ func TestRULES_001_Required(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-002 VAL-OR-001 Scope: Unit
 // TestRULES_002_Min verifies the bound applies to numbers and to the length of
 // strings, slices, arrays, and maps.
 func TestRULES_002_Min(t *testing.T) {
@@ -74,6 +77,7 @@ func TestRULES_002_Min(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-002 VAL-ER-005 Scope: Unit
 // TestRULES_003_MinRejectsBadInput verifies a non-numeric bound and an
 // unsupported kind are reported rather than silently passing.
 func TestRULES_003_MinRejectsBadInput(t *testing.T) {
@@ -85,6 +89,7 @@ func TestRULES_003_MinRejectsBadInput(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-002 VAL-OR-001 Scope: Unit
 // TestRULES_004_Max mirrors the min coverage for the upper bound.
 func TestRULES_004_Max(t *testing.T) {
 	for _, tc := range []struct {
@@ -122,6 +127,7 @@ func TestRULES_004_Max(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-003 VAL-OR-001 Scope: Unit
 // TestRULES_005_Len verifies the exact-length rule across the kinds it supports
 // and that unsupported kinds are rejected.
 func TestRULES_005_Len(t *testing.T) {
@@ -156,6 +162,7 @@ func TestRULES_005_Len(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-004 VAL-OR-001 Scope: Unit
 // TestRULES_006_Email verifies address parsing and the string-kind guard.
 func TestRULES_006_Email(t *testing.T) {
 	for _, ok := range []string{"user@example.com", "first.last+tag@sub.example.co.uk"} {
@@ -183,6 +190,7 @@ func TestRULES_006_Email(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-006 VAL-OR-001 Scope: Unit
 // TestRULES_007_Oneof verifies membership testing for strings, signed and
 // unsigned integers, plus the guards for an empty option list and a bad kind.
 func TestRULES_007_Oneof(t *testing.T) {
@@ -217,6 +225,7 @@ func TestRULES_007_Oneof(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-005 VAL-OR-001 Scope: Unit
 // TestRULES_008_Pattern verifies anchored matching, the string-kind guard, the
 // compile-error path, and that the compiled-pattern cache is reused.
 func TestRULES_008_Pattern(t *testing.T) {
@@ -239,6 +248,7 @@ func TestRULES_008_Pattern(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-ER-005 Scope: Unit
 // TestRULES_009_Registry verifies name dispatch, the unknown-rule error, and that
 // Register installs a custom evaluator.
 func TestRULES_009_Registry(t *testing.T) {
@@ -255,6 +265,7 @@ func TestRULES_009_Registry(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-OR-001 Scope: Unit
 // TestRULES_010_Helpers covers the internal length and zero-value helpers
 // directly, including the kinds they must decline.
 func TestRULES_010_Helpers(t *testing.T) {

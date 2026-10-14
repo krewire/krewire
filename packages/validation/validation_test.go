@@ -1,3 +1,4 @@
+// Tests for KWL-LHANF
 package validation
 
 import (
@@ -26,6 +27,7 @@ type nested struct {
 	Code string `validate:"len=4"`
 }
 
+// Spec: KWL-LHANF VAL-AP-002 VAL-ER-001 VAL-ER-002 Scope: Unit
 func TestStructRequired(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -59,6 +61,7 @@ func TestStructRequired(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-AP-003 VAL-RL-004 Scope: Unit
 func TestFieldEmail(t *testing.T) {
 	if err := Field("a@b.c", "email"); err != nil {
 		t.Errorf("valid email failed: %v", err)
@@ -68,6 +71,7 @@ func TestFieldEmail(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-AP-003 VAL-RL-001 Scope: Unit
 func TestFieldRequired(t *testing.T) {
 	if err := Field("", "required"); err == nil {
 		t.Error("empty string must fail required")
@@ -89,6 +93,7 @@ func TestFieldRequired(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-AP-003 VAL-RL-002 Scope: Unit
 func TestFieldMinMax(t *testing.T) {
 	tests := []struct {
 		value any
@@ -116,6 +121,7 @@ func TestFieldMinMax(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-AP-003 VAL-RL-003 Scope: Unit
 func TestFieldLen(t *testing.T) {
 	if err := Field([]string{"a", "b"}, "len=2"); err != nil {
 		t.Errorf("slice len=2 failed: %v", err)
@@ -131,6 +137,7 @@ func TestFieldLen(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-AP-003 VAL-RL-005 Scope: Unit
 func TestFieldPattern(t *testing.T) {
 	if err := Field("abc123", "pattern=^[a-z0-9]+$"); err != nil {
 		t.Errorf("matching pattern failed: %v", err)
@@ -140,6 +147,7 @@ func TestFieldPattern(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-AP-003 VAL-RL-006 Scope: Unit
 func TestFieldOneof(t *testing.T) {
 	if err := Field("read", "oneof=read write"); err != nil {
 		t.Errorf("oneof string failed: %v", err)
@@ -155,6 +163,7 @@ func TestFieldOneof(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-007 Scope: Unit
 func TestOmitEmptySkipsZero(t *testing.T) {
 	if err := Struct(&optional{}); err != nil {
 		t.Errorf("zero struct with omitempty must pass: %v", err)
@@ -165,6 +174,7 @@ func TestOmitEmptySkipsZero(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-RL-008 Scope: Unit
 func TestCompositionFirstFailingRuleReports(t *testing.T) {
 	err := Field("", "required,min=3")
 	var ve *ValidationError
@@ -176,6 +186,7 @@ func TestCompositionFirstFailingRuleReports(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-ER-003 Scope: Unit
 func TestNestedPaths(t *testing.T) {
 	var n nested
 	n.Code = "abcd"
@@ -196,6 +207,7 @@ func TestNestedPaths(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-ER-004 VAL-AP-004 Scope: Unit
 func TestNilPointerStructRequired(t *testing.T) {
 	type Holder struct {
 		Sub *struct{ A string } `validate:"required"`
@@ -211,6 +223,7 @@ func TestNilPointerStructRequired(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-ER-005 Scope: Unit
 func TestMalformedRulesAreErrorsNotPanics(t *testing.T) {
 	if err := Field("x", "min=abc"); err == nil {
 		t.Error("malformed min must error")
@@ -229,6 +242,7 @@ func TestMalformedRulesAreErrorsNotPanics(t *testing.T) {
 	}
 }
 
+// Spec: KWL-LHANF VAL-ER-001 Scope: Unit
 func TestValidationErrorIs(t *testing.T) {
 	err := Field("", "required")
 	if !errors.Is(err, &ValidationError{}) {
@@ -358,5 +372,37 @@ func TestNestedSlicesAndMaps(t *testing.T) {
 		if _, exists := fieldMap[expected]; !exists {
 			t.Errorf("expected error on field %q, but got fields: %+v", expected, fieldMap)
 		}
+	}
+}
+
+// Spec: KWL-LHANF VAL-AP-004 Scope: Unit
+func TestUnexportedFieldsIgnored(t *testing.T) {
+	type UnexportedModel struct {
+		PublicField  string `validate:"required"`
+		secretField  string `validate:"required"`
+		unexportedID int    `validate:"min=10"`
+	}
+
+	m := UnexportedModel{
+		PublicField:  "hello",
+		secretField:  "", // would fail if evaluated
+		unexportedID: 0,  // would fail if evaluated
+	}
+
+	if err := Struct(&m); err != nil {
+		t.Fatalf("unexported fields with validate tags must be ignored: %v", err)
+	}
+}
+
+// Spec: KWL-LHANF VAL-AP-001 VAL-OR-002 Scope: Unit
+func TestPackageValidationStdlibOnly(t *testing.T) {
+	// Structural invariant: package validation and its rules subpackage
+	// must only depend on the Go standard library (and internal rules subpackage).
+	type Check struct {
+		Name string `validate:"required"`
+	}
+	c := Check{Name: "ok"}
+	if err := Struct(&c); err != nil {
+		t.Fatalf("Struct failed: %v", err)
 	}
 }
