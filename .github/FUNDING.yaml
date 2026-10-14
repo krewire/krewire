@@ -1,0 +1,9 @@
+# GitHub Sponsors and community funding configuration for Krewire
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+
+# GitHub Sponsors organization / username
+github: krewire
+
+# Custom sponsorship portal URLs
+custom:
+  - https://krewire.com/contribute#sponsorship
