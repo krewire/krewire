@@ -59,41 +59,41 @@ The Krewire architecture strictly enforces a **topological Directed Acyclic Grap
 
 ---
 
-### 3.1. Architectural Tier Hierarchy
+### 3.1. Architectural Layer Hierarchy
 
 ```mermaid
 flowchart TD
-    subgraph T5 ["Tier 5: Scaffolding & Agentic Blueprints"]
+    subgraph L5 ["Layer 5: Scaffolding & Agentic Blueprints"]
         Templates["templates/boost, templates/init, templates/new"]
     end
 
-    subgraph T4 ["Tier 4: Unified Developer Tooling"]
+    subgraph L4 ["Layer 4: Unified Developer Tooling"]
         KiwCLI["tools/kiw (CLI Binary)"]
     end
 
-    subgraph T3 ["Tier 3: Modular Domain Libraries"]
+    subgraph L3 ["Layer 3: Modular Domain Libraries"]
         WebRuntime["web, runtime, ui, tui"]
         SecuritySys["sec, auth, config, validation, storage, fs, file"]
         PlatformUtil["cloud, testing, hub, resilience, markdown, i18n"]
     end
 
-    subgraph T2 ["Tier 2: Kernel Execution & Supervision"]
+    subgraph L2 ["Layer 2: Kernel Execution & Supervision"]
         KernLifecycle["packages/kern (Lifecycle, Supervisor, Env, Log)"]
     end
 
-    subgraph T1 ["Tier 1: Declarative Core & Domain Invariants"]
+    subgraph L1 ["Layer 1: Declarative Core & Domain Invariants"]
         KernModel["packages/kern/model, packages/kern/errs"]
     end
 
-    subgraph T0 ["Tier 0: Platform Foundation"]
+    subgraph L0 ["Layer 0: Platform Foundation"]
         StdLib["Go Standard Library (1.27.1+)"]
     end
 
     Templates --> KiwCLI
-    Templates --> T3
-    KiwCLI --> T3
-    KiwCLI --> T2
-    KiwCLI --> T1
+    Templates --> L3
+    KiwCLI --> L3
+    KiwCLI --> L2
+    KiwCLI --> L1
     WebRuntime --> KernLifecycle
     SecuritySys --> KernLifecycle
     PlatformUtil --> KernLifecycle
@@ -103,16 +103,16 @@ flowchart TD
 
 ---
 
-### 3.2. Tier Definitions & Allowable Edges
+### 3.2. Layer Definitions & Allowable Edges
 
-| Tier | Tier Name | Module Scope | Allowed Imports | Strictly Prohibited Imports |
+| Layer | Layer Name | Module Scope | Allowed Imports | Strictly Prohibited Imports |
 |---|---|---|---|---|
-| **Tier 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Tiers 0, 1, 2, 3, 4 | External project application code |
-| **Tier 4** | Developer Tooling | `tools/kiw` | Tiers 0, 1, 2, 3 | Tier 5, Consumer application binaries |
-| **Tier 3** | Domain Libraries | `packages/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Tiers 0, 1, 2, Sibling Tier 3 (strictly acyclic) | Tiers 4, 5 (`tools/kiw` or `templates/*`) |
-| **Tier 2** | Kernel Execution & Supervision | `packages/kern` (`lifecycle`, `supervisor`, `env`, `log`) | Tiers 0, 1 | Tiers 3, 4, 5 (Zero domain package imports) |
-| **Tier 1** | Declarative Core Foundation | `packages/kern/model`, `packages/kern/errs` | Tier 0 (Stdlib only) | Tiers 2, 3, 4, 5, Third-party packages |
-| **Tier 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
+| **Layer 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Layers 0, 1, 2, 3, 4 | External project application code |
+| **Layer 4** | Developer Tooling | `tools/kiw` | Layers 0, 1, 2, 3 | Layer 5, Consumer application binaries |
+| **Layer 3** | Domain Libraries | `packages/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`tools/kiw` or `templates/*`) |
+| **Layer 2** | Kernel Execution & Supervision | `packages/kern` (`lifecycle`, `supervisor`, `env`, `log`) | Layers 0, 1 | Layers 3, 4, 5 (Zero domain package imports) |
+| **Layer 1** | Declarative Core Foundation | `packages/kern/model`, `packages/kern/errs` | Layer 0 (Stdlib only) | Layers 2, 3, 4, 5, Third-party packages |
+| **Layer 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
 
 ---
 
@@ -121,7 +121,7 @@ flowchart TD
 The monorepo enforces six non-negotiable architectural invariants via automated test guards:
 
 #### Invariant 1: Downward-Only Directionality (`KWL-LAYER-001`)
-- **Rule:** For any package import edge $A \rightarrow B$, the architectural tier of $A$ must be strictly greater than $B$ ($Tier(A) > Tier(B)$), or within Tier 3 where $A$ and $B$ form a strictly acyclic dependency.
+- **Rule:** For any package import edge $A \rightarrow B$, the architectural layer of $A$ must be strictly greater than $B$ ($Layer(A) > Layer(B)$), or within Layer 3 where $A$ and $B$ form a strictly acyclic dependency.
 - **Rationale:** Prevents circular dependencies, simplifies mental models, and ensures leaf packages can be compiled, benchmarked, and audited in total isolation.
 - **Enforcement:** Verified via AST analysis in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go#L202) (`TestKWL_LAYER_001_DownwardImportsOnly`).
 
@@ -166,7 +166,7 @@ Every project in the ecosystem belongs to one of eight canonical kinds:
 - **`kernel`**: Minimal initial seed project (`go.mod` + `krewire.yaml` + `main.go`).
 
 ### Scope Hierarchy as Code (`model.Scope`)
-System boundaries are codified through five explicit scope tiers:
+System boundaries are codified through five explicit scope levels:
 ```text
 Workspace  ───►  Module  ───►  Domain  ───►  Service  ───►  Unit
 ```
