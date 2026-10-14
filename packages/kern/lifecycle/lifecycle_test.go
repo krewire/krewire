@@ -1,3 +1,4 @@
+// Tests for KWL-KERN-X8P3L
 package lifecycle
 
 import (
@@ -21,6 +22,7 @@ func (m testModule) Init(k *Kernel) error {
 	return nil
 }
 
+// Spec: KWL-KERN-X8P3L KWL-KERN-010 Scope: Unit
 func TestNewValidatesProject(t *testing.T) {
 	_, err := New(model.Project{Name: "", Kind: model.KindApp})
 	if err == nil {
@@ -32,6 +34,7 @@ func TestNewValidatesProject(t *testing.T) {
 	}
 }
 
+// Spec: KWL-KERN-X8P3L KWL-KERN-002 KWL-KERN-003 Scope: Unit
 func TestRegistryDuplicate(t *testing.T) {
 	r := NewRegistry()
 	if err := r.Register(testModule{name: "a"}); err != nil {
@@ -42,6 +45,7 @@ func TestRegistryDuplicate(t *testing.T) {
 	}
 }
 
+// Spec: KWL-KERN-X8P3L KWL-KERN-001 KWL-KERN-011 KWL-KERN-012 KWL-KERN-020 Scope: Unit
 func TestKernelBootAndExecute(t *testing.T) {
 	k, _ := New(model.Project{Name: "demo", Kind: model.KindApp})
 	called := false
@@ -69,6 +73,7 @@ func TestKernelBootAndExecute(t *testing.T) {
 	}
 }
 
+// Spec: KWL-KERN-X8P3L KWL-KERN-021 KWL-KERN-022 KWL-KERN-023 Scope: Unit
 func TestSupervisor(t *testing.T) {
 	s := NewSupervisor()
 	hit := false
