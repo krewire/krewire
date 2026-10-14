@@ -1,5 +1,3 @@
-// Tests for KWF-AI7Q2 automatic asset injection (FRK-AS-050..073).
-// Spec: KWF-AI7Q2. Scope: Framework — Web — SSG — Assets.
 package ssg
 
 import (
@@ -192,33 +190,59 @@ func TestAutoInjectNoAssetsLeavesDocumentClean(t *testing.T) {
 	}
 }
 
-func TestDebugKrewireGithubIo(t *testing.T) {
-	s, err := LoadFromDir("/home/reasvyn/workspace/krewire/krewire.github.io")
-	if err != nil {
-		t.Fatal(err)
+// A site mounted under a URL base prefixes every injected asset URL with it,
+// so a sub-path deployment (e.g. "/guide/") links its own assets instead of
+// colliding with the root site's "/assets/...".
+func TestAutoInjectPrefixesBasePath(t *testing.T) {
+	page := renderIndex(t, bareSite().
+		WithBasePath("/guide/").
+		Asset("assets/site.css", `body{margin:0}`).
+		Asset("assets/site.js", `console.log(1)`))
+	for _, want := range []string{
+		`<link rel="stylesheet" href="/guide/assets/style.css?v=1.2.3"/>`,
+		`<link rel="stylesheet" href="/guide/assets/site.css?v=1.2.3"/>`,
+		`<script src="/guide/assets/site.js?v=1.2.3"></script>`,
+	} {
+		if !strings.Contains(page, want) {
+			t.Errorf("page missing base-prefixed %s\n%s", want, page)
+		}
 	}
-	t.Logf("auto.enabled: %v", s.auto.enabled)
-	css, js := s.autoAssetSet()
-	t.Logf("autoAssetSet css: %v, js: %v", css, js)
-	t.Logf("assets count: %d", len(s.assets))
-	for k := range s.assets {
-		t.Logf("asset in s.assets: %s", k)
+	if strings.Contains(page, `href="/assets/site.css`) {
+		t.Errorf("unprefixed asset leaked into base-mounted page: %s", page)
 	}
-	p := s.plan()
-	for _, a := range p {
-		t.Logf("plan item: %+v", a)
+}
+
+// The asset helper resolves through the same base-prefixed URL, so layouts
+// using {{asset}} stay consistent with automatic injection.
+func TestAssetHelperPrefixesBasePath(t *testing.T) {
+	s := New().WithBasePath("/guide/")
+	if got := s.asset("assets/app.js"); got != "/guide/assets/app.js" {
+		t.Errorf("asset() = %q, want %q", got, "/guide/assets/app.js")
 	}
-	inj := s.injectedPlan()
-	for _, a := range inj {
-		t.Logf("injected plan item: %+v", a)
+	// Base "/" or empty is a no-op so existing root sites are untouched.
+	if got := New().asset("assets/app.js"); got != "/assets/app.js" {
+		t.Errorf("root asset() = %q, want %q", got, "/assets/app.js")
 	}
-	out := t.TempDir()
-	if _, err := s.Build(out); err != nil {
-		t.Fatal(err)
+	if got := New().WithBasePath("/").asset("assets/app.js"); got != "/assets/app.js" {
+		t.Errorf("slash-base asset() = %q, want %q", got, "/assets/app.js")
 	}
-	b, err := os.ReadFile(filepath.Join(out, "index.html"))
-	if err != nil {
-		t.Fatal(err)
+}
+
+// Manual tags already carrying the base must suppress the matching injected
+// tag, the same no-duplicate guarantee root sites enjoy.
+func TestAutoInjectBasePathSuppressesManualDuplicates(t *testing.T) {
+	s := New().
+		WithBasePath("/guide/").
+		Asset("assets/dup.css", `a{}`).
+		Component(Component{Name: "c", Body: `<p>x</p>`}).
+		Layout(Layout{
+			Name: "base",
+			Body: `<!DOCTYPE html><html><head><link rel="stylesheet" href="/guide/assets/dup.css"></head><body>{{.Content}}</body></html>`,
+		}).
+		Page(Page{Path: "/", Layout: "base", Root: "c",
+			Data: map[string]any{"Title": "t", "Version": "v1.2.3"}})
+	page := renderIndex(t, s)
+	if n := strings.Count(page, `href="/guide/assets/dup.css`); n != 1 {
+		t.Errorf("dup.css referenced %d times, want 1: %s", n, page)
 	}
-	t.Logf("rendered index.html first 1500 chars:\n%s", string(b)[:1500])
 }

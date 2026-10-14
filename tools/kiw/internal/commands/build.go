@@ -205,6 +205,13 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (kern.E
 	if err != nil {
 		return fail(err), nil, nil
 	}
+	// The effective URL base honors kiw --base first, then krewire.yaml
+	// (build.base folded into cfg.Base at load). A file-based project has
+	// no `ssg:` block, so thread it here; declarative sites receive it
+	// through ToSSGConfig instead.
+	if base := firstNonEmpty(flagValue(fs, "base"), cfg.Base, ""); base != "" {
+		site.WithBasePath(base)
+	}
 	// Run detected plugins (Tailwind is the first; others follow the same pattern).
 	for _, p := range plugin.Registry {
 		if !p.Detect(root) {

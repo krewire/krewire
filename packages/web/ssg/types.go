@@ -2,6 +2,7 @@ package ssg
 
 import (
 	"html/template"
+	"strings"
 	"sync"
 
 	"github.com/krewire/krewire/packages/ui"
@@ -39,6 +40,10 @@ type LayoutData struct {
 	// AssetVersion is a cache-busting token derived from Version (strips "v" prefix).
 	// Used with {{assetLinks .AssetVersion}} to auto-inject CSS/JS tags.
 	AssetVersion string
+	// BasePath is the site's URL base ("/" for root sites, "/guide/" for a
+	// site mounted under a sub-path), so hand-written layout links resolve
+	// against one source of truth instead of hardcoding a sub-path.
+	BasePath string
 }
 
 // Page is one output page of the site.
@@ -99,6 +104,12 @@ type Site struct {
 	// assetSeqNext is the next registration sequence number.
 	assetSeqNext int
 
+	// BasePath is the URL base the site is served under, e.g. "/guide/".
+	// Asset URLs emitted by injection and the asset helpers are prefixed
+	// with it so a site can be mounted under a sub-path. Empty or "/"
+	// keeps the historical root-absolute "/assets/..." URLs.
+	BasePath string
+
 	// templateFns is the resolved func map, kept so a component body can be
 	// rendered as its own template. html/template exposes no getter for it.
 	templateFns template.FuncMap
@@ -132,4 +143,45 @@ func New() *Site {
 func (s *Site) Pipeline(rules []PipelineRule) *Site {
 	s.pipeline = rules
 	return s
+}
+
+// WithBasePath pins the URL base the site is served under, e.g. "/guide/".
+// Injected asset URLs and the asset helpers are prefixed accordingly, so a
+// site can be mounted under a sub-path. Empty or "/" keeps the historical
+// root-absolute "/assets/..." URLs unchanged.
+func (s *Site) WithBasePath(base string) *Site {
+	s.BasePath = normalizeSiteBase(base)
+	return s
+}
+
+// normalizeSiteBase canonicalizes a URL base into leading-and-trailing-slash
+// form ("/", "/guide/", ...). Empty normalizes to "/" (no prefix).
+func normalizeSiteBase(base string) string {
+	base = strings.TrimSpace(base)
+	if base == "" || base == "/" {
+		return "/"
+	}
+	if !strings.HasPrefix(base, "/") {
+		base = "/" + base
+	}
+	base = strings.TrimRight(base, "/") + "/"
+	return base
+}
+
+// prefixBaseURL prefixes a root-absolute URL path with the site's base.
+// Non-absolute URLs (external, anchors, relative) pass through unchanged,
+// and base "/" or "" returns the URL untouched.
+func (s *Site) prefixBaseURL(url string) string {
+	if s == nil || s.BasePath == "" || s.BasePath == "/" {
+		return url
+	}
+	if !strings.HasPrefix(url, "/") {
+		return url
+	}
+	trimmed := strings.TrimPrefix(s.BasePath, "/")
+	trimmed = strings.TrimSuffix(trimmed, "/")
+	if trimmed != "" && (url == "/"+trimmed || strings.HasPrefix(url, "/"+trimmed+"/")) {
+		return url
+	}
+	return strings.TrimSuffix(s.BasePath, "/") + url
 }

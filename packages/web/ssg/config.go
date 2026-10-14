@@ -17,6 +17,10 @@ type Config struct {
 	// Description is the site description, injected into every page's data as
 	// .Description.
 	Description string `yaml:"description"`
+	// Base is the URL base the site is served under, e.g. "/guide/".
+	// Injected asset URLs are prefixed accordingly so the site can be
+	// mounted under a sub-path. Empty or "/" keeps root-absolute URLs.
+	Base string `yaml:"base"`
 	// Version is the product/site version, injected into every page's data as
 	// .Version so chrome and badges never hardcode it.
 	Version string `yaml:"version"`
@@ -109,6 +113,12 @@ func (c *Config) Site() *Site {
 		// markdown renders a Markdown string to trusted HTML.
 		"markdown": markdownFunc,
 	}).Registry(ui.Default())
+	// The declarative base flows to every injected asset URL so a site
+	// mounted under a sub-path links its own assets. "/" (or empty) is a
+	// no-op for historical root sites.
+	if c.Base != "" {
+		s.WithBasePath(c.Base)
+	}
 	if c.Theme != nil {
 		s.Asset("assets/theme.css", ui.ThemeModeVarsCSS+"\n"+ui.ThemeToggleCSS)
 	}

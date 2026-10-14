@@ -73,6 +73,10 @@ type Config struct {
 
 // BuildConfig tunes the build pipeline under the `build:` key.
 type BuildConfig struct {
+	// Base is the URL base the site is served under, e.g. "/docs/".
+	// Legacy top-level `base:` stays supported; nested `build.base`
+	// wins when both are set. kiw --base wins over both.
+	Base string `yaml:"base"`
 	// Include holds glob patterns selecting which content files build
 	// (slash-separated, ** crosses segments). Unset (nil) uses the mdbind
 	// default "**/*.md"; an empty list disables the include filter.
@@ -188,13 +192,14 @@ type SSGPageConfig struct {
 }
 
 // ToSSGConfig converts this Config into an ssg.Config, merging top-level
-// fields (Title, Output, Theme) with the SSG-specific fields under ssg:.
+// fields (Title, Base, Output, Theme) with the SSG-specific fields under ssg:.
 // Callers must check IsSSG() before calling this method.
 func (c *Config) ToSSGConfig() *ssg.Config {
 	s := c.SSG
 	cfg := &ssg.Config{
 		Title:       c.Title,
 		Description: s.Description,
+		Base:        c.Base,
 		Version:     c.Version,
 		Output:      c.Output,
 		Assets:      s.Assets,
@@ -288,6 +293,14 @@ func Load(dir string) (*Config, error) {
 	// version instead of one silently losing it.
 	if c.Version == "" {
 		c.Version = c.Project.Version
+	}
+	// The URL base lives under `build:` in current krewire.yaml files
+	// (e.g. krewire.com `build.base: "/"`, portal `build.base:
+	// "/contribute/"). Fold the nested form into the single effective
+	// value so tooling never silently ignores what the repo declares.
+	// Precedence: kiw --base flag > build.base > legacy top-level base:.
+	if c.Build.Base != "" {
+		c.Base = c.Build.Base
 	}
 	return &c, nil
 }

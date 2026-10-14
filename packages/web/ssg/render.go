@@ -92,6 +92,7 @@ func (s *Site) renderPage(p *Page) (string, error) {
 		Data:         p.Data,
 		Version:      version,
 		AssetVersion: assetVersion,
+		BasePath:     s.templateBasePath(),
 	}); err != nil {
 		return "", err
 	}
@@ -111,10 +112,14 @@ func (s *Site) renderPage(p *Page) (string, error) {
 	}
 	var allScripts []string
 	if l, ok := s.layouts[p.Layout]; ok && len(l.Scripts) > 0 {
-		allScripts = append(allScripts, l.Scripts...)
+		for _, script := range l.Scripts {
+			allScripts = append(allScripts, s.prefixBaseURL(script))
+		}
 	}
 	if len(p.Scripts) > 0 {
-		allScripts = append(allScripts, p.Scripts...)
+		for _, script := range p.Scripts {
+			allScripts = append(allScripts, s.prefixBaseURL(script))
+		}
 	}
 	if len(allScripts) > 0 {
 		body = injectScripts(body, allScripts)
@@ -156,11 +161,13 @@ func (s *Site) collectedCSS() string {
 
 // asset resolves a logical asset path to its fingerprinted URL from the
 // build manifest, falling back to a plain /assets/ path (KWF-DR5YU).
+// The resolved URL is prefixed with the site's base path so a site mounted
+// under a sub-path (e.g. "/guide/") links its own assets.
 func (s *Site) asset(name string) string {
 	if u, ok := s.manifest[name]; ok {
-		return u
+		return s.prefixBaseURL(u)
 	}
-	return assetURL(name)
+	return s.prefixBaseURL(assetURL(name))
 }
 
 // assetLinks generates <link rel="stylesheet"> and <script src> HTML tags for
@@ -180,6 +187,23 @@ func (s *Site) assetLinks(version string) template.HTML {
 		sb.WriteString(`<script src="` + url + versionSuffix + `"></script>` + "\n  ")
 	}
 	return template.HTML(strings.TrimRight(sb.String(), "\n  "))
+}
+
+// templateBasePath exposes the site's URL base to templates so hand-written
+// links resolve against one source of truth instead of hardcoding a
+// sub-path per layout. Root sites get "/", mounted sites "/guide/".
+func (s *Site) templateBasePath() string {
+	if s == nil || s.BasePath == "" {
+		return "/"
+	}
+	return s.BasePath
+}
+
+// templateBaseURL prefixes one root-absolute path with the site's base for
+// use inside templates: {{baseURL "/assets/app.js"}},
+// {{baseURL "/#section"}}. Anything else passes through untouched.
+func (s *Site) templateBaseURL(path string) string {
+	return s.prefixBaseURL(path)
 }
 
 // dict builds a map from alternating key-value pairs for template calls like
@@ -229,6 +253,14 @@ func (s *Site) prepare() error {
 	// An optional version suffix is appended as a cache-busting query string.
 	// Templates use it as: {{assetLinks .Version}} or {{assetLinks ""}}
 	funcs["assetLinks"] = s.assetLinks
+	// basePath returns the site's URL base ("/" for root sites, "/guide/"
+	// for a site mounted under a sub-path), so hand-written template links
+	// can resolve against one source of truth: {{basePath}}assets/app.js,
+	// {{basePath}}#section, and so on.
+	funcs["basePath"] = s.templateBasePath
+	// baseURL prefixes a root-absolute path with the site's base, leaving
+	// external, anchor, and relative URLs untouched.
+	funcs["baseURL"] = s.templateBaseURL
 	// not is a convenience boolean negation helper for template conditionals.
 	funcs["not"] = func(v any) bool {
 		switch x := v.(type) {

@@ -16,6 +16,13 @@ func LoadFromDir(root string) (*Site, error) {
 	site := New()
 	meta := loadMeta(root)
 
+	// URL base the site is served under (krewire.yaml `build.base`).
+	// Injected asset URLs are prefixed accordingly so the site can be
+	// mounted under a sub-path. "/" (or empty) is a no-op.
+	if meta.Base != "" {
+		site.WithBasePath(meta.Base)
+	}
+
 	// Internationalization: load lang/ directory if present
 	langPath := "lang"
 	if meta.I18n != nil && meta.I18n.BasePath != "" {
@@ -345,6 +352,9 @@ func loadMeta(root string) *meta {
 				Light   map[string]string `yaml:"light"`
 				Dark    map[string]string `yaml:"dark"`
 			} `yaml:"theme"`
+			Build *struct {
+				Base string `yaml:"base"`
+			} `yaml:"build"`
 			I18n       *I18nConfig      `yaml:"i18n"`
 			AutoAssets *AutoAssetConfig `yaml:"auto_assets"`
 		}
@@ -384,6 +394,9 @@ func loadMeta(root string) *meta {
 			if raw.AutoAssets != nil {
 				m.AutoAssets = raw.AutoAssets
 			}
+			if raw.Build != nil {
+				m.Base = raw.Build.Base
+			}
 		}
 		break
 	}
@@ -393,6 +406,7 @@ func loadMeta(root string) *meta {
 type meta struct {
 	Title       string
 	Description string
+	Base        string
 	Data        map[string]any
 	ThemeCSS    string
 	I18n        *I18nConfig
