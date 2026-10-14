@@ -243,7 +243,7 @@ func isSpecID(s string) bool {
 		return false
 	}
 	parts := strings.Split(s, "-")
-	if len(parts) < 3 {
+	if len(parts) < 2 {
 		return false
 	}
 	last := parts[len(parts)-1]

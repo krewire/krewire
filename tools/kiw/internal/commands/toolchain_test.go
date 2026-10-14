@@ -5,6 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
 
 // Spec: KWN-TEST-P0FWA Scope: Unit
@@ -16,6 +19,7 @@ func TestIsSpecID_Valid(t *testing.T) {
 		{"KWF-TEST-M4P9Q", true},
 		{"KWL-ARCH-J2K9Q", true},
 		{"KWN-DEVTOOL-Z0VFC", true},
+		{"KWN-P0FWA", true},
 		{"TestKWF", false},
 		{"M4P9Q", false},
 		{"KWF-TEST", false},
@@ -95,5 +99,119 @@ auth:
 	issues = auditSecurityPosture(tmp)
 	if len(issues) != 1 {
 		t.Fatalf("expected 1 issue for leaky config, got: %v", issues)
+	}
+}
+
+// Spec: KWN-P0FWA RND-TS-001 Scope: Unit
+func TestKWN_P0FWA_RND_TS_001_ResolveModuleWalkingUpward(t *testing.T) {
+	tmp := t.TempDir()
+	goModContent := "module example.com/testwalk\n\ngo 1.27.1\n"
+	if err := os.WriteFile(filepath.Join(tmp, "go.mod"), []byte(goModContent), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	nested := filepath.Join(tmp, "sub", "deep", "dir")
+	if err := os.MkdirAll(nested, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	mod, err := gomod.Find(nested)
+	if err != nil {
+		t.Fatalf("expected to resolve module from %s: %v", nested, err)
+	}
+	if mod.Path != "example.com/testwalk" {
+		t.Fatalf("got module path %q, want %q", mod.Path, "example.com/testwalk")
+	}
+}
+
+// Spec: KWN-P0FWA RND-TS-002 Scope: Unit
+func TestKWN_P0FWA_RND_TS_002_OutsideGoModuleExitCode(t *testing.T) {
+	orig, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	if err := os.Chdir(tmp); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(orig) }()
+
+	code := RunTest(nil)
+	if code != kern.ExitCodeUsage {
+		t.Fatalf("got exit code %v, want ExitCodeUsage (2)", code)
+	}
+}
+
+// Spec: KWN-P0FWA RND-TS-003 RND-TS-004 RND-TS-006 RND-TS-007 Scope: Integration
+func TestKWN_P0FWA_RunTest_Success(t *testing.T) {
+	orig, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+
+	goMod := "module example.com/testpass\n\ngo 1.27.1\n"
+	if err := os.WriteFile(filepath.Join(tmp, "go.mod"), []byte(goMod), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	testCode := `package testpass
+
+import "testing"
+
+func TestSimplePass(t *testing.T) {
+	if 1+1 != 2 {
+		t.Fatal("math broke")
+	}
+}
+`
+	if err := os.WriteFile(filepath.Join(tmp, "pass_test.go"), []byte(testCode), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.Chdir(tmp); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(orig) }()
+
+	code := RunTest(nil)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("got exit code %v, want ExitCodeSuccess (0)", code)
+	}
+}
+
+// Spec: KWN-P0FWA RND-TS-005 Scope: Integration
+func TestKWN_P0FWA_RunTest_Failure(t *testing.T) {
+	orig, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+
+	goMod := "module example.com/testfail\n\ngo 1.27.1\n"
+	if err := os.WriteFile(filepath.Join(tmp, "go.mod"), []byte(goMod), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	testCode := `package testfail
+
+import "testing"
+
+func TestSimpleFail(t *testing.T) {
+	t.Fatal("deliberate failure for test")
+}
+`
+	if err := os.WriteFile(filepath.Join(tmp, "fail_test.go"), []byte(testCode), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.Chdir(tmp); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(orig) }()
+
+	code := RunTest(nil)
+	if code != kern.ExitCodeFailure {
+		t.Fatalf("got exit code %v, want ExitCodeFailure (1)", code)
 	}
 }

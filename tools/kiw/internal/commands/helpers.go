@@ -11,6 +11,9 @@ import (
 )
 
 func flagValue(fs *flag.FlagSet, name string) string {
+	if fs == nil {
+		return ""
+	}
 	if f := fs.Lookup(name); f != nil {
 		return f.Value.String()
 	}
@@ -65,6 +68,9 @@ func usageOrFail(err error) kern.ExitCode {
 // flagProvided reports whether the named flag was explicitly set on the
 // command line, as opposed to holding its zero value.
 func flagProvided(fs *flag.FlagSet, name string) bool {
+	if fs == nil {
+		return false
+	}
 	set := false
 	fs.Visit(func(f *flag.Flag) {
 		if f.Name == name {
