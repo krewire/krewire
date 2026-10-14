@@ -30,7 +30,7 @@ To keep progress tracking fully automated, resilient against markdown parsing dr
    - Active specifications and their implementation progress are tracked as GitHub Issues under `krewire/krewire` with label `spec`.
    - Title format: `[Spec: <SpecID>] <Title>` (e.g. `[Spec: KWN-INFO-BNKJC] Project Information`, `[Spec: KWL-CORE-M1ZKS] Krewire Libraries`).
    - Every issue body contains the structured requirement checklist with `- [ ]` and `- [x]` checkboxes citing `ReqID`, priority, and scope (e.g. `- [ ] RND-IF-001 [Must] ...`).
-   - Index files in `packages/docs/specs/index.md` and `tools/kiw/docs/specs/index.md` link directly to these GitHub Issues.
+   - Index files in `docs/packages/index.md` and `docs/tools/kiw/index.md` link directly to these GitHub Issues.
 
 2. **Spec-Driven Traceability in Code:**
    - ID prefixes: `KWF-*` (framework/core), `KWN-*` (kiw), `KWL-*` (libs/packages), `KWG-*` (boost).

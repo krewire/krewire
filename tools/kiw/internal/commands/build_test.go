@@ -145,4 +145,3 @@ name: test-progressive
 		t.Errorf("expected book intro.html in output: %v", err)
 	}
 }
-

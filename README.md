@@ -8,6 +8,7 @@ The monorepo contains four main structural areas:
 
 ```text
 krewire/
+├── docs/         # Ecosystem documentation (packages, boost, devtool)
 ├── packages/     # Domain libraries and control plane
 │   ├── kern/     # Kernel, lifecycle, errors, environment, model (workload & kinds)
 │   ├── web/      # HTTP router, middleware, SSR, SSG, gateway
@@ -24,11 +25,8 @@ krewire/
 │   ├── markdown/ # Markdown parsing & rendering
 │   ├── testing/  # Test harnesses and browser test utilities
 │   ├── hub/      # Plugin registry and package resolver
-│   ├── boost/    # Boost coordination package
-│   └── docs/     # Internal package specifications and guides
+│   └── boost/    # Boost coordination package
 ├── apps/         # Deployable services and applications
-│   ├── auth/     # Krewire authentication and SSO service
-│   └── krewire/  # Self-hosted project and license management
 ├── tools/        # Developer tooling
 │   └── kiw/      # Unified developer CLI for project scaffolding, build, and deploy
 └── templates/    # Starter templates and scaffolding blueprints
