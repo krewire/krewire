@@ -3,6 +3,7 @@
 package term
 
 import (
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -56,10 +57,14 @@ func Paint(text string, color Color, styles []Style) string {
 }
 
 // Terminal guards against emitting color codes when the destination does not
-// support them.
+// support them, and distinguishes data output (stdout) from diagnostics (stderr).
 type Terminal struct {
 	// ColorSupported reports whether ANSI color codes should be emitted.
 	ColorSupported bool
+	// Out is the destination for data output (defaults to os.Stdout).
+	Out io.Writer
+	// Err is the destination for diagnostics and warnings (defaults to os.Stderr).
+	Err io.Writer
 }
 
 // IsTerminal reports whether f is an interactive terminal character device.
@@ -86,20 +91,44 @@ func NewTerminal() *Terminal {
 // present *and not empty*, so an exported-but-blank NO_COLOR does not silently
 // disable colour for a whole process tree.
 func NewTerminalFor(f *os.File) *Terminal {
+	var colorSupported bool
 	if noColor, ok := os.LookupEnv("NO_COLOR"); ok && noColor != "" {
-		return &Terminal{ColorSupported: false}
+		colorSupported = false
+	} else if force, ok := os.LookupEnv("CLICOLOR_FORCE"); ok && force != "" && force != "0" {
+		colorSupported = true
+	} else if force, ok := os.LookupEnv("FORCE_COLOR"); ok && force != "" && force != "0" {
+		colorSupported = true
+	} else if ter, _ := os.LookupEnv("TERM"); ter == "dumb" {
+		colorSupported = false
+	} else {
+		colorSupported = IsTerminal(f)
 	}
-	if force, ok := os.LookupEnv("CLICOLOR_FORCE"); ok && force != "" && force != "0" {
-		return &Terminal{ColorSupported: true}
+
+	var out io.Writer = f
+	if f == nil {
+		out = os.Stdout
 	}
-	if force, ok := os.LookupEnv("FORCE_COLOR"); ok && force != "" && force != "0" {
-		return &Terminal{ColorSupported: true}
+	return &Terminal{
+		ColorSupported: colorSupported,
+		Out:            out,
+		Err:            os.Stderr,
 	}
-	ter, _ := os.LookupEnv("TERM")
-	if ter == "dumb" {
-		return &Terminal{ColorSupported: false}
+}
+
+// DataWriter returns the writer for data output (Out or os.Stdout).
+func (t *Terminal) DataWriter() io.Writer {
+	if t != nil && t.Out != nil {
+		return t.Out
 	}
-	return &Terminal{ColorSupported: IsTerminal(f)}
+	return os.Stdout
+}
+
+// DiagWriter returns the writer for diagnostics and warnings (Err or os.Stderr).
+func (t *Terminal) DiagWriter() io.Writer {
+	if t != nil && t.Err != nil {
+		return t.Err
+	}
+	return os.Stderr
 }
 
 // Paint colors text, degrading to plain text when color is unsupported.
