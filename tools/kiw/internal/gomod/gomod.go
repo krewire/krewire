@@ -6,13 +6,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
-// Module describes the module path of a go.mod file and its direct requires.
+// Module describes the module path of a go.mod file, required Go version, and its direct requires.
 type Module struct {
 	// Path is the module path declared in the go.mod file.
 	Path string
+	// GoVersion is the minimum Go version declared in the go.mod file (e.g. "1.27.1").
+	GoVersion string
 	// Requires maps the path of each direct dependency to its version.
 	Requires map[string]string
 }
@@ -36,6 +39,8 @@ func Read(path string) (*Module, error) {
 		switch {
 		case strings.HasPrefix(line, "module "):
 			m.Path = strings.TrimSpace(strings.TrimPrefix(line, "module "))
+		case strings.HasPrefix(line, "go "):
+			m.GoVersion = strings.TrimSpace(strings.TrimPrefix(line, "go "))
 		case line == "require (":
 			inRequireBlock = true
 		case line == ")" && inRequireBlock:
@@ -94,4 +99,54 @@ func (m *Module) recordRequire(line string) {
 		return
 	}
 	m.Requires[fields[0]] = fields[1]
+}
+
+// CheckGoVersion compares a runtime Go version string (e.g. "go1.27.1")
+// against a target minimum version (e.g. "1.27.1" or "1.27").
+// It returns an error if the runtime version is strictly older than targetVer.
+func CheckGoVersion(runtimeVer, targetVer string) error {
+	if targetVer == "" {
+		return nil
+	}
+	cleanRuntime := strings.TrimPrefix(runtimeVer, "go")
+	if i := strings.Index(cleanRuntime, " "); i >= 0 {
+		cleanRuntime = cleanRuntime[:i]
+	}
+	if i := strings.Index(cleanRuntime, "-"); i >= 0 {
+		cleanRuntime = cleanRuntime[:i]
+	}
+	if strings.HasPrefix(cleanRuntime, "devel") {
+		return nil
+	}
+
+	cleanTarget := strings.TrimPrefix(targetVer, "go")
+	if i := strings.Index(cleanTarget, " "); i >= 0 {
+		cleanTarget = cleanTarget[:i]
+	}
+
+	rParts := strings.Split(cleanRuntime, ".")
+	tParts := strings.Split(cleanTarget, ".")
+
+	maxLen := len(rParts)
+	if len(tParts) > maxLen {
+		maxLen = len(tParts)
+	}
+
+	for i := 0; i < maxLen; i++ {
+		rNum := 0
+		if i < len(rParts) {
+			rNum, _ = strconv.Atoi(rParts[i])
+		}
+		tNum := 0
+		if i < len(tParts) {
+			tNum, _ = strconv.Atoi(tParts[i])
+		}
+		if rNum < tNum {
+			return fmt.Errorf("runtime Go version %s is older than required minimum %s", runtimeVer, targetVer)
+		}
+		if rNum > tNum {
+			return nil
+		}
+	}
+	return nil
 }

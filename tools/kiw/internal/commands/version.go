@@ -26,6 +26,16 @@ func RunVersion(_ *flag.FlagSet) kern.ExitCode {
 	}
 	fmt.Printf("  %-18s %s\n", dim("Krewire Ecosystem"), verColor)
 	fmt.Printf("  %-18s %s\n", dim("Go"), dim(runtime.Version()+" ("+runtime.GOOS+"/"+runtime.GOARCH+")"))
+	if prov, ok := buildinfo.ReadProvenance(); ok && prov.Revision != "" {
+		rev := prov.Revision
+		if len(rev) > 8 {
+			rev = rev[:8]
+		}
+		if prov.Modified {
+			rev += "-dirty"
+		}
+		fmt.Printf("  %-18s %s\n", dim("Commit"), dim(rev))
+	}
 	return kern.ExitCodeSuccess
 }
 

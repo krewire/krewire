@@ -61,7 +61,7 @@ func BuildWASM(cfg Config) (Artifacts, error) {
 
 	wasmPath := filepath.Join(cfg.OutDir, name+".wasm")
 	var logBuf bytes.Buffer
-	cmd := exec.Command(filepath.Join(goRoot, "bin", "go"), "build", "-o", wasmPath, cfg.Entry)
+	cmd := exec.Command(filepath.Join(goRoot, "bin", "go"), "build", "-trimpath", "-ldflags=-s -w", "-o", wasmPath, cfg.Entry)
 	cmd.Env = append(os.Environ(), "GOOS=js", "GOARCH=wasm")
 	cmd.Stdout = &logBuf
 	cmd.Stderr = &logBuf

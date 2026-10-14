@@ -23,3 +23,15 @@ func TestKWN_VS_004_ResolveVersion_UnknownPathReturnsEmpty(t *testing.T) {
 		t.Errorf("ResolveVersion(unknown) = (%q, %v), want (\"\", false)", got, fromSource)
 	}
 }
+
+// Spec: KWL-L0-REPRO REQ-L0-023 Scope: Unit
+func TestKWL_L0_REPRO_REQ_L0_023_ReadProvenance(t *testing.T) {
+	prov, ok := ReadProvenance()
+	if !ok {
+		// In pure unit test runner without debug metadata, ReadProvenance may return false
+		t.Log("debug.ReadBuildInfo not available in this test environment (expected when running uncompiled test binary)")
+		return
+	}
+	t.Logf("Provenance detected: revision=%s, time=%s, modified=%v, trimpath=%v, cgo=%s",
+		prov.Revision, prov.Time, prov.Modified, prov.Trimpath, prov.Cgo)
+}

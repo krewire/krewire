@@ -94,3 +94,27 @@ func TestFindMissing(t *testing.T) {
 		t.Error("Find() error = nil, want an error")
 	}
 }
+
+// Spec: KWL-L0-REPRO REQ-L0-022 Scope: CLI
+func TestKWL_L0_REPRO_REQ_L0_022_CheckGoVersion(t *testing.T) {
+	tests := []struct {
+		runtimeVer string
+		targetVer  string
+		wantErr    bool
+	}{
+		{"go1.27.1", "1.27.1", false},
+		{"go1.27.2", "1.27.1", false},
+		{"go1.28.0", "1.27.1", false},
+		{"go1.26.9", "1.27.1", true},
+		{"go1.20.0", "1.27.1", true},
+		{"devel go1.28-abc", "1.27.1", false},
+		{"go1.27.1 linux/amd64", "1.27.1", false},
+	}
+
+	for _, tt := range tests {
+		err := CheckGoVersion(tt.runtimeVer, tt.targetVer)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("CheckGoVersion(%q, %q) err = %v, wantErr = %v", tt.runtimeVer, tt.targetVer, err, tt.wantErr)
+		}
+	}
+}

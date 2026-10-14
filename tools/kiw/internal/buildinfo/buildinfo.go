@@ -54,3 +54,42 @@ func ResolveVersion(path string) (version string, fromSource bool) {
 	}
 	return "", false
 }
+
+// Provenance contains VCS and compilation metadata extracted from debug.ReadBuildInfo.
+type Provenance struct {
+	Revision string
+	Time     string
+	Modified bool
+	Trimpath bool
+	Cgo      string
+	GoOS     string
+	GoArch   string
+}
+
+// ReadProvenance extracts build provenance settings recorded by the Go compiler.
+func ReadProvenance() (Provenance, bool) {
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return Provenance{}, false
+	}
+	var prov Provenance
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			prov.Revision = s.Value
+		case "vcs.time":
+			prov.Time = s.Value
+		case "vcs.modified":
+			prov.Modified = (s.Value == "true")
+		case "-trimpath":
+			prov.Trimpath = (s.Value == "true")
+		case "CGO_ENABLED":
+			prov.Cgo = s.Value
+		case "GOOS":
+			prov.GoOS = s.Value
+		case "GOARCH":
+			prov.GoArch = s.Value
+		}
+	}
+	return prov, true
+}

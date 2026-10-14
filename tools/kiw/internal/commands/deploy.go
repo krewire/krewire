@@ -255,7 +255,7 @@ func buildBinary(root, dist string) kern.ExitCode {
 	name := moduleName(root)
 	out := filepath.Join(dist, name)
 	slog.Info("building app binary", "out", out)
-	cmd := exec.Command("go", "build", "-o", out, ".")
+	cmd := exec.Command("go", "build", "-trimpath", "-ldflags=-s -w", "-o", out, ".")
 	cmd.Dir = root
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr

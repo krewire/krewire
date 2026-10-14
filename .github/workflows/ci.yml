@@ -53,12 +53,12 @@ jobs:
       - name: Verify Layer 0 Invariants
         working-directory: krewire
         run: |
-          go test -v -run "TestKWL_L0_MTPAT" ./packages/kern/... ./packages/kern/model/...
+          go test -v -run "TestKWL_L0_" ./packages/kern/... ./packages/kern/model/... ./tools/kiw/internal/buildinfo/... ./tools/kiw/internal/gomod/...
 
-      - name: Build kiw CLI Binary
+      - name: Build kiw CLI Binary (Deterministic & Reproducible)
         working-directory: krewire
         run: |
-          CGO_ENABLED=0 go build -o bin/kiw ./tools/kiw/cmd/kiw
+          CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o bin/kiw ./tools/kiw/cmd/kiw
 
   cross-compile:
     name: Cross-Compilation Matrix
