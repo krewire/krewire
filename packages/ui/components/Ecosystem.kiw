@@ -1,4 +1,4 @@
-<section id="ecosystem" class="w-full bg-bg-2 dark:bg-bg-dark-2 py-10 sm:py-12 md:py-14 lg:py-16 {{.Class}}" style="border-top:var(--pop-border); border-bottom:var(--pop-border)" data-kiw-component="Ecosystem">
+<section id="ecosystem" class="w-full bg-bg-2 dark:bg-bg-dark-2 py-10 sm:py-12 md:py-14 lg:py-16 {class}" style="border-top:var(--pop-border); border-bottom:var(--pop-border)" data-kiw-component="Ecosystem">
   <div class="container-site">
     <div class="section-head mb-6 sm:mb-8">
       <span class="badge badge-primary mb-3" data-i18n="ecosystem.badge">Official Ecosystem</span>

@@ -1,6 +1,6 @@
-<span class="badge {{if .Variant}}badge-{{.Variant}}{{else}}badge-neutral{{end}} {{if .Size}}badge-{{.Size}}{{else}}badge-md{{end}} {{.Class}}">
-  {{if .Dot}}<span class="badge-dot" aria-hidden="true"></span>{{end}}
-  <span class="badge-text">{{.Text}}</span>
+<span class="badge {#if variant}badge-{variant}{:else}badge-neutral{/if} {#if size}badge-{size}{:else}badge-md{/if} {class}">
+  {#if dot}<span class="badge-dot" aria-hidden="true"></span>{/if}
+  <span class="badge-text">{text}</span>
 </span>
 
 <style>

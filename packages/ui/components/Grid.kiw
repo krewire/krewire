@@ -1,7 +1,7 @@
-<div class="kiw-grid {{if .Cols}}kiw-grid-cols-{{.Cols}}{{else}}kiw-grid-cols-1{{end}} {{if .Gap}}kiw-grid-gap-{{.Gap}}{{else}}kiw-grid-gap-md{{end}} {{.Class}}"
-     {{with .ID}}id="{{.}}"{{end}}
+<div class="kiw-grid {#if cols}kiw-grid-cols-{cols}{:else}kiw-grid-cols-1{/if} {#if gap}kiw-grid-gap-{gap}{:else}kiw-grid-gap-md{/if} {class}"
+     {#if id}id="{id}"{/if}
      data-kiw-component="Grid">
-  {{.Body}}
+  {body}
 </div>
 
 <style>

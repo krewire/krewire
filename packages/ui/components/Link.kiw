@@ -1,9 +1,9 @@
-<a href="{{if .Href}}{{.Href}}{{else}}#{{end}}"
-   class="kiw-link {{if .Variant}}kiw-link-{{.Variant}}{{else}}kiw-link-default{{end}} {{.Class}}"
-   {{with .ID}}id="{{.}}"{{end}}
-   {{if .External}}target="_blank" rel="noopener noreferrer"{{end}}
+<a href="{#if href}{href}{:else}#{/if}"
+   class="kiw-link {#if variant}kiw-link-{variant}{:else}kiw-link-default{/if} {class}"
+   {#if id}id="{id}"{/if}
+   {#if external}target="_blank" rel="noopener noreferrer"{/if}
    data-kiw-component="Link">
-  {{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}
+  {#if body}{body}{:else}{text}{/if}
 </a>
 
 <style>

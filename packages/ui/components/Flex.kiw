@@ -1,7 +1,7 @@
-<div class="kiw-flex {{if .Direction}}kiw-flex-{{.Direction}}{{else}}kiw-flex-row{{end}} {{if .Gap}}kiw-flex-gap-{{.Gap}}{{else}}kiw-flex-gap-md{{end}} {{if .Align}}kiw-flex-align-{{.Align}}{{else}}kiw-flex-align-center{{end}} {{if .Justify}}kiw-flex-justify-{{.Justify}}{{end}} {{if .Wrap}}kiw-flex-wrap{{end}} {{.Class}}"
-     {{with .ID}}id="{{.}}"{{end}}
+<div class="kiw-flex {#if direction}kiw-flex-{direction}{:else}kiw-flex-row{/if} {#if gap}kiw-flex-gap-{gap}{:else}kiw-flex-gap-md{/if} {#if align}kiw-flex-align-{align}{:else}kiw-flex-align-center{/if} {#if justify}kiw-flex-justify-{justify}{/if} {#if wrap}kiw-flex-wrap{/if} {class}"
+     {#if id}id="{id}"{/if}
      data-kiw-component="Flex">
-  {{.Body}}
+  {body}
 </div>
 
 <style>

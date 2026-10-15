@@ -1,19 +1,19 @@
-{{/* Value is the percentage 0..100, not a raw count: the width must be a CSS
-     percentage, and a template cannot divide. Callers pass e.g. 42 for 42%. */}}
-<div class="kiw-progress {{if .Variant}}kiw-progress-{{.Variant}}{{else}}kiw-progress-primary{{end}} {{if .Size}}kiw-progress-{{.Size}}{{else}}kiw-progress-md{{end}} {{.Class}}"
-     {{with .ID}}id="{{.}}"{{end}}
+<!-- Value is the percentage 0..100, not a raw count: the width must be a CSS
+     percentage, and a template cannot divide. Callers pass e.g. 42 for 42%. -->
+<div class="kiw-progress {#if variant}kiw-progress-{variant}{:else}kiw-progress-primary{/if} {#if size}kiw-progress-{size}{:else}kiw-progress-md{/if} {class}"
+     {#if id}id="{id}"{/if}
      role="progressbar"
      aria-valuemin="0"
      aria-valuemax="100"
-     aria-valuenow="{{if .Value}}{{.Value}}{{else}}0{{end}}"
-     {{with .Label}}aria-label="{{.}}"{{end}}
+     aria-valuenow="{#if value}{value}{:else}0{/if}"
+     {#if label}aria-label="{label}"{/if}
      data-kiw-component="Progress">
   <div class="kiw-progress-track">
-    <div class="kiw-progress-bar" style="width: {{if .Value}}{{.Value}}{{else}}0{{end}}%"></div>
+    <div class="kiw-progress-bar" style="width: {#if value}{value}{:else}0{/if}%"></div>
   </div>
-  {{if .ShowValue}}
-  <span class="kiw-progress-value">{{if .Value}}{{.Value}}{{else}}0{{end}}%</span>
-  {{end}}
+  {#if showValue}
+  <span class="kiw-progress-value">{#if value}{value}{:else}0{/if}%</span>
+  {/if}
 </div>
 
 <style>

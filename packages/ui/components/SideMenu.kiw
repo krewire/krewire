@@ -82,9 +82,8 @@
       </button>
     </div>
     <div class="toc-subs">
-      <a href="/docs/guides/spec-driven-development" class="toc-sub">6.1 Spec-Driven Development</a>
-      <a href="/docs/guides/open-core-and-licensing" class="toc-sub">6.2 Open Core & Licensing</a>
-      <a href="/docs/guides/deployment-and-operations" class="toc-sub">6.3 Deployment & Operations</a>
+      <a href="/docs/guides/open-core-and-licensing" class="toc-sub">6.1 Open Core & Licensing</a>
+      <a href="/docs/guides/deployment-and-operations" class="toc-sub">6.2 Deployment & Operations</a>
     </div>
   </div>
 </nav>

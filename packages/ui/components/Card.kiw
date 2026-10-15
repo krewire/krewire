@@ -1,21 +1,21 @@
-<div class="card {{if .Variant}}card-{{.Variant}}{{else}}card-default{{end}} {{.Class}}">
-  {{if or .Title .Badge}}
+<div class="card {#if variant}card-{variant}{:else}card-default{/if} {class}">
+  {#if title || badge}
   <div class="card-head">
     <div class="card-titles">
-      {{with .Title}}<h3 class="card-title">{{.}}</h3>{{end}}
-      {{with .Subtitle}}<p class="card-subtitle">{{.}}</p>{{end}}
+      {#if title}<h3 class="card-title">{title}</h3>{/if}
+      {#if subtitle}<p class="card-subtitle">{subtitle}</p>{/if}
     </div>
-    {{with .Badge}}
-    <span class="card-badge">{{.}}</span>
-    {{end}}
+    {#if badge}
+    <span class="card-badge">{badge}</span>
+    {/if}
   </div>
-  {{end}}
-  {{with .Body}}
-  <div class="card-body">{{.}}</div>
-  {{end}}
-  {{with .Footer}}
-  <div class="card-footer">{{.}}</div>
-  {{end}}
+  {/if}
+  {#if body}
+  <div class="card-body">{body}</div>
+  {/if}
+  {#if footer}
+  <div class="card-footer">{footer}</div>
+  {/if}
 </div>
 
 <style>

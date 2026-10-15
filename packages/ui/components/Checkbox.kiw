@@ -1,12 +1,12 @@
-<label class="kiw-checkbox-label {{if .Disabled}}is-disabled{{end}} {{.Class}}" {{with .ID}}id="{{.}}-label"{{end}} data-kiw-component="Checkbox">
+<label class="kiw-checkbox-label {class}" class:is-disabled={disabled} {#if id}id="{id}-label"{/if} data-kiw-component="Checkbox">
   <input
     type="checkbox"
-    name="{{.Name}}"
-    {{with .ID}}id="{{.}}"{{end}}
-    {{with .Value}}value="{{.}}"{{end}}
-    {{if .Checked}}checked{{end}}
-    {{if .Required}}required{{end}}
-    {{if .Disabled}}disabled{{end}}
+    name="{name}"
+    {#if id}id="{id}"{/if}
+    {#if value}value="{value}"{/if}
+    {#if checked}checked{/if}
+    {#if required}required{/if}
+    {#if disabled}disabled{/if}
     class="kiw-checkbox-input"
   >
   <span class="kiw-checkbox-box" aria-hidden="true">
@@ -14,7 +14,7 @@
       <polyline points="3.5 8.5 6.5 11.5 12.5 4.5"></polyline>
     </svg>
   </span>
-  <span class="kiw-checkbox-text">{{if .Body}}{{.Body}}{{else}}{{.Label}}{{end}}</span>
+  <span class="kiw-checkbox-text">{#if body}{body}{:else}{label}{/if}</span>
 </label>
 
 <style>

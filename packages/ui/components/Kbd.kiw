@@ -1,4 +1,4 @@
-<kbd class="kiw-kbd {{if .Size}}kiw-kbd-{{.Size}}{{else}}kiw-kbd-md{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Kbd">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</kbd>
+<kbd class="kiw-kbd {#if size}kiw-kbd-{size}{:else}kiw-kbd-md{/if} {class}" {#if id}id="{id}"{/if} data-kiw-component="Kbd">{#if body}{body}{:else}{text}{/if}</kbd>
 
 <style>
 /* Kbd renders a keycap. It is decoration around an already-readable label, so

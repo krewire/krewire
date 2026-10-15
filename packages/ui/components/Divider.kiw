@@ -1,10 +1,10 @@
-<div class="kiw-divider {{if .Vertical}}kiw-divider-vertical{{else}}kiw-divider-horizontal{{end}} {{.Class}}"
+<div class="kiw-divider {#if vertical}kiw-divider-vertical{:else}kiw-divider-horizontal{/if} {class}"
      role="separator"
-     aria-orientation="{{if .Vertical}}vertical{{else}}horizontal{{end}}"
+     aria-orientation="{#if vertical}vertical{:else}horizontal{/if}"
      data-kiw-component="Divider">
-  {{if .Label}}
-  <span class="kiw-divider-label">{{.Label}}</span>
-  {{end}}
+  {#if label}
+  <span class="kiw-divider-label">{label}</span>
+  {/if}
 </div>
 
 <style>

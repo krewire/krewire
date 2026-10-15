@@ -1,12 +1,12 @@
-{{if eq .As "span"}}
-<span class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} {{if .Weight}}kiw-text-{{.Weight}}{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</span>
-{{else if eq .As "small"}}
-<small class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{else}}kiw-text-sm{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} {{if .Weight}}kiw-text-{{.Weight}}{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</small>
-{{else if eq .As "strong"}}
-<strong class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} kiw-text-bold {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</strong>
-{{else}}
-<p class="kiw-text {{if .Size}}kiw-text-{{.Size}}{{end}} {{if .Color}}kiw-text-{{.Color}}{{end}} {{if .Weight}}kiw-text-{{.Weight}}{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Text">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</p>
-{{end}}
+{#if as == "span"}
+<span class="kiw-text {#if size}kiw-text-{size}{/if} {#if color}kiw-text-{color}{/if} {#if weight}kiw-text-{weight}{/if} {class}" {#if id}id="{id}"{/if} data-kiw-component="Text">{#if body}{body}{:else}{text}{/if}</span>
+{:else if as == "small"}
+<small class="kiw-text {#if size}kiw-text-{size}{:else}kiw-text-sm{/if} {#if color}kiw-text-{color}{/if} {#if weight}kiw-text-{weight}{/if} {class}" {#if id}id="{id}"{/if} data-kiw-component="Text">{#if body}{body}{:else}{text}{/if}</small>
+{:else if as == "strong"}
+<strong class="kiw-text {#if size}kiw-text-{size}{/if} {#if color}kiw-text-{color}{/if} kiw-text-bold {class}" {#if id}id="{id}"{/if} data-kiw-component="Text">{#if body}{body}{:else}{text}{/if}</strong>
+{:else}
+<p class="kiw-text {#if size}kiw-text-{size}{/if} {#if color}kiw-text-{color}{/if} {#if weight}kiw-text-{weight}{/if} {class}" {#if id}id="{id}"{/if} data-kiw-component="Text">{#if body}{body}{:else}{text}{/if}</p>
+{/if}
 
 <style>
 .kiw-text {

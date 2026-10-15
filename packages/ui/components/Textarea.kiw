@@ -1,26 +1,26 @@
-<div class="field-group {{.Class}}">
-  {{with .Label}}
-  <label class="field-label" {{with $.ID}}for="{{.}}"{{end}}>
-    {{.}}
-    {{if $.Required}}<span class="field-required" aria-hidden="true">*</span>{{end}}
+<div class="field-group {class}">
+  {#if label}
+  <label class="field-label" {#if id}for="{id}"{/if}>
+    {label}
+    {#if required}<span class="field-required" aria-hidden="true">*</span>{/if}
   </label>
-  {{end}}
+  {/if}
   <textarea
-    name="{{.Name}}"
-    {{with .ID}}id="{{.}}"{{end}}
-    {{with .Placeholder}}placeholder="{{.}}"{{end}}
-    rows="{{if .Rows}}{{.Rows}}{{else}}4{{end}}"
-    {{if .Required}}required{{end}}
-    {{if .Disabled}}disabled{{end}}
-    class="field-input field-textarea {{if .Error}}has-error{{end}}"
-    {{with .Help}}aria-describedby="{{$.ID}}-help"{{end}}
-  >{{with .Value}}{{.}}{{end}}</textarea>
-  {{with .Help}}
-  <span class="field-help" {{with $.ID}}id="{{.}}-help"{{end}}>{{.}}</span>
-  {{end}}
-  {{with .Error}}
-  <span class="field-error">{{.}}</span>
-  {{end}}
+    name="{name}"
+    {#if id}id="{id}"{/if}
+    {#if placeholder}placeholder="{placeholder}"{/if}
+    rows="{#if rows}{rows}{:else}4{/if}"
+    {#if required}required{/if}
+    {#if disabled}disabled{/if}
+    class="field-input field-textarea {#if error}has-error{/if}"
+    {#if help}aria-describedby="{id}-help"{/if}
+  >{#if value}{value}{/if}</textarea>
+  {#if help}
+  <span class="field-help" {#if id}id="{id}-help"{/if}>{help}</span>
+  {/if}
+  {#if error}
+  <span class="field-error">{error}</span>
+  {/if}
 </div>
 
 <style>

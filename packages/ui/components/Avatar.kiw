@@ -1,17 +1,17 @@
-{{if .Src}}
-<img class="kiw-avatar {{if .Size}}kiw-avatar-{{.Size}}{{else}}kiw-avatar-md{{end}} {{if .Shape}}kiw-avatar-{{.Shape}}{{else}}kiw-avatar-circle{{end}} {{.Class}}"
-     src="{{.Src}}"
-     alt="{{.Alt}}"
-     {{with .ID}}id="{{.}}"{{end}}
+{#if src}
+<img class="kiw-avatar {#if size}kiw-avatar-{size}{:else}kiw-avatar-md{/if} {#if shape}kiw-avatar-{shape}{:else}kiw-avatar-circle{/if} {class}"
+     src="{src}"
+     alt="{alt}"
+     {#if id}id="{id}"{/if}
      loading="lazy"
      decoding="async"
      data-kiw-component="Avatar">
-{{else}}
-<span class="kiw-avatar kiw-avatar-{{if .Size}}{{.Size}}{{else}}md{{end}} kiw-avatar-{{if .Shape}}{{.Shape}}{{else}}circle{{end}} kiw-avatar-initials {{.Class}}"
-      {{with .ID}}id="{{.}}"{{end}}
-      {{if .Alt}}role="img" aria-label="{{.Alt}}"{{else}}aria-hidden="true"{{end}}
-      data-kiw-component="Avatar">{{.Initials}}</span>
-{{end}}
+{:else}
+<span class="kiw-avatar kiw-avatar-{#if size}{size}{:else}md{/if} kiw-avatar-{#if shape}{shape}{:else}circle{/if} kiw-avatar-initials {class}"
+      {#if id}id="{id}"{/if}
+      {#if alt}role="img" aria-label="{alt}"{:else}aria-hidden="true"{/if}
+      data-kiw-component="Avatar">{initials}</span>
+{/if}
 
 <style>
 .kiw-avatar {

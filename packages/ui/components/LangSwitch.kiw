@@ -1,12 +1,12 @@
 <button type="button"
-        class="lang-switch btn btn-outline {{.Class}}"
-        {{with .ID}}id="{{.}}"{{end}}
+        class="lang-switch btn btn-outline {class}"
+        {#if id}id="{id}"{/if}
         data-lang-toggle=""
-        aria-label="{{if .Label}}{{.Label}}{{else}}Toggle language{{end}}"
-        onclick="{{if .OnClick}}{{.OnClick}}{{else}}window.krewireI18n && window.krewireI18n.toggle(){{end}}"
+        aria-label="{#if label}{label}{:else}Toggle language{/if}"
+        onclick="{#if onClick}{onClick}{:else}window.krewireI18n && window.krewireI18n.toggle(){/if}"
         data-kiw-component="LangSwitch">
-  <span class="lang-icon" aria-hidden="true">{{if .Icon}}{{.Icon}}{{else}}🌐{{end}}</span>
-  <span class="lang-code font-bold">{{if .Code}}{{.Code}}{{else}}EN{{end}}</span>
+  <span class="lang-icon" aria-hidden="true">{#if icon}{icon}{:else}🌐{/if}</span>
+  <span class="lang-code font-bold">{#if code}{code}{:else}EN{/if}</span>
 </button>
 
 <style>

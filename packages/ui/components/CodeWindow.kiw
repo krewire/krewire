@@ -1,16 +1,16 @@
-<div class="code-window {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="CodeWindow">
+<div class="code-window {class}" {#if id}id="{id}"{/if} data-kiw-component="CodeWindow">
   <div class="code-window-bar">
     <div class="code-window-dots" aria-hidden="true">
       <span class="code-window-dot dot-red"></span>
       <span class="code-window-dot dot-yellow"></span>
       <span class="code-window-dot dot-green"></span>
     </div>
-    <span class="code-window-title font-mono">{{if .Title}}{{.Title}}{{else}}terminal{{end}}</span>
+    <span class="code-window-title font-mono">{#if title}{title}{:else}terminal{/if}</span>
   </div>
-  <pre class="code-window-pre"><code class="code-window-code">{{if .Body}}{{.Body}}{{else}}<span class="c"># Krewire Devtool</span>
+  <pre class="code-window-pre"><code class="code-window-code">{#if body}{body}{:else}<span class="c"># Krewire Devtool</span>
 <span class="p">$ </span><span class="k">kiw</span> new my-project --site
 <span class="p">$ </span><span class="k">cd</span> my-project && <span class="k">kiw</span> dev
-<span class="t">✓ Ready at http://localhost:8080</span>{{end}}</code></pre>
+<span class="t">✓ Ready at http://localhost:8080</span>{/if}</code></pre>
 </div>
 
 <style>

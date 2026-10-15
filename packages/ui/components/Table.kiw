@@ -1,6 +1,6 @@
-<div class="kiw-table-wrapper {{if .Bordered}}is-bordered{{end}} {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Table">
-  <table class="kiw-table {{if .Striped}}is-striped{{end}} {{if .Hover}}is-hover{{end}}">
-    {{.Body}}
+<div class="kiw-table-wrapper {class}" class:is-bordered={bordered} {#if id}id="{id}"{/if} data-kiw-component="Table">
+  <table class="kiw-table" class:is-striped={striped} class:is-hover={hover}>
+    {body}
   </table>
 </div>
 

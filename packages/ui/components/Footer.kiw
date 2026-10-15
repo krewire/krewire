@@ -1,11 +1,11 @@
-{{if eq .Variant "simple"}}
+{#if variant == "simple"}
 <footer class="bg-bg-2 dark:bg-bg-dark-2 py-6 text-xs text-muted dark:text-muted-dark" style="border-top:1px solid var(--border)">
   <div class="container-site flex flex-wrap items-center justify-between gap-3">
     <span>© 2026 Krewire Contributors — Built 100% with Krewire `site` workload.</span>
     <span><a href="https://github.com/krewire" target="_blank" rel="noopener" class="hover:text-primary transition-colors">github.com/krewire</a> · <a href="/getting-started" class="hover:text-primary transition-colors">Get Started</a></span>
   </div>
 </footer>
-{{else if eq .Variant "contributors"}}
+{:else if variant == "contributors"}
 <footer class="bg-bg-2 dark:bg-bg-dark-2 footer" style="border-top:var(--pop-border)">
   <div class="container-site pt-12 pb-8 footer-inner">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-8 footer-grid" style="border-bottom:var(--pop-border-thin)">
@@ -59,7 +59,7 @@
     </div>
   </div>
 </footer>
-{{else}}
+{:else}
 <footer class="bg-bg-2 dark:bg-bg-dark-2" style="border-top:var(--pop-border)">
   <div class="container-site pt-12 pb-8">
     <!-- Footer grid: 1 col → sm: 2 col → md: 4 col -->
@@ -118,4 +118,4 @@
     </div>
   </div>
 </footer>
-{{end}}
+{/if}

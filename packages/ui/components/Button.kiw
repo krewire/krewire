@@ -1,24 +1,24 @@
-{{if .Href}}
-<a href="{{.Href}}" class="btn {{if .Variant}}btn-{{.Variant}}{{else}}btn-primary{{end}} {{if .Size}}btn-{{.Size}}{{else}}btn-md{{end}} {{.Class}}" {{with .Target}}target="{{.}}" rel="noopener"{{end}} {{if .Disabled}}aria-disabled="true" tabindex="-1"{{end}} {{with .DataI18n}}data-i18n="{{.}}"{{end}}>
-  {{if .Body}}
-    {{.Body}}
-  {{else}}
-    {{with .Icon}}<span class="btn-icon">{{.}}</span>{{end}}
-    {{if or .Text .Label}}<span class="btn-text">{{with .Text}}{{.}}{{else}}{{with .Label}}{{.}}{{end}}{{end}}</span>{{end}}
-    {{with .IconRight}}<span class="btn-icon-right">{{.}}</span>{{end}}
-  {{end}}
+{#if href}
+<a href="{href}" class="btn {#if variant}btn-{variant}{:else}btn-primary{/if} {#if size}btn-{size}{:else}btn-md{/if} {class}" {#if target}target="{target}" rel="noopener"{/if} {#if disabled}aria-disabled="true" tabindex="-1"{/if} {#if dataI18n}data-i18n="{dataI18n}"{/if}>
+  {#if body}
+    {body}
+  {:else}
+    {#if icon}<span class="btn-icon">{icon}</span>{/if}
+    {#if text || label}<span class="btn-text">{#if text}{text}{:else}{label}{/if}</span>{/if}
+    {#if iconRight}<span class="btn-icon-right">{iconRight}</span>{/if}
+  {/if}
 </a>
-{{else}}
-<button type="{{with .Type}}{{.}}{{else}}button{{end}}" class="btn {{if .Variant}}btn-{{.Variant}}{{else}}btn-primary{{end}} {{if .Size}}btn-{{.Size}}{{else}}btn-md{{end}} {{.Class}}" {{if .Disabled}}disabled{{end}} {{with .OnClick}}onclick="{{.}}"{{end}} {{with .Id}}id="{{.}}"{{end}} {{with .AriaLabel}}aria-label="{{.}}"{{end}} {{with .AriaControls}}aria-controls="{{.}}"{{end}} {{with .AriaExpanded}}aria-expanded="{{.}}"{{end}} {{with .AriaPressed}}aria-pressed="{{.}}"{{end}} {{with .DataI18n}}data-i18n="{{.}}"{{end}}>
-  {{if .Body}}
-    {{.Body}}
-  {{else}}
-    {{with .Icon}}<span class="btn-icon">{{.}}</span>{{end}}
-    {{if or .Text .Label}}<span class="btn-text">{{with .Text}}{{.}}{{else}}{{with .Label}}{{.}}{{end}}{{end}}</span>{{end}}
-    {{with .IconRight}}<span class="btn-icon-right">{{.}}</span>{{end}}
-  {{end}}
+{:else}
+<button type="{#if type}{type}{:else}button{/if}" class="btn {#if variant}btn-{variant}{:else}btn-primary{/if} {#if size}btn-{size}{:else}btn-md{/if} {class}" {#if disabled}disabled{/if} {#if onClick}onclick="{onClick}"{/if} {#if id}id="{id}"{/if} {#if ariaLabel}aria-label="{ariaLabel}"{/if} {#if ariaControls}aria-controls="{ariaControls}"{/if} {#if ariaExpanded}aria-expanded="{ariaExpanded}"{/if} {#if ariaPressed}aria-pressed="{ariaPressed}"{/if} {#if dataI18n}data-i18n="{dataI18n}"{/if}>
+  {#if body}
+    {body}
+  {:else}
+    {#if icon}<span class="btn-icon">{icon}</span>{/if}
+    {#if text || label}<span class="btn-text">{#if text}{text}{:else}{label}{/if}</span>{/if}
+    {#if iconRight}<span class="btn-icon-right">{iconRight}</span>{/if}
+  {/if}
 </button>
-{{end}}
+{/if}
 
 <style>
 .btn {

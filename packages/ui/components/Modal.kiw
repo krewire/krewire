@@ -1,17 +1,17 @@
-<dialog class="modal-dialog {{.Class}}" id="{{.Id}}">
+<dialog class="modal-dialog {class}" id="{id}">
   <div class="modal-box">
     <div class="modal-head">
-      <h3 class="modal-title">{{.Title}}</h3>
+      <h3 class="modal-title">{title}</h3>
       <button type="button" class="modal-close" aria-label="Close dialog" onclick="this.closest('dialog').close()">✕</button>
     </div>
     <div class="modal-body">
-      {{with .Body}}{{.}}{{end}}
+      {#if body}{body}{/if}
     </div>
-    {{with .Footer}}
+    {#if footer}
     <div class="modal-footer">
-      {{.}}
+      {footer}
     </div>
-    {{end}}
+    {/if}
   </div>
 </dialog>
 

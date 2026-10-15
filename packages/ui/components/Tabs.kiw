@@ -1,6 +1,6 @@
-<div class="kiw-tabs {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Tabs">
-  <div class="kiw-tabs-list" role="tablist" aria-label="{{with .Label}}{{.}}{{else}}Tabs{{end}}">
-    {{.Body}}
+<div class="kiw-tabs {class}" {#if id}id="{id}"{/if} data-kiw-component="Tabs">
+  <div class="kiw-tabs-list" role="tablist" aria-label="{#if label}{label}{:else}Tabs{/if}">
+    {body}
   </div>
 </div>
 

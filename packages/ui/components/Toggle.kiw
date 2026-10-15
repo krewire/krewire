@@ -1,18 +1,18 @@
-<Button Id=.ID
-        Class=.Class
-        Variant=.Variant
-        Size=.Size
-        Disabled=.Disabled
-        OnClick=.OnClick
-        AriaLabel=.Label
-        AriaPressed=.Pressed>
-  {{if .Body}}
-    {{.Body}}
-  {{else}}
-    {{if .ActiveIcon}}<span class="toggle-icon-active">{{.ActiveIcon}}</span>{{end}}
-    {{if .InactiveIcon}}<span class="toggle-icon-inactive">{{.InactiveIcon}}</span>{{end}}
-    {{if .Text}}<span class="toggle-text">{{.Text}}</span>{{end}}
-  {{end}}
+<Button {id}
+        {class}
+        {variant}
+        {size}
+        {disabled}
+        {onClick}
+        AriaLabel={label}
+        AriaPressed={pressed}>
+  {#if body}
+    {body}
+  {:else}
+    {#if activeIcon}<span class="toggle-icon-active">{activeIcon}</span>{/if}
+    {#if inactiveIcon}<span class="toggle-icon-inactive">{inactiveIcon}</span>{/if}
+    {#if text}<span class="toggle-text">{text}</span>{/if}
+  {/if}
 </Button>
 
 <style>

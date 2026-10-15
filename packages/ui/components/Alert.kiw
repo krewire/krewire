@@ -1,21 +1,21 @@
-<div class="alert alert-{{if .Variant}}{{.Variant}}{{else}}info{{end}} {{.Class}}" role="alert">
+<div class="alert alert-{#if variant}{variant}{:else}info{/if} {class}" role="alert">
   <div class="alert-icon">
-    {{with .Icon}}
-      {{.}}
-    {{else}}
-      {{if eq .Variant "success"}}✓
-      {{else if eq .Variant "warning"}}⚠
-      {{else if eq .Variant "error"}}✕
-      {{else}}ℹ{{end}}
-    {{end}}
+    {#if icon}
+      {icon}
+    {:else}
+      {#if variant == "success"}✓
+      {:else if variant == "warning"}⚠
+      {:else if variant == "error"}✕
+      {:else}ℹ{/if}
+    {/if}
   </div>
   <div class="alert-content">
-    {{with .Title}}<strong class="alert-title">{{.}}</strong>{{end}}
-    <div class="alert-message">{{with .Message}}{{.}}{{else}}{{with .Body}}{{.}}{{end}}{{end}}</div>
+    {#if title}<strong class="alert-title">{title}</strong>{/if}
+    <div class="alert-message">{#if message}{message}{:else if body}{body}{/if}</div>
   </div>
-  {{if .Dismissible}}
+  {#if dismissible}
   <button type="button" class="alert-close" aria-label="Dismiss alert" onclick="this.closest('.alert').remove()">×</button>
-  {{end}}
+  {/if}
 </div>
 
 <style>

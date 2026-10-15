@@ -1,27 +1,27 @@
-<div class="field-group {{.Class}}">
-  {{with .Label}}
-  <label class="field-label" {{with $.Id}}for="{{.}}"{{end}}>
-    {{.}}
-    {{if $.Required}}<span class="field-required" aria-hidden="true">*</span>{{end}}
+<div class="field-group {class}">
+  {#if label}
+  <label class="field-label" {#if id}for="{id}"{/if}>
+    {label}
+    {#if required}<span class="field-required" aria-hidden="true">*</span>{/if}
   </label>
-  {{end}}
+  {/if}
   <input
-    type="{{with .Type}}{{.}}{{else}}text{{end}}"
-    name="{{.Name}}"
-    {{with .Id}}id="{{.}}"{{end}}
-    {{with .Placeholder}}placeholder="{{.}}"{{end}}
-    {{with .Value}}value="{{.}}"{{end}}
-    {{if .Required}}required{{end}}
-    {{if .Disabled}}disabled{{end}}
-    class="field-input {{if .Error}}has-error{{end}}"
-    {{with .Help}}aria-describedby="{{$.Id}}-help"{{end}}
+    type="{#if type}{type}{:else}text{/if}"
+    name="{name}"
+    {#if id}id="{id}"{/if}
+    {#if placeholder}placeholder="{placeholder}"{/if}
+    {#if value}value="{value}"{/if}
+    {#if required}required{/if}
+    {#if disabled}disabled{/if}
+    class="field-input {#if error}has-error{/if}"
+    {#if help}aria-describedby="{id}-help"{/if}
   >
-  {{with .Help}}
-  <span class="field-help" {{with $.Id}}id="{{.}}-help"{{end}}>{{.}}</span>
-  {{end}}
-  {{with .Error}}
-  <span class="field-error">{{.}}</span>
-  {{end}}
+  {#if help}
+  <span class="field-help" {#if id}id="{id}-help"{/if}>{help}</span>
+  {/if}
+  {#if error}
+  <span class="field-error">{error}</span>
+  {/if}
 </div>
 
 <style>

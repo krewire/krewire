@@ -1,7 +1,10 @@
-<div class="kiw-box {{if .Variant}}kiw-box-{{.Variant}}{{end}} {{if .Shadow}}kiw-box-shadow{{end}} {{if .Border}}kiw-box-border{{end}} {{if .Rounded}}kiw-box-rounded{{end}} {{.Class}}"
-     {{with .ID}}id="{{.}}"{{end}}
+<div class="kiw-box {#if variant}kiw-box-{variant}{/if} {class}"
+     class:kiw-box-shadow={shadow}
+     class:kiw-box-border={border}
+     class:kiw-box-rounded={rounded}
+     {#if id}id="{id}"{/if}
      data-kiw-component="Box">
-  {{.Body}}
+  {body}
 </div>
 
 <style>

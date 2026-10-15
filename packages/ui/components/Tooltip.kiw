@@ -1,9 +1,9 @@
-<span class="kiw-tooltip {{if .Placement}}kiw-tooltip-{{.Placement}}{{else}}kiw-tooltip-top{{end}} {{.Class}}"
-      {{with .ID}}id="{{.}}"{{end}}
+<span class="kiw-tooltip {#if placement}kiw-tooltip-{placement}{:else}kiw-tooltip-top{/if} {class}"
+      {#if id}id="{id}"{/if}
       tabindex="0"
       role="tooltip"
-      aria-label="{{.Text}}"
-      data-kiw-component="Tooltip">{{.Body}}</span>
+      aria-label="{text}"
+      data-kiw-component="Tooltip">{body}</span>
 
 <style>
 /* CSS-only tooltip on hover and :focus-visible, so it is reachable by keyboard

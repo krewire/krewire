@@ -1,7 +1,7 @@
-<div class="kiw-container {{if .Size}}kiw-container-{{.Size}}{{else}}kiw-container-default{{end}} {{.Class}}"
-     {{with .ID}}id="{{.}}"{{end}}
+<div class="kiw-container {#if size}kiw-container-{size}{:else}kiw-container-default{/if} {class}"
+     {#if id}id="{id}"{/if}
      data-kiw-component="Container">
-  {{.Body}}
+  {body}
 </div>
 
 <style>

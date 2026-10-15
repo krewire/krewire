@@ -1,50 +1,50 @@
 <div
-  id="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}"
-  class="drawer drawer-{{if .Side}}{{.Side}}{{else}}right{{end}} {{.Class}}"
+  id="{#if id}{id}{:else}drawer{/if}"
+  class="drawer drawer-{#if side}{side}{:else}right{/if} {class}"
   role="dialog"
   aria-modal="true"
-  aria-label="{{if .Title}}{{.Title}}{{else}}Drawer Navigation{{end}}"
+  aria-label="{#if title}{title}{:else}Drawer Navigation{/if}"
   data-kiw-component="Drawer">
   
   <div class="drawer-panel">
-    {{if or .Title (not .NoClose)}}
+    {#if title || !noClose}
     <div class="drawer-head">
       <div class="drawer-title-area">
-        {{with .Title}}
-        <h3 class="drawer-title">{{.}}</h3>
-        {{end}}
+        {#if title}
+        <h3 class="drawer-title">{title}</h3>
+        {/if}
       </div>
       <button
         type="button"
         class="drawer-close"
         aria-label="Close drawer"
-        data-drawer-close="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}"
-        onclick="if(window.forgeDrawer){window.forgeDrawer.close('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}')}else{var d=document.getElementById('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}');if(d)d.classList.remove('drawer-open');var b=document.getElementById('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}-backdrop');if(b)b.classList.remove('backdrop-open');}">
+        data-drawer-close="{#if id}{id}{:else}drawer{/if}"
+        onclick="if(window.forgeDrawer){window.forgeDrawer.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');var b=document.getElementById('{#if id}{id}{:else}drawer{/if}-backdrop');if(b)b.classList.remove('backdrop-open');}">
         ✕
       </button>
     </div>
-    {{end}}
+    {/if}
 
     <div class="drawer-body">
-      {{with .Body}}{{safeHTML .}}{{end}}
+      {#if body}{body}{/if}
     </div>
 
-    {{with .Footer}}
+    {#if footer}
     <div class="drawer-footer">
-      {{safeHTML .}}
+      {footer}
     </div>
-    {{end}}
+    {/if}
   </div>
 </div>
 
-{{if not .NoBackdrop}}
+{#if !noBackdrop}
 <div
-  id="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}-backdrop"
-  class="drawer-backdrop {{.Class}}"
-  data-drawer-backdrop="{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}"
-  onclick="if(window.forgeDrawer){window.forgeDrawer.close('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}')}else{var d=document.getElementById('{{if .ID}}{{.ID}}{{else}}{{with .Id}}{{.}}{{else}}drawer{{end}}{{end}}');if(d)d.classList.remove('drawer-open');this.classList.remove('backdrop-open');}"
+  id="{#if id}{id}{:else}drawer{/if}-backdrop"
+  class="drawer-backdrop {class}"
+  data-drawer-backdrop="{#if id}{id}{:else}drawer{/if}"
+  onclick="if(window.forgeDrawer){window.forgeDrawer.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');this.classList.remove('backdrop-open');}"
   aria-hidden="true"></div>
-{{end}}
+{/if}
 
 <style>
 .drawer {

@@ -1,18 +1,18 @@
-{{if eq .Level "1"}}
-<h1 class="kiw-heading kiw-h1 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h1>
-{{else if eq .Level "2"}}
-<h2 class="kiw-heading kiw-h2 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h2>
-{{else if eq .Level "3"}}
-<h3 class="kiw-heading kiw-h3 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h3>
-{{else if eq .Level "4"}}
-<h4 class="kiw-heading kiw-h4 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h4>
-{{else if eq .Level "5"}}
-<h5 class="kiw-heading kiw-h5 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h5>
-{{else if eq .Level "6"}}
-<h6 class="kiw-heading kiw-h6 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h6>
-{{else}}
-<h2 class="kiw-heading kiw-h2 {{.Class}}" {{with .ID}}id="{{.}}"{{end}} data-kiw-component="Heading">{{if .Body}}{{.Body}}{{else}}{{.Text}}{{end}}</h2>
-{{end}}
+{#if level == "1"}
+<h1 class="kiw-heading kiw-h1 {class}" {#if id}id="{id}"{/if} data-kiw-component="Heading">{#if body}{body}{:else}{text}{/if}</h1>
+{:else if level == "2"}
+<h2 class="kiw-heading kiw-h2 {class}" {#if id}id="{id}"{/if} data-kiw-component="Heading">{#if body}{body}{:else}{text}{/if}</h2>
+{:else if level == "3"}
+<h3 class="kiw-heading kiw-h3 {class}" {#if id}id="{id}"{/if} data-kiw-component="Heading">{#if body}{body}{:else}{text}{/if}</h3>
+{:else if level == "4"}
+<h4 class="kiw-heading kiw-h4 {class}" {#if id}id="{id}"{/if} data-kiw-component="Heading">{#if body}{body}{:else}{text}{/if}</h4>
+{:else if level == "5"}
+<h5 class="kiw-heading kiw-h5 {class}" {#if id}id="{id}"{/if} data-kiw-component="Heading">{#if body}{body}{:else}{text}{/if}</h5>
+{:else if level == "6"}
+<h6 class="kiw-heading kiw-h6 {class}" {#if id}id="{id}"{/if} data-kiw-component="Heading">{#if body}{body}{:else}{text}{/if}</h6>
+{:else}
+<h2 class="kiw-heading kiw-h2 {class}" {#if id}id="{id}"{/if} data-kiw-component="Heading">{#if body}{body}{:else}{text}{/if}</h2>
+{/if}
 
 <style>
 .kiw-heading {

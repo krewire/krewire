@@ -1,10 +1,10 @@
-<span class="kiw-spinner {{if .Size}}kiw-spinner-{{.Size}}{{else}}kiw-spinner-md{{end}} {{.Class}}"
-      {{with .ID}}id="{{.}}"{{end}}
-      {{if .Label}}role="status" aria-label="{{.Label}}"{{else}}aria-hidden="true"{{end}}
+<span class="kiw-spinner {#if size}kiw-spinner-{size}{:else}kiw-spinner-md{/if} {class}"
+      {#if id}id="{id}"{/if}
+      {#if label}role="status" aria-label="{label}"{:else}aria-hidden="true"{/if}
       data-kiw-component="Spinner"></span>
-{{if .Label}}
-<span class="kiw-spinner-label {{.Class}}">{{.Label}}</span>
-{{end}}
+{#if label}
+<span class="kiw-spinner-label {class}">{label}</span>
+{/if}
 
 <style>
 /* Pure CSS spinner: no keyframes asset and no JS, so it costs nothing on a page

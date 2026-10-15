@@ -1,10 +1,10 @@
-<form action="{{if .Action}}{{.Action}}{{else}}#{{end}}"
-      method="{{if .Method}}{{.Method}}{{else}}POST{{end}}"
-      {{with .Enctype}}enctype="{{.}}"{{end}}
-      class="kiw-form {{.Class}}"
-      {{with .ID}}id="{{.}}"{{end}}
+<form action="{#if action}{action}{:else}#{/if}"
+      method="{#if method}{method}{:else}POST{/if}"
+      {#if enctype}enctype="{enctype}"{/if}
+      class="kiw-form {class}"
+      {#if id}id="{id}"{/if}
       data-kiw-component="Form">
-  {{.Body}}
+  {body}
 </form>
 
 <style>

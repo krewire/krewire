@@ -1,6 +1,6 @@
-<nav class="kiw-breadcrumb {{.Class}}" {{with .ID}}id="{{.}}"{{end}} aria-label="{{with .Label}}{{.}}{{else}}Breadcrumb{{end}}" data-kiw-component="Breadcrumb">
+<nav class="kiw-breadcrumb {class}" {#if id}id="{id}"{/if} aria-label="{#if label}{label}{:else}Breadcrumb{/if}" data-kiw-component="Breadcrumb">
   <ol class="kiw-breadcrumb-list">
-    {{.Body}}
+    {body}
   </ol>
 </nav>
 

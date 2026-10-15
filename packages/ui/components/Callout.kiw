@@ -1,7 +1,7 @@
 
-<div class="callout {{.Type}}">
-  <strong>{{.Title}}</strong>
-  <p>{{.Body}}</p>
+<div class="callout {type}">
+  <strong>{title}</strong>
+  <p>{body}</p>
 </div>
 
 <style>

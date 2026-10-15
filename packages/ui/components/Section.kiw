@@ -1,10 +1,10 @@
 
 <section class="section">
   <div class="head">
-    <h2>{{.Title}}</h2>
-    <p>{{.Desc}}</p>
+    <h2>{title}</h2>
+    <p>{desc}</p>
   </div>
-  <div class="body">{{.Content}}</div>
+  <div class="body">{content}</div>
 </section>
 
 <style>

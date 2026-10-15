@@ -1,16 +1,16 @@
-{{if .Ordered}}
-<ol class="kiw-list {{if .Style}}kiw-list-{{.Style}}{{else}}kiw-list-decimal{{end}} {{if .Spacing}}kiw-list-gap-{{.Spacing}}{{else}}kiw-list-gap-sm{{end}} {{.Class}}"
-    {{with .ID}}id="{{.}}"{{end}}
+{#if ordered}
+<ol class="kiw-list {#if style}kiw-list-{style}{:else}kiw-list-decimal{/if} {#if spacing}kiw-list-gap-{spacing}{:else}kiw-list-gap-sm{/if} {class}"
+    {#if id}id="{id}"{/if}
     data-kiw-component="List">
-  {{.Body}}
+  {body}
 </ol>
-{{else}}
-<ul class="kiw-list {{if .Style}}kiw-list-{{.Style}}{{else}}kiw-list-disc{{end}} {{if .Spacing}}kiw-list-gap-{{.Spacing}}{{else}}kiw-list-gap-sm{{end}} {{.Class}}"
-    {{with .ID}}id="{{.}}"{{end}}
+{:else}
+<ul class="kiw-list {#if style}kiw-list-{style}{:else}kiw-list-disc{/if} {#if spacing}kiw-list-gap-{spacing}{:else}kiw-list-gap-sm{/if} {class}"
+    {#if id}id="{id}"{/if}
     data-kiw-component="List">
-  {{.Body}}
+  {body}
 </ul>
-{{end}}
+{/if}
 
 <style>
 .kiw-list {

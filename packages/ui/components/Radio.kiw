@@ -1,18 +1,18 @@
-<label class="kiw-radio-label {{if .Disabled}}is-disabled{{end}} {{.Class}}" {{with .ID}}id="{{.}}-label"{{end}} data-kiw-component="Radio">
+<label class="kiw-radio-label {class}" class:is-disabled={disabled} {#if id}id="{id}-label"{/if} data-kiw-component="Radio">
   <input
     type="radio"
-    name="{{.Name}}"
-    {{with .ID}}id="{{.}}"{{end}}
-    {{with .Value}}value="{{.}}"{{end}}
-    {{if .Checked}}checked{{end}}
-    {{if .Required}}required{{end}}
-    {{if .Disabled}}disabled{{end}}
+    name="{name}"
+    {#if id}id="{id}"{/if}
+    {#if value}value="{value}"{/if}
+    {#if checked}checked{/if}
+    {#if required}required{/if}
+    {#if disabled}disabled{/if}
     class="kiw-radio-input"
   >
   <span class="kiw-radio-circle" aria-hidden="true">
     <span class="kiw-radio-dot"></span>
   </span>
-  <span class="kiw-radio-text">{{if .Body}}{{.Body}}{{else}}{{.Label}}{{end}}</span>
+  <span class="kiw-radio-text">{#if body}{body}{:else}{label}{/if}</span>
 </label>
 
 <style>
