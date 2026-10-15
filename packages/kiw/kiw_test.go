@@ -1,4 +1,4 @@
-// Tests for the .kiw module parser (KWL-KIW-001..003).
+// Tests for the .kiw module parser.
 // Scope: Unit libs/kiw.
 // Moved here from kiw/dsl: the parser is a leaf concern, and framework/web/ssg
 // must be able to parse a .kiw file without importing the devtool.
@@ -54,8 +54,8 @@ func TestParseKiw_JSParseable(t *testing.T) {
 	}
 }
 
-func TestKWF_N4K8Q_GoClientTier_NoNeedJS(t *testing.T) {
-	// Spec: KWF-N4K8Q FRK-DSL-030/031 Scope: Unit — Go WASM as primary client, no need to write JS
+func TestGoClientTier_NoNeedJS(t *testing.T) {
+	// Go WASM as primary client, no need to write JS
 	src := `<div>hi</div><script lang="go" hydrate="load">var c = $props.initial</script><script lang="ts" hydrate="idle">let x=1</script><script lang="go" server>func Load(){}</script>`
 	mod, err := ParseKiw(src)
 	if err != nil {
@@ -73,14 +73,14 @@ func TestKWF_N4K8Q_GoClientTier_NoNeedJS(t *testing.T) {
 	if !mod.ScriptBlocks[2].Server || mod.ScriptBlocks[2].Lang != "go" {
 		t.Errorf("go server block = %+v", mod.ScriptBlocks[2])
 	}
-	// default <script> without lang → js load (FRK-DSL-030)
+	// default <script> without lang → js load
 	mod2, _ := ParseKiw(`<script>console.log(1)</script>`)
 	if mod2.ScriptBlocks[0].Lang != "js" || mod2.ScriptBlocks[0].Hydrate != "load" {
 		t.Errorf("default script block = %+v", mod2.ScriptBlocks[0])
 	}
 }
 
-func TestKWF_N4K8Q_StyleScoped(t *testing.T) {
+func TestStyleScoped(t *testing.T) {
 	src := `<style scoped>.btn{color:red}</style><style>h1{}</style>`
 	mod, err := ParseKiw(src)
 	if err != nil {
@@ -215,5 +215,183 @@ func TestParseKiw_PreservesExternalScriptTags(t *testing.T) {
 	}
 	if len(mod.Scripts) != 0 {
 		t.Errorf("expected 0 inline scripts extracted, got %d", len(mod.Scripts))
+	}
+}
+
+func TestDesugar_Interpolation(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"<h1>{title}</h1>", "<h1>{{.Title}}</h1>"},
+		{"<p>Hello, {user.name}!</p>", "<p>Hello, {{.User.Name}}!</p>"},
+		{"<div>{{.AlreadyDotted}}</div>", "<div>{{.AlreadyDotted}}</div>"},
+		{"<code>{ \"key\": 1 }</code>", "<code>{ \"key\": 1 }</code>"},
+	}
+
+	for _, tc := range cases {
+		out, err := DesugarTemplate(tc.in)
+		if err != nil {
+			t.Fatalf("unexpected error for %q: %v", tc.in, err)
+		}
+		if out != tc.want {
+			t.Errorf("input %q => got %q, want %q", tc.in, out, tc.want)
+		}
+	}
+}
+
+func TestDesugar_Conditionals(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{
+			`{#if role == 'admin'}<h1>Admin</h1>{/if}`,
+			`{{if eq .Role "admin"}}<h1>Admin</h1>{{end}}`,
+		},
+		{
+			`{#if count > 0}<p>Count</p>{:else}<p>Empty</p>{/if}`,
+			`{{if gt .Count 0}}<p>Count</p>{{else}}<p>Empty</p>{{end}}`,
+		},
+		{
+			`{#if role == 'admin' && active}<p>Active Admin</p>{/if}`,
+			`{{if and (eq .Role "admin") .Active}}<p>Active Admin</p>{{end}}`,
+		},
+		{
+			`{#if !isGuest}<p>User</p>{/if}`,
+			`{{if not .IsGuest}}<p>User</p>{{end}}`,
+		},
+		{
+			`{#if role == 'admin' || role == 'editor'}<p>Staff</p>{/if}`,
+			`{{if or (eq .Role "admin") (eq .Role "editor")}}<p>Staff</p>{{end}}`,
+		},
+		{
+			`{#if status == 'a'}<p>A</p>{:else if status == 'b'}<p>B</p>{:else}<p>C</p>{/if}`,
+			`{{if eq .Status "a"}}<p>A</p>{{else if eq .Status "b"}}<p>B</p>{{else}}<p>C</p>{{end}}`,
+		},
+	}
+
+	for _, tc := range cases {
+		out, err := DesugarTemplate(tc.in)
+		if err != nil {
+			t.Fatalf("unexpected error for %q: %v", tc.in, err)
+		}
+		if out != tc.want {
+			t.Errorf("input %q => got %q, want %q", tc.in, out, tc.want)
+		}
+	}
+}
+
+func TestDesugar_Iteration(t *testing.T) {
+	in := `<ul>{#each items as item}<li>{item.title} by {author.name}</li>{/each}</ul>`
+	want := `<ul>{{range $item := .Items}}<li>{{$item.Title}} by {{$.Author.Name}}</li>{{end}}</ul>`
+	out, err := DesugarTemplate(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != want {
+		t.Errorf("got %q, want %q", out, want)
+	}
+
+	inIndex := `{#each tags as tag, i}<span>{i}: {tag}</span>{/each}`
+	wantIndex := `{{range $i, $tag := .Tags}}<span>{{$i}}: {{$tag}}</span>{{end}}`
+	outIndex, err := DesugarTemplate(inIndex)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if outIndex != wantIndex {
+		t.Errorf("got %q, want %q", outIndex, wantIndex)
+	}
+}
+
+func TestDesugar_ClassDirectives(t *testing.T) {
+	in := `<button class="btn" class:btn-primary={variant == 'primary'} class:active={isActive}>Click</button>`
+	want := `<button class="btn{{if eq .Variant "primary"}} btn-primary{{end}}{{if .IsActive}} active{{end}}">Click</button>`
+	out, err := DesugarTemplate(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != want {
+		t.Errorf("got %q, want %q", out, want)
+	}
+
+	inStandalone := `<div class:hidden={!show}>Content</div>`
+	wantStandalone := `<div class="{{if not .Show}}hidden{{end}}">Content</div>`
+	outStandalone, err := DesugarTemplate(inStandalone)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if outStandalone != wantStandalone {
+		t.Errorf("got %q, want %q", outStandalone, wantStandalone)
+	}
+}
+
+func TestDesugar_PropPunning(t *testing.T) {
+	in := `<Card {title} {author} count=42 />`
+	out, err := DesugarTemplate(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, `{{component "Card"`) {
+		t.Fatalf("expected component call in %q", out)
+	}
+	if !strings.Contains(out, `"title" .title`) || !strings.Contains(out, `"author" .author`) || !strings.Contains(out, `"count" 42`) {
+		t.Errorf("expected punned and explicit props, got:\n%s", out)
+	}
+}
+
+func TestParseKiw_FullModernSFC(t *testing.T) {
+	src := `---
+title: Modern Dashboard
+---
+<div class="container" class:active={isActive}>
+  <h1>{title}</h1>
+  {#if user.role == 'admin'}
+    <p>Welcome admin {user.name}!</p>
+  {:else}
+    <p>Welcome guest!</p>
+  {/if}
+  <ul>
+    {#each tags as tag}
+      <li>{tag}</li>
+    {/each}
+  </ul>
+  <Card {title} variant="primary" />
+</div>
+<style scoped>
+.container { padding: 1rem; }
+</style>
+<script>
+console.log("Ready");
+</script>`
+
+	mod, err := ParseKiw(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if mod.Frontmatter["title"] != "Modern Dashboard" {
+		t.Errorf("unexpected frontmatter: %v", mod.Frontmatter)
+	}
+	if !strings.Contains(mod.Body, `{{.Title}}`) {
+		t.Errorf("expected {title} to be desugared to {{.Title}}, got:\n%s", mod.Body)
+	}
+	if !strings.Contains(mod.Body, `{{if eq .User.Role "admin"}}`) {
+		t.Errorf("expected {#if} to be desugared to {{if eq .User.Role \"admin\"}}, got:\n%s", mod.Body)
+	}
+	if !strings.Contains(mod.Body, `{{range $tag := .Tags}}`) {
+		t.Errorf("expected {#each} to be desugared to range, got:\n%s", mod.Body)
+	}
+	if !strings.Contains(mod.Body, `class="container{{if .IsActive}} active{{end}}"`) {
+		t.Errorf("expected class directive to be desugared, got:\n%s", mod.Body)
+	}
+	if !strings.Contains(mod.Body, `{{component "Card" (dict "title" .title "variant" "primary")}}`) {
+		t.Errorf("expected Card to be desugared with punned title prop, got:\n%s", mod.Body)
+	}
+	if len(mod.Styles) != 1 {
+		t.Errorf("expected 1 style block, got %d", len(mod.Styles))
+	}
+	if len(mod.Scripts) != 1 {
+		t.Errorf("expected 1 script block, got %d", len(mod.Scripts))
 	}
 }

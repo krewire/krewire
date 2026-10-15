@@ -128,8 +128,28 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 	}
 
 	var dictPairs []string
+	cleanAttr := attrStr
 	if trimmedAttr != "" {
-		matches := compAttrRe.FindAllStringSubmatch(attrStr, -1)
+		punned := punnedPropRe.FindAllStringSubmatch(attrStr, -1)
+		for _, pm := range punned {
+			propName := pm[1]
+			if propName == "true" || propName == "false" || propName == "nil" {
+				continue
+			}
+			call.Props[propName] = "." + propName
+			dictPairs = append(dictPairs, fmt.Sprintf("%q .%s", propName, propName))
+		}
+		cleanAttr = punnedPropRe.ReplaceAllStringFunc(cleanAttr, func(m string) string {
+			sub := punnedPropRe.FindStringSubmatch(m)
+			if len(sub) > 1 && (sub[1] == "true" || sub[1] == "false" || sub[1] == "nil") {
+				return m
+			}
+			return " "
+		})
+	}
+
+	if strings.TrimSpace(cleanAttr) != "" {
+		matches := compAttrRe.FindAllStringSubmatch(cleanAttr, -1)
 		for _, sm := range matches {
 			if len(sm) < 2 || strings.TrimSpace(sm[1]) == "" {
 				continue
@@ -152,12 +172,18 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 				} else if strings.HasPrefix(val, "{") && strings.HasSuffix(val, "}") {
 					val = strings.TrimSpace(val[1 : len(val)-1])
 					isExpr = true
+					if identPathRe.MatchString(val) && !strings.HasPrefix(val, ".") && !strings.HasPrefix(val, "$") && val != "true" && val != "false" {
+						val = toGoField(val, nil)
+					}
 				}
 			} else if len(sm) > 3 && sm[3] != "" {
 				val = sm[3]
 			} else if len(sm) > 4 && sm[4] != "" {
 				val = strings.TrimSpace(sm[4])
 				isExpr = true
+				if identPathRe.MatchString(val) && !strings.HasPrefix(val, ".") && !strings.HasPrefix(val, "$") && val != "true" && val != "false" {
+					val = toGoField(val, nil)
+				}
 			} else if len(sm) > 5 && sm[5] != "" {
 				val = sm[5]
 				if val == "true" || val == "false" || isNumeric(val) || strings.HasPrefix(val, ".") || strings.HasPrefix(val, "$") {
@@ -194,11 +220,26 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 	return fmt.Sprintf(`{{component %q (dict %s)}}`, name, strings.Join(dictPairs, " ")), call
 }
 
-// DesugarTemplate translates JSX-like component tags (<ComponentName ... />)
-// into Go template component invocations ({{component "ComponentName" ...}}).
+// DesugarTemplate translates modern Svelte-style .kiw 2.0 syntax
+// (interpolation, conditionals, loops, class directives, and JSX-like component tags)
+// into Go template invocations.
 func DesugarTemplate(src string) (string, error) {
-	// First desugar self-closing components: <Navbar ... />
-	res := selfClosingCompRe.ReplaceAllStringFunc(src, func(match string) string {
+	return DesugarTemplateWithScope(src, nil)
+}
+
+// DesugarTemplateWithScope translates .kiw 2.0 syntax within a given variable scope.
+func DesugarTemplateWithScope(src string, loopVars map[string]bool) (string, error) {
+	// 1. Desugar class directives on HTML tags: class:active={isActive}
+	res := desugarClassDirectives(src)
+
+	// 2. Desugar loops: {#each items as item}...{/each}
+	res = desugarLoops(res)
+
+	// 3. Desugar conditionals: {#if ...}, {:else if ...}, {:else}, {/if}
+	res = desugarConditionals(res, loopVars)
+
+	// 4. Desugar self-closing components: <Navbar ... />
+	res = selfClosingCompRe.ReplaceAllStringFunc(res, func(match string) string {
 		sm := selfClosingCompRe.FindStringSubmatch(match)
 		if len(sm) < 3 {
 			return match
@@ -209,8 +250,11 @@ func DesugarTemplate(src string) (string, error) {
 		return replacement
 	})
 
-	// Then desugar paired components: <Card ...>...</Card>
+	// 5. Desugar paired components: <Card ...>...</Card>
 	res = desugarPairedComponents(res)
+
+	// 6. Desugar clean expression interpolation: {var} -> {{.Var}}
+	res = desugarInterpolation(res, loopVars)
 
 	return res, nil
 }
