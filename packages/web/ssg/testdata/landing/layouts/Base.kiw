@@ -1,6 +1,6 @@
 <html>
-<head><title>{{.Title}}</title></head>
-<body>{{.Content}}</body>
+<head><title>{title}</title></head>
+<body>{content}</body>
 </html>
 <style>
 body { font-family: sans-serif; margin: 0; }
