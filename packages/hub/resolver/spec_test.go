@@ -133,12 +133,12 @@ func TestSpecSatisfies(t *testing.T) {
 	}
 }
 
-// TestSEC_PKG_001_ParseSpec_RejectsUnsafeNames verifies that a package name
+// TestParseSpec_RejectsUnsafeNames verifies that a package name
 // which would redirect npm or the Go toolchain to an arbitrary source, escape
 // the project directory, or inject CLI options is refused before any installer
 // runs. npm runs package lifecycle scripts, so an unvalidated specifier is a
 // command-execution vector.
-func TestSEC_PKG_001_ParseSpec_RejectsUnsafeNames(t *testing.T) {
+func TestParseSpec_RejectsUnsafeNames(t *testing.T) {
 	unsafe := []string{
 		"../../../etc",
 		"..\\..\\windows",
@@ -165,9 +165,9 @@ func TestSEC_PKG_001_ParseSpec_RejectsUnsafeNames(t *testing.T) {
 	}
 }
 
-// TestSEC_PKG_002_ParseSpec_AcceptsLegitimateNames guards against the validator
+// TestParseSpec_AcceptsLegitimateNames guards against the validator
 // rejecting the forms the resolver chain is designed to support.
-func TestSEC_PKG_002_ParseSpec_AcceptsLegitimateNames(t *testing.T) {
+func TestParseSpec_AcceptsLegitimateNames(t *testing.T) {
 	valid := []string{
 		"twcss",
 		"twcss@1.2.3",
@@ -183,10 +183,10 @@ func TestSEC_PKG_002_ParseSpec_AcceptsLegitimateNames(t *testing.T) {
 	}
 }
 
-// TestSEC_PKG_003_Chain_RejectsUnsafeSpec verifies the resolution entry point
+// TestChain_RejectsUnsafeSpec verifies the resolution entry point
 // refuses an unsafe spec rather than handing it to an installer, even when the
 // Spec was built by hand instead of through ParseSpec.
-func TestSEC_PKG_003_Chain_RejectsUnsafeSpec(t *testing.T) {
+func TestChain_RejectsUnsafeSpec(t *testing.T) {
 	_, err := DefaultChain().Resolve(Spec{Name: "file:../../etc", Raw: "file:../../etc"})
 	if err == nil {
 		t.Fatal("Chain.Resolve must reject a hand-built unsafe Spec")

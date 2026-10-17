@@ -1,4 +1,3 @@
-// Tests for KWF-L5H2F
 package gateway
 
 import (
@@ -10,7 +9,6 @@ import (
 	"github.com/krewire/krewire/packages/cloud/service/registry"
 )
 
-// Spec: KWF-L5H2F FRK-SVC-020 Scope: Unit
 func TestGateway_NoRoute_Returns404(t *testing.T) {
 	g := New()
 	req := httptest.NewRequest("GET", "/missing", nil)
@@ -21,7 +19,6 @@ func TestGateway_NoRoute_Returns404(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-020 Scope: Unit
 func TestGateway_NoRegistry_Returns502(t *testing.T) {
 	g := New()
 	g.AddRoute(Route{Path: "/api", Service: "backend"})
@@ -33,7 +30,6 @@ func TestGateway_NoRegistry_Returns502(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-020 Scope: Unit
 func TestGateway_WithEndpoint_Proxies(t *testing.T) {
 	// Start a backend server
 	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +53,6 @@ func TestGateway_WithEndpoint_Proxies(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-022 Scope: Unit
 func TestGateway_Reload_ReplacesRoutes(t *testing.T) {
 	g := New()
 	g.AddRoute(Route{Path: "/old", Service: "old-svc"})
@@ -71,7 +66,6 @@ func TestGateway_Reload_ReplacesRoutes(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-023 Scope: Unit
 func TestWriteProblem_ContentType(t *testing.T) {
 	w := httptest.NewRecorder()
 	writeProblem(w, http.StatusBadGateway, "service unavailable")

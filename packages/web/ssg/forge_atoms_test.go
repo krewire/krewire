@@ -1,4 +1,3 @@
-// Tests for KWF-M4R8T. Scope: Forge — Components — Atomic.
 // FRK-FA-002, FRK-FA-004, FRK-FA-006, FRK-FA-020..026.
 //
 // Forge ships its components as .kiw modules, so they are only ever exercised

@@ -1,4 +1,3 @@
-// Tests for KWG-K2N7Q
 package boost
 
 import (
@@ -9,9 +8,6 @@ import (
 	"testing"
 )
 
-// Spec: KWG-K2N7Q GLD-TRD-001 Scope: Template
-// Spec: KWG-K2N7Q GLD-TRD-002 Scope: SDLC Triads
-// Spec: KWG-K2N7Q GLD-TRD-010 Scope: Embed & Managed
 func TestTemplateEmbedded(t *testing.T) {
 	for _, want := range []string{
 		"AGENTS.md",
@@ -153,10 +149,6 @@ func hasPrefixAlias(s, prefix string) bool {
 	return strings.HasPrefix(s, prefix)
 }
 
-// Spec: KWG-K2N7Q GLD-TRD-001 Scope: Triad Integrity
-// Spec: KWG-K2N7Q GLD-TRD-002 Scope: SDLC Lifecycles
-// Spec: KWG-K2N7Q GLD-TRD-003 Scope: Cross-cutting Triads
-// Spec: KWG-K2N7Q GLD-TRD-004 Scope: Governance Triads
 func TestAgentTriadInventory(t *testing.T) {
 	triads := []struct {
 		agent   string

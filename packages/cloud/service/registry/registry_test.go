@@ -1,4 +1,3 @@
-// Tests for KWF-L5H2F
 package registry
 
 import (
@@ -7,7 +6,6 @@ import (
 	"time"
 )
 
-// Spec: KWF-L5H2F FRK-SVC-001 Scope: Unit
 func TestMemoryRegistry_RegisterAndDiscover(t *testing.T) {
 	r := NewMemoryRegistry()
 	ctx := context.Background()
@@ -24,7 +22,6 @@ func TestMemoryRegistry_RegisterAndDiscover(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-001 Scope: Unit
 func TestMemoryRegistry_DiscoverNotFound(t *testing.T) {
 	r := NewMemoryRegistry()
 	_, err := r.Discover(context.Background(), "missing")
@@ -33,7 +30,6 @@ func TestMemoryRegistry_DiscoverNotFound(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-001 Scope: Unit
 func TestMemoryRegistry_Deregister(t *testing.T) {
 	r := NewMemoryRegistry()
 	ctx := context.Background()
@@ -48,7 +44,6 @@ func TestMemoryRegistry_Deregister(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-004 Scope: Unit
 func TestBackoff_NextAndReset(t *testing.T) {
 	b := &Backoff{Initial: 100 * time.Millisecond, Max: 1 * time.Second, Factor: 2}
 	d1 := b.Next()

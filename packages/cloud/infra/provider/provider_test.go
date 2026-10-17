@@ -1,4 +1,3 @@
-// Tests for KWF-B7N3D
 package provider
 
 import (
@@ -77,7 +76,6 @@ func (f *fakeProvider) Resources() []ResourceSchema {
 	return []ResourceSchema{{Kind: "Compute", Description: "compute resource"}}
 }
 
-// Spec: KWF-B7N3D FRK-INFRA-001 Scope: Unit
 func TestProvider_CreateAndRead(t *testing.T) {
 	p := &fakeProvider{name: "test"}
 	ctx := context.Background()
@@ -94,7 +92,6 @@ func TestProvider_CreateAndRead(t *testing.T) {
 	}
 }
 
-// Spec: KWF-B7N3D FRK-INFRA-001 Scope: Unit
 func TestProvider_ReadNotFound(t *testing.T) {
 	p := &fakeProvider{name: "test"}
 	_, err := p.Read(context.Background(), "Compute", "missing")
@@ -103,7 +100,6 @@ func TestProvider_ReadNotFound(t *testing.T) {
 	}
 }
 
-// Spec: KWF-B7N3D FRK-INFRA-002 Scope: Unit
 func TestPlan_HasChanges(t *testing.T) {
 	plan := Plan{Actions: []Action{{Op: OpCreate}}}
 	if !plan.HasChanges() {
@@ -115,7 +111,6 @@ func TestPlan_HasChanges(t *testing.T) {
 	}
 }
 
-// Spec: KWF-B7N3D FRK-INFRA-003 Scope: Unit
 func TestResourceSchema_ValidateResource(t *testing.T) {
 	called := false
 	s := ResourceSchema{
@@ -133,7 +128,6 @@ func TestResourceSchema_ValidateResource(t *testing.T) {
 	}
 }
 
-// Spec: KWF-B7N3D FRK-INFRA-003 Scope: Unit
 func TestResourceSchema_ValidateResource_NilValidator(t *testing.T) {
 	s := ResourceSchema{Kind: "Test"}
 	if err := s.ValidateResource(Resource{Kind: "Test"}); err != nil {

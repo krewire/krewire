@@ -228,11 +228,11 @@ func TestTempName_IsDistinctFromOccupiedNames(t *testing.T) {
 	}
 }
 
-// TestSEC_FILE_001_Write_RefusesSymlinkTarget verifies that a write does not
+// TestWrite_RefusesSymlinkTarget verifies that a write does not
 // follow a symlink planted at the destination. Following it would let an
 // attacker who can create a file in a writable directory overwrite an arbitrary
 // file elsewhere on the system (CWE-59).
-func TestSEC_FILE_001_Write_RefusesSymlinkTarget(t *testing.T) {
+func TestWrite_RefusesSymlinkTarget(t *testing.T) {
 	dir := t.TempDir()
 	victim := filepath.Join(dir, "victim.txt")
 	if err := os.WriteFile(victim, []byte("ORIGINAL"), 0o600); err != nil {
@@ -258,8 +258,8 @@ func TestSEC_FILE_001_Write_RefusesSymlinkTarget(t *testing.T) {
 	}
 }
 
-// TestSEC_FILE_002_WriteAtomic_RefusesSymlinkTarget is the atomic variant.
-func TestSEC_FILE_002_WriteAtomic_RefusesSymlinkTarget(t *testing.T) {
+// TestWriteAtomic_RefusesSymlinkTarget is the atomic variant.
+func TestWriteAtomic_RefusesSymlinkTarget(t *testing.T) {
 	dir := t.TempDir()
 	victim := filepath.Join(dir, "victim.txt")
 	if err := os.WriteFile(victim, []byte("ORIGINAL"), 0o600); err != nil {
@@ -281,11 +281,11 @@ func TestSEC_FILE_002_WriteAtomic_RefusesSymlinkTarget(t *testing.T) {
 	}
 }
 
-// TestSEC_FILE_003_Write_EnforcesPermOnExistingFile verifies that the requested
+// TestWrite_EnforcesPermOnExistingFile verifies that the requested
 // mode is applied even when the file already exists. os.WriteFile ignores perm
 // for an existing file, which let a 0644 file stay world-readable after a
 // rewrite that requested 0600.
-func TestSEC_FILE_003_Write_EnforcesPermOnExistingFile(t *testing.T) {
+func TestWrite_EnforcesPermOnExistingFile(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("POSIX file modes")
 	}
@@ -306,11 +306,11 @@ func TestSEC_FILE_003_Write_EnforcesPermOnExistingFile(t *testing.T) {
 	}
 }
 
-// TestSEC_FILE_004_WriteAtomic_UnpredictableTempName verifies the temporary
+// TestWriteAtomic_UnpredictableTempName verifies the temporary
 // file name carries cryptographic randomness. A timestamp-derived name is
 // predictable, so another process could pre-create it as a symlink and capture
 // the write.
-func TestSEC_FILE_004_WriteAtomic_UnpredictableTempName(t *testing.T) {
+func TestWriteAtomic_UnpredictableTempName(t *testing.T) {
 	dir := t.TempDir()
 	seen := map[string]bool{}
 	for i := 0; i < 32; i++ {

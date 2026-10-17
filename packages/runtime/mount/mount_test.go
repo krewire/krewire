@@ -1,4 +1,3 @@
-// Tests for KWF-T4X9P
 package mount
 
 import (
@@ -6,8 +5,7 @@ import (
 	"testing"
 )
 
-// Spec: KWF-T4X9P FRK-WASM-040 Scope: Unit
-func TestFRK_WASM_040_Wrap_EmitsMarkersPropsAndEscaping(t *testing.T) {
+func TestWrap_EmitsMarkersPropsAndEscaping(t *testing.T) {
 	got := Wrap("Counter", Load, `{"initial":0}`, `<p>hi</p>`)
 	want := `<div data-kiw-mount="Counter" data-kiw-hydrate="load" data-kiw-props="{&#34;initial&#34;:0}"><p>hi</p></div>`
 	if got != want {
@@ -24,8 +22,7 @@ func TestFRK_WASM_040_Wrap_EmitsMarkersPropsAndEscaping(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-040 Scope: Unit
-func TestFRK_WASM_040_ParseHydrate_ValidAndUnknown(t *testing.T) {
+func TestParseHydrate_ValidAndUnknown(t *testing.T) {
 	for _, s := range []string{"load", "idle", "visible"} {
 		if _, err := ParseHydrate(s); err != nil {
 			t.Fatalf("ParseHydrate(%q) = %v", s, err)
@@ -38,8 +35,7 @@ func TestFRK_WASM_040_ParseHydrate_ValidAndUnknown(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-041 Scope: Unit
-func TestFRK_WASM_041_Scan_FindsMountsInOrderWithRoundtripProps(t *testing.T) {
+func TestScan_FindsMountsInOrderWithRoundtripProps(t *testing.T) {
 	page := `<!doctype html><html><head><title>t</title></head><body>` +
 		Wrap("A", Load, `{"n":1}`, `<p>a</p>`) +
 		`<main>` + Wrap("B", Visible, ``, `<i>b</i>`) + `</main>` +
@@ -73,8 +69,7 @@ func TestFRK_WASM_041_Scan_FindsMountsInOrderWithRoundtripProps(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-041 Scope: Unit
-func TestFRK_WASM_041_Scan_NoMountsAndPartialMarkers(t *testing.T) {
+func TestScan_NoMountsAndPartialMarkers(t *testing.T) {
 	got, err := Scan(`<html><body><p>plain</p></body></html>`)
 	if err != nil || len(got) != 0 {
 		t.Fatalf("plain page: mounts=%v err=%v", got, err)

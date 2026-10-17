@@ -1,4 +1,3 @@
-// Tests for KWF-TEST-N8R2Q
 package browser
 
 import (
@@ -8,9 +7,7 @@ import (
 	ftest "github.com/krewire/krewire/packages/testing"
 )
 
-// Spec: KWF-TEST-N8R2Q KWF-TST-N8R-001 Scope: Service
-func TestKWF_TST_N8R_001_Browser_New_Valid(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-N8R2Q", "KWF-TST-N8R-001")
+func TestBrowser_New_Valid(t *testing.T) {
 	srv := ftest.Server(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`<html><body><nav><a href="/next">next</a></nav><h1>Hello</h1></body></html>`))
 	}))
@@ -23,9 +20,7 @@ func TestKWF_TST_N8R_001_Browser_New_Valid(t *testing.T) {
 	b.Screenshot("browser_test_unit")
 }
 
-// Spec: KWF-TEST-N8R2Q KWF-TST-N8R-002 Scope: Service
-func TestKWF_TST_N8R_002_Browser_Click_Valid(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-N8R2Q", "KWF-TST-N8R-002")
+func TestBrowser_Click_Valid(t *testing.T) {
 	srv := ftest.Server(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/next" {
 			_, _ = w.Write([]byte(`<h1>Next</h1>`))

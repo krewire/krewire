@@ -1,4 +1,3 @@
-// Tests for KWF-TEST-U9K3M
 package test
 
 import (
@@ -7,16 +6,12 @@ import (
 	"testing"
 )
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-010 Scope: Unit
-func TestKWF_TST_U9K_010_HTML_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-010")
+func TestHTML_Valid(t *testing.T) {
 	html := `<nav><a class="link" href="/">a</a><a class="link" href="/b">b</a></nav><div id="main">Hello Docs</div>`
 	HTML(t, html).Has("nav a", 2).Has("a.link", 2).Has("#main", 1).ContainsText("Hello").HasText("div", "Hello Docs").Attr("a", "href", "/")
 }
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-011 Scope: Unit
-func TestKWF_TST_U9K_011_Snapshot_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-011")
+func TestSnapshot_Valid(t *testing.T) {
 	name := "ui_snapshot_test"
 	path := filepath.Join("testdata", name+".golden")
 	_ = os.Remove(path)
@@ -27,9 +22,7 @@ func TestKWF_TST_U9K_011_Snapshot_Valid(t *testing.T) {
 	_ = os.Remove(path)
 }
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-012 Scope: Unit
-func TestKWF_TST_U9K_012_ThemeSnapshot_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-012")
+func TestThemeSnapshot_Valid(t *testing.T) {
 	name := "theme_snapshot_test"
 	path := filepath.Join("testdata", name+".golden")
 	_ = os.Remove(path)

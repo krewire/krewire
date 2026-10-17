@@ -98,10 +98,10 @@ func countDecl(css, name string) int {
 	return strings.Count(css, name+":")
 }
 
-// TestTHEME_001_CSSDeclaresTokens verifies the generated stylesheet still carries
+// TestCSSDeclaresTokens verifies the generated stylesheet still carries
 // every design token. The rules for light and dark are generated from one shared
 // template, so a missing palette field would silently drop a declaration.
-func TestTHEME_001_CSSDeclaresTokens(t *testing.T) {
+func TestCSSDeclaresTokens(t *testing.T) {
 	css := string(DefaultTheme().CSS())
 
 	// Mode-independent tokens belong to :root only, so they are declared once.
@@ -127,9 +127,9 @@ func TestTHEME_001_CSSDeclaresTokens(t *testing.T) {
 	}
 }
 
-// TestTHEME_002_CSSUsesPaletteFallbacks verifies the token block resolves through
+// TestCSSUsesPaletteFallbacks verifies the token block resolves through
 // the default palettes, so a palette change is reflected without editing CSS.
-func TestTHEME_002_CSSUsesPaletteFallbacks(t *testing.T) {
+func TestCSSUsesPaletteFallbacks(t *testing.T) {
 	css := string(DefaultTheme().CSS())
 	if !strings.Contains(css, "var(--primary, "+string(DefaultLightPalette.Primary)+")") {
 		t.Error("the light primary colour must come from DefaultLightPalette")
@@ -142,18 +142,18 @@ func TestTHEME_002_CSSUsesPaletteFallbacks(t *testing.T) {
 	}
 }
 
-// TestTHEME_003_CSSNilReceiver verifies CSS on a nil Theme falls back to the
+// TestCSSNilReceiver verifies CSS on a nil Theme falls back to the
 // defaults instead of panicking, since App.RenderShell calls it directly.
-func TestTHEME_003_CSSNilReceiver(t *testing.T) {
+func TestCSSNilReceiver(t *testing.T) {
 	var nilTheme *Theme
 	if css := string(nilTheme.CSS()); !strings.Contains(css, "--forge-primary") {
 		t.Error("a nil Theme must render the default token block")
 	}
 }
 
-// TestTHEME_004_StorageKeyAndDefaultMode covers the storage-key fallback and the
+// TestStorageKeyAndDefaultMode covers the storage-key fallback and the
 // mode coercion rules.
-func TestTHEME_004_StorageKeyAndDefaultMode(t *testing.T) {
+func TestStorageKeyAndDefaultMode(t *testing.T) {
 	if got := (Theme{}).StorageKeyOrDefault(); got != defaultThemeKey {
 		t.Errorf("StorageKeyOrDefault = %q, want %q", got, defaultThemeKey)
 	}
@@ -173,8 +173,8 @@ func TestTHEME_004_StorageKeyAndDefaultMode(t *testing.T) {
 	}
 }
 
-// TestTHEME_005_BuildersAreChainable covers the fluent setters.
-func TestTHEME_005_BuildersAreChainable(t *testing.T) {
+// TestBuildersAreChainable covers the fluent setters.
+func TestBuildersAreChainable(t *testing.T) {
 	th := NewTheme().WithStorageKey("k").WithDefault("dark")
 	if th.StorageKey != "k" || th.Default != "dark" {
 		t.Errorf("builders produced %+v", th)
@@ -187,10 +187,10 @@ func TestTHEME_005_BuildersAreChainable(t *testing.T) {
 	}
 }
 
-// TestTHEME_006_ScriptQuotesStorageKey verifies the runtime script receives the
+// TestScriptQuotesStorageKey verifies the runtime script receives the
 // configured key, safely quoted so a key containing a quote cannot break out of
 // the JavaScript string literal.
-func TestTHEME_006_ScriptQuotesStorageKey(t *testing.T) {
+func TestScriptQuotesStorageKey(t *testing.T) {
 	script := string(Theme{StorageKey: `we"ird`, Default: "dark"}.Script())
 	if !strings.Contains(script, `we\"ird`) {
 		t.Errorf("the storage key must be safely quoted in the script:\n%s", script)
@@ -203,9 +203,9 @@ func TestTHEME_006_ScriptQuotesStorageKey(t *testing.T) {
 	}
 }
 
-// TestTHEME_009_CSSIncludesSharedBlocks verifies the shared constants are actually
+// TestCSSIncludesSharedBlocks verifies the shared constants are actually
 // wired into the sheet rather than declared and forgotten.
-func TestTHEME_009_CSSIncludesSharedBlocks(t *testing.T) {
+func TestCSSIncludesSharedBlocks(t *testing.T) {
 	css := string(DefaultTheme().CSS())
 	if !strings.Contains(css, ThemeModeVarsCSS) {
 		t.Error("ThemeModeVarsCSS must be included")

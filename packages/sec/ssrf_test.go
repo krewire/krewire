@@ -1,6 +1,5 @@
 package sec
 
-// Tests for SEC-A10-001.
 import (
 	"errors"
 	"testing"

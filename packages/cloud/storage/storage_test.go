@@ -1,4 +1,3 @@
-// Tests for KWF-AST-K7Q2M
 package storage
 
 import (
@@ -21,8 +20,7 @@ func kvBackends(t *testing.T) map[string]KV {
 	}
 }
 
-// Spec: KWF-AST-K7Q2M FRK-AST-010 Scope: Unit
-func TestFRK_AST_010_KVContract_AllBackends(t *testing.T) {
+func TestKVContract_AllBackends(t *testing.T) {
 	ctx := context.Background()
 	for name, kv := range kvBackends(t) {
 		t.Run(name, func(t *testing.T) {
@@ -63,8 +61,7 @@ func TestFRK_AST_010_KVContract_AllBackends(t *testing.T) {
 	}
 }
 
-// Spec: KWF-AST-K7Q2M FRK-AST-012 Scope: Unit
-func TestFRK_AST_012_FileKV_RejectsTraversal(t *testing.T) {
+func TestFileKV_RejectsTraversal(t *testing.T) {
 	kv, err := NewFile(t.TempDir())
 	if err != nil {
 		t.Fatal(err)

@@ -7,7 +7,6 @@ import (
 	"github.com/krewire/krewire/packages/ui/components"
 )
 
-// Tests for KWF-M4R8T. Scope: Forge — Components — Atomic.
 // FRK-FA-001, FRK-FA-004: every built-in component is readable from the
 // embedded FS and non-empty.
 //

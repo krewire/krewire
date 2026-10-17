@@ -1,4 +1,3 @@
-// Tests for KWF-WEB-R9T4C CORS middleware
 package web
 
 import (

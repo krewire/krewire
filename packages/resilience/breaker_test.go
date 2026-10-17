@@ -8,10 +8,10 @@ import (
 	"time"
 )
 
-// TestRESILIENCE_010_BreakerOpensAfterThreshold verifies the breaker admits
+// TestBreakerOpensAfterThreshold verifies the breaker admits
 // calls below the threshold and refuses them once the threshold is reached,
 // without invoking the operation.
-func TestRESILIENCE_010_BreakerOpensAfterThreshold(t *testing.T) {
+func TestBreakerOpensAfterThreshold(t *testing.T) {
 	breaker := NewCircuitBreaker(3, time.Minute)
 	failure := errors.New("dependency down")
 
@@ -47,10 +47,10 @@ func TestRESILIENCE_010_BreakerOpensAfterThreshold(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_011_SuccessResetsFailureCount verifies a success inside the
+// TestSuccessResetsFailureCount verifies a success inside the
 // threshold resets the count, so an intermittent failure never accumulates into
 // a spurious open.
-func TestRESILIENCE_011_SuccessResetsFailureCount(t *testing.T) {
+func TestSuccessResetsFailureCount(t *testing.T) {
 	breaker := NewCircuitBreaker(2, time.Minute)
 	failure := errors.New("flaky")
 
@@ -67,10 +67,10 @@ func TestRESILIENCE_011_SuccessResetsFailureCount(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_012_HalfOpenAdmitsOneProbe verifies that after the cooldown only
+// TestHalfOpenAdmitsOneProbe verifies that after the cooldown only
 // a single probe runs: a second caller is refused while the probe is still in
 // flight, which is what stops a stampede onto a recovering dependency.
-func TestRESILIENCE_012_HalfOpenAdmitsOneProbe(t *testing.T) {
+func TestHalfOpenAdmitsOneProbe(t *testing.T) {
 	breaker := NewCircuitBreaker(1, time.Millisecond)
 	release := make(chan struct{})
 	probeStarted := make(chan struct{})
@@ -105,10 +105,10 @@ func TestRESILIENCE_012_HalfOpenAdmitsOneProbe(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_013_FailedProbeReopensBreaker verifies a failing half-open probe
+// TestFailedProbeReopensBreaker verifies a failing half-open probe
 // returns the breaker to Open rather than leaving it half-open to admit more
 // traffic.
-func TestRESILIENCE_013_FailedProbeReopensBreaker(t *testing.T) {
+func TestFailedProbeReopensBreaker(t *testing.T) {
 	breaker := NewCircuitBreaker(1, time.Millisecond)
 	failure := errors.New("still down")
 
@@ -126,10 +126,10 @@ func TestRESILIENCE_013_FailedProbeReopensBreaker(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_014_NewCircuitBreakerNormalizesInput verifies the constructor
+// TestNewCircuitBreakerNormalizesInput verifies the constructor
 // raises a nonsensical threshold to 1 and clamps a negative cooldown, so a
 // misconfigured breaker still gates traffic instead of never opening.
-func TestRESILIENCE_014_NewCircuitBreakerNormalizesInput(t *testing.T) {
+func TestNewCircuitBreakerNormalizesInput(t *testing.T) {
 	for _, threshold := range []int{0, -1} {
 		breaker := NewCircuitBreaker(threshold, time.Minute)
 		if err := breaker.Do(context.Background(), func(context.Context) error { return errors.New("x") }); err == nil {
@@ -149,20 +149,20 @@ func TestRESILIENCE_014_NewCircuitBreakerNormalizesInput(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_015_NilBreakerRefusesCalls verifies a nil breaker reports
+// TestNilBreakerRefusesCalls verifies a nil breaker reports
 // ErrCircuitOpen instead of panicking, so a caller holding an unconfigured
 // breaker degrades to "refused" rather than crashing.
-func TestRESILIENCE_015_NilBreakerRefusesCalls(t *testing.T) {
+func TestNilBreakerRefusesCalls(t *testing.T) {
 	var breaker *CircuitBreaker
 	if err := breaker.Do(context.Background(), func(context.Context) error { return nil }); !errors.Is(err, ErrCircuitOpen) {
 		t.Errorf("err = %v, want ErrCircuitOpen", err)
 	}
 }
 
-// TestRESILIENCE_016_ZeroCooldownRecoversImmediately verifies a breaker built
+// TestZeroCooldownRecoversImmediately verifies a breaker built
 // with a zero cooldown passes through half-open on the next call rather than
 // latching open forever.
-func TestRESILIENCE_016_ZeroCooldownRecoversImmediately(t *testing.T) {
+func TestZeroCooldownRecoversImmediately(t *testing.T) {
 	breaker := NewCircuitBreaker(1, 0)
 	if err := breaker.Do(context.Background(), func(context.Context) error { return errors.New("x") }); err == nil {
 		t.Fatal("expected the failure to propagate")
@@ -175,9 +175,9 @@ func TestRESILIENCE_016_ZeroCooldownRecoversImmediately(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_018_BreakerStateString verifies the diagnostics name each state,
+// TestBreakerStateString verifies the diagnostics name each state,
 // so a logged breaker reads "half-open" rather than the number 2.
-func TestRESILIENCE_018_BreakerStateString(t *testing.T) {
+func TestBreakerStateString(t *testing.T) {
 	cases := map[BreakerState]string{Closed: "closed", Open: "open", HalfOpen: "half-open"}
 	for state, want := range cases {
 		if got := state.String(); got != want {
@@ -186,11 +186,11 @@ func TestRESILIENCE_018_BreakerStateString(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_017_BreakerIsConcurrencySafe exercises the breaker under
+// TestBreakerIsConcurrencySafe exercises the breaker under
 // parallel callers. Run with -race, this fails if the state transitions are not
 // serialized: every call must be accounted for as served or refused, never
 // silently dropped, and the breaker must not latch open under mixed traffic.
-func TestRESILIENCE_017_BreakerIsConcurrencySafe(t *testing.T) {
+func TestBreakerIsConcurrencySafe(t *testing.T) {
 	const (
 		callers   = 32
 		perCaller = 20

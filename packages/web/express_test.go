@@ -1,4 +1,3 @@
-// Tests for KWF-WEB-P3V8X
 package web
 
 import (
@@ -20,8 +19,7 @@ func mw(tag string, marks *[]string) Middleware {
 	}
 }
 
-// Spec: KWF-WEB-P3V8X FRK-WEX-002 Scope: Unit
-func TestFRK_WEX_002_GroupScopedMiddleware(t *testing.T) {
+func TestGroupScopedMiddleware(t *testing.T) {
 	var marks []string
 	r := NewRouter()
 	r.Use(mw("global", &marks))
@@ -50,8 +48,7 @@ func TestFRK_WEX_002_GroupScopedMiddleware(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-P3V8X FRK-WEX-001+003 Scope: Unit
-func TestFRK_WEX_001_RouteBuilder_NameAndURL(t *testing.T) {
+func TestRouteBuilder_NameAndURL(t *testing.T) {
 	r := NewRouter()
 	called := ""
 	r.GET("/users/{id}").
@@ -86,8 +83,7 @@ func TestFRK_WEX_001_RouteBuilder_NameAndURL(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-P3V8X FRK-WEX-004 Scope: Unit
-func TestFRK_WEX_004_ControllerRegistration(t *testing.T) {
+func TestControllerRegistration(t *testing.T) {
 	r := NewRouter()
 	r.Register(&pingController{})
 	rec := httptest.NewRecorder()
@@ -111,8 +107,7 @@ type listQuery struct {
 	OK   bool     `query:"ok"`
 }
 
-// Spec: KWF-WEB-P3V8X FRK-WEX-021 Scope: Unit
-func TestFRK_WEX_021_HQ_QueryBinding(t *testing.T) {
+func TestHQ_QueryBinding(t *testing.T) {
 	r := NewRouter()
 	r.GET("/list").Handle(HQ(func(req *Request, q *listQuery) (any, error) {
 		return map[string]any{"page": q.Page, "tags": q.Tags, "ok": q.OK}, nil
@@ -140,8 +135,7 @@ type createIn struct {
 	Name string `json:"name" validate:"required"`
 }
 
-// Spec: KWF-WEB-P3V8X FRK-WEX-010+020 Scope: Unit
-func TestFRK_WEX_020_H_BodyBindingAndResponseBuilder(t *testing.T) {
+func TestH_BodyBindingAndResponseBuilder(t *testing.T) {
 	r := NewRouter()
 	r.POST("/items").Handle(H(func(req *Request, in *createIn) (any, error) {
 		if req.Query("dry") == "1" {
@@ -183,8 +177,7 @@ func TestFRK_WEX_020_H_BodyBindingAndResponseBuilder(t *testing.T) {
 	ftest.EqualStatus(t, rec3, http.StatusNoContent)
 }
 
-// Spec: KWF-WEB-P3V8X FRK-WEX-011 Scope: Unit
-func TestFRK_WEX_011_ResponseBuilderVariants(t *testing.T) {
+func TestResponseBuilderVariants(t *testing.T) {
 	// Redirect
 	rs := Respond().Redirect("/login", http.StatusSeeOther)
 	rec := httptest.NewRecorder()

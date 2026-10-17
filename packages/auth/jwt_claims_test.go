@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-// TestAUTH_001_ToInt64CoversEveryJSONNumberShape verifies the numeric claim
+// TestToInt64CoversEveryJSONNumberShape verifies the numeric claim
 // coercion accepts every shape a decoded JSON number or hand-built claim can
 // arrive as, and rejects everything else. A rejected shape must return false so
 // the caller fails closed rather than treating a non-numeric claim as a
 // timestamp.
-func TestAUTH_001_ToInt64CoversEveryJSONNumberShape(t *testing.T) {
+func TestToInt64CoversEveryJSONNumberShape(t *testing.T) {
 	accepted := []struct {
 		name string
 		in   any
@@ -58,10 +58,10 @@ func TestAUTH_001_ToInt64CoversEveryJSONNumberShape(t *testing.T) {
 	}
 }
 
-// TestAUTH_002_NonNumericExpIsRejected verifies a token whose exp claim is a
+// TestNonNumericExpIsRejected verifies a token whose exp claim is a
 // string rather than a number is refused, rather than the claim being ignored
 // and the token treated as non-expiring.
-func TestAUTH_002_NonNumericExpIsRejected(t *testing.T) {
+func TestNonNumericExpIsRejected(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	token, err := SignJWT(secret, Claims{"sub": "u", "exp": "tomorrow"})
 	if err != nil {
@@ -72,11 +72,11 @@ func TestAUTH_002_NonNumericExpIsRejected(t *testing.T) {
 	}
 }
 
-// TestAUTH_003_JWTAuthOptionAdaptersMatchTheSharedPolicy verifies the deprecated
+// TestJWTAuthOptionAdaptersMatchTheSharedPolicy verifies the deprecated
 // WithJWT* adapters reach the same ParseOptions the ParseOption set does, since
 // JWTAuth now embeds ParseOptions and a mismatch would silently ignore a caller's
 // policy.
-func TestAUTH_003_JWTAuthOptionAdaptersMatchTheSharedPolicy(t *testing.T) {
+func TestJWTAuthOptionAdaptersMatchTheSharedPolicy(t *testing.T) {
 	o := &JWTOptions{ParseOptions: ParseOptions{RequireExp: true, MinSecretLength: RecommendedMinSecretLength}}
 	WithJWTLeeway(90 * time.Second)(o)
 	WithJWTRequireExp(false)(o)
@@ -102,10 +102,10 @@ func TestAUTH_003_JWTAuthOptionAdaptersMatchTheSharedPolicy(t *testing.T) {
 	}
 }
 
-// TestAUTH_004_JWTAuthHonorsLeewayThroughTheSharedPolicy verifies the leeway set
+// TestJWTAuthHonorsLeewayThroughTheSharedPolicy verifies the leeway set
 // on the middleware actually reaches the codec, end to end through a token that is
 // inside its nbf window.
-func TestAUTH_004_JWTAuthHonorsLeewayThroughTheSharedPolicy(t *testing.T) {
+func TestJWTAuthHonorsLeewayThroughTheSharedPolicy(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	claims := DefaultClaims("carol", time.Hour)
 	claims["nbf"] = time.Now().Add(5 * time.Minute).Unix()
@@ -133,9 +133,9 @@ func TestAUTH_004_JWTAuthHonorsLeewayThroughTheSharedPolicy(t *testing.T) {
 	}
 }
 
-// TestAUTH_005_JWTAuthReadsTokenFromCookie verifies the cookie fallback, which is
+// TestJWTAuthReadsTokenFromCookie verifies the cookie fallback, which is
 // how a browser client that cannot set an Authorization header authenticates.
-func TestAUTH_005_JWTAuthReadsTokenFromCookie(t *testing.T) {
+func TestJWTAuthReadsTokenFromCookie(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	token, err := SignJWT(secret, DefaultClaims("dave", time.Hour))
 	if err != nil {
@@ -162,10 +162,10 @@ func TestAUTH_005_JWTAuthReadsTokenFromCookie(t *testing.T) {
 	}
 }
 
-// TestAUTH_006_JWTAuthRejectsFailedClaimChecks verifies the claim policy is
+// TestJWTAuthRejectsFailedClaimChecks verifies the claim policy is
 // enforced by the middleware, including the numeric-and-string comparison that a
 // JSON round trip can change.
-func TestAUTH_006_JWTAuthRejectsFailedClaimChecks(t *testing.T) {
+func TestJWTAuthRejectsFailedClaimChecks(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	// The token must carry exp: JWTAuth requires it by default, so a token
 	// without one is refused before the claim checks ever run.
@@ -204,9 +204,9 @@ func TestAUTH_006_JWTAuthRejectsFailedClaimChecks(t *testing.T) {
 	}
 }
 
-// TestAUTH_007_IdentityFromClaimsRoleShapes verifies the three claim shapes that
+// TestIdentityFromClaimsRoleShapes verifies the three claim shapes that
 // carry roles, plus the precedence between them.
-func TestAUTH_007_IdentityFromClaimsRoleShapes(t *testing.T) {
+func TestIdentityFromClaimsRoleShapes(t *testing.T) {
 	cases := []struct {
 		name   string
 		claims Claims
@@ -238,9 +238,9 @@ func TestAUTH_007_IdentityFromClaimsRoleShapes(t *testing.T) {
 	}
 }
 
-// TestAUTH_008_IdentityFromClaimsSubject verifies sub is stringified when present
+// TestIdentityFromClaimsSubject verifies sub is stringified when present
 // and an absent claim leaves the subject empty rather than panicking.
-func TestAUTH_008_IdentityFromClaimsSubject(t *testing.T) {
+func TestIdentityFromClaimsSubject(t *testing.T) {
 	id, _ := identityFromClaims(Claims{"sub": 12345}, nil)
 	if id.Subject != "12345" {
 		t.Errorf("Subject = %q, want \"12345\"", id.Subject)

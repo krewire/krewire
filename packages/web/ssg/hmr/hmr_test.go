@@ -1,4 +1,3 @@
-// Tests for KWF-209JV
 package hmr
 
 import (
@@ -7,7 +6,6 @@ import (
 	"time"
 )
 
-// Spec: KWF-209JV Scope: Unit
 func TestNewServer(t *testing.T) {
 	s := NewServer()
 	if s == nil {
@@ -18,7 +16,6 @@ func TestNewServer(t *testing.T) {
 	}
 }
 
-// Spec: KWF-209JV Scope: Unit
 func TestBroadcast_NoClients(t *testing.T) {
 	s := NewServer()
 	s.Broadcast(Event{Type: EventReload})
@@ -27,7 +24,6 @@ func TestBroadcast_NoClients(t *testing.T) {
 	}
 }
 
-// Spec: KWF-209JV Scope: Unit
 func TestServeHTTP_SSE(t *testing.T) {
 	s := NewServer()
 	req := httptest.NewRequest("GET", "/__krewire/hmr", nil)
@@ -56,7 +52,6 @@ func TestServeHTTP_SSE(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 }
 
-// Spec: KWF-209JV Scope: Unit
 func TestEvent_Types(t *testing.T) {
 	tests := []struct {
 		ev   Event
@@ -73,7 +68,6 @@ func TestEvent_Types(t *testing.T) {
 	}
 }
 
-// Spec: KWF-209JV Scope: Unit
 func TestEventLog_Truncation(t *testing.T) {
 	s := NewServer()
 	for i := 0; i < 100; i++ {

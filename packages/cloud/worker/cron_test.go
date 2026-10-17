@@ -1,5 +1,3 @@
-// Tests for KWF-L5H2F
-
 package worker_test
 
 import (
@@ -10,7 +8,7 @@ import (
 	"github.com/krewire/krewire/packages/cloud/worker"
 )
 
-func TestFRK_SVC_060_Cron_NextFire_TableDriven(t *testing.T) {
+func TestCron_NextFire_TableDriven(t *testing.T) {
 	utc := time.UTC
 	cases := []struct {
 		name  string
@@ -85,7 +83,7 @@ func TestFRK_SVC_060_Cron_NextFire_TableDriven(t *testing.T) {
 	}
 }
 
-func TestFRK_SVC_060_Cron_NextFire_UnsatisfiableReturnsZero(t *testing.T) {
+func TestCron_NextFire_UnsatisfiableReturnsZero(t *testing.T) {
 	s, err := worker.ParseCron("0 0 30 2 *")
 	if err != nil {
 		t.Fatalf("ParseCron: %v", err)
@@ -95,7 +93,7 @@ func TestFRK_SVC_060_Cron_NextFire_UnsatisfiableReturnsZero(t *testing.T) {
 	}
 }
 
-func TestFRK_SVC_060_Cron_ParseRejectsInvalid(t *testing.T) {
+func TestCron_ParseRejectsInvalid(t *testing.T) {
 	for _, spec := range []string{
 		"",
 		"* * * *",
@@ -114,7 +112,7 @@ func TestFRK_SVC_060_Cron_ParseRejectsInvalid(t *testing.T) {
 	}
 }
 
-func TestFRK_SVC_060_EnqueueValidatesCron(t *testing.T) {
+func TestEnqueueValidatesCron(t *testing.T) {
 	q := worker.NewInMemoryQueue()
 	if _, err := q.Enqueue(context.Background(), noopJob(), worker.Options{Cron: "* not a cron"}); err == nil {
 		t.Fatal("Enqueue accepted invalid cron spec")

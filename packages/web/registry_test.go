@@ -1,4 +1,3 @@
-// Tests for KWF-WEB-Q8T2R
 package web
 
 import (
@@ -10,8 +9,7 @@ import (
 	ftest "github.com/krewire/krewire/packages/testing"
 )
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-003 Scope: Unit
-func TestFRK_REG_003_ModuleMounting(t *testing.T) {
+func TestModuleMounting(t *testing.T) {
 	r := NewRouter()
 	mod := Module{
 		Prefix: "/catalog",
@@ -45,8 +43,7 @@ func TestFRK_REG_003_ModuleMounting(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-004 Scope: Unit
-func TestFRK_REG_004_MountShorthand(t *testing.T) {
+func TestMountShorthand(t *testing.T) {
 	r := NewRouter()
 	r.Mount("/api", func(api *Router) {
 		api.Get("/ping", func(w http.ResponseWriter, req *http.Request, p Params) {
@@ -59,8 +56,7 @@ func TestFRK_REG_004_MountShorthand(t *testing.T) {
 	ftest.Equal(t, "pong", rec.Body.String())
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-011 FRK-REG-012 Scope: Unit
-func TestFRK_REG_011_RoutesAndHasRoute(t *testing.T) {
+func TestRoutesAndHasRoute(t *testing.T) {
 	r := NewRouter()
 	r.Get("/users/{id}", func(w http.ResponseWriter, req *http.Request, p Params) {})
 	r.Post("/users", func(w http.ResponseWriter, req *http.Request, p Params) {})
@@ -83,8 +79,7 @@ func TestFRK_REG_011_RoutesAndHasRoute(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-014 Scope: Unit
-func TestFRK_REG_014_DuplicateDetection(t *testing.T) {
+func TestDuplicateDetection(t *testing.T) {
 	r := NewRouter()
 	r.Get("/dup", func(w http.ResponseWriter, req *http.Request, p Params) {})
 	r.Get("/dup", func(w http.ResponseWriter, req *http.Request, p Params) {})
@@ -105,8 +100,7 @@ func TestFRK_REG_014_DuplicateDetection(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-014 MustHandle Scope: Unit
-func TestFRK_REG_014_MustHandlePanicsOnDuplicate(t *testing.T) {
+func TestMustHandlePanicsOnDuplicate(t *testing.T) {
 	r := NewRouter()
 	r.MustHandle(http.MethodGet, "/x", func(w http.ResponseWriter, req *http.Request, p Params) {})
 	defer func() {
@@ -117,8 +111,7 @@ func TestFRK_REG_014_MustHandlePanicsOnDuplicate(t *testing.T) {
 	r.MustHandle(http.MethodGet, "/x", func(w http.ResponseWriter, req *http.Request, p Params) {})
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-015 Scope: Unit
-func TestFRK_REG_015_DebugString(t *testing.T) {
+func TestDebugString(t *testing.T) {
 	r := NewRouter()
 	r.GET("/b").Name("b").Handle(func(w http.ResponseWriter, req *http.Request, p Params) {})
 	r.POST("/a").Handle(func(w http.ResponseWriter, req *http.Request, p Params) {})
@@ -139,8 +132,7 @@ func TestFRK_REG_015_DebugString(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-021 FRK-REG-022 Scope: Unit
-func TestFRK_REG_021_Resource(t *testing.T) {
+func TestResourceRegistration(t *testing.T) {
 	r := NewRouter()
 	r.Resource("/users", ResourceController{
 		Index: func(w http.ResponseWriter, req *http.Request, p Params) { w.Write([]byte("index")) },
@@ -175,8 +167,7 @@ func TestFRK_REG_021_Resource(t *testing.T) {
 	ftest.EqualStatus(t, rec2, http.StatusOK)
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-002 FRK-REG-031 Scope: Unit — modular monolith with 3 modules
-func TestFRK_REG_031_ModularMonolithThreeModules(t *testing.T) {
+func TestModularMonolithThreeModules(t *testing.T) {
 	r := NewRouter()
 
 	catalogMod := Module{Prefix: "/catalog", Register: func(g *Router) {
@@ -211,8 +202,7 @@ func TestFRK_REG_031_ModularMonolithThreeModules(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-Q8T2R FRK-REG-002 Registrar func alias
-func TestFRK_REG_002_AsRegistrar(t *testing.T) {
+func TestAsRegistrar(t *testing.T) {
 	r := NewRouter()
 	reg := AsRegistrar(func(rr *Router) {
 		rr.Get("/alias", func(w http.ResponseWriter, req *http.Request, p Params) { w.Write([]byte("alias")) })

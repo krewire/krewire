@@ -95,8 +95,7 @@ func TestFindMissing(t *testing.T) {
 	}
 }
 
-// Spec: KWL-L0-REPRO REQ-L0-022 Scope: CLI
-func TestKWL_L0_REPRO_REQ_L0_022_CheckGoVersion(t *testing.T) {
+func TestCheckGoVersion(t *testing.T) {
 	tests := []struct {
 		runtimeVer string
 		targetVer  string

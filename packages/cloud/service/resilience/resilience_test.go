@@ -1,4 +1,3 @@
-// Tests for KWF-L5H2F
 package resilience
 
 import (
@@ -8,7 +7,6 @@ import (
 	"time"
 )
 
-// Spec: KWF-L5H2F FRK-SVC-030 Scope: Unit
 func TestCircuitBreaker_ClosedToOpen(t *testing.T) {
 	cb := NewCircuitBreaker(CircuitBreakerConfig{Name: "test", Threshold: 2, Timeout: 100 * time.Millisecond})
 	ctx := context.Background()
@@ -24,7 +22,6 @@ func TestCircuitBreaker_ClosedToOpen(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-030 Scope: Unit
 func TestCircuitBreaker_OpenToHalfOpenToClosed(t *testing.T) {
 	cb := NewCircuitBreaker(CircuitBreakerConfig{Name: "test", Threshold: 1, Timeout: 50 * time.Millisecond, HalfOpenMax: 1})
 	ctx := context.Background()
@@ -42,7 +39,6 @@ func TestCircuitBreaker_OpenToHalfOpenToClosed(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-031 Scope: Unit
 func TestRetryPolicy_SuccessOnRetry(t *testing.T) {
 	p := RetryPolicy{MaxAttempts: 3, Backoff: 1 * time.Millisecond, MaxBackoff: 10 * time.Millisecond}
 	attempts := 0
@@ -61,7 +57,6 @@ func TestRetryPolicy_SuccessOnRetry(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-031 Scope: Unit
 func TestRetryPolicy_Exhausted(t *testing.T) {
 	p := RetryPolicy{MaxAttempts: 2, Backoff: 1 * time.Millisecond}
 	err := p.Do(context.Background(), func() error { return errors.New("permanent") })
@@ -70,7 +65,6 @@ func TestRetryPolicy_Exhausted(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-033 Scope: Unit
 func TestBulkhead_Limit(t *testing.T) {
 	b := NewBulkhead(1)
 	ctx := context.Background()

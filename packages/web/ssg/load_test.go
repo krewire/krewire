@@ -1,4 +1,3 @@
-// Tests for KWF-DF3PL
 package ssg
 
 import (

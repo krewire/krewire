@@ -1,4 +1,3 @@
-// Tests for KWL-P8W2N
 package commands
 
 import (
@@ -13,8 +12,7 @@ import (
 	"github.com/krewire/krewire/packages/kern"
 )
 
-// Spec: KWL-P8W2N KWL-DIAGV-007 Scope: Domain
-func TestKWL_DIAGV_007_BootRuntime_InstallsEnvAppropriateLogger(t *testing.T) {
+func TestBootRuntime_InstallsEnvAppropriateLogger(t *testing.T) {
 	dir := t.TempDir()
 	files := map[string]string{
 		"go.mod":       "module demo\n\ngo 1.26\n",
@@ -51,8 +49,7 @@ func TestKWL_DIAGV_007_BootRuntime_InstallsEnvAppropriateLogger(t *testing.T) {
 	}
 }
 
-// Spec: KWL-P8W2N KWL-DIAGV-007 Scope: Domain
-func TestKWL_DIAGV_007_Fail_PrintsAttachedStackWhenDebug(t *testing.T) {
+func TestFail_PrintsAttachedStackWhenDebug(t *testing.T) {
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatal(err)
@@ -89,8 +86,7 @@ func TestKWL_DIAGV_007_Fail_PrintsAttachedStackWhenDebug(t *testing.T) {
 	}
 }
 
-// Spec: KWL-P8W2N KWL-ERRV-010 S4 Scope: Domain
-func TestKWL_ERRV_010_Fail_PrintsTreeWithHintWithoutDebug(t *testing.T) {
+func TestFail_PrintsTreeWithHintWithoutDebug(t *testing.T) {
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatal(err)

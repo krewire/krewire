@@ -1,6 +1,5 @@
 package auth
 
-// Tests for SEC-A02-001, SEC-A02-002, SEC-A07-001.
 import (
 	"crypto/hmac"
 	"crypto/sha256"
@@ -145,11 +144,11 @@ func TestJWT_MinSecretLength(t *testing.T) {
 	}
 }
 
-// TestSEC_AUTH_001_JWTAuth_RequiresExp verifies the middleware rejects a token
+// TestJWTAuth_RequiresExp verifies the middleware rejects a token
 // with no exp claim by default. A non-expiring token is a permanent credential
 // that cannot be revoked, so the safe default is to refuse it and require an
 // explicit opt-out.
-func TestSEC_AUTH_001_JWTAuth_RequiresExp(t *testing.T) {
+func TestJWTAuth_RequiresExp(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	tok, err := SignJWT(secret, Claims{"sub": "admin", "role": "admin"})
 	if err != nil {
@@ -167,9 +166,9 @@ func TestSEC_AUTH_001_JWTAuth_RequiresExp(t *testing.T) {
 	}
 }
 
-// TestSEC_AUTH_002_JWTAuth_ExpiringTokenAccepted is the counterpart: a properly
+// TestJWTAuth_ExpiringTokenAccepted is the counterpart: a properly
 // expiring token must still authenticate.
-func TestSEC_AUTH_002_JWTAuth_ExpiringTokenAccepted(t *testing.T) {
+func TestJWTAuth_ExpiringTokenAccepted(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	tok, err := SignJWT(secret, DefaultClaims("alice", time.Hour))
 	if err != nil {
@@ -187,8 +186,8 @@ func TestSEC_AUTH_002_JWTAuth_ExpiringTokenAccepted(t *testing.T) {
 	}
 }
 
-// TestSEC_AUTH_003_JWTAuth_ExpiredTokenRejected verifies expiry is enforced.
-func TestSEC_AUTH_003_JWTAuth_ExpiredTokenRejected(t *testing.T) {
+// TestJWTAuth_ExpiredTokenRejected verifies expiry is enforced.
+func TestJWTAuth_ExpiredTokenRejected(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	tok, err := SignJWT(secret, DefaultClaims("alice", -time.Hour))
 	if err != nil {
@@ -206,11 +205,11 @@ func TestSEC_AUTH_003_JWTAuth_ExpiredTokenRejected(t *testing.T) {
 	}
 }
 
-// TestSEC_AUTH_004_JWTAuth_WeakSecretRejected verifies the middleware inherits
+// TestJWTAuth_WeakSecretRejected verifies the middleware inherits
 // the minimum-secret-length floor, so a 4-byte key cannot be used to mint
 // forgable tokens. The token is signed by hand because SignJWT already refuses
 // to mint with a short key, and the point here is the verify path.
-func TestSEC_AUTH_004_JWTAuth_WeakSecretRejected(t *testing.T) {
+func TestJWTAuth_WeakSecretRejected(t *testing.T) {
 	weak := []byte("weak")
 	hdr, err := B64JSON(map[string]any{"alg": "HS256", "typ": "JWT"})
 	if err != nil {
@@ -237,9 +236,9 @@ func TestSEC_AUTH_004_JWTAuth_WeakSecretRejected(t *testing.T) {
 	}
 }
 
-// TestSEC_AUTH_005_ParseJWT_RejectsAlgNone verifies algorithm pinning. A token
+// TestParseJWT_RejectsAlgNone verifies algorithm pinning. A token
 // whose header claims alg=none must never verify.
-func TestSEC_AUTH_005_ParseJWT_RejectsAlgNone(t *testing.T) {
+func TestParseJWT_RejectsAlgNone(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
 	hdr, err := B64JSON(map[string]any{"alg": "none", "typ": "JWT"})
 	if err != nil {

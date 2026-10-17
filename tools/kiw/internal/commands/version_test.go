@@ -1,4 +1,3 @@
-// Tests for KWN-JB7PW
 package commands
 
 import (
@@ -8,8 +7,7 @@ import (
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 )
 
-// Spec: KWN-JB7PW RND-VS-004 Scope: Unit
-func TestKWN_VS_004_HumanVersion_CollapsesUnknownToDev(t *testing.T) {
+func TestHumanVersion_CollapsesUnknownToDev(t *testing.T) {
 	cases := map[string]string{
 		"":              "dev",
 		"(devel)":       "dev",
@@ -26,8 +24,7 @@ func TestKWN_VS_004_HumanVersion_CollapsesUnknownToDev(t *testing.T) {
 	}
 }
 
-// Spec: KWN-JB7PW RND-VS-005 Scope: Unit
-func TestKWN_VS_005_HumanVersion_SingleLeadingV(t *testing.T) {
+func TestHumanVersion_SingleLeadingV(t *testing.T) {
 	for _, in := range []string{"v0.5.1", "0.5.1", "v(devel)", "(devel)", "devel", ""} {
 		got := humanVersion(in)
 		if got == "dev" {
@@ -39,8 +36,7 @@ func TestKWN_VS_005_HumanVersion_SingleLeadingV(t *testing.T) {
 	}
 }
 
-// Spec: KWN-JB7PW RND-VS-009 Scope: Unit
-func TestKWN_VS_009_QualifiedVersion_MarksWorkspaceBuilds(t *testing.T) {
+func TestQualifiedVersion_MarksWorkspaceBuilds(t *testing.T) {
 	got := qualifiedVersion(buildinfo.ModKrewire)
 	if strings.Contains(got, "devel") {
 		t.Errorf("qualifiedVersion(%q) = %q, must never print devel", buildinfo.ModKrewire, got)

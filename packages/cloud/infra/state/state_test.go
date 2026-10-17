@@ -1,4 +1,3 @@
-// Tests for KWF-B7N3D
 package state
 
 import (
@@ -6,7 +5,6 @@ import (
 	"time"
 )
 
-// Spec: KWF-B7N3D FRK-INFRA-020 Scope: Unit
 func TestFileBackend_LoadMissing(t *testing.T) {
 	b := &FileBackend{Path: "/tmp/krewire-test-state-missing.json"}
 	data, err := b.Load()
@@ -18,7 +16,6 @@ func TestFileBackend_LoadMissing(t *testing.T) {
 	}
 }
 
-// Spec: KWF-B7N3D FRK-INFRA-020 Scope: Unit
 func TestState_SaveAndLoad(t *testing.T) {
 	path := t.TempDir() + "/state.json"
 	s := New(&FileBackend{Path: path})
@@ -36,7 +33,6 @@ func TestState_SaveAndLoad(t *testing.T) {
 	}
 }
 
-// Spec: KWF-B7N3D FRK-INFRA-021 Scope: Unit
 func TestState_LockAndUnlock(t *testing.T) {
 	path := t.TempDir() + "/state.json"
 	s := New(&FileBackend{Path: path})

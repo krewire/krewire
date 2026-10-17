@@ -1,10 +1,8 @@
-// Tests for KWN-JB7PW
 package buildinfo
 
 import "testing"
 
-// Spec: KWN-JB7PW RND-VS-004 RND-VS-008 Scope: Unit
-func TestKWN_VS_004_ResolveVersion_WorkspaceDevelFallsBackToKnown(t *testing.T) {
+func TestResolveVersion_WorkspaceDevelFallsBackToKnown(t *testing.T) {
 	for _, path := range []string{ModKrewire} {
 		got, fromSource := ResolveVersion(path)
 		if got == "" || got == DevelVersion {
@@ -16,16 +14,14 @@ func TestKWN_VS_004_ResolveVersion_WorkspaceDevelFallsBackToKnown(t *testing.T) 
 	}
 }
 
-// Spec: KWN-JB7PW RND-VS-004 Scope: Unit
-func TestKWN_VS_004_ResolveVersion_UnknownPathReturnsEmpty(t *testing.T) {
+func TestResolveVersion_UnknownPathReturnsEmpty(t *testing.T) {
 	got, fromSource := ResolveVersion("example.com/unknown")
 	if got != "" || fromSource {
 		t.Errorf("ResolveVersion(unknown) = (%q, %v), want (\"\", false)", got, fromSource)
 	}
 }
 
-// Spec: KWL-L0-REPRO REQ-L0-023 Scope: Unit
-func TestKWL_L0_REPRO_REQ_L0_023_ReadProvenance(t *testing.T) {
+func TestReadProvenance(t *testing.T) {
 	prov, ok := ReadProvenance()
 	if !ok {
 		// In pure unit test runner without debug metadata, ReadProvenance may return false

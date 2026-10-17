@@ -1,4 +1,3 @@
-// Tests for KWF-L5H2F
 package messaging
 
 import (
@@ -9,7 +8,6 @@ import (
 	"time"
 )
 
-// Spec: KWF-L5H2F FRK-SVC-050 Scope: Unit
 func TestMemoryStream_PublishAndSubscribe(t *testing.T) {
 	s := NewMemoryStream()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -34,7 +32,6 @@ func TestMemoryStream_PublishAndSubscribe(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-050 Scope: Unit
 func TestMemoryStream_QueueSubscribe(t *testing.T) {
 	s := NewMemoryStream()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -58,7 +55,6 @@ func TestMemoryStream_QueueSubscribe(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-052 Scope: Unit
 func TestMemoryStream_RedeliveryOnError(t *testing.T) {
 	s := NewMemoryStream()
 	ctx, cancel := context.WithCancel(context.Background())

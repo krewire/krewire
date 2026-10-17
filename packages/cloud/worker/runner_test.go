@@ -1,5 +1,3 @@
-// Tests for KWF-L5H2F
-
 package worker_test
 
 import (
@@ -14,7 +12,7 @@ import (
 	"github.com/krewire/krewire/packages/cloud/worker"
 )
 
-func TestFRK_SVC_062_Runner_AcksSuccessAndRetriesFailure(t *testing.T) {
+func TestRunner_AcksSuccessAndRetriesFailure(t *testing.T) {
 	q := worker.NewInMemoryQueue()
 	ctx := context.Background()
 
@@ -67,7 +65,7 @@ func TestFRK_SVC_062_Runner_AcksSuccessAndRetriesFailure(t *testing.T) {
 	}
 }
 
-func TestFRK_SVC_060_Runner_ContextCancellationReachesJobs(t *testing.T) {
+func TestRunner_ContextCancellationReachesJobs(t *testing.T) {
 	q := worker.NewInMemoryQueue()
 	ctx, cancel := context.WithCancel(context.Background())
 

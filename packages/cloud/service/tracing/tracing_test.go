@@ -1,4 +1,3 @@
-// Tests for KWF-L5H2F
 package tracing
 
 import (
@@ -6,7 +5,6 @@ import (
 	"testing"
 )
 
-// Spec: KWF-L5H2F FRK-SVC-040 Scope: Unit
 func TestNew_ValidConfig(t *testing.T) {
 	tr, err := New(Config{ServiceName: "test", Exporter: "otlp"})
 	if err != nil {
@@ -17,7 +15,6 @@ func TestNew_ValidConfig(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-040 Scope: Unit
 func TestNew_EmptyServiceName(t *testing.T) {
 	_, err := New(Config{Exporter: "otlp"})
 	if err == nil {
@@ -25,7 +22,6 @@ func TestNew_EmptyServiceName(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-040 Scope: Unit
 func TestNoopTracer(t *testing.T) {
 	tr := NoopTracer{}
 	ctx := context.Background()
@@ -41,7 +37,6 @@ func TestNoopTracer(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-042 Scope: Unit
 func TestNew_AllExporters(t *testing.T) {
 	for _, exp := range []string{"otlp", "jaeger", "zipkin", "stdout"} {
 		_, err := New(Config{ServiceName: "test", Exporter: exp})

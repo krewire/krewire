@@ -1,6 +1,5 @@
 package sec_test
 
-// Tests for SEC-A04-001.
 import (
 	"context"
 	"encoding/json"

@@ -1,4 +1,3 @@
-// Tests for KWL-R934Y
 package term
 
 import (
@@ -9,7 +8,6 @@ import (
 	"testing"
 )
 
-// Spec: KWL-R934Y KWL-TM-001 KWL-TM-002 KWL-TM-003 Scope: Unit
 func TestPaint(t *testing.T) {
 	got := Paint("ok", ColorGreen, []Style{StyleBold})
 	want := "\x1b[1;32mok\x1b[0m"
@@ -18,19 +16,17 @@ func TestPaint(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-001 KWL-TM-003 Scope: Unit
-// TestTERM_001_PaintWithoutStyles verifies a style-less call still emits the
+// TestPaint_WithoutStyles verifies a style-less call still emits the
 // colour code, so the escape sequence is never left empty.
-func TestTERM_001_PaintWithoutStyles(t *testing.T) {
+func TestPaint_WithoutStyles(t *testing.T) {
 	if got, want := Paint("x", ColorRed, nil), "\x1b[31mx\x1b[0m"; got != want {
 		t.Errorf("Paint() = %q, want %q", got, want)
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-002 KWL-TM-003 Scope: Unit
-// TestTERM_002_PaintEmitsEveryStyleInOrder verifies styles are emitted before the
+// TestPaint_EmitsEveryStyleInOrder verifies styles are emitted before the
 // colour, in the order given, which is what the SGR grammar requires.
-func TestTERM_002_PaintEmitsEveryStyleInOrder(t *testing.T) {
+func TestPaint_EmitsEveryStyleInOrder(t *testing.T) {
 	got := Paint("x", ColorCyan, []Style{StyleBold, StyleDim, StyleUnderline})
 	want := "\x1b[1;2;4;36mx\x1b[0m"
 	if got != want {
@@ -38,10 +34,9 @@ func TestTERM_002_PaintEmitsEveryStyleInOrder(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-003 Scope: Unit
-// TestTERM_003_PaintResetsAtTheEnd verifies every sequence terminates with the
+// TestPaint_ResetsAtTheEnd verifies every sequence terminates with the
 // reset code, so a coloured span cannot bleed into later output.
-func TestTERM_003_PaintResetsAtTheEnd(t *testing.T) {
+func TestPaint_ResetsAtTheEnd(t *testing.T) {
 	if got := Paint("x", ColorWhite, nil); !strings.HasSuffix(got, "\x1b[0m") {
 		t.Errorf("Paint() = %q, want a trailing reset", got)
 	}
@@ -51,10 +46,9 @@ func TestTERM_003_PaintResetsAtTheEnd(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-005 Scope: Unit
-// TestTERM_004_TerminalPaintHonoursColorSupport verifies the guard: with color
+// TestTerminalPaint_HonoursColorSupport verifies the guard: with color
 // unsupported the payload is returned verbatim, with no escape bytes at all.
-func TestTERM_004_TerminalPaintHonoursColorSupport(t *testing.T) {
+func TestTerminalPaint_HonoursColorSupport(t *testing.T) {
 	// With color unsupported the payload is returned verbatim, escape-free.
 	if got := (&Terminal{ColorSupported: false}).Paint("plain", ColorGreen, []Style{StyleBold}); got != "plain" {
 		t.Errorf("Paint() = %q, want the raw text %q", got, "plain")
@@ -68,10 +62,9 @@ func TestTERM_004_TerminalPaintHonoursColorSupport(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-004 Scope: Unit
-// TestTERM_005_NewTerminalForNoColorWins verifies NO_COLOR is honoured even when a
+// TestNewTerminalFor_NoColorWins verifies NO_COLOR is honoured even when a
 // force variable is also set: the opt-out must not be overridable by accident.
-func TestTERM_005_NewTerminalForNoColorWins(t *testing.T) {
+func TestNewTerminalFor_NoColorWins(t *testing.T) {
 	t.Setenv("NO_COLOR", "1")
 	t.Setenv("CLICOLOR_FORCE", "1")
 	if NewTerminalFor(nil).ColorSupported {
@@ -79,10 +72,9 @@ func TestTERM_005_NewTerminalForNoColorWins(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-004 Scope: Unit
-// TestTERM_006_NewTerminalForForceColorVariables verifies each documented force
+// TestNewTerminalFor_ForceColorVariables verifies each documented force
 // variable enables color for a non-tty, and that a falsy value does not.
-func TestTERM_006_NewTerminalForForceColorVariables(t *testing.T) {
+func TestNewTerminalFor_ForceColorVariables(t *testing.T) {
 	clear := func(t *testing.T) {
 		t.Helper()
 		t.Setenv("NO_COLOR", "")
@@ -110,10 +102,9 @@ func TestTERM_006_NewTerminalForForceColorVariables(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-004 Scope: Unit
-// TestTERM_007_NewTerminalForDumbTerminal verifies TERM=dumb disables color, so
+// TestNewTerminalFor_DumbTerminal verifies TERM=dumb disables color, so
 // a piped or dumb console never receives escape sequences.
-func TestTERM_007_NewTerminalForDumbTerminal(t *testing.T) {
+func TestNewTerminalFor_DumbTerminal(t *testing.T) {
 	t.Setenv("NO_COLOR", "")
 	t.Setenv("CLICOLOR_FORCE", "")
 	t.Setenv("FORCE_COLOR", "")
@@ -123,11 +114,10 @@ func TestTERM_007_NewTerminalForDumbTerminal(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-004 Scope: Unit
-// TestTERM_008_IsTerminalDistinguishesDevices verifies the character-device
+// TestIsTerminal_DistinguishesDevices verifies the character-device
 // check: /dev/null is a char device and counts as a terminal, a regular file
 // does not, and a closed file reports false instead of panicking.
-func TestTERM_008_IsTerminalDistinguishesDevices(t *testing.T) {
+func TestIsTerminal_DistinguishesDevices(t *testing.T) {
 	devNull, err := os.Open(os.DevNull)
 	if err != nil {
 		t.Skipf("cannot open %s: %v", os.DevNull, err)
@@ -161,7 +151,6 @@ func TestTERM_008_IsTerminalDistinguishesDevices(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-005 Scope: Unit
 func TestTerminalPaintWithoutColor(t *testing.T) {
 	term := &Terminal{ColorSupported: false}
 	if got := term.Paint("ok", ColorGreen, []Style{StyleBold}); got != "ok" {
@@ -193,8 +182,7 @@ func TestNewTerminalFor_ForceColor(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-001 Scope: Unit
-func TestTERM_009_ANSI16ColorPalette(t *testing.T) {
+func TestANSI16ColorPalette(t *testing.T) {
 	colors := []struct {
 		name string
 		c    Color
@@ -221,8 +209,7 @@ func TestTERM_009_ANSI16ColorPalette(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-006 Scope: Unit
-func TestTERM_010_DistinguishDataFromDiagnostics(t *testing.T) {
+func TestDistinguishDataFromDiagnostics(t *testing.T) {
 	outBuf := &bytes.Buffer{}
 	errBuf := &bytes.Buffer{}
 	term := &Terminal{
@@ -244,8 +231,7 @@ func TestTERM_010_DistinguishDataFromDiagnostics(t *testing.T) {
 	}
 }
 
-// Spec: KWL-R934Y KWL-TM-007 Scope: Unit
-func TestTERM_011_DataStableEmissions(t *testing.T) {
+func TestPaint_DataStableEmissions(t *testing.T) {
 	runs := 50
 	first := Paint("hello world", ColorBlue, []Style{StyleBold, StyleUnderline})
 	for i := 0; i < runs; i++ {

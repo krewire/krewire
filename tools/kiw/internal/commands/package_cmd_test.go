@@ -1,4 +1,3 @@
-// Tests for KWN-PKG-7X9K2
 package commands
 
 import (
@@ -12,8 +11,7 @@ import (
 	"github.com/krewire/krewire/packages/kern"
 )
 
-// Spec: KWN-PKG-7X9K2 KWN-PKG-001 Scope: Module
-func TestKWN_PKG_001_RunAdd_EmptyArgsReturnsUsage(t *testing.T) {
+func TestRunAdd_EmptyArgsReturnsUsage(t *testing.T) {
 	fs := flag.NewFlagSet("add", flag.ContinueOnError)
 	RegisterAdd(fs)
 	if err := fs.Parse([]string{}); err != nil {
@@ -25,8 +23,7 @@ func TestKWN_PKG_001_RunAdd_EmptyArgsReturnsUsage(t *testing.T) {
 	}
 }
 
-// Spec: KWN-PKG-7X9K2 KWN-PKG-001 Scope: Module
-func TestKWN_PKG_001_RunRemove_EmptyArgsReturnsUsage(t *testing.T) {
+func TestRunRemove_EmptyArgsReturnsUsage(t *testing.T) {
 	fs := flag.NewFlagSet("remove", flag.ContinueOnError)
 	RegisterRemove(fs)
 	if err := fs.Parse([]string{}); err != nil {
@@ -38,8 +35,7 @@ func TestKWN_PKG_001_RunRemove_EmptyArgsReturnsUsage(t *testing.T) {
 	}
 }
 
-// Spec: KWN-PKG-7X9K2 KWN-PKG-001 Scope: Module
-func TestKWN_PKG_001_RunAdd_UnsafePackageReturnsUsage(t *testing.T) {
+func TestRunAdd_UnsafePackageReturnsUsage(t *testing.T) {
 	fs := flag.NewFlagSet("add", flag.ContinueOnError)
 	RegisterAdd(fs)
 	if err := fs.Parse([]string{"file://../malicious"}); err != nil {
@@ -51,9 +47,7 @@ func TestKWN_PKG_001_RunAdd_UnsafePackageReturnsUsage(t *testing.T) {
 	}
 }
 
-// Spec: KWN-PKG-7X9K2 KWN-PKG-002 Scope: Module
-// Spec: KWN-PKG-7X9K2 KWN-PKG-006 Scope: Module
-func TestKWN_PKG_006_TailwindPlugin_AddAndRemove(t *testing.T) {
+func TestTailwindPlugin_AddAndRemove(t *testing.T) {
 	dir := t.TempDir()
 	origWd, err := os.Getwd()
 	if err != nil {
@@ -86,9 +80,7 @@ func TestKWN_PKG_006_TailwindPlugin_AddAndRemove(t *testing.T) {
 	}
 }
 
-// Spec: KWN-PKG-7X9K2 KWN-PKG-004 Scope: Module
-// Spec: KWN-PKG-7X9K2 KWN-PKG-005 Scope: Module
-func TestKWN_PKG_004_ResolverChainOrder(t *testing.T) {
+func TestResolverChainOrder(t *testing.T) {
 	chain := resolver.DefaultChain()
 
 	// 1. Plugin alias matches plugin

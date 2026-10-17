@@ -1,4 +1,3 @@
-// Tests for KWL-MARKDOWN-Q3N8P
 package commands
 
 import (
@@ -84,8 +83,7 @@ func TestWithoutAssetKeepsUnrelatedEntries(t *testing.T) {
 	}
 }
 
-// Spec: KWL-MARKDOWN-Q3N8P KWL-MD-008 Scope: Integration
-func TestKWL_MD_008_ProgressiveBuild_BothManuscriptAndSSG(t *testing.T) {
+func TestProgressiveBuild_BothManuscriptAndSSG(t *testing.T) {
 	dir := t.TempDir()
 	outDir := filepath.Join(dir, ".krewire", "build")
 

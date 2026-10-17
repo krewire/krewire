@@ -1,4 +1,3 @@
-// Tests for KWF-T4X9P
 package ssg
 
 import (
@@ -8,8 +7,7 @@ import (
 	"testing"
 )
 
-// Spec: KWF-T4X9P FRK-WASM-040 Scope: Unit
-func TestFRK_WASM_040_MountTemplateFuncEmitsMarkers(t *testing.T) {
+func TestMountTemplateFuncEmitsMarkers(t *testing.T) {
 	site, err := LoadFromDir("testdata/mount")
 	if err != nil {
 		t.Fatal(err)
@@ -48,8 +46,7 @@ func TestFRK_WASM_040_MountTemplateFuncEmitsMarkers(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-040 Scope: Unit
-func TestFRK_WASM_040_MountRejectsUnknownHydrateValue(t *testing.T) {
+func TestMountRejectsUnknownHydrateValue(t *testing.T) {
 	site, err := LoadFromDir("testdata/mount")
 	if err != nil {
 		t.Fatal(err)

@@ -1,4 +1,3 @@
-// Tests for KWF-T4X9P
 package component
 
 import (
@@ -9,8 +8,7 @@ import (
 	"github.com/krewire/krewire/packages/runtime/vdom"
 )
 
-// Spec: KWF-T4X9P FRK-WASM-041 Scope: Unit
-func TestFRK_WASM_041_UseEvent_RegisterLookupAndRefresh(t *testing.T) {
+func TestUseEvent_RegisterLookupAndRefresh(t *testing.T) {
 	var calls []string
 	handler := func(tag string) Handler {
 		return func(context.Context, Event) { calls = append(calls, tag) }
@@ -54,8 +52,7 @@ func TestFRK_WASM_041_UseEvent_RegisterLookupAndRefresh(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-033 Scope: Unit
-func TestFRK_WASM_033_UseEvent_OutsideRenderPanics(t *testing.T) {
+func TestUseEvent_OutsideRenderPanics(t *testing.T) {
 	defer func() {
 		if _, ok := recover().(*HookRuleError); !ok {
 			t.Fatal("want HookRuleError outside render scope")
@@ -64,8 +61,7 @@ func TestFRK_WASM_033_UseEvent_OutsideRenderPanics(t *testing.T) {
 	UseEvent("click", "x", func(context.Context, Event) {})
 }
 
-// Spec: KWF-T4X9P FRK-WASM-041 Scope: Unit
-func TestFRK_WASM_041_UseEvent_EmptyArgsPanicWithDiagnostic(t *testing.T) {
+func TestUseEvent_EmptyArgsPanicWithDiagnostic(t *testing.T) {
 	switcher := true
 	comp := &fn{body: func() *vdom.VNode {
 		if switcher {

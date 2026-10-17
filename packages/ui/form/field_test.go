@@ -22,9 +22,9 @@ func mustNotContain(t *testing.T, got, want, what string) {
 	}
 }
 
-// TestFORM_001_BaseFieldAccessors verifies the name and label reach the markup
+// TestBaseFieldAccessors verifies the name and label reach the markup
 // and the accessors, since both drive the label/control association.
-func TestFORM_001_BaseFieldAccessors(t *testing.T) {
+func TestBaseFieldAccessors(t *testing.T) {
 	f := NewText("username", "User Name")
 	if f.Name() != "username" {
 		t.Errorf("Name() = %q, want username", f.Name())
@@ -38,9 +38,9 @@ func TestFORM_001_BaseFieldAccessors(t *testing.T) {
 	mustContain(t, out, `name="username"`, "control name")
 }
 
-// TestFORM_002_RequiredMarkerAndAttribute verifies a required field carries both
+// TestRequiredMarkerAndAttribute verifies a required field carries both
 // the visual marker and the required attribute: the marker alone is not announced.
-func TestFORM_002_RequiredMarkerAndAttribute(t *testing.T) {
+func TestRequiredMarkerAndAttribute(t *testing.T) {
 	out := string(NewText("u", "User").MakeRequired().Render("", nil))
 	mustContain(t, out, fieldRequiredCls, "required marker")
 	mustContain(t, out, " required", "required attribute")
@@ -48,9 +48,9 @@ func TestFORM_002_RequiredMarkerAndAttribute(t *testing.T) {
 	mustNotContain(t, string(NewText("u", "User").Render("", nil)), " required", "optional field")
 }
 
-// TestFORM_003_PlaceholderAndHelpReachMarkup verifies the two optional text
+// TestPlaceholderAndHelpReachMarkup verifies the two optional text
 // slots render only when set.
-func TestFORM_003_PlaceholderAndHelpReachMarkup(t *testing.T) {
+func TestPlaceholderAndHelpReachMarkup(t *testing.T) {
 	bare := string(NewText("u", "User").Render("", nil))
 	mustNotContain(t, bare, "placeholder=", "no placeholder when unset")
 	mustNotContain(t, bare, "forge-field-help", "no help when unset")
@@ -60,10 +60,10 @@ func TestFORM_003_PlaceholderAndHelpReachMarkup(t *testing.T) {
 	mustContain(t, full, "We never share this", "help text")
 }
 
-// TestFORM_004_EmailValidation verifies the email validator accepts a valid
+// TestEmailValidation verifies the email validator accepts a valid
 // address, rejects a malformed one, and treats an empty value as the required
 // check's business rather than an email failure.
-func TestFORM_004_EmailValidation(t *testing.T) {
+func TestEmailValidation(t *testing.T) {
 	f := NewText("email", "Email").AsEmail()
 	if got := f.InputType; got != "email" {
 		t.Errorf("InputType = %q, want email", got)
@@ -85,10 +85,10 @@ func TestFORM_004_EmailValidation(t *testing.T) {
 	}
 }
 
-// TestFORM_005_PasswordAndMinLength verifies the password input type and the
+// TestPasswordAndMinLength verifies the password input type and the
 // minimum-length rule, including that an empty value skips the length check so a
 // required field is not double-reported.
-func TestFORM_005_PasswordAndMinLength(t *testing.T) {
+func TestPasswordAndMinLength(t *testing.T) {
 	if got := NewText("p", "Password").AsPassword().InputType; got != "password" {
 		t.Errorf("InputType = %q, want password", got)
 	}
@@ -104,10 +104,10 @@ func TestFORM_005_PasswordAndMinLength(t *testing.T) {
 	}
 }
 
-// TestFORM_006_NumberBounds verifies the numeric validator rejects non-numeric
+// TestNumberBounds verifies the numeric validator rejects non-numeric
 // input and values outside the configured bounds, and that the bounds reach the
 // rendered min and max attributes.
-func TestFORM_006_NumberBounds(t *testing.T) {
+func TestNumberBounds(t *testing.T) {
 	f := NewNumber("age", "Age").SetMin(18).SetMax(65)
 
 	if errs := f.Validate("not a number"); len(errs) == 0 {
@@ -132,27 +132,27 @@ func TestFORM_006_NumberBounds(t *testing.T) {
 	mustContain(t, out, `max="65"`, "max attribute")
 }
 
-// TestFORM_007_NumberBoundsAreOptional verifies min and max are emitted only when
+// TestNumberBoundsAreOptional verifies min and max are emitted only when
 // configured, so an unconstrained number field has no bogus attributes.
-func TestFORM_007_NumberBoundsAreOptional(t *testing.T) {
+func TestNumberBoundsAreOptional(t *testing.T) {
 	bare := string(NewNumber("n", "N").Render("1", nil))
 	mustNotContain(t, bare, "min=", "no min attribute when unset")
 	mustNotContain(t, bare, "max=", "no max attribute when unset")
 	mustContain(t, string(NewNumber("n", "N").SetMax(5).Render("", nil)), `max="5"`, "max only")
 }
 
-// TestFORM_008_TextareaRows verifies the row count reaches the markup, since a
+// TestTextareaRows verifies the row count reaches the markup, since a
 // one-line textarea defeats the purpose of the control.
-func TestFORM_008_TextareaRows(t *testing.T) {
+func TestTextareaRows(t *testing.T) {
 	out := string(NewTextarea("bio", "Bio").Render("hello", nil))
 	mustContain(t, out, "<textarea", "the textarea element")
 	mustContain(t, out, "hello", "the current value")
 	mustContain(t, out, "rows=", "a row count")
 }
 
-// TestFORM_009_SelectMarksTheCurrentValue verifies exactly one option is selected
+// TestSelectMarksTheCurrentValue verifies exactly one option is selected
 // and it is the one matching the submitted value.
-func TestFORM_009_SelectMarksTheCurrentValue(t *testing.T) {
+func TestSelectMarksTheCurrentValue(t *testing.T) {
 	out := string(NewSelect("plan", "Plan",
 		SelectOption{Value: "free", Label: "Free"},
 		SelectOption{Value: "pro", Label: "Pro"},
@@ -171,16 +171,16 @@ func mustContainsOnce(t *testing.T, got, want string, n int, what string) {
 	}
 }
 
-// TestFORM_010_SelectWithNoMatchingValue verifies a submitted value that matches
+// TestSelectWithNoMatchingValue verifies a submitted value that matches
 // no option leaves every option unselected rather than selecting the first.
-func TestFORM_010_SelectWithNoMatchingValue(t *testing.T) {
+func TestSelectWithNoMatchingValue(t *testing.T) {
 	out := string(NewSelect("plan", "Plan", SelectOption{Value: "free", Label: "Free"}).Render("enterprise", nil))
 	mustNotContain(t, out, "selected", "no option matches the submitted value")
 }
 
-// TestFORM_011_CheckboxTruthyValues verifies the submitted values a browser sends
+// TestCheckboxTruthyValues verifies the submitted values a browser sends
 // for a checked box, and that anything else renders unchecked.
-func TestFORM_011_CheckboxTruthyValues(t *testing.T) {
+func TestCheckboxTruthyValues(t *testing.T) {
 	for _, value := range []string{"true", "on", "1"} {
 		out := string(NewCheckbox("agree", "Agree").Render(value, nil))
 		mustContain(t, out, "checked", "value "+value+" must render checked")
@@ -191,17 +191,17 @@ func TestFORM_011_CheckboxTruthyValues(t *testing.T) {
 	}
 }
 
-// TestFORM_012_CheckboxRendersOneLabel verifies the inline checkbox emits exactly
+// TestCheckboxRendersOneLabel verifies the inline checkbox emits exactly
 // one label, since a duplicated label is announced twice by a screen reader.
-func TestFORM_012_CheckboxRendersOneLabel(t *testing.T) {
+func TestCheckboxRendersOneLabel(t *testing.T) {
 	out := string(NewCheckbox("agree", "Agree").Render("", nil))
 	mustContainsOnce(t, out, "<label", 1, "exactly one label")
 	mustContainsOnce(t, out, "Agree", 1, "the label text appears once")
 }
 
-// TestFORM_013_FieldsEscapeNamesLabelsAndValues verifies every user-controlled
+// TestFieldsEscapeNamesLabelsAndValues verifies every user-controlled
 // string reaches the markup escaped, so a form cannot be used to inject markup.
-func TestFORM_013_FieldsEscapeNamesLabelsAndValues(t *testing.T) {
+func TestFieldsEscapeNamesLabelsAndValues(t *testing.T) {
 	attack := `<script>alert(1)</script>`
 	renders := map[string]string{
 		"text":     string(NewText(attack, attack).WithPlaceholder(attack).WithHelp(attack).Render(attack, []string{attack})),
@@ -217,18 +217,18 @@ func TestFORM_013_FieldsEscapeNamesLabelsAndValues(t *testing.T) {
 	}
 }
 
-// TestFORM_014_ErrorsRenderEscaped verifies validation messages cannot inject
+// TestErrorsRenderEscaped verifies validation messages cannot inject
 // markup, since they can embed the rejected value.
-func TestFORM_014_ErrorsRenderEscaped(t *testing.T) {
+func TestErrorsRenderEscaped(t *testing.T) {
 	out := string(NewText("u", "U").Render("", []string{"<b>bad</b>"}))
 	mustNotContain(t, out, "<b>", "raw markup in an error message")
 	mustContainsOnce(t, out, fieldErrorClass, 1, "the error span")
 }
 
-// TestFORM_015_ValidateCollectsPerFieldErrors verifies Validate reports the
+// TestValidateCollectsPerFieldErrors verifies Validate reports the
 // offending field keys and returns false, and clears stale errors on a later
 // successful pass.
-func TestFORM_015_ValidateCollectsPerFieldErrors(t *testing.T) {
+func TestValidateCollectsPerFieldErrors(t *testing.T) {
 	f := New("/x", "POST").
 		Add(NewText("username", "Username").MakeRequired()).
 		Add(NewNumber("age", "Age").SetMin(18))
@@ -249,9 +249,9 @@ func TestFORM_015_ValidateCollectsPerFieldErrors(t *testing.T) {
 	}
 }
 
-// TestFORM_016_BindRequestReadsQueryAndForm verifies BindRequest parses the
+// TestBindRequestReadsQueryAndForm verifies BindRequest parses the
 // request and binds the values, which is the entry point a real handler uses.
-func TestFORM_016_BindRequestReadsQueryAndForm(t *testing.T) {
+func TestBindRequestReadsQueryAndForm(t *testing.T) {
 	f := New("/login", "POST").Add(NewText("user", "User").MakeRequired())
 
 	req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader("user=alex&pass=secret"))
@@ -267,9 +267,9 @@ func TestFORM_016_BindRequestReadsQueryAndForm(t *testing.T) {
 	}
 }
 
-// TestFORM_017_BindRequestRejectsUnparsableBody verifies a malformed body is
+// TestBindRequestRejectsUnparsableBody verifies a malformed body is
 // reported rather than silently binding an empty form that then fails validation.
-func TestFORM_017_BindRequestRejectsUnparsableBody(t *testing.T) {
+func TestBindRequestRejectsUnparsableBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/x", strings.NewReader("%zz"))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	if err := New("/x", "POST").BindRequest(req); err == nil {
@@ -277,9 +277,9 @@ func TestFORM_017_BindRequestRejectsUnparsableBody(t *testing.T) {
 	}
 }
 
-// TestFORM_018_ValuesReturnsACopy verifies Values hands back a copy, so a caller
+// TestValuesReturnsACopy verifies Values hands back a copy, so a caller
 // mutating it cannot corrupt the form's state.
-func TestFORM_018_ValuesReturnsACopy(t *testing.T) {
+func TestValuesReturnsACopy(t *testing.T) {
 	f := New("/x", "POST")
 	f.SetValue("a", "1")
 	snapshot := f.Values()
@@ -289,9 +289,9 @@ func TestFORM_018_ValuesReturnsACopy(t *testing.T) {
 	}
 }
 
-// TestFORM_019_BindPrefersFirstValue verifies Bind takes the first value for a
+// TestBindPrefersFirstValue verifies Bind takes the first value for a
 // repeated key rather than an arbitrary one.
-func TestFORM_019_BindPrefersFirstValue(t *testing.T) {
+func TestBindPrefersFirstValue(t *testing.T) {
 	f := New("/x", "POST")
 	f.Bind(url.Values{"a": {"first", "second"}})
 	if got := f.Value("a"); got != "first" {
@@ -299,9 +299,9 @@ func TestFORM_019_BindPrefersFirstValue(t *testing.T) {
 	}
 }
 
-// TestFORM_020_FormDefaultsToPostAndEscapesAction verifies the default method and
+// TestFormDefaultsToPostAndEscapesAction verifies the default method and
 // that the action is escaped rather than injected.
-func TestFORM_020_FormDefaultsToPostAndEscapesAction(t *testing.T) {
+func TestFormDefaultsToPostAndEscapesAction(t *testing.T) {
 	out := string(New("", "").Render())
 	mustContain(t, out, `method="POST"`, "the default method is POST")
 
@@ -309,9 +309,9 @@ func TestFORM_020_FormDefaultsToPostAndEscapesAction(t *testing.T) {
 	mustNotContain(t, out, "<script>", "raw script tag in the action")
 }
 
-// TestFORM_021_FieldIDIsDerivedFromTheName verifies the id helper, since the label
+// TestFieldIDIsDerivedFromTheName verifies the id helper, since the label
 // and the control must agree on it for the association to work.
-func TestFORM_021_FieldIDIsDerivedFromTheName(t *testing.T) {
+func TestFieldIDIsDerivedFromTheName(t *testing.T) {
 	if got, want := fieldID("user"), "field-user"; got != want {
 		t.Errorf("fieldID = %q, want %q", got, want)
 	}

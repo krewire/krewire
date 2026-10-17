@@ -1,4 +1,3 @@
-// Tests for KWL-MARKDOWN-N8K4V
 package markdown
 
 import (
@@ -7,8 +6,7 @@ import (
 	"testing"
 )
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-001 Scope: Unit
-func TestKWL_NMD_001_LexerAndLineScanner(t *testing.T) {
+func TestLexerAndLineScanner(t *testing.T) {
 	src := []byte("Line 1\n\nLine 2\r\n\r\nLine 3")
 	html, err := Render(src)
 	if err != nil {
@@ -19,8 +17,7 @@ func TestKWL_NMD_001_LexerAndLineScanner(t *testing.T) {
 	}
 }
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-002 Scope: Unit
-func TestKWL_NMD_002_BlockParsing_Complete(t *testing.T) {
+func TestBlockParsing_Complete(t *testing.T) {
 	src := []byte(`# Heading 1
 ## Heading 2
 
@@ -81,8 +78,7 @@ Alt Heading 2
 	}
 }
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-003 Scope: Unit
-func TestKWL_NMD_003_InlineParsing_Complete(t *testing.T) {
+func TestInlineParsing_Complete(t *testing.T) {
 	src := []byte(`This has **bold**, *italic*, ***both***, ~~strike~~, ` + "`code span`" + `, [my link](https://krewire.com "Home"), ![alt img](/pic.png), and <https://krewire.com>.`)
 	html, err := Render(src)
 	if err != nil {
@@ -107,8 +103,7 @@ func TestKWL_NMD_003_InlineParsing_Complete(t *testing.T) {
 	}
 }
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-004 Scope: Unit
-func TestKWL_NMD_004_AutoHeadingIDs_Deduplication(t *testing.T) {
+func TestAutoHeadingIDs_Deduplication(t *testing.T) {
 	src := []byte("# Same Title\n\n# Same Title\n\n# Same Title\n")
 	html, err := Render(src)
 	if err != nil {
@@ -126,8 +121,7 @@ func TestKWL_NMD_004_AutoHeadingIDs_Deduplication(t *testing.T) {
 	}
 }
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-005 Scope: Unit
-func TestKWL_NMD_005_HTMLRendering_RenderAndRenderSafe(t *testing.T) {
+func TestHTMLRendering_RenderAndRenderSafe(t *testing.T) {
 	trusted := []byte("<div class=\"hero\"><h1>Safe</h1></div>")
 	untrusted := []byte("<script>steal()</script><p>Text</p>")
 
@@ -151,8 +145,7 @@ func TestKWL_NMD_005_HTMLRendering_RenderAndRenderSafe(t *testing.T) {
 	}
 }
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-006 Scope: Unit
-func TestKWL_NMD_006_SecurityControls_ScriptURLs(t *testing.T) {
+func TestSecurityControls_ScriptURLs(t *testing.T) {
 	cases := []string{
 		`[click](javascript:alert(1))`,
 		`[click](vbscript:alert(1))`,
@@ -169,8 +162,7 @@ func TestKWL_NMD_006_SecurityControls_ScriptURLs(t *testing.T) {
 	}
 }
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-007 Scope: Module
-func TestKWL_NMD_007_APIDropInCompatibility(t *testing.T) {
+func TestAPIDropInCompatibility(t *testing.T) {
 	// Assert signatures
 	var _ func([]byte) (string, error) = Render
 	var _ func([]byte) (string, error) = RenderSafe
@@ -180,8 +172,7 @@ func TestKWL_NMD_007_APIDropInCompatibility(t *testing.T) {
 	var _ func(string) (string, error) = StripScriptURLs
 }
 
-// Spec: KWL-MARKDOWN-N8K4V KWL-NMD-009 Scope: Module
-func TestKWL_NMD_009_ConcurrentSafe(t *testing.T) {
+func TestConcurrentSafe(t *testing.T) {
 	var wg sync.WaitGroup
 	src := []byte("# Heading\n\nParagraph with **bold** and `code`.\n\n| A | B |\n|---|---|\n| 1 | 2 |\n")
 

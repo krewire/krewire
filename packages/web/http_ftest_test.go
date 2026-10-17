@@ -1,4 +1,3 @@
-// Tests for KWF-TEST-M4P9Q
 package web
 
 import (
@@ -8,9 +7,7 @@ import (
 	ftest "github.com/krewire/krewire/packages/testing"
 )
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-051 Scope: Unit
-func TestKWF_TST_M4P_051_Migrated_HTTP_UsingFtest(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-051")
+func TestHTTP_UsingFtest(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("krewire"))

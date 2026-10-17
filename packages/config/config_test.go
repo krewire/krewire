@@ -1,4 +1,3 @@
-// Tests for KWL-2X1QZ
 package config
 
 import (
@@ -36,7 +35,6 @@ func writeFile(t *testing.T, name, content string) string {
 	return path
 }
 
-// Spec: KWL-2X1QZ CFG-LD-002 CFG-LD-004 Scope: Unit
 func TestLoadFile(t *testing.T) {
 	path := writeFile(t, "config.yaml", "title: Hello\nport: 8080\ndebug: true\ntags: [a, b]\nserver:\n  addr: :9000\n")
 	var got AppConfig
@@ -60,7 +58,6 @@ func TestLoadFile(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-LD-003 Scope: Unit
 func TestLoadMissingFileIsZero(t *testing.T) {
 	var got AppConfig
 	if err := Load(filepath.Join(t.TempDir(), "nope.yaml"), &got); err != nil {
@@ -71,7 +68,6 @@ func TestLoadMissingFileIsZero(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-LD-003 Scope: Unit
 func TestLoadMalformedNamingPath(t *testing.T) {
 	path := writeFile(t, "bad.yaml", "port: [\n")
 	var got AppConfig
@@ -84,7 +80,6 @@ func TestLoadMalformedNamingPath(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-PR-004 Scope: Unit
 func TestLoadErrorsTarget(t *testing.T) {
 	var got AppConfig
 	if err := Load("x.yaml", nil); err == nil {
@@ -102,7 +97,6 @@ func TestLoadErrorsTarget(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-EN-001 Scope: Unit
 func TestOverrideExplicitEnvTag(t *testing.T) {
 	var got AppConfig
 	if err := Load("missing.yaml", &got); err != nil {
@@ -128,7 +122,6 @@ func TestOverrideExplicitEnvTag(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-EN-002 CFG-EN-005 Scope: Unit
 func TestOverrideImplicitKeyAndNesting(t *testing.T) {
 	var got AppConfig
 	lookup := func(key string) (string, bool) {
@@ -151,7 +144,6 @@ func TestOverrideImplicitKeyAndNesting(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-EN-003 Scope: Unit
 func TestOverrideWithPrefix(t *testing.T) {
 	var got AppConfig
 	got.Server.Addr = ":9999"
@@ -169,7 +161,6 @@ func TestOverrideWithPrefix(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-PR-001 Scope: Unit
 func TestPrecedenceZeroFileEnv(t *testing.T) {
 	path := writeFile(t, "p.yaml", "title: From File\nport: 1000\n")
 	var got AppConfig
@@ -193,7 +184,6 @@ func TestPrecedenceZeroFileEnv(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-EN-004 Scope: Unit
 func TestOverrideEmptyEnvIsUnset(t *testing.T) {
 	var got AppConfig
 	lookup := func(key string) (string, bool) {
@@ -210,7 +200,6 @@ func TestOverrideEmptyEnvIsUnset(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-PR-002 Scope: Unit
 func TestOverrideSlicesNotOverlaid(t *testing.T) {
 	var got AppConfig
 	got.Tags = []string{"keep"}
@@ -228,7 +217,6 @@ func TestOverrideSlicesNotOverlaid(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-PR-003 Scope: Unit
 func TestOverrideDecodeErrorNamesFieldAndKey(t *testing.T) {
 	var got AppConfig
 	lookup := func(key string) (string, bool) {
@@ -246,7 +234,6 @@ func TestOverrideDecodeErrorNamesFieldAndKey(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-PR-004 Scope: Unit
 func TestOverrideErrorsTarget(t *testing.T) {
 	if err := Override(nil, func(string) (string, bool) { return "", false }); err == nil {
 		t.Error("nil dst: expected error")
@@ -257,7 +244,6 @@ func TestOverrideErrorsTarget(t *testing.T) {
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-OR-001 Scope: Unit
 func TestLoadOrDefault(t *testing.T) {
 	var got AppConfig
 	if err := LoadOrDefault(filepath.Join(t.TempDir(), "absent.yaml"), &got); err != nil {

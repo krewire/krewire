@@ -101,10 +101,10 @@ func TestChainPropagatesResolverError(t *testing.T) {
 	}
 }
 
-// TestRESOLVE_001_PluginResolverWins verifies a registered plugin name resolves
+// TestPluginResolverWins verifies a registered plugin name resolves
 // through the plugin resolver rather than falling through to npm, so `kiw add
 // twcss` reaches the Krewire plugin instead of the npm package of the same name.
-func TestRESOLVE_001_PluginResolverWins(t *testing.T) {
+func TestPluginResolverWins(t *testing.T) {
 	resolved, err := DefaultChain().Resolve(Spec{Name: "twcss", Raw: "twcss"})
 	if err != nil {
 		t.Fatalf("Resolve: %v", err)
@@ -120,9 +120,9 @@ func TestRESOLVE_001_PluginResolverWins(t *testing.T) {
 	}
 }
 
-// TestRESOLVE_002_GoResolverHandlesModulePaths verifies a module path is claimed
+// TestGoResolverHandlesModulePaths verifies a module path is claimed
 // by the Go resolver rather than npm.
-func TestRESOLVE_002_GoResolverHandlesModulePaths(t *testing.T) {
+func TestGoResolverHandlesModulePaths(t *testing.T) {
 	for _, name := range []string{"github.com/krewire/krewire/packages", "golang.org/x/net"} {
 		resolved, err := DefaultChain().Resolve(Spec{Name: name, Raw: name})
 		if err != nil {
@@ -134,9 +134,9 @@ func TestRESOLVE_002_GoResolverHandlesModulePaths(t *testing.T) {
 	}
 }
 
-// TestRESOLVE_003_NpmFallback verifies an ordinary package name falls through to
+// TestNpmFallback verifies an ordinary package name falls through to
 // the npm resolver.
-func TestRESOLVE_003_NpmFallback(t *testing.T) {
+func TestNpmFallback(t *testing.T) {
 	resolved, err := DefaultChain().Resolve(Spec{Name: "left-pad", Raw: "left-pad"})
 	if err != nil {
 		t.Fatalf("Resolve: %v", err)
@@ -149,9 +149,9 @@ func TestRESOLVE_003_NpmFallback(t *testing.T) {
 	}
 }
 
-// TestRESOLVE_004_GoResolverHeuristic documents the first-segment dot heuristic:
+// TestGoResolverHeuristic documents the first-segment dot heuristic:
 // a slash without a dotted host is not a module path, so it falls to npm.
-func TestRESOLVE_004_GoResolverHeuristic(t *testing.T) {
+func TestGoResolverHeuristic(t *testing.T) {
 	resolver := &GoResolver{}
 	ins, kind, err := resolver.Resolve(Spec{Name: "scope/package"})
 	if err != nil {
@@ -165,10 +165,10 @@ func TestRESOLVE_004_GoResolverHeuristic(t *testing.T) {
 	}
 }
 
-// TestRESOLVE_005_EmptySpecResolvesToNothing verifies a blank name is declined by
+// TestEmptySpecResolvesToNothing verifies a blank name is declined by
 // each resolver rather than producing an installer that would run a package
 // manager with an empty argument.
-func TestRESOLVE_005_EmptySpecResolvesToNothing(t *testing.T) {
+func TestEmptySpecResolvesToNothing(t *testing.T) {
 	if ins, _, _ := (&NpmResolver{}).Resolve(Spec{}); ins != nil {
 		t.Error("the npm resolver must decline an empty name")
 	}
@@ -180,18 +180,18 @@ func TestRESOLVE_005_EmptySpecResolvesToNothing(t *testing.T) {
 	}
 }
 
-// TestRESOLVE_006_ChainReportsUnresolvable verifies a chain with no capable
+// TestChainReportsUnresolvable verifies a chain with no capable
 // resolver returns a clear error naming the package.
-func TestRESOLVE_006_ChainReportsUnresolvable(t *testing.T) {
+func TestChainReportsUnresolvable(t *testing.T) {
 	empty := Chain{}
 	if _, err := empty.Resolve(Spec{Name: "twcss"}); err == nil {
 		t.Error("an empty chain must report that no resolver handled the package")
 	}
 }
 
-// TestRESOLVE_007_ResolvedAccessors verifies the version helpers on a resolved
+// TestResolvedAccessors verifies the version helpers on a resolved
 // package.
-func TestRESOLVE_007_ResolvedAccessors(t *testing.T) {
+func TestResolvedAccessors(t *testing.T) {
 	latest, err := ParseSpec("left-pad@latest")
 	if err != nil {
 		t.Fatal(err)

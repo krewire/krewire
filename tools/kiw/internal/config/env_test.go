@@ -1,4 +1,3 @@
-// Tests for KWL-K4T7W
 package config
 
 import (
@@ -23,8 +22,7 @@ func writeConfig(t *testing.T, body string) *Config {
 	return c
 }
 
-// Spec: KWL-K4T7W KWL-ENVV-003 Scope: Domain
-func TestKWL_ENVV_003_LoadParsesEnvAndDebug(t *testing.T) {
+func TestLoadParsesEnvAndDebug(t *testing.T) {
 	c := writeConfig(t, "env: production\ndebug: true\n")
 	if c.Env != "production" || !c.Debug {
 		t.Errorf("config = (env %q, debug %v), want (production, true)", c.Env, c.Debug)
@@ -35,8 +33,7 @@ func TestKWL_ENVV_003_LoadParsesEnvAndDebug(t *testing.T) {
 	}
 }
 
-// Spec: KWL-K4T7W KWL-ENVV-003 Scope: Domain
-func TestKWL_ENVV_003_EmptyConfigResolvesDefaults(t *testing.T) {
+func TestEmptyConfigResolvesDefaults(t *testing.T) {
 	c := writeConfig(t, "title: x\n")
 	env, err := c.ResolveEnv("")
 	if err != nil || env != kern.DefaultEnv {
@@ -47,8 +44,7 @@ func TestKWL_ENVV_003_EmptyConfigResolvesDefaults(t *testing.T) {
 	}
 }
 
-// Spec: KWL-K4T7W KWL-ENVV-004 Scope: Domain
-func TestKWL_ENVV_004_ResolveEnv_Precedence(t *testing.T) {
+func TestResolveEnv_Precedence(t *testing.T) {
 	yamlTesting := writeConfig(t, "env: testing\n")
 
 	t.Setenv("KIW_ENV", "production")
@@ -65,8 +61,7 @@ func TestKWL_ENVV_004_ResolveEnv_Precedence(t *testing.T) {
 	}
 }
 
-// Spec: KWL-K4T7W KWL-ENVV-002 KWL-ENVV-007 Scope: Domain
-func TestKWL_ENVV_007_ResolveEnv_InvalidYamlValueIsUsageError(t *testing.T) {
+func TestResolveEnv_InvalidYamlValueIsUsageError(t *testing.T) {
 	c := writeConfig(t, "env: staging\n")
 	_, err := c.ResolveEnv("")
 	if err == nil {
@@ -78,8 +73,7 @@ func TestKWL_ENVV_007_ResolveEnv_InvalidYamlValueIsUsageError(t *testing.T) {
 	}
 }
 
-// Spec: KWL-K4T7W KWL-ENVV-004 Scope: Domain
-func TestKWL_ENVV_004_ResolveDebug_Precedence(t *testing.T) {
+func TestResolveDebug_Precedence(t *testing.T) {
 	yamlOn := writeConfig(t, "debug: true\n")
 	yamlOff := writeConfig(t, "title: x\n")
 

@@ -1,4 +1,3 @@
-// Tests for KWF-T4X9P
 package widgets
 
 import (
@@ -15,8 +14,7 @@ func render(c component.Component) string {
 	return vdom.RenderHTML(f.Render())
 }
 
-// Spec: KWF-T4X9P FRK-WASM-050 Scope: Unit
-func TestFRK_WASM_050_Layout_GoldenHTML(t *testing.T) {
+func TestLayout_GoldenHTML(t *testing.T) {
 	got := vdom.RenderHTML(Column(Row(Text("a"), SizedBox(10, 20))))
 	want := `<div class="kiw-column"><div class="kiw-row">` +
 		`<span class="kiw-text">a</span>` +
@@ -30,16 +28,14 @@ func TestFRK_WASM_050_Layout_GoldenHTML(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-051 Scope: Unit
-func TestFRK_WASM_051_Text_ClassOpt(t *testing.T) {
+func TestText_ClassOpt(t *testing.T) {
 	got := vdom.RenderHTML(Text("hi", ClassOpt("accent")))
 	if got != `<span class="kiw-text accent">hi</span>` {
 		t.Fatalf("text = %q", got)
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-050 Scope: Unit
-func TestFRK_WASM_050_StackAndExpanded_GoldenHTML(t *testing.T) {
+func TestStackAndExpanded_GoldenHTML(t *testing.T) {
 	stack := Stack(Text("a"), Text("b"))
 	got := vdom.RenderHTML(stack)
 	want := `<div class="kiw-stack"><span class="kiw-text">a</span><span class="kiw-text">b</span></div>`
@@ -55,8 +51,7 @@ func TestFRK_WASM_050_StackAndExpanded_GoldenHTML(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-051 Scope: Unit
-func TestFRK_WASM_051_ImageAndIcon_GoldenHTML(t *testing.T) {
+func TestImageAndIcon_GoldenHTML(t *testing.T) {
 	img := Image("/logo.png", "logo")
 	got := vdom.RenderHTML(img)
 	// Attributes are sorted alphabetically by the HTML renderer.
@@ -72,8 +67,7 @@ func TestFRK_WASM_051_ImageAndIcon_GoldenHTML(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-052 Scope: Unit
-func TestFRK_WASM_052_Button_ClickDispatchesHandler(t *testing.T) {
+func TestButton_ClickDispatchesHandler(t *testing.T) {
 	var pressed int
 	b := Button("+1", func(context.Context, component.Event) { pressed++ })
 	f := component.NewFiberWith("btn", b)
@@ -92,8 +86,7 @@ func TestFRK_WASM_052_Button_ClickDispatchesHandler(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-052 Scope: Unit
-func TestFRK_WASM_052_Input_EmitsValueAndDeliversPayload(t *testing.T) {
+func TestInput_EmitsValueAndDeliversPayload(t *testing.T) {
 	var got string
 	in := Input("USD", func(v string) { got = v })
 	f := component.NewFiberWith("in", in)
@@ -107,8 +100,7 @@ func TestFRK_WASM_052_Input_EmitsValueAndDeliversPayload(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-052 Scope: Unit
-func TestFRK_WASM_052_CheckboxAndSwitch_CheckedStateAndPayload(t *testing.T) {
+func TestCheckboxAndSwitch_CheckedStateAndPayload(t *testing.T) {
 	var state bool
 	cb := Checkbox(true, "Subscribe", func(b bool) { state = b })
 	f := component.NewFiberWith("cb", cb)
@@ -129,8 +121,7 @@ func TestFRK_WASM_052_CheckboxAndSwitch_CheckedStateAndPayload(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-054 Scope: Unit
-func TestFRK_WASM_054_ListView_KeysSurviveReconciliation(t *testing.T) {
+func TestListView_KeysSurviveReconciliation(t *testing.T) {
 	list := ListView([]Item{
 		{Key: "b", Node: ListTile("Beta", nil, nil)},
 		{Key: "a", Node: ListTile("Alpha", nil, nil)},

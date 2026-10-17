@@ -40,10 +40,10 @@ func TestNilOperations(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_001_RetryDefaultsToOneAttempt verifies a zero MaxAttempts still
+// TestRetryDefaultsToOneAttempt verifies a zero MaxAttempts still
 // calls the operation exactly once, so the zero RetryOptions is a usable policy
 // rather than a silent no-op.
-func TestRESILIENCE_001_RetryDefaultsToOneAttempt(t *testing.T) {
+func TestRetryDefaultsToOneAttempt(t *testing.T) {
 	calls := 0
 	err := Retry(context.Background(), RetryOptions{}, func(context.Context) error {
 		calls++
@@ -57,9 +57,9 @@ func TestRESILIENCE_001_RetryDefaultsToOneAttempt(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_002_RetryToleratesNilContext verifies a nil context is treated
+// TestRetryToleratesNilContext verifies a nil context is treated
 // as context.Background rather than panicking on the first ctx.Err() call.
-func TestRESILIENCE_002_RetryToleratesNilContext(t *testing.T) {
+func TestRetryToleratesNilContext(t *testing.T) {
 	//lint:ignore SA1012 a nil context is exactly the input under test.
 	err := Retry(nil, RetryOptions{MaxAttempts: 1}, func(context.Context) error { return nil })
 	if err != nil {
@@ -67,9 +67,9 @@ func TestRESILIENCE_002_RetryToleratesNilContext(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_003_ShouldRetryShortCircuits verifies ShouldRetry can stop the
+// TestShouldRetryShortCircuits verifies ShouldRetry can stop the
 // loop early on a permanent error, and that the error is returned unwrapped.
-func TestRESILIENCE_003_ShouldRetryShortCircuits(t *testing.T) {
+func TestShouldRetryShortCircuits(t *testing.T) {
 	permanent := errors.New("unauthorized")
 	calls := 0
 	err := Retry(context.Background(), RetryOptions{
@@ -87,9 +87,9 @@ func TestRESILIENCE_003_ShouldRetryShortCircuits(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_004_ShouldRetryAllowsRecovery verifies ShouldRetry returning true
+// TestShouldRetryAllowsRecovery verifies ShouldRetry returning true
 // does not prevent a later attempt from succeeding.
-func TestRESILIENCE_004_ShouldRetryAllowsRecovery(t *testing.T) {
+func TestShouldRetryAllowsRecovery(t *testing.T) {
 	calls := 0
 	err := Retry(context.Background(), RetryOptions{
 		MaxAttempts: 3,
@@ -106,10 +106,10 @@ func TestRESILIENCE_004_ShouldRetryAllowsRecovery(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_005_DelayIsExponential covers the backoff schedule, which was
+// TestDelayIsExponential covers the backoff schedule, which was
 // the least-exercised logic in the package: an unset multiplier must fall back to
 // the documented doubling default rather than to 1 or to no growth.
-func TestRESILIENCE_005_DelayIsExponential(t *testing.T) {
+func TestDelayIsExponential(t *testing.T) {
 	cases := []struct {
 		name    string
 		opts    RetryOptions
@@ -134,10 +134,10 @@ func TestRESILIENCE_005_DelayIsExponential(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_006_DelayJitterStaysInBand verifies jitter randomizes the delay
+// TestDelayJitterStaysInBand verifies jitter randomizes the delay
 // within the requested proportional band, never goes negative, and still
 // respects a MaxDelay cap that sits below the base delay.
-func TestRESILIENCE_006_DelayJitterStaysInBand(t *testing.T) {
+func TestDelayJitterStaysInBand(t *testing.T) {
 	const (
 		base    = 100 * time.Millisecond
 		jitter  = 0.5
@@ -171,10 +171,10 @@ func TestRESILIENCE_006_DelayJitterStaysInBand(t *testing.T) {
 	}
 }
 
-// TestRESILIENCE_007_RetryCancelsDuringBackoff verifies a context cancelled while
+// TestRetryCancelsDuringBackoff verifies a context cancelled while
 // the loop is about to wait returns the context error instead of burning the
 // remaining attempts.
-func TestRESILIENCE_007_RetryCancelsDuringBackoff(t *testing.T) {
+func TestRetryCancelsDuringBackoff(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	calls := 0
 	err := Retry(ctx, RetryOptions{MaxAttempts: 10, InitialDelay: 50 * time.Millisecond}, func(context.Context) error {

@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-// TestSEC_WIDGET_001_SafeURL_BlocksExecutableSchemes verifies that a link target
+// TestSafeURL_BlocksExecutableSchemes verifies that a link target
 // cannot carry a script-executing scheme. HTML-escaping alone does not help
 // here: "javascript:alert(1)" contains no character that needs escaping, so it
 // survives attribute encoding and still runs when the link is clicked.
-func TestSEC_WIDGET_001_SafeURL_BlocksExecutableSchemes(t *testing.T) {
+func TestSafeURL_BlocksExecutableSchemes(t *testing.T) {
 	unsafe := []string{
 		"javascript:alert(1)",
 		"JaVaScRiPt:alert(1)",
@@ -26,9 +26,9 @@ func TestSEC_WIDGET_001_SafeURL_BlocksExecutableSchemes(t *testing.T) {
 	}
 }
 
-// TestSEC_WIDGET_002_SafeURL_AllowsLegitimateSchemes guards against the
+// TestSafeURL_AllowsLegitimateSchemes guards against the
 // validator breaking ordinary navigation.
-func TestSEC_WIDGET_002_SafeURL_AllowsLegitimateSchemes(t *testing.T) {
+func TestSafeURL_AllowsLegitimateSchemes(t *testing.T) {
 	cases := map[string]string{
 		"/dashboard":     "/dashboard",
 		"../relative":    "../relative",
@@ -46,9 +46,9 @@ func TestSEC_WIDGET_002_SafeURL_AllowsLegitimateSchemes(t *testing.T) {
 	}
 }
 
-// TestSEC_WIDGET_003_SafeURL_EscapesQuoteInjection verifies that a URL
+// TestSafeURL_EscapesQuoteInjection verifies that a URL
 // containing a double quote cannot break out of the href attribute.
-func TestSEC_WIDGET_003_SafeURL_EscapesQuoteInjection(t *testing.T) {
+func TestSafeURL_EscapesQuoteInjection(t *testing.T) {
 	got := SafeURL(`https://ok.example/" onmouseover="alert(1)`)
 	if strings.Contains(got, `" onmouseover=`) {
 		t.Errorf("SafeURL must escape quotes, got %q", got)
@@ -58,9 +58,9 @@ func TestSEC_WIDGET_003_SafeURL_EscapesQuoteInjection(t *testing.T) {
 	}
 }
 
-// TestSEC_WIDGET_004_ButtonLinkUsesSafeURL verifies the button link path routes
+// TestButtonLinkUsesSafeURL verifies the button link path routes
 // through SafeURL rather than raw escaping.
-func TestSEC_WIDGET_004_ButtonLinkUsesSafeURL(t *testing.T) {
+func TestButtonLinkUsesSafeURL(t *testing.T) {
 	out := string(NewButton("click").Link("javascript:alert(1)").Render())
 	if strings.Contains(out, "javascript:") {
 		t.Errorf("button link must not carry a javascript: URL:\n%s", out)

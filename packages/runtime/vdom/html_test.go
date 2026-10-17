@@ -1,4 +1,3 @@
-// Tests for KWF-T4X9P
 package vdom
 
 import (
@@ -6,8 +5,7 @@ import (
 	"testing"
 )
 
-// Spec: KWF-T4X9P FRK-WASM-022 Scope: Unit
-func TestFRK_WASM_022_RenderHTML_SharesNormalizationWithDiff(t *testing.T) {
+func TestRenderHTML_SharesNormalizationWithDiff(t *testing.T) {
 	boolBare := RenderHTML(El("input", map[string]string{"disabled": ""}))
 	if !strings.Contains(boolBare, "<input disabled>") || strings.Contains(boolBare, `disabled=`) {
 		t.Fatalf("boolean attr must render bare: %q", boolBare)
@@ -35,8 +33,7 @@ func TestFRK_WASM_022_RenderHTML_SharesNormalizationWithDiff(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-022 Scope: Unit
-func TestFRK_WASM_022_RenderHTML_EscapesTextAndAttributes(t *testing.T) {
+func TestRenderHTML_EscapesTextAndAttributes(t *testing.T) {
 	tree := El("a", map[string]string{"href": `/?x=1&x="2"`}, Text(`<b> & friends`))
 	out := RenderHTML(tree)
 
@@ -48,8 +45,7 @@ func TestFRK_WASM_022_RenderHTML_EscapesTextAndAttributes(t *testing.T) {
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-022 Scope: Unit
-func TestFRK_WASM_022_RenderHTML_VoidElementsAndDeterministicOrder(t *testing.T) {
+func TestRenderHTML_VoidElementsAndDeterministicOrder(t *testing.T) {
 	img := RenderHTML(El("img", map[string]string{"src": "a.png", "alt": "A"}))
 	if img != `<img alt="A" src="a.png">` {
 		t.Fatalf("void element output = %q", img)
@@ -62,8 +58,7 @@ func TestFRK_WASM_022_RenderHTML_VoidElementsAndDeterministicOrder(t *testing.T)
 	}
 }
 
-// Spec: KWF-T4X9P FRK-WASM-022 Scope: Unit
-func TestFRK_WASM_022_RenderHTML_ComponentPlaceholderCarriesNameAndProps(t *testing.T) {
+func TestRenderHTML_ComponentPlaceholderCarriesNameAndProps(t *testing.T) {
 	out := RenderHTML(Component("Counter", "c1", map[string]string{"start": "0"}))
 	want := `<kiw-component name="Counter" data-kiw-key="c1" start="0"></kiw-component>`
 	if out != want {

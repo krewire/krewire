@@ -1,4 +1,3 @@
-// Tests for KWF-WEB-R9T4C
 package web
 
 import (
@@ -14,8 +13,7 @@ import (
 
 func headerValues(h http.Header, key string) []string { return h.Values(key) }
 
-// Spec: KWF-WEB-R9T4C FRK-SEC-001 Scope: Unit
-func TestFRK_SEC_001_SecurityHeaders_DefaultsAndOverrides(t *testing.T) {
+func TestSecurityHeaders_DefaultsAndOverrides(t *testing.T) {
 	r := NewRouter()
 	r.Use(SecurityHeaders(func(o *SecurityOptions) {
 		o.HSTS = 63072000
@@ -39,8 +37,7 @@ func TestFRK_SEC_001_SecurityHeaders_DefaultsAndOverrides(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-R9T4C FRK-SEC-002 Scope: Unit
-func TestFRK_SEC_002_StripTags(t *testing.T) {
+func TestStripTags(t *testing.T) {
 	ftest.Equal(t, "hello world", StripTags("<b>hello</b> <i>world</i>"))
 	ftest.Equal(t, "no tags", StripTags("  no tags  "))
 }
@@ -69,8 +66,7 @@ type submitBody struct {
 	Name string `json:"name"`
 }
 
-// Spec: KWF-WEB-R9T4C FRK-SEC-010+011 Scope: Unit
-func TestFRK_SEC_010_CSRF_FlowWithSession(t *testing.T) {
+func TestCSRF_FlowWithSession(t *testing.T) {
 	store := NewMemorySessionStore()
 	r, p, _ := csrfStack(t, store)
 	r.Post("/submit", H(func(req *Request, in *submitBody) (any, error) {
@@ -123,8 +119,7 @@ func TestFRK_SEC_010_CSRF_FlowWithSession(t *testing.T) {
 	ftest.EqualStatus(t, rec4, http.StatusOK)
 }
 
-// Spec: KWF-WEB-R9T4C FRK-SEC-032+033 Scope: Unit
-func TestFRK_SEC_032_Session_Rotate_KV_vs_Memory(t *testing.T) {
+func TestSession_Rotate_KV_vs_Memory(t *testing.T) {
 	kvStore := NewKVSessionStore(storage.NewMemory())
 	memStore := NewMemorySessionStore()
 	for name, store := range map[string]SessionStore{"kv": kvStore, "memory": memStore} {
@@ -184,8 +179,7 @@ func TestFRK_SEC_032_Session_Rotate_KV_vs_Memory(t *testing.T) {
 
 }
 
-// Spec: KWF-WEB-R9T4C FRK-SEC-031 Scope: Unit
-func TestFRK_SEC_031_Session_ExpiryLazy(t *testing.T) {
+func TestSession_ExpiryLazy(t *testing.T) {
 	store := NewMemorySessionStore()
 	id := "expiring-id"
 	_ = store.Save(id, &sessionRecord{
@@ -197,8 +191,7 @@ func TestFRK_SEC_031_Session_ExpiryLazy(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-R9T4C FRK-SEC-020 Scope: Unit
-func TestFRK_SEC_020_CachePolicies(t *testing.T) {
+func TestCachePolicies(t *testing.T) {
 	cases := []struct {
 		name string
 		mw   Middleware
@@ -224,8 +217,7 @@ func TestFRK_SEC_020_CachePolicies(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-R9T4C FRK-SEC-040 Scope: Unit
-func TestFRK_SEC_040_CookieBuilderAndVal(t *testing.T) {
+func TestCookieBuilderAndVal(t *testing.T) {
 	r := NewRouter()
 	r.Get("/set", func(w http.ResponseWriter, req *http.Request, p Params) {
 		Cookie("theme", "dark").Path("/").MaxAge(86400).Secure().HTTPOnly().SameSite(http.SameSiteStrictMode).Write(w)

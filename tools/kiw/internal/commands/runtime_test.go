@@ -1,4 +1,3 @@
-// Tests for KWN-6K41E
 package commands
 
 import (
@@ -25,8 +24,7 @@ func chdir(t *testing.T, dir string) {
 	t.Cleanup(func() { _ = os.Chdir(old) })
 }
 
-// Spec: KWN-6K41E RND-SRV-002 Scope: Unit
-func TestKWN_SRV_002_BootRuntime_ResolvesConfigDotenvEnvAndDebug(t *testing.T) {
+func TestBootRuntime_ResolvesConfigDotenvEnvAndDebug(t *testing.T) {
 	dir := t.TempDir()
 	files := map[string]string{
 		"go.mod":       "module demo\n\ngo 1.26\n",
@@ -63,8 +61,7 @@ func TestKWN_SRV_002_BootRuntime_ResolvesConfigDotenvEnvAndDebug(t *testing.T) {
 	}
 }
 
-// Spec: KWN-6K41E RND-SRV-001 RND-SRV-003 Scope: Unit
-func TestKWN_SRV_003_RunServe_OnCLIKind_PassesArgsAndPropagatesExit(t *testing.T) {
+func TestRunServe_OnCLIKind_PassesArgsAndPropagatesExit(t *testing.T) {
 	dir := t.TempDir()
 	main := `package main
 

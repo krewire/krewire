@@ -1,4 +1,3 @@
-// Tests for KWF-WEB-B2X7D
 package web
 
 import (
@@ -14,8 +13,7 @@ import (
 
 var testSecret = []byte("kiw-test-secret-0123456789abcdef")
 
-// Spec: KWF-WEB-B2X7D FRK-AUTH-010 Scope: Unit
-func TestFRK_AUTH_010_BasicAuth(t *testing.T) {
+func TestBasicAuth(t *testing.T) {
 	verify := func(id, pass string) (*Identity, error) {
 		if id == "alice" && pass == "wonder" {
 			return &Identity{Subject: id, Roles: []string{"reader"}}, nil
@@ -76,8 +74,7 @@ func sign(sub string, ttl time.Duration, extra Claims) string {
 	return tok
 }
 
-// Spec: KWF-WEB-B2X7D FRK-AUTH-020+021 Scope: Unit
-func TestFRK_AUTH_020_JWT_SignParseAndMiddleware(t *testing.T) {
+func TestJWT_SignParseAndMiddleware(t *testing.T) {
 	// round trip
 	claims, err := ParseJWT(testSecret, sign("bob", time.Minute, Claims{"roles": []string{"admin"}}))
 	if err != nil {
@@ -138,8 +135,7 @@ func TestFRK_AUTH_020_JWT_SignParseAndMiddleware(t *testing.T) {
 	ftest.EqualStatus(t, doAuth(otherTok), http.StatusUnauthorized)
 }
 
-// Spec: KWF-WEB-B2X7D FRK-AUTH-030+031 Scope: Unit
-func TestFRK_AUTH_030_PolicyGates_Before(t *testing.T) {
+func TestPolicyGates_Before(t *testing.T) {
 	jwtMW := JWTAuth(testSecret, func(o *JWTOptions) { o.ContinueOnMissing = true })
 	adminGate := Require(Authenticated(), WithRoles("admin"))
 
@@ -187,8 +183,7 @@ func TestFRK_AUTH_030_PolicyGates_Before(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-B2X7D FRK-AUTH-032 Scope: Unit
-func TestFRK_AUTH_032_AfterRequest_Observer(t *testing.T) {
+func TestAfterRequest_Observer(t *testing.T) {
 	var seenStatus int
 	var seenPath string
 	r := NewRouter()
@@ -205,8 +200,7 @@ func TestFRK_AUTH_032_AfterRequest_Observer(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-B2X7D FRK-AUTH-033 Scope: Unit
-func TestFRK_AUTH_033_PolicySet_Registry(t *testing.T) {
+func TestPolicySet_Registry(t *testing.T) {
 	gates := PolicySet{
 		"reader": WithRoles("reader"),
 	}

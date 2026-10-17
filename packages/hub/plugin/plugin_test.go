@@ -36,9 +36,9 @@ type stubInstaller struct{ stubPlugin }
 func (s *stubInstaller) Add(string, string) error { return nil }
 func (s *stubInstaller) Remove(string) error      { return nil }
 
-// TestPLUGIN_001_FindMatchesNameAndAliases verifies lookup is case-insensitive,
+// TestFindMatchesNameAndAliases verifies lookup is case-insensitive,
 // trims surrounding space, and matches both the plugin name and its aliases.
-func TestPLUGIN_001_FindMatchesNameAndAliases(t *testing.T) {
+func TestFindMatchesNameAndAliases(t *testing.T) {
 	isolateRegistry(t)
 	Register(&stubPlugin{name: "tailwind", aliases: []string{"twcss"}, version: kern.MustParseVersion("1.2.3")})
 
@@ -54,9 +54,9 @@ func TestPLUGIN_001_FindMatchesNameAndAliases(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_002_FindMapsTailwindcss verifies the npm package name resolves to
+// TestFindMapsTailwindcss verifies the npm package name resolves to
 // the Tailwind plugin even when it is not declared as an alias.
-func TestPLUGIN_002_FindMapsTailwindcss(t *testing.T) {
+func TestFindMapsTailwindcss(t *testing.T) {
 	isolateRegistry(t)
 	Register(&Tailwind{})
 	if Find("tailwindcss") == nil {
@@ -64,9 +64,9 @@ func TestPLUGIN_002_FindMapsTailwindcss(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_003_FindInstaller verifies the Installer narrowing only succeeds
+// TestFindInstaller verifies the Installer narrowing only succeeds
 // for plugins that implement the optional contract.
-func TestPLUGIN_003_FindInstaller(t *testing.T) {
+func TestFindInstaller(t *testing.T) {
 	isolateRegistry(t)
 
 	Register(&stubPlugin{name: "plain", version: kern.MustParseVersion("1.0.0")})
@@ -83,9 +83,9 @@ func TestPLUGIN_003_FindInstaller(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_004_FindByVersion verifies the version filter rejects a plugin that
+// TestFindByVersion verifies the version filter rejects a plugin that
 // does not satisfy the requirement.
-func TestPLUGIN_004_FindByVersion(t *testing.T) {
+func TestFindByVersion(t *testing.T) {
 	isolateRegistry(t)
 	Register(&stubPlugin{name: "tw", version: kern.MustParseVersion("1.2.0")})
 
@@ -100,9 +100,9 @@ func TestPLUGIN_004_FindByVersion(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_005_FindInstallerByVersion verifies both the name and version
+// TestFindInstallerByVersion verifies both the name and version
 // filters apply to the Installer lookup.
-func TestPLUGIN_005_FindInstallerByVersion(t *testing.T) {
+func TestFindInstallerByVersion(t *testing.T) {
 	isolateRegistry(t)
 	Register(&stubInstaller{stubPlugin{name: "tw", version: kern.MustParseVersion("1.2.0")}})
 
@@ -117,9 +117,9 @@ func TestPLUGIN_005_FindInstallerByVersion(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_006_TailwindMetadata verifies the shipped plugin's identity,
+// TestTailwindMetadata verifies the shipped plugin's identity,
 // aliases, version, and interface satisfaction.
-func TestPLUGIN_006_TailwindMetadata(t *testing.T) {
+func TestTailwindMetadata(t *testing.T) {
 	tw := &Tailwind{}
 	if tw.Name() != "tailwind" {
 		t.Errorf("Name = %q", tw.Name())
@@ -136,9 +136,9 @@ func TestPLUGIN_006_TailwindMetadata(t *testing.T) {
 	var _ AssetProvider = tw
 }
 
-// TestPLUGIN_007_TailwindDetect verifies config-file presence drives detection
+// TestTailwindDetect verifies config-file presence drives detection
 // across every supported config extension.
-func TestPLUGIN_007_TailwindDetect(t *testing.T) {
+func TestTailwindDetect(t *testing.T) {
 	tw := &Tailwind{}
 	if tw.Detect(t.TempDir()) {
 		t.Error("Detect must be false without a config file")
@@ -154,9 +154,9 @@ func TestPLUGIN_007_TailwindDetect(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_008_TailwindAssets verifies the declared asset appears only when the
+// TestTailwindAssets verifies the declared asset appears only when the
 // input stylesheet exists, so kiw build does not link a missing file.
-func TestPLUGIN_008_TailwindAssets(t *testing.T) {
+func TestTailwindAssets(t *testing.T) {
 	tw := &Tailwind{}
 	root := t.TempDir()
 	if got := tw.Assets(root); got != nil {
@@ -174,18 +174,18 @@ func TestPLUGIN_008_TailwindAssets(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_009_TailwindBuildSkipsWithoutInput verifies a missing input stylesheet
+// TestTailwindBuildSkipsWithoutInput verifies a missing input stylesheet
 // is a no-op rather than a failure, since Tailwind is an optional plugin.
-func TestPLUGIN_009_TailwindBuildSkipsWithoutInput(t *testing.T) {
+func TestTailwindBuildSkipsWithoutInput(t *testing.T) {
 	tw := &Tailwind{}
 	if err := tw.Build(t.TempDir(), t.TempDir()); err != nil {
 		t.Errorf("Build without input must succeed as a no-op, got %v", err)
 	}
 }
 
-// TestPLUGIN_010_EnsureConfigIsIdempotent verifies Add's helpers create the
+// TestEnsureConfigIsIdempotent verifies Add's helpers create the
 // config and input files once and never overwrite an existing one.
-func TestPLUGIN_010_EnsureConfigIsIdempotent(t *testing.T) {
+func TestEnsureConfigIsIdempotent(t *testing.T) {
 	root := t.TempDir()
 
 	if err := ensureTailwindConfig(root); err != nil {
@@ -222,9 +222,9 @@ func TestPLUGIN_010_EnsureConfigIsIdempotent(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_011_RegistrySelfRegistration verifies the Tailwind plugin is present
+// TestRegistrySelfRegistration verifies the Tailwind plugin is present
 // in the package registry without any explicit Register call, since init() does it.
-func TestPLUGIN_011_RegistrySelfRegistration(t *testing.T) {
+func TestRegistrySelfRegistration(t *testing.T) {
 	if Find("tailwind") == nil {
 		t.Error("the Tailwind plugin must self-register via init()")
 	}
@@ -233,9 +233,9 @@ func TestPLUGIN_011_RegistrySelfRegistration(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_012_TailwindDetectPackageJson verifies projects declaring tailwindcss in
+// TestTailwindDetectPackageJson verifies projects declaring tailwindcss in
 // package.json are detected even without a config file.
-func TestPLUGIN_012_TailwindDetectPackageJson(t *testing.T) {
+func TestTailwindDetectPackageJson(t *testing.T) {
 	tw := &Tailwind{}
 	dir := t.TempDir()
 	pkgJSON := `{"name":"test","devDependencies":{"tailwindcss":"^4.0.0"}}`
@@ -247,9 +247,9 @@ func TestPLUGIN_012_TailwindDetectPackageJson(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_013_TailwindDetectV4CSS verifies projects using Tailwind CSS v4 (@import "tailwindcss")
+// TestTailwindDetectV4CSS verifies projects using Tailwind CSS v4 (@import "tailwindcss")
 // or standard directives in stylesheets are detected automatically.
-func TestPLUGIN_013_TailwindDetectV4CSS(t *testing.T) {
+func TestTailwindDetectV4CSS(t *testing.T) {
 	tw := &Tailwind{}
 	dir := t.TempDir()
 	assetsDir := filepath.Join(dir, "assets")
@@ -265,8 +265,8 @@ func TestPLUGIN_013_TailwindDetectV4CSS(t *testing.T) {
 	}
 }
 
-// TestPLUGIN_014_TailwindPackageManagerDetection verifies package manager resolution.
-func TestPLUGIN_014_TailwindPackageManagerDetection(t *testing.T) {
+// TestTailwindPackageManagerDetection verifies package manager resolution.
+func TestTailwindPackageManagerDetection(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "bun.lockb"), []byte(""), 0o600); err != nil {
 		t.Fatal(err)
@@ -276,8 +276,8 @@ func TestPLUGIN_014_TailwindPackageManagerDetection(t *testing.T) {
 	t.Logf("detected package manager for bun.lockb: %q", pm)
 }
 
-// TestPLUGIN_015_TailwindCandidateCommands verifies candidate commands include local and global runners.
-func TestPLUGIN_015_TailwindCandidateCommands(t *testing.T) {
+// TestTailwindCandidateCommands verifies candidate commands include local and global runners.
+func TestTailwindCandidateCommands(t *testing.T) {
 	dir := t.TempDir()
 	candidates := buildCandidateCommands(dir, "assets/tailwind.css", ".krewire/build/assets/tailwind.css")
 	if len(candidates) < 2 {

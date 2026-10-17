@@ -1,4 +1,3 @@
-// Tests for KWL-Q3N8P (KWL-MD-001..003) — Scope: Unit libs/markdown.
 package markdown
 
 import (
@@ -6,10 +5,10 @@ import (
 	"testing"
 )
 
-// TestSEC_MD_001_RenderSafe_RemovesScriptBearing verifies that RenderSafe drops
+// TestRenderSafe_RemovesScriptBearing verifies that RenderSafe drops
 // executable markup. Render keeps raw HTML for trusted .kiw sources, so any
 // Markdown supplied by an untrusted author must go through RenderSafe.
-func TestSEC_MD_001_RenderSafe_RemovesScriptBearing(t *testing.T) {
+func TestRenderSafe_RemovesScriptBearing(t *testing.T) {
 	cases := []struct {
 		name    string
 		src     string
@@ -92,9 +91,9 @@ func TestSEC_MD_001_RenderSafe_RemovesScriptBearing(t *testing.T) {
 	}
 }
 
-// TestSEC_MD_002_RenderSafe_KeepsSafeMarkup guards against over-sanitizing:
+// TestRenderSafe_KeepsSafeMarkup guards against over-sanitizing:
 // ordinary documentation markup must survive intact.
-func TestSEC_MD_002_RenderSafe_KeepsSafeMarkup(t *testing.T) {
+func TestRenderSafe_KeepsSafeMarkup(t *testing.T) {
 	src := []byte("# Title\n\nA **bold** and [link](https://ok.example) and `code`.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n")
 	out, err := RenderSafe(src)
 	if err != nil {
@@ -113,10 +112,10 @@ func TestSEC_MD_002_RenderSafe_KeepsSafeMarkup(t *testing.T) {
 	}
 }
 
-// TestSEC_MD_003_Render_StripsScriptURLs verifies that even the trusted Render
+// TestRender_StripsScriptURLs verifies that even the trusted Render
 // path neutralizes javascript: links, which the ecosystem needs because Markdown
 // authors link with [text](javascript:...) by mistake or maliciously.
-func TestSEC_MD_003_Render_StripsScriptURLs(t *testing.T) {
+func TestRender_StripsScriptURLs(t *testing.T) {
 	cases := []struct {
 		src     string
 		absent  string
@@ -143,9 +142,9 @@ func TestSEC_MD_003_Render_StripsScriptURLs(t *testing.T) {
 	}
 }
 
-// TestSEC_MD_004_RenderSafeWithBase verifies sanitization composes with the
+// TestRenderSafeWithBase verifies sanitization composes with the
 // base-prefix rewriting used by the book and ssg build.
-func TestSEC_MD_004_RenderSafeWithBase(t *testing.T) {
+func TestRenderSafeWithBase(t *testing.T) {
 	// The blank line is required: without it Goldmark treats the script tag as
 	// an HTML block that swallows the link on the following line.
 	out, err := RenderSafeWithBase([]byte("<script>bad()</script>\n\n[x](/y)"), "/guide/")
@@ -160,10 +159,10 @@ func TestSEC_MD_004_RenderSafeWithBase(t *testing.T) {
 	}
 }
 
-// TestSEC_MD_005_LinksGetNoopener documents that rendered anchors carry
+// TestLinksGetNoopener documents that rendered anchors carry
 // rel="noopener" so a target="_blank" link cannot reach back through
 // window.opener.
-func TestSEC_MD_005_LinksGetNoopener(t *testing.T) {
+func TestLinksGetNoopener(t *testing.T) {
 	out, err := RenderSafe([]byte(`<a href="https://ok.example" target="_blank">x</a>`))
 	if err != nil {
 		t.Fatal(err)
@@ -173,7 +172,7 @@ func TestSEC_MD_005_LinksGetNoopener(t *testing.T) {
 	}
 }
 
-func TestKWL_MD_001_Render_GFMAndHeadingIDs(t *testing.T) {
+func TestRender_GFMAndHeadingIDs(t *testing.T) {
 	src := []byte("# Hello\n\nA **bold** and ~~strike~~.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n")
 	html, err := Render(src)
 	if err != nil {
@@ -191,7 +190,7 @@ func TestKWL_MD_001_Render_GFMAndHeadingIDs(t *testing.T) {
 	}
 }
 
-func TestKWL_MD_002_RenderWithBase_PrefixesLinks(t *testing.T) {
+func TestRenderWithBase_PrefixesLinks(t *testing.T) {
 	src := []byte("[next](/two) and ![alt](/img.png)")
 	html, err := RenderWithBase(src, "/guide/")
 	if err != nil {
@@ -209,7 +208,7 @@ func TestKWL_MD_002_RenderWithBase_PrefixesLinks(t *testing.T) {
 	}
 }
 
-func TestKWL_MD_003_PrefixLinks(t *testing.T) {
+func TestPrefixLinks_Cases(t *testing.T) {
 	tt := []struct{ in, base, want string }{
 		{`<a href="/getting-started">`, "/guide/", `<a href="/guide/getting-started">`},
 		{`<a href="/">`, "/guide/", `<a href="/guide/">`},
@@ -225,7 +224,7 @@ func TestKWL_MD_003_PrefixLinks(t *testing.T) {
 	}
 }
 
-func TestKWL_MD_003_RenderDeterministic(t *testing.T) {
+func TestRenderDeterministic(t *testing.T) {
 	src := []byte("# T\n\nBody.\n")
 	a, _ := Render(src)
 	b, _ := Render(src)

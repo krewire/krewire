@@ -1,4 +1,3 @@
-// Tests for KWF-WEB-J7K2P
 package web
 
 import (
@@ -9,8 +8,7 @@ import (
 	ftest "github.com/krewire/krewire/packages/testing"
 )
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-001 Scope: Unit
-func TestFRK_LRV_001_OptionsHead(t *testing.T) {
+func TestOptionsHead(t *testing.T) {
 	r := NewRouter()
 	r.Options("/opts", func(w http.ResponseWriter, _ *http.Request, _ Params) { w.Write([]byte("opts")) })
 	r.Head("/head", func(w http.ResponseWriter, _ *http.Request, _ Params) { w.Write([]byte("head")) })
@@ -22,8 +20,7 @@ func TestFRK_LRV_001_OptionsHead(t *testing.T) {
 	ftest.EqualStatus(t, rec2, http.StatusOK)
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-002 Scope: Unit
-func TestFRK_LRV_002_Any(t *testing.T) {
+func TestAny(t *testing.T) {
 	r := NewRouter()
 	r.Any("/any", func(w http.ResponseWriter, _ *http.Request, _ Params) { w.Write([]byte("any")) })
 	for _, m := range []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions, http.MethodHead} {
@@ -36,8 +33,7 @@ func TestFRK_LRV_002_Any(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-003 Scope: Unit
-func TestFRK_LRV_003_Match(t *testing.T) {
+func TestMatch(t *testing.T) {
 	r := NewRouter()
 	r.Match([]string{"GET", "post"}, "/match", func(w http.ResponseWriter, _ *http.Request, _ Params) { w.Write([]byte("m")) })
 	rec := httptest.NewRecorder()
@@ -55,8 +51,7 @@ func TestFRK_LRV_003_Match(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-004 Scope: Unit
-func TestFRK_LRV_004_Fallback(t *testing.T) {
+func TestFallback(t *testing.T) {
 	r := NewRouter()
 	r.Get("/exists", func(w http.ResponseWriter, _ *http.Request, _ Params) { w.Write([]byte("ok")) })
 	r.Fallback(func(w http.ResponseWriter, _ *http.Request, _ Params) {
@@ -71,8 +66,7 @@ func TestFRK_LRV_004_Fallback(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-005 FRK-LRV-006 Scope: Unit
-func TestFRK_LRV_005_Redirect(t *testing.T) {
+func TestRedirect(t *testing.T) {
 	r := NewRouter()
 	r.Redirect("/old", "/new", http.StatusMovedPermanently)
 	r.PermanentRedirect("/old2", "/new2")
@@ -93,8 +87,7 @@ func TestFRK_LRV_005_Redirect(t *testing.T) {
 	ftest.EqualStatus(t, rec3, http.StatusFound)
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-010 FRK-LRV-011 FRK-LRV-012 Scope: Unit
-func TestFRK_LRV_010_PrefixNameMiddleware(t *testing.T) {
+func TestPrefixNameMiddleware(t *testing.T) {
 	r := NewRouter()
 	called := ""
 	mw := func(next http.Handler) http.Handler {
@@ -129,8 +122,7 @@ func TestFRK_LRV_010_PrefixNameMiddleware(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-014 Scope: Unit
-func TestFRK_LRV_014_Where(t *testing.T) {
+func TestWhere(t *testing.T) {
 	r := NewRouter()
 	r.Group("/items").Where("id", "\\d+").GET("/{id}").Name("items.show").Where("id", "\\d+").Handle(func(w http.ResponseWriter, _ *http.Request, _ Params) {})
 	infos := r.Routes()
@@ -149,8 +141,7 @@ func TestFRK_LRV_014_Where(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-020 FRK-LRV-021 FRK-LRV-022 Scope: Unit
-func TestFRK_LRV_020_ResourceFullAndApi(t *testing.T) {
+func TestResourceFullAndApi(t *testing.T) {
 	r := NewRouter()
 	ctrl := ResourceController{
 		Index:   func(w http.ResponseWriter, _ *http.Request, _ Params) { w.Write([]byte("index")) },
@@ -191,8 +182,7 @@ func TestFRK_LRV_020_ResourceFullAndApi(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-023 Scope: Unit
-func TestFRK_LRV_023_OnlyExcept(t *testing.T) {
+func TestOnlyExcept(t *testing.T) {
 	r := NewRouter()
 	ctrl := ResourceController{
 		Index:   func(w http.ResponseWriter, _ *http.Request, _ Params) {},
@@ -215,8 +205,7 @@ func TestFRK_LRV_023_OnlyExcept(t *testing.T) {
 	}
 }
 
-// Spec: KWF-WEB-J7K2P FRK-LRV-030 FRK-LRV-031 Scope: Unit
-func TestFRK_LRV_030_BaseController(t *testing.T) {
+func TestBaseController(t *testing.T) {
 	type UserController struct {
 		BaseController
 	}

@@ -127,11 +127,9 @@ func TestLayoutRendersStylesheets(t *testing.T) {
 	}
 }
 
-// --- UI Testing Framework (KWF-TEST-U9K3M) — Layout with HTMLAssert ---
+// --- UI Testing Framework — Layout with HTMLAssert ---
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-010 Scope: Unit
-func TestKWF_TST_U9K_010_Layout_HTMLAssert(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-010")
+func TestLayout_HTMLAssert(t *testing.T) {
 	l := Layout{
 		Title:  "Krewire",
 		Header: template.HTML(`<header data-ui-component="header"><span>brand</span></header>`),
@@ -154,9 +152,7 @@ func TestKWF_TST_U9K_010_Layout_HTMLAssert(t *testing.T) {
 		Attr("html", "lang", "en")
 }
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-011 Scope: Unit
-func TestKWF_TST_U9K_011_Layout_Snapshot(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-011")
+func TestLayout_Snapshot(t *testing.T) {
 	l := Layout{
 		Title: "Snapshot",
 		Main:  template.HTML("<p>hello</p>"),
@@ -164,9 +160,7 @@ func TestKWF_TST_U9K_011_Layout_Snapshot(t *testing.T) {
 	ftest.Snapshot(t, "ui_layout_snapshot", string(l.Render()))
 }
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-011 Scope: Unit
-func TestKWF_TST_U9K_011_Layout_OmittedRegions_HTMLAssert(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-011")
+func TestLayout_OmittedRegions_HTMLAssert(t *testing.T) {
 	l := Layout{Main: template.HTML("<p>content</p>")}
 	html := string(l.Render())
 	a := ftest.HTML(t, html)
@@ -182,9 +176,7 @@ func TestKWF_TST_U9K_011_Layout_OmittedRegions_HTMLAssert(t *testing.T) {
 	a.Has("main", 1).Has("p", 1).HasText("p", "content")
 }
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-012 Scope: Unit
-func TestKWF_TST_U9K_012_Layout_ThemeIntegration(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-012")
+func TestLayout_ThemeIntegration(t *testing.T) {
 	th := &Theme{Default: "dark", Light: Palette{Primary: "#111111"}}
 	l := Layout{Title: "T", Main: template.HTML("<p>x</p>"), Theme: th}
 	html := string(l.Render())
@@ -192,9 +184,7 @@ func TestKWF_TST_U9K_012_Layout_ThemeIntegration(t *testing.T) {
 	ftest.ThemeSnapshot(t, "ui_layout_theme", html)
 }
 
-// Spec: KWF-TEST-U9K3M KWF-TST-U9K-013 Scope: Unit
-func TestKWF_TST_U9K_013_Layout_GoldenHTML(t *testing.T) {
-	ftest.Spec(t, "KWF-TEST-U9K3M", "KWF-TST-U9K-013")
+func TestLayout_GoldenHTML(t *testing.T) {
 	l := Layout{
 		Title:       "Golden",
 		Description: "desc",

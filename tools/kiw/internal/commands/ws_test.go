@@ -1,4 +1,3 @@
-// Tests for KWN-Q3M8V
 package commands
 
 import (
@@ -44,8 +43,7 @@ func writeFile(t *testing.T, path, content string) {
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-001 Scope: Unit
-func TestKWN_WS_CMD_001_RunWs_DispatchesHelpAndRejectsUnknown(t *testing.T) {
+func TestRunWs_DispatchesHelpAndRejectsUnknown(t *testing.T) {
 	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("help")) }); code != kern.ExitCodeUsage {
 		t.Errorf("help exit code = %v, want Usage", code)
 	}
@@ -54,8 +52,7 @@ func TestKWN_WS_CMD_001_RunWs_DispatchesHelpAndRejectsUnknown(t *testing.T) {
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-002 Scope: Unit
-func TestKWN_WS_CMD_002_FindWorkspaceRoot_ClassifiesGoWorkAndMonorepo(t *testing.T) {
+func TestFindWorkspaceRoot_ClassifiesGoWorkAndMonorepo(t *testing.T) {
 	hub := t.TempDir()
 	writeFile(t, filepath.Join(hub, "go.work"), "go 1.26\n\nuse (\n\t./a\n\t./b\n)\n")
 	nested := filepath.Join(hub, "a", "deep")
@@ -79,8 +76,7 @@ func TestKWN_WS_CMD_002_FindWorkspaceRoot_ClassifiesGoWorkAndMonorepo(t *testing
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-003 Scope: Unit
-func TestKWN_WS_CMD_003_RunWsInfo_PrintsRootTypeAndMembers(t *testing.T) {
+func TestRunWsInfo_PrintsRootTypeAndMembers(t *testing.T) {
 	solo := t.TempDir()
 	writeFile(t, filepath.Join(solo, "go.mod"), "module example.com/solo\n")
 	chdir(t, solo)
@@ -96,8 +92,7 @@ func TestKWN_WS_CMD_003_RunWsInfo_PrintsRootTypeAndMembers(t *testing.T) {
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-004 Scope: Unit
-func TestKWN_WS_CMD_004_RunWsList_RendersProjectKindModuleTable(t *testing.T) {
+func TestRunWsList_RendersProjectKindModuleTable(t *testing.T) {
 	hub := t.TempDir()
 	writeFile(t, filepath.Join(hub, "go.mod"), "module example.com/hub\n")
 	writeFile(t, filepath.Join(hub, "go.work"), "go 1.26\n\nuse (\n\t.\n)\n")
@@ -118,8 +113,7 @@ func TestKWN_WS_CMD_004_RunWsList_RendersProjectKindModuleTable(t *testing.T) {
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-005 Scope: Unit
-func TestKWN_WS_CMD_005_RunWsAddRemove_UsageWithoutArgsOrGoWork(t *testing.T) {
+func TestRunWsAddRemove_UsageWithoutArgsOrGoWork(t *testing.T) {
 	chdir(t, t.TempDir())
 
 	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("add")) }); code != kern.ExitCodeUsage {
@@ -133,8 +127,7 @@ func TestKWN_WS_CMD_005_RunWsAddRemove_UsageWithoutArgsOrGoWork(t *testing.T) {
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-006 Scope: Unit
-func TestKWN_WS_CMD_006_RunWsSync_SucceedsInTrivialWorkspace(t *testing.T) {
+func TestRunWsSync_SucceedsInTrivialWorkspace(t *testing.T) {
 	hub := t.TempDir()
 	writeFile(t, filepath.Join(hub, "go.mod"), "module example.com/hub\n")
 	writeFile(t, filepath.Join(hub, "go.work"), "go 1.26\n\nuse (\n\t.\n)\n")
@@ -145,8 +138,7 @@ func TestKWN_WS_CMD_006_RunWsSync_SucceedsInTrivialWorkspace(t *testing.T) {
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-007 Scope: Unit
-func TestKWN_WS_CMD_007_RunWsExec_AggregatesMemberFailures(t *testing.T) {
+func TestRunWsExec_AggregatesMemberFailures(t *testing.T) {
 	hub := t.TempDir()
 	writeFile(t, filepath.Join(hub, "good", "go.mod"), "module example.com/good\n")
 	writeFile(t, filepath.Join(hub, "bad", "go.mod"), "module example.com/bad\n")
@@ -168,8 +160,7 @@ func TestKWN_WS_CMD_007_RunWsExec_AggregatesMemberFailures(t *testing.T) {
 	}
 }
 
-// Spec: KWN-Q3M8V WS-CMD-008 Scope: Unit
-func TestKWN_WS_CMD_008_HelpTextDocumentsSubcommandsExamplesAndTypes(t *testing.T) {
+func TestHelpTextDocumentsSubcommandsExamplesAndTypes(t *testing.T) {
 	out, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("help")) })
 	if code != kern.ExitCodeUsage {
 		t.Fatalf("help exit code = %v, want Usage", code)

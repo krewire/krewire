@@ -1,5 +1,3 @@
-// Tests for KWF-L5H2F
-
 package worker_test
 
 import (
@@ -22,7 +20,7 @@ func noopJob() jobFn {
 	return jobFn(func(context.Context) error { return nil })
 }
 
-func TestFRK_SVC_060_EnqueueDequeueAckNack_Lifecycle(t *testing.T) {
+func TestEnqueueDequeueAckNack_Lifecycle(t *testing.T) {
 	t.Run("PriorityOrderFIFOAmongEquals", func(t *testing.T) {
 		q := worker.NewInMemoryQueue()
 		ctx := context.Background()
@@ -120,7 +118,7 @@ func TestFRK_SVC_060_EnqueueDequeueAckNack_Lifecycle(t *testing.T) {
 	})
 }
 
-func TestFRK_SVC_062_RetryPolicy_DeadLettersAfterMaxAttempts(t *testing.T) {
+func TestRetryPolicy_DeadLettersAfterMaxAttempts(t *testing.T) {
 	q := worker.NewInMemoryQueue()
 	ctx := context.Background()
 
@@ -158,7 +156,7 @@ func TestFRK_SVC_062_RetryPolicy_DeadLettersAfterMaxAttempts(t *testing.T) {
 	}
 }
 
-func TestFRK_SVC_062_RetryPolicy_BackoffTable(t *testing.T) {
+func TestRetryPolicy_BackoffTable(t *testing.T) {
 	p := worker.RetryPolicy{MaxAttempts: 10, InitialBackoff: 10 * time.Millisecond, MaxBackoff: 50 * time.Millisecond}
 	cases := []struct {
 		n    int
@@ -182,7 +180,7 @@ func TestFRK_SVC_062_RetryPolicy_BackoffTable(t *testing.T) {
 	}
 }
 
-func TestFRK_SVC_063_InMemoryBackend_NoExternalDeps_EndToEnd(t *testing.T) {
+func TestInMemoryBackend_NoExternalDeps_EndToEnd(t *testing.T) {
 	q := worker.NewInMemoryQueue()
 	ctx := context.Background()
 

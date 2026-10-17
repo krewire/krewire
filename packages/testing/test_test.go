@@ -1,4 +1,3 @@
-// Tests for KWF-TEST-M4P9Q, KWL-TEST-P8M4L
 package test
 
 import (
@@ -8,31 +7,23 @@ import (
 	"testing"
 )
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-010 Scope: Unit
-func TestKWF_TST_M4P_010_Equal_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-010")
+func TestEqual_Valid(t *testing.T) {
 	// should not fail for equal
 	Equal(t, "a", "a")
 	Equal(t, 123, 123)
 }
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-011 Scope: Unit
-func TestKWF_TST_M4P_011_NoError_HasError(t *testing.T) {
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-011")
+func TestNoError_HasError(t *testing.T) {
 	NoError(t, nil)
 	HasError(t, os.ErrNotExist)
 }
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-012 Scope: Unit
-func TestKWF_TST_M4P_012_Contains_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-012")
+func TestContains_Valid(t *testing.T) {
 	Contains(t, "<html>hello</html>", "hello")
 	NotContains(t, "<html>hello</html>", "bad")
 }
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-020 Scope: Unit
-func TestKWF_TST_M4P_020_HTTP_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-020")
+func TestHTTP_Valid(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		_, _ = w.Write([]byte("ok"))
@@ -43,9 +34,7 @@ func TestKWF_TST_M4P_020_HTTP_Valid(t *testing.T) {
 	Contains(t, rec.Body.String(), "ok")
 }
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-031 Scope: Unit
-func TestKWF_TST_M4P_031_File_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-031")
+func TestFile_Valid(t *testing.T) {
 	dir := TempDir(t)
 	path := filepath.Join(dir, "a/b.txt")
 	WriteFile(t, path, "hello")
@@ -53,9 +42,7 @@ func TestKWF_TST_M4P_031_File_Valid(t *testing.T) {
 	ReadFile(t, path)
 }
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-032 Scope: Unit
-func TestKWF_TST_M4P_032_Golden_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-032")
+func TestGolden_Valid(t *testing.T) {
 	name := "test_golden_mvp"
 	path := filepath.Join("testdata", name+".golden")
 	_ = os.Remove(path)
@@ -66,21 +53,7 @@ func TestKWF_TST_M4P_032_Golden_Valid(t *testing.T) {
 	_ = os.Remove(path)
 }
 
-// Spec: KWF-TEST-M4P9Q KWF-TST-M4P-040 Scope: Unit
-func TestKWF_TST_M4P_040_Spec_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-040")
-	Spec(t, "KWF-TEST-M4P9Q", "KWF-TST-M4P-040")
-}
-
-// Spec: KWL-TEST-P8M4L KWL-TST-001 KWL-TST-002 KWL-TST-003 Scope: Unit
-func TestKWL_TST_P8M_001_SpecDrivenTestingStructure(t *testing.T) {
-	// Verifies spec citation logging and assertion helper works seamlessly
-	Spec(t, "KWL-TEST-P8M4L", "KWL-TST-001")
-	Equal(t, true, true)
-}
-
-// Spec: KWL-TEST-P8M4L KWL-TST-011 KWL-TST-023 Scope: Unit
-func TestKWL_TST_P8M_011_ScopeLevelConventions(t *testing.T) {
+func TestScopeLevelConventions(t *testing.T) {
 	// Scope levels: Workspace → Module → Domain → Service → Unit
 	levels := []string{"Workspace", "Module", "Domain", "Service", "Unit"}
 	Equal(t, len(levels), 5)

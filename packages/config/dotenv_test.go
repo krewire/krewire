@@ -1,4 +1,3 @@
-// Tests for KWL-2X1QZ
 package config
 
 import (
@@ -8,7 +7,6 @@ import (
 	"testing"
 )
 
-// Spec: KWL-2X1QZ CFG-DOTV-002 Scope: Unit
 func TestCFG_DOTV_002_ParseDotEnv_ToleratesCommentsQuotesAndExport(t *testing.T) {
 	body := `# comment line
 
@@ -40,7 +38,6 @@ UNQUOTED_COMMENTED=abc # trailing comment
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-DOTV-001 CFG-DOTV-002 Scope: Unit
 func TestCFG_DOTV_001_LoadDotEnv_SetsMissingKeepsExistingAndToleratesAbsentFile(t *testing.T) {
 	t.Setenv("EXISTING", "from-shell")
 	t.Setenv("SET_BY_FILE", "")
@@ -70,7 +67,6 @@ func TestCFG_DOTV_001_LoadDotEnv_SetsMissingKeepsExistingAndToleratesAbsentFile(
 	}
 }
 
-// Spec: KWL-2X1QZ CFG-DOTV-003 Scope: Unit
 func TestCFG_DOTV_003_ParseDotEnv_MalformedLineErrorsWithLineNumber(t *testing.T) {
 	_, err := ParseDotEnv([]byte("GOOD=1\nnot-a-pair\n"))
 	if err == nil {

@@ -13,10 +13,10 @@ import (
 	kfs "github.com/krewire/krewire/packages/fs"
 )
 
-// TestFILE_010_DefaultAndExplicitPerms verifies a zero perm resolves to the
+// TestDefaultAndExplicitPerms verifies a zero perm resolves to the
 // owner-only default rather than being handed to os.WriteFile as 0, which the
 // umask would widen unpredictably.
-func TestFILE_010_DefaultAndExplicitPerms(t *testing.T) {
+func TestDefaultAndExplicitPerms(t *testing.T) {
 	if got := resolvePerm(0); got != defaultFileMode {
 		t.Errorf("resolvePerm(0) = %04o, want %04o", got, defaultFileMode)
 	}
@@ -38,10 +38,10 @@ func TestFILE_010_DefaultAndExplicitPerms(t *testing.T) {
 	}
 }
 
-// TestFILE_011_WriteEnforcesPermOnRewrite verifies a permissive file tightened
+// TestWriteEnforcesPermOnRewrite verifies a permissive file tightened
 // through this API does not keep its old mode, which os.WriteFile alone would
 // leave in place on an existing file.
-func TestFILE_011_WriteEnforcesPermOnRewrite(t *testing.T) {
+func TestWriteEnforcesPermOnRewrite(t *testing.T) {
 	if !posixModesEnforced() {
 		t.Skip("POSIX file modes are not enforced on this platform")
 	}
@@ -69,9 +69,9 @@ func TestFILE_011_WriteEnforcesPermOnRewrite(t *testing.T) {
 	}
 }
 
-// TestFILE_012_ParentDirectoryIsPrivate verifies the directories this package
+// TestParentDirectoryIsPrivate verifies the directories this package
 // creates are owner-only, so another account cannot list the files inside them.
-func TestFILE_012_ParentDirectoryIsPrivate(t *testing.T) {
+func TestParentDirectoryIsPrivate(t *testing.T) {
 	if !posixModesEnforced() {
 		t.Skip("POSIX directory modes are not enforced on this platform")
 	}
@@ -91,9 +91,9 @@ func TestFILE_012_ParentDirectoryIsPrivate(t *testing.T) {
 	}
 }
 
-// TestFILE_013_SymlinkTargetIsRefused verifies both write paths reject a symlink
+// TestSymlinkTargetIsRefused verifies both write paths reject a symlink
 // rather than following it, so a planted link cannot redirect the write.
-func TestFILE_013_SymlinkTargetIsRefused(t *testing.T) {
+func TestSymlinkTargetIsRefused(t *testing.T) {
 	root := t.TempDir()
 	elsewhere := filepath.Join(root, "target.txt")
 	if err := os.WriteFile(elsewhere, []byte("original"), 0o600); err != nil {
@@ -123,10 +123,10 @@ func TestFILE_013_SymlinkTargetIsRefused(t *testing.T) {
 	}
 }
 
-// TestFILE_014_EnsureNoSymlinkSkipsWhenUnsupported verifies the check degrades to
+// TestEnsureNoSymlinkSkipsWhenUnsupported verifies the check degrades to
 // a no-op for a filesystem that does not implement the optional Lstat, rather
 // than blocking every write on a third-party implementation.
-func TestFILE_014_EnsureNoSymlinkSkipsWhenUnsupported(t *testing.T) {
+func TestEnsureNoSymlinkSkipsWhenUnsupported(t *testing.T) {
 	var f kfs.FileSystem = minimalFS{}
 	if _, ok := f.(interface {
 		Lstat(string) (fs.FileInfo, error)
@@ -155,7 +155,7 @@ func (minimalFS) MkdirAll(path string, perm fs.FileMode) error { return errNotIm
 func (minimalFS) Rename(oldPath, newPath string) error         { return errNotImplemented }
 func (minimalFS) Remove(name string) error                     { return errNotImplemented }
 
-// TestFILE_015_TempNameIsUnpredictableAndUnique verifies consecutive names differ
+// TestTempNameIsUnpredictableAndUnique verifies consecutive names differ
 // and that the randomness carries the documented entropy, so the temporary file
 
 // failFS wraps a working filesystem and fails one named operation, so the
@@ -205,9 +205,9 @@ func (f failFS) MkdirAll(path string, perm os.FileMode) error {
 
 var errInjected = errors.New("file: injected failure")
 
-// TestFILE_021_WriteFailuresAreReported verifies a failing underlying write or
+// TestWriteFailuresAreReported verifies a failing underlying write or
 // mkdir surfaces as an error naming the path, rather than being swallowed.
-func TestFILE_021_WriteFailuresAreReported(t *testing.T) {
+func TestWriteFailuresAreReported(t *testing.T) {
 	for _, failOn := range []string{"write", "mkdir"} {
 		t.Run(failOn, func(t *testing.T) {
 			fsys := failFS{FileSystem: kfs.NewMemory(), failOn: failOn}
@@ -222,10 +222,10 @@ func TestFILE_021_WriteFailuresAreReported(t *testing.T) {
 	}
 }
 
-// TestFILE_022_WriteAtomicRenameFailureCleansUp verifies a failed rename removes
+// TestWriteAtomicRenameFailureCleansUp verifies a failed rename removes
 // the temporary file, so a failed atomic write does not litter the directory
 // with an orphaned temporary that a later write could collide with.
-func TestFILE_022_WriteAtomicRenameFailureCleansUp(t *testing.T) {
+func TestWriteAtomicRenameFailureCleansUp(t *testing.T) {
 	mem := kfs.NewMemory()
 	fsys := failFS{FileSystem: mem, failOn: "rename"}
 
@@ -244,9 +244,9 @@ func TestFILE_022_WriteAtomicRenameFailureCleansUp(t *testing.T) {
 	}
 }
 
-// TestFILE_023_WriteAtomicTemporaryWriteFailure verifies a failure writing the
+// TestWriteAtomicTemporaryWriteFailure verifies a failure writing the
 // temporary file is reported and names the temporary path.
-func TestFILE_023_WriteAtomicTemporaryWriteFailure(t *testing.T) {
+func TestWriteAtomicTemporaryWriteFailure(t *testing.T) {
 	fsys := failFS{FileSystem: kfs.NewMemory(), failOn: "write"}
 	err := WriteAtomic(fsys, "/f.txt", []byte("x"), 0o600)
 	if !errors.Is(err, errInjected) {
@@ -257,10 +257,10 @@ func TestFILE_023_WriteAtomicTemporaryWriteFailure(t *testing.T) {
 	}
 }
 
-// TestFILE_024_EnforcePermFailureIsReported verifies a chmod failure after a
+// TestEnforcePermFailureIsReported verifies a chmod failure after a
 // successful write is not silently ignored: the caller asked for a mode and
 // must learn it was not applied.
-func TestFILE_024_EnforcePermFailureIsReported(t *testing.T) {
+func TestEnforcePermFailureIsReported(t *testing.T) {
 	mem := kfs.NewMemory()
 	if err := mem.WriteFile("/f.txt", []byte("x"), 0o600); err != nil {
 		t.Fatal(err)
@@ -274,9 +274,9 @@ func TestFILE_024_EnforcePermFailureIsReported(t *testing.T) {
 	}
 }
 
-// TestFILE_025_CopyOpenFailureIsReported verifies a source that cannot be opened
+// TestCopyOpenFailureIsReported verifies a source that cannot be opened
 // produces an error naming the source rather than creating an empty destination.
-func TestFILE_025_CopyOpenFailureIsReported(t *testing.T) {
+func TestCopyOpenFailureIsReported(t *testing.T) {
 	mem := kfs.NewMemory()
 	if err := Copy(nil, "/dst", filepath.Join(t.TempDir(), "missing"), 0o600); err == nil ||
 		!strings.Contains(err.Error(), "missing") {
@@ -289,7 +289,7 @@ func TestFILE_025_CopyOpenFailureIsReported(t *testing.T) {
 }
 
 // cannot be pre-created by another process (CWE-377).
-func TestFILE_015_TempNameIsUnpredictableAndUnique(t *testing.T) {
+func TestTempNameIsUnpredictableAndUnique(t *testing.T) {
 	mem := kfs.NewMemory()
 	seen := make(map[string]bool)
 	for i := 0; i < 100; i++ {
@@ -316,9 +316,9 @@ func TestFILE_015_TempNameIsUnpredictableAndUnique(t *testing.T) {
 	}
 }
 
-// TestFILE_016_ReadAndCopyReportMissingFiles verifies the error paths name the
+// TestReadAndCopyReportMissingFiles verifies the error paths name the
 // file that failed, so a caller can tell which path was missing.
-func TestFILE_016_ReadAndCopyReportMissingFiles(t *testing.T) {
+func TestReadAndCopyReportMissingFiles(t *testing.T) {
 	missing := filepath.Join(t.TempDir(), "absent.txt")
 
 	if _, err := Read(nil, missing); err == nil || !strings.Contains(err.Error(), "absent.txt") {
@@ -330,9 +330,9 @@ func TestFILE_016_ReadAndCopyReportMissingFiles(t *testing.T) {
 	}
 }
 
-// TestFILE_017_CopyPreservesBytes verifies a copy reproduces the source exactly,
+// TestCopyPreservesBytes verifies a copy reproduces the source exactly,
 // including NUL bytes and invalid UTF-8.
-func TestFILE_017_CopyPreservesBytes(t *testing.T) {
+func TestCopyPreservesBytes(t *testing.T) {
 	dir := t.TempDir()
 	src := filepath.Join(dir, "src.txt")
 	dst := filepath.Join(dir, "dst.txt")
@@ -352,10 +352,10 @@ func TestFILE_017_CopyPreservesBytes(t *testing.T) {
 	}
 }
 
-// TestFILE_018_ContextWrappersRefuseCancelledContext verifies every *Context
+// TestContextWrappersRefuseCancelledContext verifies every *Context
 // entry point honours cancellation before doing any work and returns the context
 // error rather than performing the operation anyway.
-func TestFILE_018_ContextWrappersRefuseCancelledContext(t *testing.T) {
+func TestContextWrappersRefuseCancelledContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	mem := kfs.NewMemory()
@@ -374,9 +374,9 @@ func TestFILE_018_ContextWrappersRefuseCancelledContext(t *testing.T) {
 	}
 }
 
-// TestFILE_019_ContextWrappersPropagateOperationErrors verifies the context
+// TestContextWrappersPropagateOperationErrors verifies the context
 // variants surface the underlying failure instead of masking it as success.
-func TestFILE_019_ContextWrappersPropagateOperationErrors(t *testing.T) {
+func TestContextWrappersPropagateOperationErrors(t *testing.T) {
 	ctx := context.Background()
 	mem := kfs.NewMemory()
 
@@ -394,9 +394,9 @@ func TestFILE_019_ContextWrappersPropagateOperationErrors(t *testing.T) {
 	}
 }
 
-// TestFILE_020_ContextWrappersRejectNilContext verifies a nil context is
+// TestContextWrappersRejectNilContext verifies a nil context is
 // reported rather than panicking on ctx.Done().
-func TestFILE_020_ContextWrappersRejectNilContext(t *testing.T) {
+func TestContextWrappersRejectNilContext(t *testing.T) {
 	//lint:ignore SA1012 a nil context is exactly the input under test.
 	if _, err := ReadContext(nil, kfs.NewMemory(), "/f.txt"); err == nil {
 		t.Error("ReadContext(nil) = nil, want an error")

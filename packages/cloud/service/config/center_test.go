@@ -1,4 +1,3 @@
-// Tests for KWF-L5H2F
 package config
 
 import (
@@ -6,7 +5,6 @@ import (
 	"testing"
 )
 
-// Spec: KWF-L5H2F FRK-SVC-010 Scope: Unit
 func TestMemoryCenter_GetSet(t *testing.T) {
 	c := NewMemoryCenter()
 	ctx := context.Background()
@@ -22,7 +20,6 @@ func TestMemoryCenter_GetSet(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-010 Scope: Unit
 func TestMemoryCenter_GetNotFound(t *testing.T) {
 	c := NewMemoryCenter()
 	_, err := c.Get(context.Background(), "missing")
@@ -31,7 +28,6 @@ func TestMemoryCenter_GetNotFound(t *testing.T) {
 	}
 }
 
-// Spec: KWF-L5H2F FRK-SVC-011 Scope: Unit
 func TestMemoryCenter_Watch(t *testing.T) {
 	c := NewMemoryCenter()
 	ctx, cancel := context.WithCancel(context.Background())

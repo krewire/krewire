@@ -1,6 +1,5 @@
 package sec
 
-// Tests for SEC-A03-002, SEC-A05-001, SEC-A06-001.
 import (
 	"go/parser"
 	"go/token"
@@ -89,8 +88,7 @@ func TestSecurityHeadersCustom(t *testing.T) {
 	}
 }
 
-// Spec: KWL-O10SC SEC-A06-001 Scope: Unit
-func TestSEC_A06_001_DependencyHygiene(t *testing.T) {
+func TestDependencyHygiene(t *testing.T) {
 	// 1. Verify packages/auth imports only standard library packages.
 	authDir := filepath.Join("..", "auth")
 	fset := token.NewFileSet()

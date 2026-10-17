@@ -1,4 +1,3 @@
-// Tests for KWF-TEST-H7P4L
 package test
 
 import (
@@ -6,9 +5,7 @@ import (
 	"testing"
 )
 
-// Spec: KWF-TEST-H7P4L KWF-TST-H7P-010 Scope: Unit
-func TestKWF_TST_H7P_010_RequestBuilder_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-H7P4L", "KWF-TST-H7P-010")
+func TestRequestBuilder_Valid(t *testing.T) {
 	req := GET(t, "/hello").Query("q", "a").Header("X-Test", "1").Request()
 	if req.URL.Path != "/hello" {
 		t.Errorf("Path = %q want /hello", req.URL.Path)
@@ -25,9 +22,7 @@ func TestKWF_TST_H7P_010_RequestBuilder_Valid(t *testing.T) {
 	}
 }
 
-// Spec: KWF-TEST-H7P4L KWF-TST-H7P-011 Scope: Unit
-func TestKWF_TST_H7P_011_Do_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-H7P4L", "KWF-TST-H7P-011")
+func TestDo_Valid(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		_, _ = w.Write([]byte("ok"))
@@ -35,9 +30,7 @@ func TestKWF_TST_H7P_011_Do_Valid(t *testing.T) {
 	Do(t, handler, GET(t, "/").Request()).Status(200).Contains("ok")
 }
 
-// Spec: KWF-TEST-H7P4L KWF-TST-H7P-012 Scope: Unit
-func TestKWF_TST_H7P_012_Response_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-H7P4L", "KWF-TST-H7P-012")
+func TestResponse_Valid(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Custom", "v")
 		http.SetCookie(w, &http.Cookie{Name: "sess", Value: "abc"})
@@ -60,9 +53,7 @@ func TestKWF_TST_H7P_012_Response_Valid(t *testing.T) {
 	}
 }
 
-// Spec: KWF-TEST-H7P4L KWF-TST-H7P-013 Scope: Unit
-func TestKWF_TST_H7P_013_Server_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-H7P4L", "KWF-TST-H7P-013")
+func TestServer_Valid(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("hi"))
 	})
@@ -72,9 +63,7 @@ func TestKWF_TST_H7P_013_Server_Valid(t *testing.T) {
 	}
 }
 
-// Spec: KWF-TEST-H7P4L KWF-TST-H7P-015 Scope: Unit
-func TestKWF_TST_H7P_015_BackwardCompat_Valid(t *testing.T) {
-	Spec(t, "KWF-TEST-H7P4L", "KWF-TST-H7P-015")
+func TestBackwardCompat_Valid(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 	})

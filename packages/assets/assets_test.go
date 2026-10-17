@@ -1,4 +1,3 @@
-// Tests for KWF-AST-K7Q2M
 package assets
 
 import (
@@ -20,8 +19,7 @@ func testStore() *Store {
 	return NewStore().Mount(fsys)
 }
 
-// Spec: KWF-AST-K7Q2M FRK-AST-002 Scope: Unit
-func TestFRK_AST_002_Open_ContentAndETag(t *testing.T) {
+func TestOpen_ContentAndETag(t *testing.T) {
 	s := testStore()
 	b, ctype, etag, err := s.Open("css/app.css")
 	if err != nil {
@@ -38,8 +36,7 @@ func TestFRK_AST_002_Open_ContentAndETag(t *testing.T) {
 	}
 }
 
-// Spec: KWF-AST-K7Q2M FRK-AST-001 Scope: Unit
-func TestFRK_AST_001_FirstMountWins(t *testing.T) {
+func TestFirstMountWins(t *testing.T) {
 	override := fstest.MapFS{"css/app.css": &fstest.MapFile{Data: []byte("h1{}")}}
 	s := NewStore().
 		Mount(override).
@@ -51,8 +48,7 @@ func TestFRK_AST_001_FirstMountWins(t *testing.T) {
 	ftest.Equal(t, "h1{}", string(b))
 }
 
-// Spec: KWF-AST-K7Q2M FRK-AST-003 Scope: Unit
-func TestFRK_AST_003_Handler_ETag304(t *testing.T) {
+func TestHandler_ETag304(t *testing.T) {
 	s := testStore()
 	h := s.Handler()
 
@@ -75,8 +71,7 @@ func TestFRK_AST_003_Handler_ETag304(t *testing.T) {
 	ftest.EqualStatus(t, rec3, http.StatusNotFound)
 }
 
-// Spec: KWF-AST-K7Q2M FRK-AST-004 Scope: Unit
-func TestFRK_AST_004_FingerprintManifest(t *testing.T) {
+func TestFingerprintManifest(t *testing.T) {
 	s := testStore()
 	fp, err := s.Fingerprint("css/app.css")
 	if err != nil {
@@ -110,8 +105,7 @@ type seedDoc struct {
 	Greeting string `json:"greeting"`
 }
 
-// Spec: KWF-AST-K7Q2M FRK-AST-005 Scope: Unit
-func TestFRK_AST_005_JSONResourceDecode(t *testing.T) {
+func TestJSONResourceDecode(t *testing.T) {
 	s := testStore()
 	doc, err := JSON[seedDoc](s, "data/seed.json")
 	if err != nil {

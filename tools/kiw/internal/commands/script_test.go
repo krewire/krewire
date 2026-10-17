@@ -1,4 +1,3 @@
-// Tests for KWN-SCRIPT-9F3KQ
 package commands
 
 import (
@@ -10,8 +9,7 @@ import (
 	"github.com/krewire/krewire/packages/kern"
 )
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-005 Scope: Module
-func TestKWN_SCR_005_LoadScriptsFromKrewireYaml(t *testing.T) {
+func TestLoadScriptsFromKrewireYaml(t *testing.T) {
 	dir := t.TempDir()
 	body := `title: Demo
 scripts:
@@ -39,8 +37,7 @@ scripts:
 	}
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-001 Scope: Module
-func TestKWN_SCR_001_RunGoFile_ExecutesAndForwardsExit(t *testing.T) {
+func TestRunGoFile_ExecutesAndForwardsExit(t *testing.T) {
 	dir := t.TempDir()
 	for name, body := range map[string]string{
 		"go.mod":       "module demo\n\ngo 1.22\n",
@@ -80,8 +77,7 @@ func TestKWN_SCR_001_RunGoFile_ExecutesAndForwardsExit(t *testing.T) {
 	}
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-002 Scope: Module
-func TestKWN_SCR_002_RunTask_ExecutesAndUnknownTask(t *testing.T) {
+func TestRunTask_ExecutesAndUnknownTask(t *testing.T) {
 	dir := t.TempDir()
 	for name, body := range map[string]string{
 		"go.mod":       "module demo\n\ngo 1.22\n",
@@ -112,8 +108,7 @@ func TestKWN_SCR_002_RunTask_ExecutesAndUnknownTask(t *testing.T) {
 	}
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-004 Scope: Module
-func TestKWN_SCR_004_Precedence_FileOverScript(t *testing.T) {
+func TestPrecedence_FileOverScript(t *testing.T) {
 	dir := t.TempDir()
 	for name, body := range map[string]string{
 		"go.mod":       "module demo\n\ngo 1.22\n",
@@ -136,8 +131,7 @@ func TestKWN_SCR_004_Precedence_FileOverScript(t *testing.T) {
 	}
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-003 Scope: Module
-func TestKWN_SCR_003_BareRun_PreservesAppBehavior(t *testing.T) {
+func TestBareRun_PreservesAppBehavior(t *testing.T) {
 	dir := t.TempDir()
 	main := `package main
 import "fmt"
@@ -188,8 +182,7 @@ func TestIsGoFileArg(t *testing.T) {
 	}
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-007 Scope: Module
-func TestKWN_SCR_007_InfoListsScripts(t *testing.T) {
+func TestInfoListsScripts(t *testing.T) {
 	dir := t.TempDir()
 	body := `title: Demo
 scripts:

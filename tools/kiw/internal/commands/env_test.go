@@ -1,4 +1,3 @@
-// Tests for KWL-K4T7W
 package commands
 
 import (
@@ -9,8 +8,7 @@ import (
 	"github.com/krewire/krewire/packages/kern"
 )
 
-// Spec: KWL-K4T7W KWL-ENVV-006 Scope: Unit
-func TestKWL_ENVV_006_ChildEnviron_ExportsRVEnvAndDebug(t *testing.T) {
+func TestChildEnviron_ExportsRVEnvAndDebug(t *testing.T) {
 	base := []string{"PATH=/bin"}
 	got := childEnviron(base, ":8080", kern.EnvTesting, true)
 	want := []string{"PATH=/bin", "APP_ADDR=:8080", "KIW_ENV=testing", "KIW_DEBUG=1"}
@@ -25,8 +23,7 @@ func TestKWL_ENVV_006_ChildEnviron_ExportsRVEnvAndDebug(t *testing.T) {
 	}
 }
 
-// Spec: KWL-K4T7W KWL-ENVV-007 Scope: Unit
-func TestKWL_ENVV_007_UsageOrFail_MapsUsageErrorsToExit2(t *testing.T) {
+func TestUsageOrFail_MapsUsageErrorsToExit2(t *testing.T) {
 	if got := usageOrFail(kern.UsageError("bad")); got != kern.ExitCodeUsage {
 		t.Errorf("usageOrFail(UsageError) = %d, want %d", got, kern.ExitCodeUsage)
 	}
