@@ -1,4 +1,4 @@
-<div class="alert alert-{#if variant}{variant}{:else}info{/if} {class}" role="alert">
+<div class="{{class "alert" .Variant "info" .Class}}" role="alert">
   <div class="alert-icon">
     {#if icon}
       {icon}

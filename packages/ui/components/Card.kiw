@@ -1,4 +1,4 @@
-<div class="card {#if variant}card-{variant}{:else}card-default{/if} {class}">
+<div class="{{class "card" .Variant "default" .Class}}">
   {#if title || badge}
   <div class="card-head">
     <div class="card-titles">

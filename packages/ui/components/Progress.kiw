@@ -1,6 +1,4 @@
-<!-- Value is the percentage 0..100, not a raw count: the width must be a CSS
-     percentage, and a template cannot divide. Callers pass e.g. 42 for 42%. -->
-<div class="kiw-progress {#if variant}kiw-progress-{variant}{:else}kiw-progress-primary{/if} {#if size}kiw-progress-{size}{:else}kiw-progress-md{/if} {class}"
+<div class="{{class "kiw-progress" .Variant "primary" .Size "md" .Class}}"
      {#if id}id="{id}"{/if}
      role="progressbar"
      aria-valuemin="0"

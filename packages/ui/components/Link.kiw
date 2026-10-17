@@ -1,5 +1,5 @@
 <a href="{#if href}{href}{:else}#{/if}"
-   class="kiw-link {#if variant}kiw-link-{variant}{:else}kiw-link-default{/if} {class}"
+   class="{{class "kiw-link" .Variant "default" .Class}}"
    {#if id}id="{id}"{/if}
    {#if external}target="_blank" rel="noopener noreferrer"{/if}
    data-kiw-component="Link">

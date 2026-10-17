@@ -1,5 +1,5 @@
 {#if href}
-<a href="{href}" class="btn {#if variant}btn-{variant}{:else}btn-primary{/if} {#if size}btn-{size}{:else}btn-md{/if} {class}" {#if target}target="{target}" rel="noopener"{/if} {#if disabled}aria-disabled="true" tabindex="-1"{/if} {#if dataI18n}data-i18n="{dataI18n}"{/if}>
+<a href="{href}" class="{{class "btn" .Variant "primary" .Size "md" .Class}}" {#if target}target="{target}" rel="noopener"{/if} {#if disabled}aria-disabled="true" tabindex="-1"{/if} {#if dataI18n}data-i18n="{dataI18n}"{/if}>
   {#if body}
     {body}
   {:else}
@@ -9,7 +9,7 @@
   {/if}
 </a>
 {:else}
-<button type="{#if type}{type}{:else}button{/if}" class="btn {#if variant}btn-{variant}{:else}btn-primary{/if} {#if size}btn-{size}{:else}btn-md{/if} {class}" {#if disabled}disabled{/if} {#if onClick}onclick="{onClick}"{/if} {#if id}id="{id}"{/if} {#if ariaLabel}aria-label="{ariaLabel}"{/if} {#if ariaControls}aria-controls="{ariaControls}"{/if} {#if ariaExpanded}aria-expanded="{ariaExpanded}"{/if} {#if ariaPressed}aria-pressed="{ariaPressed}"{/if} {#if dataI18n}data-i18n="{dataI18n}"{/if}>
+<button type="{#if type}{type}{:else}button{/if}" class="{{class "btn" .Variant "primary" .Size "md" .Class}}" {#if disabled}disabled{/if} {#if onClick}onclick="{onClick}"{/if} {#if id}id="{id}"{/if} {#if ariaLabel}aria-label="{ariaLabel}"{/if} {#if ariaControls}aria-controls="{ariaControls}"{/if} {#if ariaExpanded}aria-expanded="{ariaExpanded}"{/if} {#if ariaPressed}aria-pressed="{ariaPressed}"{/if} {#if dataI18n}data-i18n="{dataI18n}"{/if}>
   {#if body}
     {body}
   {:else}

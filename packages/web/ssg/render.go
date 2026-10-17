@@ -15,6 +15,9 @@ import (
 // renderComponent renders a component with data, marks it used, and injects
 // its scope attribute onto the rendered root element.
 func (s *Site) renderComponent(name string, data ...any) (template.HTML, error) {
+	if err := s.prepare(); err != nil {
+		return "", err
+	}
 	var d any
 	if len(data) > 0 {
 		d = data[0]
@@ -212,19 +215,29 @@ func dict(values ...any) (map[string]any, error) {
 	if len(values)%2 != 0 {
 		return nil, fmt.Errorf("dict: odd number of arguments")
 	}
-	m := make(map[string]any, len(values)/2)
+	m := make(map[string]any, len(values))
 	for i := 0; i < len(values); i += 2 {
 		k, ok := values[i].(string)
 		if !ok {
 			return nil, fmt.Errorf("dict: key must be string, got %T", values[i])
 		}
+		var val any = values[i+1]
 		if k == "Body" {
 			if s, ok := values[i+1].(string); ok {
-				m[k] = template.HTML(s)
-				continue
+				val = template.HTML(s)
 			}
 		}
-		m[k] = values[i+1]
+		m[k] = val
+		if len(k) > 0 {
+			upper := strings.ToUpper(k[:1]) + k[1:]
+			lower := strings.ToLower(k[:1]) + k[1:]
+			if _, exists := m[upper]; !exists {
+				m[upper] = val
+			}
+			if _, exists := m[lower]; !exists {
+				m[lower] = val
+			}
+		}
 	}
 	return m, nil
 }
@@ -277,6 +290,8 @@ func (s *Site) prepare() error {
 	// inside the parent's (dict ...), so html/template would emit that text
 	// verbatim instead of running it. Resolve such bodies here instead.
 	funcs["dict"] = s.componentDict
+	// class collapses conditional class composition: base + modifiers + trailing tokens (KWL-DSL-CLASS)
+	funcs["class"] = ClassHelper
 	set := template.New("").Funcs(funcs)
 	compNames := make([]string, 0, len(s.comps))
 	for name := range s.comps {
@@ -314,23 +329,33 @@ func (s *Site) prepare() error {
 // exactly what a real build showed. Parsing the body and executing it here
 // makes nesting work, and is a no-op for a body with no actions in it.
 func (s *Site) componentDict(values ...any) (map[string]any, error) {
-	m := make(map[string]any, len(values)/2)
+	m := make(map[string]any, len(values))
 	for i := 0; i < len(values); i += 2 {
 		k, ok := values[i].(string)
 		if !ok {
 			return nil, fmt.Errorf("dict: key must be string, got %T", values[i])
 		}
+		var val any = values[i+1]
 		if k == "Body" {
 			if src, ok := values[i+1].(string); ok {
 				rendered, err := s.renderFragment(src)
 				if err != nil {
 					return nil, err
 				}
-				m[k] = rendered
-				continue
+				val = rendered
 			}
 		}
-		m[k] = values[i+1]
+		m[k] = val
+		if len(k) > 0 {
+			upper := strings.ToUpper(k[:1]) + k[1:]
+			lower := strings.ToLower(k[:1]) + k[1:]
+			if _, exists := m[upper]; !exists {
+				m[upper] = val
+			}
+			if _, exists := m[lower]; !exists {
+				m[lower] = val
+			}
+		}
 	}
 	return m, nil
 }
@@ -404,4 +429,132 @@ func injectScripts(body string, scripts []string) string {
 		return body + sb.String()
 	}
 	return body[:idx] + sb.String()
+}
+
+// ClassHelper composes HTML class strings from a base class, conditional modifiers,
+// and optional trailing raw tokens into one space-joined string (KWL-DSL-CLASS, FRK-DSL-501..504).
+//
+// Arguments are processed as:
+//   - args[0]: base class token (e.g. "btn", "card", "alert"). If non-empty, it is emitted
+//     first and establishes the default modifier prefix (e.g. "btn-").
+//   - Repeating groups of modifiers:
+//   - Explicit triple: (prefix, value, default) where prefix ends with "-", "_", or ":",
+//     or base is empty. Emits prefix+value when value is non-empty, else prefix+default.
+//   - Implicit pair: (value, default) using base+"-" as prefix. Emits prefix+value when
+//     value is non-empty, else prefix+default.
+//     Empty modifier groups contribute nothing (FRK-DSL-502).
+//   - Trailing raw tokens (e.g. .Class) are emitted verbatim.
+//
+// Returns a plain string (NOT template.HTML) so html/template preserves attribute-context escaping (FRK-DSL-504).
+// Output collapses leading, trailing, and duplicated spaces (FRK-DSL-503).
+func ClassHelper(args ...any) string {
+	if len(args) == 0 {
+		return ""
+	}
+
+	var tokens []string
+	addToken := func(s string) {
+		s = strings.TrimSpace(s)
+		if s != "" {
+			tokens = append(tokens, s)
+		}
+	}
+
+	baseStr := ""
+	if args[0] != nil && args[0] != false {
+		baseStr = strings.TrimSpace(fmt.Sprint(args[0]))
+	}
+	if baseStr != "" {
+		addToken(baseStr)
+	}
+
+	defPrefix := ""
+	if baseStr != "" {
+		if strings.HasSuffix(baseStr, "-") {
+			defPrefix = baseStr
+		} else {
+			defPrefix = baseStr + "-"
+		}
+	}
+
+	rem := args[1:]
+	i := 0
+	usedExplicitPrefix := false
+
+	for i < len(rem) {
+		// Explicit triple: (prefix, value, default)
+		if i+2 < len(rem) {
+			pfxStr, isStr := rem[i].(string)
+			if (isStr && (strings.HasSuffix(pfxStr, "-") || strings.HasSuffix(pfxStr, "_") || strings.HasSuffix(pfxStr, ":"))) || (baseStr == "" && isStr) {
+				usedExplicitPrefix = true
+				val := rem[i+1]
+				def := rem[i+2]
+				valStr := ""
+				if val != nil && val != false {
+					valStr = strings.TrimSpace(fmt.Sprint(val))
+				}
+				defStr := ""
+				if def != nil && def != false {
+					defStr = strings.TrimSpace(fmt.Sprint(def))
+				}
+
+				if valStr != "" {
+					addToken(pfxStr + valStr)
+				} else if defStr != "" {
+					addToken(pfxStr + defStr)
+				}
+				i += 3
+				continue
+			}
+		}
+
+		// If explicit prefix mode was used, subsequent non-triple args are trailing tokens.
+		if usedExplicitPrefix {
+			if rem[i] != nil && rem[i] != false {
+				tStr := strings.TrimSpace(fmt.Sprint(rem[i]))
+				if tStr != "" {
+					for _, part := range strings.Fields(tStr) {
+						addToken(part)
+					}
+				}
+			}
+			i++
+			continue
+		}
+
+		// Implicit pair: (value, default) with defPrefix
+		if i+1 < len(rem) && defPrefix != "" {
+			val := rem[i]
+			def := rem[i+1]
+			valStr := ""
+			if val != nil && val != false {
+				valStr = strings.TrimSpace(fmt.Sprint(val))
+			}
+			defStr := ""
+			if def != nil && def != false {
+				defStr = strings.TrimSpace(fmt.Sprint(def))
+			}
+
+			if valStr != "" {
+				addToken(defPrefix + valStr)
+			} else if defStr != "" {
+				addToken(defPrefix + defStr)
+			}
+			i += 2
+			continue
+		}
+
+		// Trailing token
+		if rem[i] != nil && rem[i] != false {
+			tStr := strings.TrimSpace(fmt.Sprint(rem[i]))
+			if tStr != "" {
+				for _, part := range strings.Fields(tStr) {
+					addToken(part)
+				}
+			}
+		}
+		i++
+	}
+
+	return strings.Join(tokens, " ")
 }
