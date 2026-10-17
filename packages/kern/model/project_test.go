@@ -1,9 +1,7 @@
-// Tests for KWL-CORE-K1N2Q
 package model
 
 import "testing"
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-020 Scope: Unit
 func TestProjectValidate(t *testing.T) {
 	cases := []struct {
 		p  Project
@@ -32,7 +30,6 @@ func TestProjectValidate(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-021 Scope: Unit
 func TestValidateKrewireYamlPath(t *testing.T) {
 	cases := []struct {
 		in string
@@ -65,7 +62,6 @@ func batteryRules() []OptInRule[string] {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-022 Scope: Unit
 // A rule blocks an import for every kind except the one that owns it, matching
 // on a path-segment boundary so a subpackage is covered and a mere prefix is not.
 func TestViolatesOptIn(t *testing.T) {
@@ -95,7 +91,6 @@ func TestViolatesOptIn(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-022 Scope: Unit
 // The rule shape is generic over the import-path type, so a caller may use its
 // own named string type rather than plain strings.
 func TestViolatesOptInIsGeneric(t *testing.T) {

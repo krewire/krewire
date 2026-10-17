@@ -17,8 +17,7 @@ import (
 )
 
 func RegisterTest(fs *flag.FlagSet) {
-	fs.String("filter", "", "filter tests by name, spec ID, or file pattern (like vitest --filter, pest --filter)")
-	fs.String("spec", "", "filter by spec ID (alias for --filter, e.g., KWF-TEST-M4P9Q)")
+	fs.String("filter", "", "filter tests by name or file pattern (like vitest --filter, pest --filter)")
 	fs.Bool("watch", false, "watch files and rerun tests on change (like vitest --watch)")
 	fs.Bool("w", false, "alias for --watch")
 	fs.Bool("coverage", false, "run with coverage (go test -cover)")
@@ -47,20 +46,8 @@ func RunTest(fs *flag.FlagSet) kern.ExitCode {
 	slog.Info("running tests", "module", mod.Path)
 
 	filter := flagValue(fs, "filter")
-	spec := flagValue(fs, "spec")
-	if spec != "" && filter == "" {
-		filter = spec
-	}
 	if v := flagValue(fs, "run"); v != "" && filter == "" {
 		filter = v
-	}
-	if filter != "" && strings.HasPrefix(filter, "spec:") {
-		filter = strings.TrimPrefix(filter, "spec:")
-	}
-	// Normalize spec ID to code for grep-friendly matching (e.g., KWF-TEST-M4P9Q -> M4P)
-	// Tests are named TestKWF_TST_M4P_010 (contain requirement code), so filter by spec should match code prefix.
-	if isSpecID(filter) {
-		filter = specFilterRegexp(filter)
 	}
 
 	watch := flagValue(fs, "watch") == "true" || flagValue(fs, "w") == "true"
@@ -126,8 +113,8 @@ func RunTest(fs *flag.FlagSet) kern.ExitCode {
 			if strings.HasPrefix(a, "-") {
 				continue
 			}
-			// skip already handled filter/spec values that appear as args due to flag parsing quirks
-			if a == filter || a == spec {
+			// skip already handled filter values that appear as args due to flag parsing quirks
+			if a == filter {
 				continue
 			}
 			pkgs = append(pkgs, a)
@@ -230,42 +217,13 @@ func isPackageFilter(s string) bool {
 }
 
 func isKnownTestFlag(a string) bool {
-	known := []string{"-filter", "--filter", "-spec", "--spec", "-watch", "--watch", "-w", "-coverage", "--coverage", "-coverprofile", "--coverprofile", "-verbose", "--verbose", "-v", "-json", "--json", "-update", "--update", "-u", "-run", "--run", "-count", "--count", "-list", "--list", "-reporter", "--reporter"}
+	known := []string{"-filter", "--filter", "-watch", "--watch", "-w", "-coverage", "--coverage", "-coverprofile", "--coverprofile", "-verbose", "--verbose", "-v", "-json", "--json", "-update", "--update", "-u", "-run", "--run", "-count", "--count", "-list", "--list", "-reporter", "--reporter"}
 	for _, k := range known {
 		if a == k || strings.HasPrefix(a, k+"=") {
 			return true
 		}
 	}
 	return false
-}
-
-func isSpecID(s string) bool {
-	if !strings.Contains(s, "-") {
-		return false
-	}
-	parts := strings.Split(s, "-")
-	if len(parts) < 2 {
-		return false
-	}
-	last := parts[len(parts)-1]
-	if len(last) != 5 {
-		return false
-	}
-	for _, ch := range last {
-		if !(ch >= '0' && ch <= '9' || ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'z') {
-			return false
-		}
-	}
-	return true
-}
-
-func specFilterRegexp(specID string) string {
-	parts := strings.Split(specID, "-")
-	code := parts[len(parts)-1]
-	if len(code) == 5 {
-		return code[:3]
-	}
-	return code
 }
 
 func RegisterVet(fs *flag.FlagSet) {

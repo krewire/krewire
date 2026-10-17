@@ -8,14 +8,13 @@ import "github.com/krewire/krewire/packages/kern"
 
 ## Packages
 
-The root package is a facade over seven focused subpackages, so a consumer
+The root package is a facade over six focused subpackages, so a consumer
 needs a single import to reach the whole kernel.
 
 | Package | Role |
 |---|---|
 | [`errs`](./errs) | Errors, exit codes, diagnostics, stack traces |
 | [`model`](./model) | `Kind`, `Project`, `Scope`, `Tier`, `DomainEvent`, and the generic `Matrix`/`OptInRule` shapes |
-| [`spec`](./spec) | `SpecID`, `RequirementID` |
 | [`version`](./version) | The `Version` value type and its semver rules |
 | [`lifecycle`](./lifecycle) | `Kernel`, `Registry`, `Executor`, `Supervisor` |
 | [`env`](./env) | Target environments |
@@ -76,10 +75,10 @@ module path.
 
 | Rule | Enforced by |
 |---|---|
-| Imports may only point downward | `TestKWL_LAYER_001_DownwardImportsOnly` |
-| The kernel is the floor | `TestKWL_LAYER_002_KernIsTheFloor` |
-| The kernel names no ecosystem module | `TestKERN_LAYER_001_NoEcosystemNames` |
-| `model` imports only stdlib and this module | `TestKWL_CORE_050_ImportBoundary` |
+| Imports may only point downward | `TestDownwardImportsOnly` |
+| The kernel is the floor | `TestKernIsTheFloor` |
+| The kernel names no ecosystem module | `TestNoEcosystemNames` |
+| `model` imports only stdlib and this module | `TestImportBoundary` |
 | Compatibility is caret-semver | `version.Version.IsCompatible` |
 | Config is `krewire.yaml` only | `model.ValidateKrewireYamlPath` |
 | Project names are kebab-case | `model.Project.Validate` |
@@ -112,9 +111,9 @@ go build ./...
 The root package carries structural guards that keep the layer honest, and both
 fail CI if the invariant breaks:
 
-- `TestKWL_CORE_050_ImportBoundary` — `model` may import only the standard
+- `TestImportBoundary` — `model` may import only the standard
   library and this module's own packages.
-- `TestKWL_LAYER_001_DownwardImportsOnly` — no module in the workspace may
+- `TestDownwardImportsOnly` — no module in the workspace may
   import a module above it in the layering, with documented exceptions.
 
 ## License

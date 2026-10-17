@@ -1,4 +1,3 @@
-// Tests for KWL-ARCH-J2K9Q
 package model
 
 import (
@@ -7,8 +6,7 @@ import (
 	"github.com/krewire/krewire/packages/kern/errs"
 )
 
-func TestKWL_ARCH_J2K9Q_SCP_001_ParseScope_Valid(t *testing.T) {
-	// Spec: KWL-ARCH-J2K9Q KWL-SCP-001 Scope: Unit
+func TestParseScope_Valid(t *testing.T) {
 	cases := []struct {
 		in   string
 		want Scope
@@ -38,8 +36,7 @@ func TestKWL_ARCH_J2K9Q_SCP_001_ParseScope_Valid(t *testing.T) {
 	}
 }
 
-func TestKWL_ARCH_J2K9Q_SCP_001_ParseScope_Invalid(t *testing.T) {
-	// Spec: KWL-ARCH-J2K9Q KWL-SCP-001 Scope: Unit
+func TestParseScope_Invalid(t *testing.T) {
 	cases := []string{"", "unknown", "app", "WS", "Project", "Package", "Func", "ProjectX"}
 	for _, in := range cases {
 		if _, err := ParseScope(in); err == nil {
@@ -52,8 +49,7 @@ func TestKWL_ARCH_J2K9Q_SCP_001_ParseScope_Invalid(t *testing.T) {
 	}
 }
 
-func TestKWL_ARCH_J2K9Q_SCP_001_Scope_Ordering(t *testing.T) {
-	// Spec: KWL-ARCH-J2K9Q KWL-SCP-001 Scope: Unit
+func TestScope_Ordering(t *testing.T) {
 	// Ordering: Workspace < Module < Domain < Service < Unit
 	ordered := []Scope{ScopeWorkspace, ScopeModule, ScopeDomain, ScopeService, ScopeUnit}
 	for i := 0; i < len(ordered)-1; i++ {
@@ -69,8 +65,7 @@ func TestKWL_ARCH_J2K9Q_SCP_001_Scope_Ordering(t *testing.T) {
 	}
 }
 
-func TestKWL_ARCH_J2K9Q_SCP_001_Scope_Level_Invalid(t *testing.T) {
-	// Spec: KWL-ARCH-J2K9Q KWL-SCP-001 Scope: Unit
+func TestScope_Level_Invalid(t *testing.T) {
 	if got := Scope("Unknown").Level(); got != -1 {
 		t.Errorf("Scope(Unknown).Level() = %d, want -1", got)
 	}
@@ -79,8 +74,7 @@ func TestKWL_ARCH_J2K9Q_SCP_001_Scope_Level_Invalid(t *testing.T) {
 	}
 }
 
-func TestKWL_ARCH_J2K9Q_SCP_002_Containment(t *testing.T) {
-	// Spec: KWL-ARCH-J2K9Q KWL-SCP-002 Scope: Unit
+func TestScope_Containment(t *testing.T) {
 	if len(AllScopes) != 5 {
 		t.Fatalf("len(AllScopes) = %d, want 5", len(AllScopes))
 	}
@@ -91,8 +85,7 @@ func TestKWL_ARCH_J2K9Q_SCP_002_Containment(t *testing.T) {
 	}
 }
 
-func TestKWL_ARCH_J2K9Q_SCP_003_Identity(t *testing.T) {
-	// Spec: KWL-ARCH-J2K9Q KWL-SCP-003 Scope: Unit
+func TestScope_Identity(t *testing.T) {
 	for _, s := range AllScopes {
 		got, err := ParseScope(string(s))
 		if err != nil || got != s {

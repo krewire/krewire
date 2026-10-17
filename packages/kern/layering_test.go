@@ -195,11 +195,11 @@ func goFiles(t *testing.T, dir string) []string {
 	return out
 }
 
-// TestKWL_LAYER_001_DownwardImportsOnly asserts that no module imports a module
+// TestDownwardImportsOnly asserts that no module imports a module
 // above it in the derived layering. The layering comes from each go.mod's own
 // require directives, so a new module is placed automatically and this guard
 // needs no edit to keep working.
-func TestKWL_LAYER_001_DownwardImportsOnly(t *testing.T) {
+func TestDownwardImportsOnly(t *testing.T) {
 	root := workspaceRoot(t)
 	fset := token.NewFileSet()
 	dirs := moduleDirs(t)
@@ -229,7 +229,7 @@ func TestKWL_LAYER_001_DownwardImportsOnly(t *testing.T) {
 					continue
 				}
 				if depth[target] > depth[owner] {
-					t.Errorf("%s imports %q: %s sits above %s (layer %d > %d), and imports may only point downward (KWL-LAYER-001)",
+					t.Errorf("%s imports %q: %s sits above %s (layer %d > %d), and imports may only point downward",
 						rel, p, target, owner, depth[target], depth[owner])
 				}
 			}
@@ -237,9 +237,9 @@ func TestKWL_LAYER_001_DownwardImportsOnly(t *testing.T) {
 	}
 }
 
-// TestKWL_LAYER_002_KernIsTheFloor asserts the kernel really is the bottom of
+// TestKernIsTheFloor asserts the kernel really is the bottom of
 // the stack: it requires no ecosystem module, so nothing can sit beneath it.
-func TestKWL_LAYER_002_KernIsTheFloor(t *testing.T) {
+func TestKernIsTheFloor(t *testing.T) {
 	dirs := moduleDirs(t)
 	depth := layers(t, dirs)
 
@@ -251,7 +251,7 @@ func TestKWL_LAYER_002_KernIsTheFloor(t *testing.T) {
 	}
 }
 
-// TestKERN_LAYER_001_NoEcosystemNames is the guard that keeps the kernel
+// TestNoEcosystemNames is the guard that keeps the kernel
 // scalable.
 //
 // The rule it enforces: anything that requires editing the kernel when a module
@@ -262,7 +262,7 @@ func TestKWL_LAYER_002_KernIsTheFloor(t *testing.T) {
 // The roster it checks against is derived from go.work at run time rather than
 // written in source, so the ecosystem can gain a module without anyone editing
 // a line of kernel code.
-func TestKERN_LAYER_001_NoEcosystemNames(t *testing.T) {
+func TestNoEcosystemNames(t *testing.T) {
 	root := workspaceRoot(t)
 	fset := token.NewFileSet()
 	dirs := moduleDirs(t)

@@ -1,11 +1,9 @@
-// Tests for KWL-CORE-K1N2Q
 package model
 
 import (
 	"testing"
 )
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-001 Scope: Unit
 func TestParseKind(t *testing.T) {
 	cases := []struct {
 		in   string
@@ -35,7 +33,6 @@ func TestParseKind(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-001 Scope: Unit
 func TestKindIsValid(t *testing.T) {
 	if !KindApp.IsValid() {
 		t.Error("KindApp should be valid")
@@ -45,9 +42,8 @@ func TestKindIsValid(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-001 Scope: Unit
 // IsValid is derived from AllKinds: every listed kind is valid and nothing else.
-func TestKWL_CORE_001_IsValidDerivedFromAllKinds(t *testing.T) {
+func TestIsValidDerivedFromAllKinds(t *testing.T) {
 	for _, k := range AllKinds {
 		if !k.IsValid() {
 			t.Errorf("AllKinds contains %q but IsValid() is false", k)
@@ -58,7 +54,6 @@ func TestKWL_CORE_001_IsValidDerivedFromAllKinds(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-002 Scope: Unit
 // Matrix is generic over the owning package type and carries no roster of its
 // own: the ecosystem declares the cells, the kernel only holds them.
 func TestMatrixIsGenericAndCallerOwned(t *testing.T) {
@@ -91,7 +86,6 @@ func TestMatrixIsGenericAndCallerOwned(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-002 Scope: Unit
 // The first cell registered for a Kind wins, and iteration follows insertion
 // order, so a report built from a matrix is deterministic.
 func TestMatrixFirstWinsAndIsOrdered(t *testing.T) {
@@ -122,8 +116,7 @@ func TestMatrixFirstWinsAndIsOrdered(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-003 Scope: Unit
-func TestKWL_CORE_003_StatusValues(t *testing.T) {
+func TestStatusValues(t *testing.T) {
 	for _, s := range []Status{StatusShipped, StatusPlanned} {
 		if s == "" {
 			t.Error("a declared Status must not be empty")

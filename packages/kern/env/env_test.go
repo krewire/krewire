@@ -1,9 +1,7 @@
-// Tests for KWL-K4T7W
 package env
 
 import "testing"
 
-// Spec: KWL-K4T7W KWL-ENVV-001 Scope: Package
 func TestEnvs(t *testing.T) {
 	envs := Envs()
 	if len(envs) != 3 {
@@ -14,7 +12,6 @@ func TestEnvs(t *testing.T) {
 	}
 }
 
-// Spec: KWL-K4T7W KWL-ENVV-001 KWL-ENVV-002 Scope: Package
 func TestParseEnv(t *testing.T) {
 	cases := []struct {
 		in   string

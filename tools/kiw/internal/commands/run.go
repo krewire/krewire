@@ -240,8 +240,6 @@ func exportSiteAssets(root string, fs *flag.FlagSet) kern.ExitCode {
 	return kern.ExitCodeSuccess
 }
 
-// Tests for KWN-SCRIPT-9F3KQ
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-001 Scope: Module
 func isGoFileArg(root, arg string) bool {
 	if !strings.HasSuffix(arg, ".go") {
 		return false
@@ -257,7 +255,6 @@ func isGoFileArg(root, arg string) bool {
 	return !info.IsDir()
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-001 Scope: Module
 func runGoFile(rt *runtimeEnv, path string, extraArgs []string) kern.ExitCode {
 	if len(extraArgs) > 0 && extraArgs[0] == "--" {
 		extraArgs = extraArgs[1:]
@@ -276,7 +273,6 @@ func runGoFile(rt *runtimeEnv, path string, extraArgs []string) kern.ExitCode {
 	return waitChild(cmd)
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-002 Scope: Module
 func runScript(rt *runtimeEnv, task string, extraArgs []string) kern.ExitCode {
 	script, ok := rt.cfg.Scripts[task]
 	if !ok {
@@ -306,7 +302,6 @@ func runScript(rt *runtimeEnv, task string, extraArgs []string) kern.ExitCode {
 	return waitChild(cmd)
 }
 
-// Spec: KWN-SCRIPT-9F3KQ KWN-SCR-004 Scope: Module
 func isTaskLike(s string) bool {
 	if s == "" {
 		return false

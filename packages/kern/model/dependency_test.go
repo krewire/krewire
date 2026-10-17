@@ -1,4 +1,3 @@
-// Tests for KWL-L0-MTPAT
 package model_test
 
 import (
@@ -10,11 +9,10 @@ import (
 	"testing"
 )
 
-// Spec: KWL-L0-MTPAT REQ-L0-004 Scope: Unit
 // packages/kern/model must strictly depend only on standard library packages
-// and its internal errs sibling (KWL-CORE-050). It must never import any other
+// and its internal errs sibling. It must never import any other
 // Krewire packages or external third-party dependencies.
-func TestKWL_L0_MTPAT_REQ_L0_004_ModelStdlibBoundary(t *testing.T) {
+func TestModel_StdlibBoundary(t *testing.T) {
 	entries, err := os.ReadDir(".")
 	if err != nil {
 		t.Fatalf("read model dir: %v", err)

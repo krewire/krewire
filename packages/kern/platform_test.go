@@ -1,4 +1,3 @@
-// Tests for KWL-L0-MTPAT and KWL-L0-REPRO
 package kern
 
 import (
@@ -10,9 +9,8 @@ import (
 	"testing"
 )
 
-// Spec: KWL-L0-MTPAT REQ-L0-001 Scope: Domain
 // Verify pure Go execution without CGO dependencies.
-func TestKWL_L0_MTPAT_REQ_L0_001_PureGo(t *testing.T) {
+func TestPlatform_PureGo(t *testing.T) {
 	root := workspaceRoot(t)
 	cmd := exec.Command("go", "vet", "./packages/kern/...")
 	cmd.Dir = root
@@ -22,9 +20,8 @@ func TestKWL_L0_MTPAT_REQ_L0_001_PureGo(t *testing.T) {
 	}
 }
 
-// Spec: KWL-L0-MTPAT REQ-L0-002 Scope: Service
 // Cross-compilation build verification for tools/kiw on macOS and Windows.
-func TestKWL_L0_MTPAT_REQ_L0_002_CrossCompileKiw(t *testing.T) {
+func TestPlatform_CrossCompileKiw(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping cross-compilation in short mode")
 	}
@@ -50,9 +47,8 @@ func TestKWL_L0_MTPAT_REQ_L0_002_CrossCompileKiw(t *testing.T) {
 	}
 }
 
-// Spec: KWL-L0-MTPAT REQ-L0-003 Scope: Domain
 // Automated compilation verification of packages/runtime/... for WebAssembly.
-func TestKWL_L0_MTPAT_REQ_L0_003_WasmCompile(t *testing.T) {
+func TestPlatform_WasmCompile(t *testing.T) {
 	root := workspaceRoot(t)
 	cmd := exec.Command("go", "build", "./packages/runtime/...")
 	cmd.Dir = root
@@ -62,9 +58,8 @@ func TestKWL_L0_MTPAT_REQ_L0_003_WasmCompile(t *testing.T) {
 	}
 }
 
-// Spec: KWL-L0-REPRO REQ-L0-024 Scope: Monorepo
 // Automated verification that consecutive clean builds produce bitwise identical binaries.
-func TestKWL_L0_REPRO_REQ_L0_024_BitwiseReproducibility(t *testing.T) {
+func TestPlatform_BitwiseReproducibility(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping bitwise reproducibility test in short mode")
 	}

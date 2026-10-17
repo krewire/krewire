@@ -1,4 +1,3 @@
-// Tests for KWL-P8W2N
 package log
 
 import (
@@ -11,7 +10,6 @@ import (
 	"github.com/krewire/krewire/packages/kern/errs"
 )
 
-// Spec: KWL-P8W2N KWL-LOGV-004 Scope: Unit
 func TestSetup(t *testing.T) {
 	if _, ok := Setup(env.EnvLocal, false).Handler().(*slog.TextHandler); !ok {
 		t.Error("local handler should be text")

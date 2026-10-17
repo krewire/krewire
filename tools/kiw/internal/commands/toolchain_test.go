@@ -1,4 +1,3 @@
-// Tests for KWN-TEST-P0FWA and KWL-L0-GOVUL
 package commands
 
 import (
@@ -10,37 +9,6 @@ import (
 	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
-
-// Spec: KWN-TEST-P0FWA Scope: Unit
-func TestIsSpecID_Valid(t *testing.T) {
-	cases := []struct {
-		in   string
-		want bool
-	}{
-		{"KWF-TEST-M4P9Q", true},
-		{"KWL-ARCH-J2K9Q", true},
-		{"KWN-DEVTOOL-Z0VFC", true},
-		{"KWN-P0FWA", true},
-		{"TestKWF", false},
-		{"M4P9Q", false},
-		{"KWF-TEST", false},
-		{"", false},
-	}
-	for _, c := range cases {
-		if got := isSpecID(c.in); got != c.want {
-			t.Errorf("isSpecID(%q)=%v want %v", c.in, got, c.want)
-		}
-	}
-}
-
-func TestSpecFilterRegexp_Valid(t *testing.T) {
-	if got := specFilterRegexp("KWF-TEST-M4P9Q"); got != "M4P" {
-		t.Errorf("specFilterRegexp KWF-TEST-M4P9Q = %q want M4P", got)
-	}
-	if got := specFilterRegexp("KWL-ARCH-J2K9Q"); got != "J2K" {
-		t.Errorf("specFilterRegexp KWL-ARCH-J2K9Q = %q want J2K", got)
-	}
-}
 
 func TestIsPackageFilter_Valid(t *testing.T) {
 	cases := []struct {
@@ -103,8 +71,7 @@ auth:
 	}
 }
 
-// Spec: KWN-P0FWA RND-TS-001 Scope: Unit
-func TestKWN_P0FWA_RND_TS_001_ResolveModuleWalkingUpward(t *testing.T) {
+func TestResolveModuleWalkingUpward(t *testing.T) {
 	tmp := t.TempDir()
 	goModContent := "module example.com/testwalk\n\ngo 1.27.1\n"
 	if err := os.WriteFile(filepath.Join(tmp, "go.mod"), []byte(goModContent), 0o600); err != nil {
@@ -125,8 +92,7 @@ func TestKWN_P0FWA_RND_TS_001_ResolveModuleWalkingUpward(t *testing.T) {
 	}
 }
 
-// Spec: KWN-P0FWA RND-TS-002 Scope: Unit
-func TestKWN_P0FWA_RND_TS_002_OutsideGoModuleExitCode(t *testing.T) {
+func TestOutsideGoModuleExitCode(t *testing.T) {
 	orig, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -143,8 +109,7 @@ func TestKWN_P0FWA_RND_TS_002_OutsideGoModuleExitCode(t *testing.T) {
 	}
 }
 
-// Spec: KWN-P0FWA RND-TS-003 RND-TS-004 RND-TS-006 RND-TS-007 Scope: Integration
-func TestKWN_P0FWA_RunTest_Success(t *testing.T) {
+func TestRunTest_Success(t *testing.T) {
 	orig, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -181,8 +146,7 @@ func TestSimplePass(t *testing.T) {
 	}
 }
 
-// Spec: KWN-P0FWA RND-TS-005 Scope: Integration
-func TestKWN_P0FWA_RunTest_Failure(t *testing.T) {
+func TestRunTest_Failure(t *testing.T) {
 	orig, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -217,8 +181,7 @@ func TestSimpleFail(t *testing.T) {
 	}
 }
 
-// Spec: KWL-L0-GOVUL REQ-L0-011 Scope: Service
-func TestKWL_L0_GOVUL_REQ_L0_011_RunVetVuln(t *testing.T) {
+func TestRunVetVuln(t *testing.T) {
 	orig, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)

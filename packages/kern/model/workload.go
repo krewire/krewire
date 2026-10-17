@@ -73,7 +73,6 @@ type Workload[P any] struct {
 	Kind    Kind   `json:"kind"`
 	Package P      `json:"package"`
 	Title   string `json:"title"`
-	SpecID  string `json:"specId"` // e.g. KWF-5XJFC
 	Status  Status `json:"status"`
 }
 

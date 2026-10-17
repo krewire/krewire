@@ -1,9 +1,7 @@
-// Tests for KWL-CORE-K1N2Q
 package version
 
 import "testing"
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-040 Scope: Unit
 func TestParseVersion(t *testing.T) {
 	cases := []struct {
 		in   string
@@ -42,7 +40,6 @@ func TestVersionString(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-041 Scope: Unit
 func TestVersionCompare(t *testing.T) {
 	a := MustParseVersion("0.2.0")
 	b := MustParseVersion("0.1.0")
@@ -64,7 +61,6 @@ func TestVersionCompare(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-042 Scope: Unit
 func TestIsCompatible(t *testing.T) {
 	// 0.y.z: minor must match
 	req := MustParseVersion("0.1.0")
@@ -87,7 +83,6 @@ func TestIsCompatible(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-041 Scope: Unit
 // Prerelease precedence per semver.org §11: identifier-wise, numeric compared
 // numerically, numeric always lower than alphanumeric, build metadata ignored.
 func TestVersionComparePreRelease(t *testing.T) {
@@ -117,17 +112,15 @@ func TestVersionComparePreRelease(t *testing.T) {
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-044 Scope: Unit
 // The kernel's own version literal must round-trip, so the init-time
 // MustParseVersion panic can never fire in a released build.
-func TestKWL_CORE_044_VersionLiterals(t *testing.T) {
+func TestVersionLiterals(t *testing.T) {
 	if _, err := ParseVersion(CurrentVersion.String()); err != nil {
 		t.Fatalf("CurrentVersion %q does not round-trip: %v", CurrentVersion.String(), err)
 	}
 }
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-043 Scope: Unit
-func TestKWL_CORE_043_CheckCompatibility(t *testing.T) {
+func TestCheckCompatibility(t *testing.T) {
 	actual := map[string]Version{
 		"core":   MustParseVersion("0.1.2"),
 		"mdbind": MustParseVersion("0.1.0"),

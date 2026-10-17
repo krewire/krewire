@@ -1,4 +1,3 @@
-// Tests for KWL-CORE-K1N2Q, KWL-M1ZKS
 package kern
 
 import (
@@ -14,12 +13,11 @@ import (
 	"github.com/krewire/krewire/packages/kern/errs"
 )
 
-// Spec: KWL-CORE-K1N2Q KWL-CORE-050 Scope: Unit
 // core may import only the Go standard library and its own module's sibling
 // packages (github.com/krewire/kern/*); it must never import any other Krewire
 // module or a third-party dependency. This is parsed from the package's own
 // source imports, so the guard is hermetic (no external tooling required).
-func TestKWL_CORE_050_ImportBoundary(t *testing.T) {
+func TestImportBoundary(t *testing.T) {
 	entries, err := os.ReadDir(".")
 	if err != nil {
 		t.Fatalf("read package dir: %v", err)
@@ -46,7 +44,7 @@ func TestKWL_CORE_050_ImportBoundary(t *testing.T) {
 			if isStdlibImport(path) {
 				continue
 			}
-			t.Errorf("%s imports %q: core may import only the standard library and github.com/krewire/kern/* (KWL-CORE-050)", name, path)
+			t.Errorf("%s imports %q: core may import only the standard library and github.com/krewire/kern/*", name, path)
 		}
 		checked++
 	}
@@ -55,8 +53,7 @@ func TestKWL_CORE_050_ImportBoundary(t *testing.T) {
 	}
 }
 
-// Spec: KWL-M1ZKS KWL-CLI-001 KWL-CLI-002 KWL-CLI-003 KWL-CLI-004 KWL-CLI-006 Scope: Unit
-func TestKWL_M1ZKS_LibraryFoundations(t *testing.T) {
+func TestLibraryFoundations(t *testing.T) {
 	// KWL-CLI-002: stdlib flag package standard
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
 	if fs == nil {

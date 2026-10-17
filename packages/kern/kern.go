@@ -8,7 +8,6 @@
 //
 //   - errs       — errors, exit codes, diagnostics, stack traces
 //   - model      — Kind, Project, Scope, the generic workload matrix, opt-in rules
-//   - spec       — SpecID and RequirementID
 //   - version    — the Version value type and its semver rules
 //   - lifecycle  — Kernel, Registry, Executor, Supervisor
 //   - env        — target environments
@@ -30,7 +29,7 @@
 //   - version.Version and its semver rules judge any version a module declares
 //   - model.Matrix holds a caller-declared kind → package mapping
 //   - model.OptInRule states which packages a kind may not import directly
-//   - model.Kind, model.Project, model.Scope and spec.SpecID are the vocabulary
+//   - model.Kind, model.Project, and model.Scope are the vocabulary
 //     those declarations are written in
 //
 // Each module declares itself in its own module. Adding a module never edits
@@ -43,7 +42,6 @@ import (
 	"github.com/krewire/krewire/packages/kern/lifecycle"
 	"github.com/krewire/krewire/packages/kern/log"
 	"github.com/krewire/krewire/packages/kern/model"
-	"github.com/krewire/krewire/packages/kern/spec"
 	"github.com/krewire/krewire/packages/kern/version"
 )
 
@@ -112,15 +110,6 @@ type (
 	//
 	// Alias of version.Version.
 	Version = version.Version
-
-	// SpecID uniquely identifies a specification document.
-	//
-	// Alias of spec.SpecID.
-	SpecID = spec.SpecID
-	// RequirementID traces a requirement back to its owning specification.
-	//
-	// Alias of spec.RequirementID.
-	RequirementID = spec.RequirementID
 
 	// Kernel is the imperative control plane that boots, supervises, and
 	// executes workloads.
@@ -200,9 +189,6 @@ var (
 
 	ValidateKrewireYamlPath = model.ValidateKrewireYamlPath
 	NewDomainEvent          = model.NewDomainEvent
-
-	ParseSpecID        = spec.ParseSpecID
-	ParseRequirementID = spec.ParseRequirementID
 
 	MustParseVersion            = version.MustParseVersion
 	ParseVersion                = version.ParseVersion
