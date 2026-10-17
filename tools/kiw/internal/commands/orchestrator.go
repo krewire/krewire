@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/tools/kiw/internal/ecosystem"
 )
 
 // executeBuildDeps runs the list of dependency build commands sequentially
@@ -61,37 +62,35 @@ type RuntimeSuggestion struct {
 func detectRuntimeBuildSuggestions(root string) []RuntimeSuggestion {
 	var suggestions []RuntimeSuggestion
 
-	// Check Node.js ecosystem (package.json)
-	pkgJSONPath := filepath.Join(root, "package.json")
-	if data, err := os.ReadFile(pkgJSONPath); err == nil {
-		var pkg struct {
-			Scripts map[string]string `json:"scripts"`
-		}
-		if err := json.Unmarshal(data, &pkg); err == nil {
-			if _, hasBuild := pkg.Scripts["build"]; hasBuild {
-				cmd := "npm run build"
-				if _, err := os.Stat(filepath.Join(root, "pnpm-lock.yaml")); err == nil {
-					cmd = "pnpm run build"
-				} else if _, err := os.Stat(filepath.Join(root, "yarn.lock")); err == nil {
-					cmd = "yarn build"
+	hosts := ecosystem.DetectAllHosts(root)
+	for _, host := range hosts {
+		if host.Type == ecosystem.HostNodeJS {
+			pkgJSONPath := filepath.Join(root, ecosystem.ManifestPackageJSON)
+			if data, err := os.ReadFile(pkgJSONPath); err == nil {
+				var pkg struct {
+					Scripts map[string]string `json:"scripts"`
 				}
-				suggestions = append(suggestions, RuntimeSuggestion{
-					Source:  "package.json",
-					Command: cmd,
-					Hint:    "Node.js build script detected",
-				})
+				if err := json.Unmarshal(data, &pkg); err == nil {
+					if _, hasBuild := pkg.Scripts["build"]; hasBuild {
+						cmd := host.PackageManager + " run build"
+						if host.PackageManager == "yarn" {
+							cmd = "yarn build"
+						}
+						suggestions = append(suggestions, RuntimeSuggestion{
+							Source:  ecosystem.ManifestPackageJSON,
+							Command: cmd,
+							Hint:    "Node.js build script detected",
+						})
+					}
+				}
 			}
+		} else if host.Type == ecosystem.HostLaravel || host.Type == ecosystem.HostPHP {
+			suggestions = append(suggestions, RuntimeSuggestion{
+				Source:  ecosystem.ManifestComposerJSON,
+				Command: "composer install",
+				Hint:    "PHP/Composer manifest detected",
+			})
 		}
-	}
-
-	// Check PHP/Laravel ecosystem (composer.json)
-	composerPath := filepath.Join(root, "composer.json")
-	if _, err := os.Stat(composerPath); err == nil {
-		suggestions = append(suggestions, RuntimeSuggestion{
-			Source:  "composer.json",
-			Command: "composer install",
-			Hint:    "PHP/Composer manifest detected",
-		})
 	}
 
 	return suggestions

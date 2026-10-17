@@ -19,11 +19,30 @@ type reqIDKey struct{}
 // HeaderRequestID is the default HTTP header used for distributed request tracing.
 const HeaderRequestID = "X-Request-ID"
 
-// RequestID generates or propagates an X-Request-ID header and stores it in the request context.
+// HeaderTraceParent is the W3C standard distributed tracing header (KWN-NDV-013).
+const HeaderTraceParent = "traceparent"
+
+// HeaderTraceID is an alternative distributed trace ID header.
+const HeaderTraceID = "X-Trace-ID"
+
+// RequestID generates or propagates an X-Request-ID and W3C traceparent header
+// and stores the trace ID in the request context (KWN-NDV-013).
 func RequestID() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			id := req.Header.Get(HeaderRequestID)
+			tp := req.Header.Get(HeaderTraceParent)
+			if id == "" && tp != "" {
+				parts := strings.Split(tp, "-")
+				if len(parts) >= 3 && len(parts[1]) == 32 {
+					id = parts[1]
+				} else {
+					id = tp
+				}
+			}
+			if id == "" {
+				id = req.Header.Get(HeaderTraceID)
+			}
 			if id == "" {
 				var b [16]byte
 				if _, err := rand.Read(b[:]); err == nil {
@@ -34,6 +53,9 @@ func RequestID() Middleware {
 			}
 			ctx := context.WithValue(req.Context(), reqIDKey{}, id)
 			w.Header().Set(HeaderRequestID, id)
+			if tp != "" {
+				w.Header().Set(HeaderTraceParent, tp)
+			}
 			next.ServeHTTP(w, req.WithContext(ctx))
 		})
 	}

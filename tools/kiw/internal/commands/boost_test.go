@@ -167,3 +167,97 @@ func TestIsYes(t *testing.T) {
 		}
 	}
 }
+
+func TestRunGuildInstall_InNodeJSProject(t *testing.T) {
+	dir := t.TempDir()
+
+	// 1. Setup Node.js project
+	pkgJSON := `{"name": "my-node-app", "version": "1.0.0", "scripts": {"dev": "vite"}}`
+	if err := os.WriteFile(filepath.Join(dir, "package.json"), []byte(pkgJSON), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	srcDir := filepath.Join(dir, "src")
+	if err := os.MkdirAll(srcDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	jsFile := `console.log("hello node");`
+	if err := os.WriteFile(filepath.Join(srcDir, "index.js"), []byte(jsFile), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// 2. Run kiw guild install <nodejs-project-dir>
+	code := RunGuild(newGuildFlagSet(dir))
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("expected success, got %d", code)
+	}
+
+	// 3. Verify Boost / Guild files exist
+	agentsPath := filepath.Join(dir, "AGENTS.md")
+	data, err := os.ReadFile(agentsPath)
+	if err != nil {
+		t.Fatalf("expected AGENTS.md to be installed: %v", err)
+	}
+	if !strings.Contains(string(data), "If the current project is not a Krewire project") {
+		t.Errorf("expected AGENTS.md to contain project-agnostic disclaimer")
+	}
+	if _, err := os.Stat(filepath.Join(dir, "opencode.json")); err != nil {
+		t.Errorf("expected opencode.json to be installed: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, ".agents")); err != nil {
+		t.Errorf("expected .agents/ directory to be installed: %v", err)
+	}
+
+	// 4. Verify Node.js files remain completely untouched
+	currentPkg, _ := os.ReadFile(filepath.Join(dir, "package.json"))
+	if string(currentPkg) != pkgJSON {
+		t.Errorf("package.json was modified: got %s", string(currentPkg))
+	}
+	currentJS, _ := os.ReadFile(filepath.Join(srcDir, "index.js"))
+	if string(currentJS) != jsFile {
+		t.Errorf("src/index.js was modified: got %s", string(currentJS))
+	}
+}
+
+func TestRunGuildInstall_InLaravelProject(t *testing.T) {
+	dir := t.TempDir()
+
+	// 1. Setup Laravel project
+	compJSON := `{"name": "laravel/laravel", "require": {"php": "^8.2"}}`
+	if err := os.WriteFile(filepath.Join(dir, "composer.json"), []byte(compJSON), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	appDir := filepath.Join(dir, "app")
+	if err := os.MkdirAll(appDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	phpFile := "<?php echo 'hello laravel';\n"
+	if err := os.WriteFile(filepath.Join(appDir, "User.php"), []byte(phpFile), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// 2. Run kiw guild install <laravel-project-dir>
+	code := RunGuild(newGuildFlagSet(dir))
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("expected success, got %d", code)
+	}
+
+	// 3. Verify Boost / Guild files exist
+	agentsPath := filepath.Join(dir, "AGENTS.md")
+	data, err := os.ReadFile(agentsPath)
+	if err != nil {
+		t.Fatalf("expected AGENTS.md to be installed: %v", err)
+	}
+	if !strings.Contains(string(data), "If the current project is not a Krewire project") {
+		t.Errorf("expected AGENTS.md to contain project-agnostic disclaimer")
+	}
+
+	// 4. Verify Laravel files remain completely untouched
+	currentComp, _ := os.ReadFile(filepath.Join(dir, "composer.json"))
+	if string(currentComp) != compJSON {
+		t.Errorf("composer.json was modified: got %s", string(currentComp))
+	}
+	currentPHP, _ := os.ReadFile(filepath.Join(appDir, "User.php"))
+	if string(currentPHP) != phpFile {
+		t.Errorf("app/User.php was modified: got %s", string(currentPHP))
+	}
+}

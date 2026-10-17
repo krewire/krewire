@@ -2,6 +2,7 @@ package tracing
 
 import (
 	"context"
+	"net/http"
 	"testing"
 )
 
@@ -43,5 +44,28 @@ func TestNew_AllExporters(t *testing.T) {
 		if err != nil {
 			t.Fatalf("exporter %q: %v", exp, err)
 		}
+	}
+}
+
+func TestInjectExtract(t *testing.T) {
+	r, err := http.NewRequest("GET", "http://example.com", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Header.Set("traceparent", "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01")
+
+	ctx := Extract(r)
+	if ctx == nil {
+		t.Fatal("expected non-nil context")
+	}
+
+	outReq, err := http.NewRequest("POST", "http://internal-service", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	Inject(ctx, outReq)
+
+	if got := outReq.Header.Get("traceparent"); got != "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01" {
+		t.Fatalf("expected injected traceparent, got %s", got)
 	}
 }

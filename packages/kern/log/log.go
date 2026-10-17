@@ -27,6 +27,31 @@ func Setup(e env.Env, debug bool) *slog.Logger {
 	return slog.New(slog.NewTextHandler(os.Stderr, opts))
 }
 
+// DefaultSource is the canonical source identifier for Go/Krewire services.
+const DefaultSource = "go"
+
+// AttrSource is the structured log attribute key for multi-runtime logging (KWN-NDV-014, KWN-LVR-014).
+const AttrSource = "source"
+
+// WithSource decorates the logger with a source marker attribute (e.g. "go", "js", "laravel").
+func WithSource(l *slog.Logger, source string) *slog.Logger {
+	if l == nil {
+		l = slog.Default()
+	}
+	if source == "" {
+		source = DefaultSource
+	}
+	return l.With(slog.String(AttrSource, source))
+}
+
+// SourceTag returns a formatted console tag like "[go]" for human-readable logs.
+func SourceTag(source string) string {
+	if source == "" {
+		source = DefaultSource
+	}
+	return "[" + source + "]"
+}
+
 // Install makes Setup's logger the process default and returns it.
 func Install(e env.Env, debug bool) *slog.Logger {
 	l := Setup(e, debug)

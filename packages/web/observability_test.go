@@ -42,6 +42,21 @@ func TestRequestID(t *testing.T) {
 	if rec2.Header().Get(web.HeaderRequestID) != "custom-trace-123" {
 		t.Fatalf("expected header to echo custom-trace-123, got %s", rec2.Header().Get(web.HeaderRequestID))
 	}
+
+	// Case 3: Propagate W3C traceparent (Node.js/Laravel OTel trace)
+	req3 := httptest.NewRequest("GET", "/test", nil)
+	tpHeader := "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+	req3.Header.Set(web.HeaderTraceParent, tpHeader)
+	rec3 := httptest.NewRecorder()
+	h.ServeHTTP(rec3, req3)
+
+	expectedTraceID := "4bf92f3577b34da6a3ce929d0e0e4736"
+	if capturedID != expectedTraceID {
+		t.Fatalf("expected trace ID %s, got %s", expectedTraceID, capturedID)
+	}
+	if rec3.Header().Get(web.HeaderTraceParent) != tpHeader {
+		t.Fatalf("expected traceparent header %s, got %s", tpHeader, rec3.Header().Get(web.HeaderTraceParent))
+	}
 }
 
 func TestRecover(t *testing.T) {

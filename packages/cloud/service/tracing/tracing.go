@@ -74,15 +74,27 @@ func New(cfg Config) (Tracer, error) {
 	}
 }
 
-// Inject adds W3C traceparent headers to an HTTP request (FRK-SVC-041).
+type traceContextKey struct{}
+
+// Inject adds W3C traceparent headers to an HTTP request (FRK-SVC-041, KWN-NDV-013).
 func Inject(ctx context.Context, r *http.Request) {
-	// In a full implementation, this would inject traceparent/tracestate.
-	// Placeholder: no-op without OTel dependency.
+	if r == nil || ctx == nil {
+		return
+	}
+	if tp, ok := ctx.Value(traceContextKey{}).(string); ok && tp != "" {
+		r.Header.Set("traceparent", tp)
+	}
 }
 
-// Extract reads W3C traceparent headers from an HTTP request (FRK-SVC-041).
+// Extract reads W3C traceparent headers from an HTTP request (FRK-SVC-041, KWN-NDV-013).
 func Extract(r *http.Request) context.Context {
-	// In a full implementation, this would extract traceparent/tracestate.
-	// Placeholder: return context unchanged.
-	return r.Context()
+	if r == nil {
+		return context.Background()
+	}
+	ctx := r.Context()
+	tp := r.Header.Get("traceparent")
+	if tp != "" {
+		return context.WithValue(ctx, traceContextKey{}, tp)
+	}
+	return ctx
 }

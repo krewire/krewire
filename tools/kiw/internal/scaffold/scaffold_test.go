@@ -475,3 +475,78 @@ func goComponents(v string) [3]int {
 	}
 	return out
 }
+
+func TestNew_SideBySideInNodeJSProject(t *testing.T) {
+	nodeDir := t.TempDir()
+
+	// 1. Setup Node.js project
+	pkgJSON := `{"name": "my-node-app", "version": "1.0.0"}`
+	if err := os.WriteFile(filepath.Join(nodeDir, "package.json"), []byte(pkgJSON), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	hostGitignore := "node_modules/\ndist/\n"
+	if err := os.WriteFile(filepath.Join(nodeDir, ".gitignore"), []byte(hostGitignore), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// 2. Scaffold Krewire service side-by-side in api/
+	created, err := New(Options{
+		Name:   "api",
+		Dir:    nodeDir,
+		Module: "my-node-app/api",
+	})
+	if err != nil {
+		t.Fatalf("New() failed: %v", err)
+	}
+	if len(created) == 0 {
+		t.Fatal("expected files to be created")
+	}
+
+	// 3. Verify Node.js files remain untouched
+	assertFileContains(t, filepath.Join(nodeDir, "package.json"), "my-node-app")
+	assertFileContains(t, filepath.Join(nodeDir, ".gitignore"), "node_modules/")
+
+	// 4. Verify Krewire files created inside api/ subdirectory
+	assertFileContains(t, filepath.Join(nodeDir, "api", "go.mod"), "module my-node-app/api")
+	assertFileContains(t, filepath.Join(nodeDir, "api", "krewire.yaml"), "name: api")
+	assertFileContains(t, filepath.Join(nodeDir, "api", ".gitignore"), ".krewire")
+}
+
+func TestNew_SideBySideInLaravelProject(t *testing.T) {
+	laraDir := t.TempDir()
+
+	// 1. Setup Laravel project
+	compJSON := `{"name": "laravel/laravel", "require": {"php": "^8.2"}}`
+	if err := os.WriteFile(filepath.Join(laraDir, "composer.json"), []byte(compJSON), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(laraDir, "artisan"), []byte("#!/usr/bin/env php"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	hostGitignore := "/vendor\n.env\n"
+	if err := os.WriteFile(filepath.Join(laraDir, ".gitignore"), []byte(hostGitignore), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// 2. Scaffold Krewire worker side-by-side in worker/
+	created, err := New(Options{
+		Name:   "worker",
+		Dir:    laraDir,
+		Module: "laravel-app/worker",
+	})
+	if err != nil {
+		t.Fatalf("New() failed: %v", err)
+	}
+	if len(created) == 0 {
+		t.Fatal("expected files to be created")
+	}
+
+	// 3. Verify Laravel files remain untouched
+	assertFileContains(t, filepath.Join(laraDir, "composer.json"), "laravel/laravel")
+	assertFileContains(t, filepath.Join(laraDir, ".gitignore"), "/vendor")
+
+	// 4. Verify Krewire files created inside worker/ subdirectory
+	assertFileContains(t, filepath.Join(laraDir, "worker", "go.mod"), "module laravel-app/worker")
+	assertFileContains(t, filepath.Join(laraDir, "worker", "krewire.yaml"), "name: worker")
+	assertFileContains(t, filepath.Join(laraDir, "worker", ".gitignore"), ".krewire")
+}

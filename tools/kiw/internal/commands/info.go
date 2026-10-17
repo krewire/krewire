@@ -13,6 +13,7 @@ import (
 	"github.com/krewire/krewire/packages/term"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
+	"github.com/krewire/krewire/tools/kiw/internal/ecosystem"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 	"github.com/krewire/krewire/tools/kiw/internal/version"
@@ -88,6 +89,33 @@ func RunInfo(_ *flag.FlagSet) kern.ExitCode {
 		fmt.Println()
 		fmt.Println(boldDim("─ Directories ────────────────────────────────"))
 		printAppDirsStyled(dir, cfg, tm)
+	}
+
+	host := ecosystem.DetectHost(dir)
+	if host != nil {
+		fmt.Println()
+		fmt.Println(boldDim("─ Host Ecosystem ─────────────────────────────"))
+		platformDesc := cyan(host.DisplayTitle()) + " " + dim("("+host.Manifest+")")
+		printKV(tm, "Platform", platformDesc, dim)
+		if host.Framework != "" {
+			printKV(tm, "Framework", green(host.Framework), dim)
+		}
+		if host.PackageManager != "" {
+			printKV(tm, "Package manager", dim(host.PackageManager), dim)
+		}
+	}
+
+	colocated := ecosystem.FindColocated(dir)
+	if len(colocated) > 0 {
+		fmt.Println()
+		fmt.Println(boldDim("─ Co-located Krewire ─────────────────────────"))
+		for _, cp := range colocated {
+			desc := cyan(cp.Kind)
+			if cp.ModulePath != "" {
+				desc += " " + dim("("+cp.ModulePath+")")
+			}
+			printKV(tm, cp.Path, desc, dim)
+		}
 	}
 
 	suggestions := detectRuntimeBuildSuggestions(dir)

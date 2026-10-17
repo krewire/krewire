@@ -62,3 +62,26 @@ func TestLogError_NilError(t *testing.T) {
 		t.Errorf("expected msg field, got %v", m)
 	}
 }
+
+func TestWithSource(t *testing.T) {
+	var buf bytes.Buffer
+	l := slog.New(slog.NewJSONHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	srcLogger := WithSource(l, "go")
+	srcLogger.Info("service booted", "port", 8080)
+
+	var m map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &m); err != nil {
+		t.Fatalf("record is not JSON: %v", err)
+	}
+	if m[AttrSource] != "go" {
+		t.Errorf("expected source 'go', got %v", m[AttrSource])
+	}
+
+	if tag := SourceTag("go"); tag != "[go]" {
+		t.Errorf("expected [go], got %s", tag)
+	}
+	if tag := SourceTag(""); tag != "[go]" {
+		t.Errorf("expected default [go], got %s", tag)
+	}
+}

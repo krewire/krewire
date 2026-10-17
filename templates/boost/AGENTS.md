@@ -6,6 +6,10 @@ that install Krewire Boost (`kiw boost install`). It is tuned for the
 comprehensive **Agent Triad** architecture covering all phases of the Software
 Development Life Cycle (SDLC).
 
+> [!NOTE]
+> If the current project is not a Krewire project, follow the generic principles
+> and skip Krewire-specific sections marked Krewire.
+
 ## Language
 
 - **Write all stored artifacts in English** — code, docs, commit messages,

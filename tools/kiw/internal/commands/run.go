@@ -121,6 +121,7 @@ func runApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	slog.Info("running app", "addr", addr)
 	cmd := exec.Command(bin)
 	cmd.Dir = rt.root
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = childEnviron(os.Environ(), addr, rt.env, rt.debug)
@@ -155,6 +156,7 @@ func runCLI(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 
 	cmd := exec.Command(bin, fs.Args()...)
 	cmd.Dir = rt.root
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = childEnviron(os.Environ(), "", rt.env, rt.debug)
@@ -263,6 +265,7 @@ func runGoFile(rt *runtimeEnv, path string, extraArgs []string) kern.ExitCode {
 	slog.Info("running go file", "path", path)
 	cmd := exec.Command("go", args...)
 	cmd.Dir = rt.root
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = childEnviron(os.Environ(), "", rt.env, rt.debug)
@@ -292,6 +295,7 @@ func runScript(rt *runtimeEnv, task string, extraArgs []string) kern.ExitCode {
 		cmd = exec.Command("sh", "-c", script)
 	}
 	cmd.Dir = rt.root
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = childEnviron(os.Environ(), "", rt.env, rt.debug)
