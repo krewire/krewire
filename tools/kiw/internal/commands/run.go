@@ -18,8 +18,6 @@ import (
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
 
-const defaultAddr = ":8080"
-
 // RegisterRun registers flags for the run command.
 func RegisterRun(fs *flag.FlagSet) {
 	fs.String("addr", "", "listen address for the app (default "+defaultAddr+")")
@@ -108,7 +106,7 @@ func runApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	defer os.RemoveAll(dir)
 
 	bin := filepath.Join(dir, "app")
-	addr := firstNonEmpty(flagValue(fs, "addr"), defaultAddr)
+	addr := resolvedAddr(flagValue(fs, "addr"), rt.cfg)
 
 	slog.Info("building app", "bin", bin)
 	build := exec.Command("go", "build", "-o", bin, ".")

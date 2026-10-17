@@ -194,6 +194,8 @@ func TestEquipApp(t *testing.T) {
 		"assets/public/app.js",
 		"README.md",
 		".gitignore",
+		".env.example",
+		".env",
 	} {
 		found := false
 		for _, c := range created {
@@ -206,6 +208,9 @@ func TestEquipApp(t *testing.T) {
 			t.Errorf("created files missing %s: %v", path, created)
 		}
 	}
+	assertFileContains(t, filepath.Join(dir, ".gitignore"), ".env")
+	assertFileContains(t, filepath.Join(dir, ".env.example"), "APP_NAME=demo")
+	assertFileContains(t, filepath.Join(dir, "internal/config/config.go"), "func Env(key, fallback string) string")
 }
 
 func TestEquipAppRefusesNonKernelOverwrite(t *testing.T) {

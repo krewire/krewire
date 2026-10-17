@@ -1,6 +1,8 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,10 +36,58 @@ func (c *Config) ResolveDebug(override string, overrideSet bool) bool {
 	return c != nil && c.Debug
 }
 
-// LoadDotEnv parses .env at the project root into the process environment
+// LoadDotEnv parses the project environment file into the process environment
 // without overwriting existing variables (KWN-Q7X4M KWL-CFGV-006).
+// It honors runtime.env_file (FRK-CONF-012), warns if target env file is missing while
+// .env.example exists (FRK-CONF-013), and handles runtime.namespace (FRK-CONF-001, FRK-CONF-002).
 func (c *Config) LoadDotEnv(root string) error {
-	return config.LoadDotEnv(filepath.Join(root, ".env"))
+	envFile := c.EffectiveEnvFile()
+	targetPath := envFile
+	if !filepath.IsAbs(targetPath) {
+		targetPath = filepath.Join(root, envFile)
+	}
+
+	// FRK-CONF-013: Warn if target env file does not exist but .env.example does
+	if _, err := os.Stat(targetPath); errors.Is(err, os.ErrNotExist) {
+		examplePath := filepath.Join(root, ".env.example")
+		if _, exErr := os.Stat(examplePath); exErr == nil {
+			fmt.Fprintf(os.Stderr, "warning: %s not found, but .env.example exists; copy .env.example to %s to configure your environment\n", envFile, envFile)
+		}
+		return nil
+	}
+
+	if err := config.LoadDotEnv(targetPath); err != nil {
+		return err
+	}
+
+	// FRK-CONF-001 & FRK-CONF-002: Handle runtime.namespace prefixing
+	if c != nil && c.Runtime.Namespace != "" {
+		syncNamespaceEnv(c.Runtime.Namespace)
+	}
+
+	return nil
+}
+
+func syncNamespaceEnv(ns string) {
+	prefix := strings.ToUpper(strings.TrimSpace(ns)) + "_"
+	for _, env := range os.Environ() {
+		parts := strings.SplitN(env, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		k, v := parts[0], parts[1]
+		if strings.HasPrefix(k, prefix) {
+			unprefixed := strings.TrimPrefix(k, prefix)
+			if _, exists := os.LookupEnv(unprefixed); !exists {
+				_ = os.Setenv(unprefixed, v)
+			}
+		} else {
+			prefixed := prefix + k
+			if _, exists := os.LookupEnv(prefixed); !exists {
+				_ = os.Setenv(prefixed, v)
+			}
+		}
+	}
 }
 
 func firstNonEmpty(vals ...string) string {

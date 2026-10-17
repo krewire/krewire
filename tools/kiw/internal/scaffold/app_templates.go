@@ -57,6 +57,15 @@ dev:
 `, name)
 }
 
+func dotenvExampleTemplate(name string) string {
+	return fmt.Sprintf(`# %s environment configuration (KWN-Q7X4M KWL-CFGV-005)
+APP_NAME=%s
+APP_ENV=local
+APP_DEBUG=true
+APP_PORT=8080
+`, name, name)
+}
+
 func cmdMainTemplate(module string) string {
 	return fmt.Sprintf(`// Thin entry point: load config, build app, run.
 package main

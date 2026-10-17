@@ -51,6 +51,8 @@ func equipApp(opts EquipOptions) ([]string, error) {
 		{"assets/public/app.js", publicJsTemplate()},
 		{"README.md", readmeTemplate(opts.Name)},
 		{gitignoreFile, gitignoreTemplate(opts.Name)},
+		{".env.example", dotenvExampleTemplate(opts.Name)},
+		{".env", dotenvExampleTemplate(opts.Name)},
 	}
 	report, err := writeVariant(opts.Dir, files)
 	if err != nil {

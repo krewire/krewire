@@ -65,10 +65,45 @@ type Config struct {
 	SSG *SSGConfig `yaml:"ssg"`
 	// Wasm holds WASM build configuration (KWF-T4X9P).
 	Wasm WasmConfig `yaml:"wasm"`
+	// Runtime holds multi-runtime coordination settings (KWN-MRCN).
+	Runtime RuntimeConfig `yaml:"runtime"`
+	// Dev holds development settings (e.g. dev server port).
+	Dev DevConfig `yaml:"dev"`
+	// Server holds server/service settings (e.g. host and port).
+	Server ServerConfig `yaml:"server"`
+	// Services holds multiple declared services in the project (FRK-CONF-032).
+	Services []ServiceConfig `yaml:"services"`
 	// Scripts holds named shell commands runnable via `kiw run <task>`.
 	// Keys are task names, values are shell commands executed with `sh -c`
 	// (Unix) or `cmd /C` (Windows). Optional, zero-value nil means no tasks.
 	Scripts map[string]string `yaml:"scripts"`
+}
+
+// RuntimeConfig holds multi-runtime coordination settings under the `runtime:` key (KWN-MRCN).
+type RuntimeConfig struct {
+	// Namespace prefixes Krewire-specific environment variables (e.g. "go", "krewire").
+	Namespace string `yaml:"namespace"`
+	// EnvFile points to the .env file path (default: ".env").
+	EnvFile string `yaml:"env_file"`
+	// Port declares the default runtime port.
+	Port int `yaml:"port"`
+}
+
+// DevConfig holds development server configuration under the `dev:` key.
+type DevConfig struct {
+	Port int `yaml:"port"`
+}
+
+// ServerConfig holds service/server settings under the `server:` key.
+type ServerConfig struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+}
+
+// ServiceConfig holds service-specific settings under the `services:` key (FRK-CONF-032).
+type ServiceConfig struct {
+	Name string `yaml:"name"`
+	Port int    `yaml:"port"`
 }
 
 // BuildConfig tunes the build pipeline under the `build:` key.
@@ -123,6 +158,35 @@ func (c *Config) Kind() string {
 		return ""
 	}
 	return c.Project.Kind
+}
+
+// DeclaredPort returns the port declared in krewire.yaml across runtime.port,
+// dev.port, server.port, or services (FRK-CONF-003, FRK-CONF-030).
+func (c *Config) DeclaredPort() int {
+	if c == nil {
+		return 0
+	}
+	if c.Runtime.Port > 0 {
+		return c.Runtime.Port
+	}
+	if c.Dev.Port > 0 {
+		return c.Dev.Port
+	}
+	if c.Server.Port > 0 {
+		return c.Server.Port
+	}
+	if len(c.Services) > 0 && c.Services[0].Port > 0 {
+		return c.Services[0].Port
+	}
+	return 0
+}
+
+// EffectiveEnvFile returns the configured env file path or ".env" by default (FRK-CONF-012).
+func (c *Config) EffectiveEnvFile() string {
+	if c != nil && c.Runtime.EnvFile != "" {
+		return c.Runtime.EnvFile
+	}
+	return ".env"
 }
 
 // Project holds per-project settings in krewire.yaml.
@@ -306,6 +370,9 @@ func Load(dir string) (*Config, error) {
 	// Precedence: kiw --base flag > build.base > legacy top-level base:.
 	if c.Build.Base != "" {
 		c.Base = c.Build.Base
+	}
+	if err := c.Validate(); err != nil {
+		return nil, err
 	}
 	return &c, nil
 }

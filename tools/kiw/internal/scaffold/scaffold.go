@@ -347,6 +347,12 @@ func gitignoreTemplate(name string) string {
 	return fmt.Sprintf(`# Compiled binary
 /%s
 
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
 # Krewire build outputs
 site/
 .krewire/

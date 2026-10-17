@@ -62,7 +62,7 @@ func RunDev(fs *flag.FlagSet) kern.ExitCode {
 // rebuilding into .krewire/build whenever source files change.
 func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	root, cfg := rt.root, rt.cfg
-	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
+	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	interval := fs.Lookup("interval").Value
 	every := 500 * time.Millisecond
 	if d, err := time.ParseDuration(interval.String()); err == nil && d > 0 {
@@ -142,7 +142,7 @@ func devApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	defer os.RemoveAll(dir)
 
 	bin := filepath.Join(dir, "app")
-	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
+	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	interval := fs.Lookup("interval").Value
 	every := 500 * time.Millisecond
 	if d, err := time.ParseDuration(interval.String()); err == nil && d > 0 {

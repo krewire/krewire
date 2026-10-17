@@ -41,6 +41,10 @@ func bootRuntime(fs *flag.FlagSet) (*runtimeEnv, kern.ExitCode) {
 	if err := c.LoadDotEnv(root); err != nil {
 		return nil, fail(kern.WithStack(err))
 	}
+	_, warnings := config.DetectRuntimePorts(root, c)
+	for _, w := range warnings {
+		fmt.Fprintln(os.Stderr, "warning: "+w)
+	}
 	env, err := c.ResolveEnv(flagValue(fs, "env"))
 	if err != nil {
 		return nil, usageOrFail(err)

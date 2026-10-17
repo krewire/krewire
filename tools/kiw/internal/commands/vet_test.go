@@ -15,7 +15,7 @@ func TestAuditSecurityPosture(t *testing.T) {
   name: safe-app
   kind: app
 auth:
-  secret: "${env:APP_SECRET}"
+  secret: "${env:APP_SECRET:-default-secret}"
 `
 	if err := os.WriteFile(filepath.Join(tmp, "krewire.yaml"), []byte(cleanYAML), 0o600); err != nil {
 		t.Fatal(err)
@@ -36,6 +36,34 @@ auth:
 	issues = auditSecurityPosture(tmp)
 	if len(issues) != 1 {
 		t.Fatalf("expected 1 issue for leaky config, got: %v", issues)
+	}
+}
+
+func TestAuditEnvReferences(t *testing.T) {
+	tmp := t.TempDir()
+	yamlWithVars := `project:
+  name: test-app
+database:
+  url: "${env:DB_URL}"
+  port: "${DB_PORT:-5432}"
+`
+	if err := os.WriteFile(filepath.Join(tmp, "krewire.yaml"), []byte(yamlWithVars), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	// Case 1: DB_URL is missing
+	issues := auditEnvReferences(tmp)
+	if len(issues) != 1 {
+		t.Fatalf("expected 1 issue for missing DB_URL, got: %v", issues)
+	}
+
+	// Case 2: DB_URL is defined in .env
+	if err := os.WriteFile(filepath.Join(tmp, ".env"), []byte("DB_URL=postgres://localhost/db\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	issues = auditEnvReferences(tmp)
+	if len(issues) != 0 {
+		t.Fatalf("expected 0 issues after adding .env, got: %v", issues)
 	}
 }
 

@@ -92,3 +92,44 @@ func TestResolveDebug_Precedence(t *testing.T) {
 		t.Error("explicit --debug=false should beat KIW_DEBUG and krewire.yaml")
 	}
 }
+
+func TestLoadDotEnv_CustomFileAndNamespace(t *testing.T) {
+	dir := t.TempDir()
+	envContent := "PORT=9090\nAPP_NAME=test-app\n"
+	if err := os.WriteFile(filepath.Join(dir, ".env.custom"), []byte(envContent), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := &Config{
+		Runtime: RuntimeConfig{
+			Namespace: "krewire",
+			EnvFile:   ".env.custom",
+		},
+	}
+
+	if err := cfg.LoadDotEnv(dir); err != nil {
+		t.Fatalf("LoadDotEnv failed: %v", err)
+	}
+
+	// Unprefixed should be accessible
+	if v := os.Getenv("PORT"); v != "9090" {
+		t.Errorf("os.Getenv(PORT) = %q, want 9090", v)
+	}
+	// Prefixed by namespace should be synchronized
+	if v := os.Getenv("KREWIRE_PORT"); v != "9090" {
+		t.Errorf("os.Getenv(KREWIRE_PORT) = %q, want 9090", v)
+	}
+}
+
+func TestLoadDotEnv_ExampleWarning(t *testing.T) {
+	dir := t.TempDir()
+	// Only .env.example exists, .env does not
+	if err := os.WriteFile(filepath.Join(dir, ".env.example"), []byte("FOO=bar\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := &Config{}
+	if err := cfg.LoadDotEnv(dir); err != nil {
+		t.Fatalf("LoadDotEnv should not fail when only .env.example exists: %v", err)
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/packages/term"
@@ -98,7 +99,42 @@ func RunInfo(_ *flag.FlagSet) kern.ExitCode {
 		printKV(tm, "Suggestion", yellow("add to build.depends_on in krewire.yaml to orchestrate build"), dim)
 	}
 
+	detectedPorts, portWarnings := config.DetectRuntimePorts(dir, cfg)
+	if len(detectedPorts) > 0 {
+		fmt.Println()
+		fmt.Println(boldDim("─ Ports & Coexistence ────────────────────────"))
+		for _, p := range detectedPorts {
+			label := fmt.Sprintf("%s port", runtimeDisplayLabel(p.Runtime))
+			detail := p.Source
+			if p.Detail != "" {
+				detail = fmt.Sprintf("%s: %s", p.Source, p.Detail)
+			}
+			printKV(tm, label, cyan(fmt.Sprintf("%d", p.Port))+" "+dim("("+detail+")"), dim)
+		}
+		for _, w := range portWarnings {
+			printKV(tm, "Conflict", yellow(w), dim)
+		}
+	}
+
 	return kern.ExitCodeSuccess
+}
+
+func runtimeDisplayLabel(r string) string {
+	switch r {
+	case "nodejs":
+		return "Node.js"
+	case "krewire":
+		return "Krewire"
+	case "laravel":
+		return "Laravel"
+	case "dotenv":
+		return "Dotenv"
+	default:
+		if len(r) > 0 {
+			return strings.ToUpper(r[:1]) + r[1:]
+		}
+		return r
+	}
 }
 
 func printKV(tm *term.Terminal, key, value string, dim func(string) string) {

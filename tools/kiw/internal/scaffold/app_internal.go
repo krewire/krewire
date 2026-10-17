@@ -118,6 +118,13 @@ func internalConfigTemplate() string {
 		"\t}\n" +
 		"\treturn \":8080\"\n" +
 		"}\n\n" +
+		"// Env returns the environment variable for key, or fallback if unset or empty (KWL-CFGV-005).\n" +
+		"func Env(key, fallback string) string {\n" +
+		"\tif val := os.Getenv(key); val != \"\" {\n" +
+		"\t\treturn val\n" +
+		"\t}\n" +
+		"\treturn fallback\n" +
+		"}\n\n" +
 		"// LoadMetadata reads krewire.yaml from path, overlays the environment, and returns a\n" +
 		"// validated Metadata.\n" +
 		"func LoadMetadata(path string) (*Metadata, error) {\n" +

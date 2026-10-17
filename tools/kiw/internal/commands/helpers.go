@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
 )
@@ -89,6 +90,22 @@ func truthStr(b bool) string {
 		return "1"
 	}
 	return "0"
+}
+
+// defaultAddr is the fallback listen address when no address is specified.
+const defaultAddr = ":8080"
+
+// resolvedAddr resolves the listening address, preferring an explicit command-line
+// flag over a declared port in krewire.yaml, falling back to defaultAddr (:8080)
+// (FRK-CONF-031).
+func resolvedAddr(flagAddr string, cfg *config.Config) string {
+	if flagAddr != "" {
+		return flagAddr
+	}
+	if cfg != nil && cfg.DeclaredPort() > 0 {
+		return fmt.Sprintf(":%d", cfg.DeclaredPort())
+	}
+	return defaultAddr
 }
 
 // childEnviron composes the child-process environment for run and dev,

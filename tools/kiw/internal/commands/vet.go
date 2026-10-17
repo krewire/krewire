@@ -7,10 +7,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 
+	"github.com/krewire/krewire/packages/config"
 	"github.com/krewire/krewire/packages/kern"
+	kiwconfig "github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
 
@@ -142,6 +145,56 @@ func auditSecurityPosture(dir string) []string {
 				parts := strings.SplitN(trimmed, ":", 2)
 				if len(parts) == 2 && strings.TrimSpace(parts[1]) != "" && strings.TrimSpace(parts[1]) != `""` {
 					issues = append(issues, fmt.Sprintf("krewire.yaml:%d plaintext secret detected in %q — use ${env:VAR_NAME}", i+1, trimmed))
+				}
+			}
+		}
+	}
+	issues = append(issues, auditEnvReferences(dir)...)
+	return issues
+}
+
+var envRefRegex = regexp.MustCompile(`\$\{(?:env:)?([a-zA-Z_][a-zA-Z0-9_]*)(?::-([^}]+))?\}`)
+
+func auditEnvReferences(dir string) []string {
+	var issues []string
+	cfgPath := filepath.Join(dir, "krewire.yaml")
+	data, err := os.ReadFile(cfgPath)
+	if err != nil {
+		return nil
+	}
+
+	cfg, _ := kiwconfig.Load(dir)
+	envFile := ".env"
+	if cfg != nil && cfg.Runtime.EnvFile != "" {
+		envFile = cfg.Runtime.EnvFile
+	}
+	envMap := make(map[string]string)
+	if envData, err := os.ReadFile(filepath.Join(dir, envFile)); err == nil {
+		if pairs, err := config.ParseDotEnv(envData); err == nil {
+			for _, p := range pairs {
+				envMap[p.Key] = p.Value
+			}
+		}
+	}
+
+	lines := strings.Split(string(data), "\n")
+	for lineIdx, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		matches := envRefRegex.FindAllStringSubmatch(line, -1)
+		for _, m := range matches {
+			if len(m) >= 2 {
+				varName := m[1]
+				hasDefault := len(m) >= 3 && m[2] != ""
+				if hasDefault {
+					continue
+				}
+				_, inDotenv := envMap[varName]
+				_, inSys := os.LookupEnv(varName)
+				if !inDotenv && !inSys {
+					issues = append(issues, fmt.Sprintf("krewire.yaml:%d variable %q has no default value and is not defined in %s", lineIdx+1, varName, envFile))
 				}
 			}
 		}

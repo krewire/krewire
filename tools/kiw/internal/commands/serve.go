@@ -81,7 +81,7 @@ func serveBook(root string, fs *flag.FlagSet) kern.ExitCode {
 		return fail(err)
 	}
 	input := joinRoot(root, flagValue(fs, "input"), firstNonEmpty(cfg.Input, config.DefaultInput))
-	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
+	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	b, err := book.LoadWithRules(
 		input, "", "", "/",
 		globList(fs, "include", cfg.Build.Include),
@@ -119,7 +119,7 @@ func serveStaticBuild(root string, fs *flag.FlagSet) kern.ExitCode {
 			return kern.ExitCodeUsage
 		}
 	}
-	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
+	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	slog.Info("serving static build", "dir", outDir, "addr", addr)
 	roots := []string{outDir}
 	for _, o := range cfg.Build.Outputs {
@@ -170,7 +170,7 @@ func extensionlessFS(root string) http.Handler {
 // serveSSG previews the project's declarative ssg site from krewire.yaml.
 func serveSSG(fs *flag.FlagSet, cfg *config.Config) kern.ExitCode {
 	ssgCfg := cfg.ToSSGConfig()
-	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
+	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	slog.Info("serving site", "addr", addr)
 	if err := http.ListenAndServe(addr, ssgCfg.Site().Handler()); err != nil {
 		return fail(err)
