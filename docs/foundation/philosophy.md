@@ -69,11 +69,6 @@ AI coding agents are treated as first-class team members:
 - Agents operate under an explicit constitution (`AGENTS.md`) with role specializations (planning, designing, building, decomposing, testing, auditing).
 - Agents respect project boundaries, test-driven requirements, and automated quality gates without human babysitting.
 
-### 10. Spec-Driven Engineering & Continuous Traceability
-Every feature, command, and package maps directly to a formal Specification ID:
-- Prefixes enforce domain ownership: `KWF-*` (Framework), `KWN-*` (Kiw CLI), `KWL-*` (Libraries/Packages), `KWG-*` (Boost/Guild).
-- Tests explicitly cite the spec and requirement ID they verify (`// Spec: <SpecID> <ReqID>`), ensuring 100% deterministic alignment between requirements and implementation.
-
 ---
 
 ## 3. Contribution & Engineering Discipline

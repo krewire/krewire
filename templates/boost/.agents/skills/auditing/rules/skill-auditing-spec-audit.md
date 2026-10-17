@@ -26,7 +26,7 @@ Detect three drift categories and decide which side is stale:
 3. **Both stale:** spec and code disagree on shared contracts (signatures, paths, names).
 
 Coverage assertions (non-negotiable): every feature/API has a requirement ID in a spec (no
-unregistered behavior — a **spec gap**); every testable requirement has a spec-traceable test (no
+unregistered behavior — a **spec gap**); every testable requirement has an automated test (no
 requirement without a test, no orphan test without a requirement).
 
 ## Trigger
@@ -43,10 +43,10 @@ requirement without a test, no orphan test without a requirement).
    treat as a finding, do not silently pick a side.
 3. **Audit both directions**: for each requirement check implementation presence; for each code
    unit check the spec documents it; for shared contracts compare signatures/paths/names.
-4. **Run the spec's tests** (targeted, not the whole suite) and **fill spec-traceable test gaps
+4. **Run the tests** (targeted, not the whole suite) and **fill test gaps
    in-run** for spec'd components that lack tests.
 5. **Triage findings** via a decision matrix:
-   - Spec lags code → **fix the spec now** (spec-first: amend then align).
+   - Spec lags code → **fix the spec now** (amend then align).
    - Code lags spec / both stale on a shared contract → **file an issue** with severity + evidence
      (`rules/skill-planning-issues.md`); small gaps may be fixed in-run.
    - Agent docs & skills that reference the spec and are now stale → treat as Code → Spec drift

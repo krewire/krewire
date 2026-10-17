@@ -9,9 +9,8 @@ Shared declarative domain primitives for the Krewire ecosystem: project kinds, w
 ## Main API
 
 - `Kind`, `Workload`, `Project`
-- `Scope`, `SpecID`, `RequirementID`
-- `Version`, `ParseVersion`, `CheckCompatibility`
-- `ParseKind`, `ParseScope`, `ParseSpecID`
+- `Scope`, `Version`, `ParseVersion`, `CheckCompatibility`
+- `ParseKind`, `ParseScope`
 - `DomainEvent`, `NewDomainEvent`
 - `ValidateKrewireYamlPath`, `HasOptInViolation`
 

@@ -106,7 +106,7 @@ Recognized failure shapes; self-correct before submission:
 - A technical issue with no recommended approach
 - An issue containing credentials, API keys, or personal data
 - A scope so wide it cannot be planned ("Make the app better")
-- An issue without a referenced requirement (spec-first applies to issues too)
+- An issue without a referenced requirement or scope boundary (requirements-first applies to issues too)
 
 ## Validation
 

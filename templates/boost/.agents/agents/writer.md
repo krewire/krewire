@@ -68,7 +68,7 @@ Follow the mandatory workflow `Understand → Plan → Build → Verify → Summ
 - **Measurable outcome:** Every claim has a source; no invented stakeholders, numbers, or constraints; open questions have owners and due dates.
 
 - Identify which artifacts are affected: implementation/reference docs, conceptual docs, agent docs & skills, devtool catalogs, or content/copy.
-- Locate the governing spec if one exists; a behavior change with no requirement must stop and escalate (spec-first).
+- Locate the governing documentation or issue if one exists; a behavior change without documented intent must stop and escalate.
 - Check the doc's history (`git log --follow -- <file>`) before deciding whether code or doc is stale when they disagree.
 - When content/copy is involved, confirm the audience, tone, and channel (UI, marketing, email) before writing.
 

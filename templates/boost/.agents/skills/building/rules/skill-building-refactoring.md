@@ -111,7 +111,7 @@ Banned outright — each has produced real breakage:
 - **Refactor and feature fix in the same commit** — see "One concern per commit".
 - **Altering behavior that is already tested** — if a test asserts the old behavior and you change it
   "because the refactor needs it", you are changing behavior, not structure. Address the root cause
-  in a separate concern, or write a new requirement first (spec-first).
+  in a separate concern, or document the new requirement first.
 
 ---
 
@@ -137,7 +137,7 @@ next agent to untangle debt + feature together. The standard fix order prevents 
    - **missing domain layer** (business rules living in models/actions instead of entities);
    - **side-effect dispatch inside transactions** (race conditions — dispatch after commit);
    - **dead code** (unused DTOs, observers, events without listeners).
-4. Add spec-traceable tests for the new logic — no orphan tests.
+4. Add comprehensive automated tests for the new logic — no orphan tests.
 
 **Healthy-area pattern:** if the task is a new feature in a healthy module, use that module as the
 template; if it is in a debt-laden module, budget extra time for the debt up front.

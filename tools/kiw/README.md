@@ -21,7 +21,7 @@ The devtool dogfoods the monorepo's `packages/tui` package, so the tool that man
 | `kiw worker` | Run background workers and inspect the dead-letter queue | `worker` |
 | `kiw deploy` | Validate (+tests for Go projects), stage into `.krewire/dist/`, publish site to the pages branch (`--target binary\|gh-pages`, `--branch`, `--remote`, `--dry-run`) | all |
 | `kiw dashboard` | Local dev dashboard (services, logs, traces) | `worker`, `service`, `infra` |
-| `kiw generate` | Generate code (handlers, migrations, specs) | all |
+| `kiw generate` | Generate code (handlers, migrations) | all |
 | `kiw test` | Run `go test ./...` (spawn Go toolchain) | all |
 | `kiw vet` | Run `go vet ./...` (spawn Go toolchain) | all |
 | `kiw fmt` | Check/format with `gofmt -l/-w` or `go fmt ./...` (spawn Go toolchain) | all |
@@ -68,15 +68,6 @@ cd hello && go run . hello   # CLI example before equipping
 - **Dogfooding** — `cmd/kiw` is built on `github.com/krewire/krewire/packages/tui` with ecosystem exit codes (0/1/2) and `term` output.
 - **Single config** — all kinds use `krewire.yaml` only; no `ssg.yaml`.
 - **Kind dispatch** — `kiw info` prints the detected kind; `kiw build` picks the pipeline (SSG vs. book vs. binary vs. infra plan).
-
-## Specifications
-
-- `KWN-DEVTOOL-Z0VFC` — Krewire devtool
-- `KWN-INIT-7QM2X` — Init project variants
-- `KWN-BUILD-1QGI2` — Project building
-- `KWN-RUN-6K41E` — Run / dev / deploy
-
-Full index: [`kiw/docs/specs/index.md`](docs/specs/index.md).
 
 ## License
 

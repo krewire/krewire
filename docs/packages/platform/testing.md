@@ -8,14 +8,12 @@ The `packages/testing` library delivers testing utilities, assertions, HTTP test
 
 - **`testing`**: Assertion helpers, temporary test directories, and mock filesystem generators.
 - **`testing/browser`**: Headless browser automation harness for end-to-end testing of SSR and client WASM widgets.
-- **Spec Filter Verification**: Integrates with `kiw test --spec <SpecID>` to verify requirement-level test coverage.
 
 ---
 
 ## 2. Example Test
 
 ```go
-// Tests for KWL-TEST-P8M4L
 package testing_test
 
 import (
@@ -23,7 +21,6 @@ import (
 	"github.com/krewire/krewire/packages/testing/browser"
 )
 
-// Spec: KWL-TEST-P8M4L RND-001 Scope: Unit
 func TestApp_PageRender(t *testing.T) {
 	b := browser.New(t)
 	b.Navigate("http://localhost:8080")

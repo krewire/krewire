@@ -120,25 +120,25 @@ flowchart TD
 
 The monorepo enforces six non-negotiable architectural invariants via automated test guards:
 
-#### Invariant 1: Downward-Only Directionality (`KWL-LAYER-001`)
+#### Invariant 1: Downward-Only Directionality
 - **Rule:** For any package import edge $A \rightarrow B$, the architectural layer of $A$ must be strictly greater than $B$ ($Layer(A) > Layer(B)$), or within Layer 3 where $A$ and $B$ form a strictly acyclic dependency.
 - **Rationale:** Prevents circular dependencies, simplifies mental models, and ensures leaf packages can be compiled, benchmarked, and audited in total isolation.
-- **Enforcement:** Verified via AST analysis in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go#L202) (`TestKWL_LAYER_001_DownwardImportsOnly`).
+- **Enforcement:** Verified via AST analysis in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go) (`TestDownwardImportsOnly`).
 
-#### Invariant 2: Kernel Floor Invariant (`KWL-LAYER-002`)
+#### Invariant 2: Kernel Floor Invariant
 - **Rule:** `packages/kern` sits at the floor of the ecosystem dependency graph ($Depth(\text{kern}) = 0$ above stdlib). It requires no other ecosystem module.
 - **Rationale:** If the kernel depended on a domain package (such as `web` or `config`), every package in the ecosystem would transitively drag those dependencies along, destroying modularity.
-- **Enforcement:** Verified in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go#L240) (`TestKWL_LAYER_002_KernIsTheFloor`).
+- **Enforcement:** Verified in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go) (`TestKernIsTheFloor`).
 
-#### Invariant 3: Zero-Ecosystem Coupling in Kernel (`KERN-LAYER-001`)
+#### Invariant 3: Zero-Ecosystem Coupling in Kernel
 - **Rule:** The kernel must contain **zero** references, string literals, or constants naming higher-layer modules or packages (`github.com/krewire/*`).
 - **Rationale:** True scalability requires that adding a new package to `packages/` never requires a corresponding code edit in `packages/kern`. The ecosystem roster is derived dynamically at runtime from `go.work` and module descriptors.
-- **Enforcement:** Verified via AST literal inspection in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go#L265) (`TestKERN_LAYER_001_NoEcosystemNames`).
+- **Enforcement:** Verified via AST literal inspection in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go) (`TestNoEcosystemNames`).
 
-#### Invariant 4: Hermetic Core Boundary (`KWL-CORE-050`)
+#### Invariant 4: Hermetic Core Boundary
 - **Rule:** `packages/kern/model` may import **only** the Go standard library and its internal `errs` sibling. It must never import external third-party dependencies or other Krewire packages.
 - **Rationale:** Ensures that business models, workload definitions, and scope hierarchies are 100% portable, pure, and immune to third-party vulnerability churn.
-- **Enforcement:** Verified in [`packages/kern/dependency_test.go`](../../packages/kern/dependency_test.go#L18) (`TestKWL_CORE_050_ImportBoundary`).
+- **Enforcement:** Verified in [`packages/kern/dependency_test.go`](../../packages/kern/dependency_test.go) (`TestImportBoundary`).
 
 #### Invariant 5: Complete Tooling Isolation (No `kiw` Imports)
 - **Rule:** No package under `packages/` or `templates/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
@@ -176,7 +176,7 @@ Workspace  ───►  Module  ───►  Domain  ───►  Service  �
 - **Service:** Deployable service or autonomous process.
 - **Unit:** Individual Go package, file, or component adhering to Single Responsibility Principle (SRP).
 
-All specifications, tests, and requirement IDs tag their corresponding Scope level (`KWL-ARCH-J2K9Q`), allowing granular test execution (e.g. `kiw test --spec <SpecID>`).
+Scope levels structure architecture and testing across the workspace.
 
 ### Single Configuration Authority (`krewire.yaml`)
 - `krewire.yaml` is the sole declarative configuration authority for every workload. Obsolete formats (e.g., `ssg.yaml`) are strictly disallowed.
@@ -218,14 +218,10 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 
 ---
 
-## 6. Specifications, Traceability & Quality Gates
+## 6. Progress Tracking & Quality Gates
 
 ### GitHub Issues as SSOT
-Active specifications are maintained exclusively as GitHub Issues under `krewire/krewire` labeled `spec` with title format `[Spec: <SpecID>] <Title>`. Every issue contains verifiable requirement checklists (`- [ ] RND-IF-001 [Must] ...`).
-
-### Code Traceability
-- Test files cite `// Tests for <SpecID>`.
-- Individual test cases follow `Test<SpecID>_<ReqID>_<Scenario>`.
+Active tasks, features, and fixes are maintained as GitHub Issues under `krewire/krewire`. Every issue contains verifiable checklists (`- [ ]` / `- [x]`).
 
 ### Required Quality Gates
 Every contribution must cleanly pass the monorepo quality gates:

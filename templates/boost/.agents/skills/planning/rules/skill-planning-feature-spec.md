@@ -19,7 +19,7 @@ implementation, tests, and acceptance.
 
 Every feature spec follows a fixed section scaffold so requirements are traceable, verifiable, and
 unambiguous — before any code exists. Sections are populated with project-specific content; no
-placeholder filler. Spec-first doctrine: no behavior ships without a requirement ID.
+placeholder filler. Requirements-first doctrine: no behavior ships without documented intent.
 
 ## Trigger
 

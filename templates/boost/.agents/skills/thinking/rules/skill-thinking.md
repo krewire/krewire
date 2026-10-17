@@ -37,7 +37,7 @@ the user only when the decision changes scope or architecture.
 ## Conflict Resolution — Precedence Hierarchy
 
 Defines the absolute precedence when governing sources disagree. This rule is the tie-breaker for
-spec-first vs architecture-pattern conflicts.
+requirements vs architecture-pattern conflicts.
 
 ### Precedence (highest → lowest)
 

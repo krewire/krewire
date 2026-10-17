@@ -12,7 +12,7 @@ hand off upstream and downstream without duplicating work. Complements the proje
 - **Scope:** `global` — governs any orchestrator agent/skill coordinating specialized sub-skills
 - **Severity:** `contextual` — binds while orchestrating a multi-concern implementation
 - **Enforcement:** `manual` (review)
-- **Related:** `rules/skill-building-refactoring.md`, `rules/skill-testing.md`, `rules/skill-writing.md` (doc-sync downstream), `rules/global-standards.md` §Spec-driven
+- **Related:** `rules/skill-building-refactoring.md`, `rules/skill-testing.md`, `rules/skill-writing.md` (doc-sync downstream), `rules/global-standards.md` §Planning
 
 ---
 

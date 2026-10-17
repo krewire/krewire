@@ -123,6 +123,5 @@ go test ./...     # must pass all tests
 - **Conventional Commits**: `feat|fix|docs|test|refactor|perf|security|chore(scope): desc`.
 - Atomic commits ($\le$ ~300 LOC per commit).
 - **GitHub Issues SSOT**:
-  - Specifications are tracked as GitHub Issues with label `spec` and checklist items (`- [ ]` / `- [x]`).
-  - Unit tests cite `// Tests for <SpecID>` and `// Spec: <SpecID> <ReqID>`.
-  - Commits reference issue numbers: `feat(scope): implement <ReqID> (ref #<IssueNumber>, req <ReqID>)`.
+  - Tasks and features are tracked as GitHub Issues with checklist items (`- [ ]` / `- [x]`).
+  - Commits reference issue numbers: `feat(scope): implement feature (ref #<IssueNumber>)`.

@@ -19,7 +19,7 @@ Project-agnostic standards that this registry enforces by default; stack-specifi
 
 | Rule | Description | Validation |
 |------|-------------|------------|
-| **SRS-01** Spec-first | No behavior without a requirement ID (FR/NFR/UC). If none exists, write the spec first. | `docs/specs/index.md` traces every change |
+| **SRS-01** Requirements-driven | No behavior without a documented requirement or issue. | Issue checklist traces every change |
 | **SRS-02** NFR quantification | Every NFR has an SLO and measurement point (e.g. "p95 < 200ms measured at `GET /api/x`"). | Plan gate checks NFR → SLO |
 | **SRS-03** DoR/DoD | Stories meet Definition of Ready/Definition of Done before Build. | Checklist in planner |
 | **SRS-04** 3S + ISO 25010 | Score functional suitability, performance, security, maintainability per ISO 25010. | Review gate |
@@ -156,19 +156,19 @@ Query and data-shape anti-patterns (P1-P5) keep the query count, memory footprin
 
 | Rule | Description | Validation |
 |------|-------------|------------|
-| **TST-01** Spec-traceable | Every test title carries `{SpecID}-{ReqID}`. No orphan tests. Coverage = requirements covered, not lines. | `scan_spec_tests.py` |
+| **TST-01** Traceable tests | Every test has clear descriptive naming. No orphan tests. Coverage = behavior covered, not just lines. | Test suite execution |
 | **TST-02** Pyramid | Prefer fast isolated tests; e2e only for critical UC paths. | Test-plan review |
 | **TST-03** Risk-based | High-impact × high-likelihood paths first (OWASP, payment, auth). | Planning impact matrix |
 | **TST-04** A11y | UI tests include WCAG 2.2 AA checks (axe/contrast/keyboard). | Verify gate |
 
 ### Test Coverage Policy
 
-Spec coverage governs (TST-01); line coverage is a **diagnostic floor**, never the definition of done — a requirement with no test is a gap, a test with no requirement is noise.
+Behavioral coverage governs (TST-01); line coverage is a **diagnostic floor**, never the definition of done — a requirement with no test is a gap.
 
 | Rule | Description | Validation |
 |------|-------------|------------|
 | **TC-01** Cover behavior | Test what the code *does* (result + side effects), not internal calls or implementation details. | Review |
-| **TC-02** Edge + failure paths | Spec-named rejections, invalid formats, empty/null inputs, timeouts — not just the happy path. | `--filter` per requirement |
+| **TC-02** Edge + failure paths | Explicit rejections, invalid formats, empty/null inputs, timeouts — not just the happy path. | Targeted test runs |
 | **TC-03** AAA structure | Arrange → Act → Assert; one clear behavior per test. | Review |
 | **TC-04** No shared state | Independent tests via factories/transactions; never cross-test dependencies. | Suite isolation check |
 | **TC-05** Mock only externals | Real objects for own code; fake payment gateways, email, external APIs. | Review |
@@ -252,4 +252,4 @@ Target WCAG 2.2 AA (a superset of the 2.1 AA baseline). Four principles: Perceiv
 
 No gate is skipped; gates are **batched once** (Verify), never per-edit.
 
-**Deliverable completeness (DoD):** a slice is done only when tests (happy path + spec-named rejections), localization of user-facing strings, API/route registration, authorization, cache invalidation, and docs are all complete. A slice that fails any item is not ready for review or merge — shipping it forces the next agent to inherit the defect. Pre-existing gate failures are **fixed or filed, never silently tolerated**.
+**Deliverable completeness (DoD):** a slice is done only when tests (happy path + explicit failure path rejections), localization of user-facing strings, API/route registration, authorization, cache invalidation, and docs are all complete. A slice that fails any item is not ready for review or merge — shipping it forces the next agent to inherit the defect. Pre-existing gate failures are **fixed or filed, never silently tolerated**.

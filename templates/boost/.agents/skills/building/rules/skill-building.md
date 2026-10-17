@@ -73,4 +73,4 @@ guarded capability's tests still pass.
 
 - Guard definition & layers → project context file (`context/{project}-{guard}.md`) with spec/ADR
   references and the "safe procedure" section.
-- Spec amendment required for any guard change → `rules/skill-planning-feature-spec.md` (spec-first).
+- Spec amendment required for any guard change → `rules/skill-planning-feature-spec.md` (requirements-first).

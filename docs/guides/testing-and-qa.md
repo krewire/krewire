@@ -1,37 +1,26 @@
 # Testing & Quality Assurance Guide
 
-Standards for writing spec-driven tests, running quality gates, and verifying code coverage (`KWL-TEST-P8M4L`).
+Standards for writing unit and integration tests, running quality gates, and verifying code coverage.
 
 ---
 
-## 1. Spec-Driven Testing
+## 1. Writing Tests
 
-Every feature originates from a formal Specification ID:
-- Prefixes: `KWF-*` (Framework), `KWN-*` (Devtool CLI), `KWL-*` (Libraries/Packages), `KWG-*` (Boost/Guild).
-- In test files, cite the spec at the file header:
-  ```go
-  // Tests for KWL-KERN-X8P3L
-  package kern_test
-  ```
-- Individual test functions cite their requirement ID:
-  ```go
-  // Spec: KWL-KERN-X8P3L REQ-001 Scope: Unit
-  func TestSupervisor_GracefulShutdown(t *testing.T) {
-      // ...
-  }
-  ```
+Krewire tests follow standard Go testing conventions using the standard `testing` package and `packages/testing` test helpers:
+- Place unit tests in `*_test.go` files adjacent to the code they verify.
+- Test suites must be deterministic, isolated, and parallel-safe where appropriate.
 
 ---
 
-## 2. Test Execution Filters
+## 2. Test Execution
 
-Filter tests dynamically by spec ID or requirement ID using `kiw test`:
+Run tests dynamically using `kiw test` or `go test`:
 ```bash
 # Run all tests
 kiw test
 
-# Filter by spec
-kiw test --spec KWL-KERN-X8P3L
+# Filter tests by pattern
+kiw test --filter TestSupervisor
 
 # Run via go test regex
 go test -run TestSupervisor ./...

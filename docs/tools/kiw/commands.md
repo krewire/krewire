@@ -110,11 +110,11 @@ Boots the application in development mode with watch-and-restart on file modific
 kiw dev
 ```
 
-### `kiw test [--spec <SpecID>]`
-Runs Go unit, integration, and spec-driven tests:
+### `kiw test [--filter <pattern>]`
+Runs Go unit and integration tests:
 ```bash
 kiw test
-kiw test --spec KWL-KERN-X8P3L
+kiw test --filter Unit
 ```
 
 ### `kiw vet [--sec]`

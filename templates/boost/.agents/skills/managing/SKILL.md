@@ -126,7 +126,7 @@ Follow the mandatory workflow `Understand → Plan → Build → Verify → Summ
 | Architecture, API, data model, ADR | `designer` | Design SSOT ownership |
 | Code change, feature, bug fix | `builder` | Implementation ownership |
 | Structural refactor, SRP split | `decomposer` | Safe refactor gates |
-| Test strategy, coverage, QA | `tester` | Spec-traceable tests |
+| Test strategy, coverage, QA | `tester` | Comprehensive automated tests |
 | CI/CD, release, infra | `deployer` | DORA/GitOps/SLSA gates |
 | Incident, debt, observability | `maintainer` | Runbook + on-call discipline |
 | Scripts, batch, tooling | `automator` | Automation-first contract |
