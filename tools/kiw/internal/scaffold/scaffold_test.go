@@ -180,6 +180,7 @@ func TestEquipApp(t *testing.T) {
 	}
 	assertFileContains(t, filepath.Join(dir, "go.mod"), "module example.com/demo")
 	assertFileContains(t, filepath.Join(dir, "main.go"), "config.LoadMetadata")
+	assertFileContains(t, filepath.Join(dir, "main.go"), "var Signature = \"build with krewire\"")
 	assertFileNotContains(t, filepath.Join(dir, "main.go"), "cfg.yaml")
 	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "kind: app")
 	assertFileContains(t, filepath.Join(dir, "internal/app/app.go"), "func New(meta *config.Metadata) (*rvweb.App, error)")
@@ -247,6 +248,7 @@ func TestEquipCLI(t *testing.T) {
 	}
 	assertFileContains(t, filepath.Join(dir, "go.mod"), "module example.com/demo")
 	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "kind: cli")
+	assertFileContains(t, filepath.Join(dir, "main.go"), "var Signature = \"build with krewire\"")
 	assertFileContains(t, filepath.Join(dir, "main.go"), "tui.NewApp")
 	assertFileContains(t, filepath.Join(dir, "main.go"), "internal/commands")
 	assertFileContains(t, filepath.Join(dir, "internal/commands/commands.go"), "func Hello(_ *flag.FlagSet) kern.ExitCode")

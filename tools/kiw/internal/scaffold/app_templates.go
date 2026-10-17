@@ -78,6 +78,9 @@ import (
 	"%s/internal/config"
 )
 
+// Signature is the ecosystem watermark embedded into the binary at compile time via -ldflags.
+var Signature = "build with krewire"
+
 func main() {
 	meta, err := config.LoadMetadata("krewire.yaml")
 	if err != nil {

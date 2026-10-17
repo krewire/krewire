@@ -19,3 +19,11 @@ func VersionString() string {
 func TierString() string {
 	return Tier.String()
 }
+
+// Signature is the master ecosystem build watermark.
+var Signature = kern.DefaultSignature
+
+// BuildSignature returns the ecosystem build signature.
+func BuildSignature() string {
+	return Signature
+}

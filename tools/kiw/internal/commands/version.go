@@ -25,6 +25,7 @@ func RunVersion(_ *flag.FlagSet) kern.ExitCode {
 		verColor = yellow(ver)
 	}
 	fmt.Printf("  %-18s %s\n", dim("Krewire Ecosystem"), verColor)
+	fmt.Printf("  %-18s %s\n", dim("Signature"), green(kern.BuildSignature()))
 	fmt.Printf("  %-18s %s\n", dim("Go"), dim(runtime.Version()+" ("+runtime.GOOS+"/"+runtime.GOARCH+")"))
 	if prov, ok := buildinfo.ReadProvenance(); ok && prov.Revision != "" {
 		rev := prov.Revision

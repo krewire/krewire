@@ -14,6 +14,7 @@ import (
 	"syscall"
 
 	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
@@ -109,7 +110,7 @@ func runApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	addr := resolvedAddr(flagValue(fs, "addr"), rt.cfg)
 
 	slog.Info("building app", "bin", bin)
-	build := exec.Command("go", "build", "-o", bin, ".")
+	build := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, ".")
 	build.Dir = rt.root
 	build.Stdout = os.Stderr
 	build.Stderr = os.Stderr
@@ -144,7 +145,7 @@ func runCLI(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	bin := filepath.Join(dir, "app")
 
 	slog.Info("building CLI", "bin", bin)
-	build := exec.Command("go", "build", "-o", bin, ".")
+	build := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, ".")
 	build.Dir = rt.root
 	build.Stdout = os.Stderr
 	build.Stderr = os.Stderr
@@ -257,7 +258,7 @@ func runGoFile(rt *runtimeEnv, path string, extraArgs []string) kern.ExitCode {
 	if len(extraArgs) > 0 && extraArgs[0] == "--" {
 		extraArgs = extraArgs[1:]
 	}
-	args := []string{"run", path}
+	args := []string{"run", "-ldflags=" + buildinfo.LDFlags(false), path}
 	args = append(args, extraArgs...)
 	slog.Info("running go file", "path", path)
 	cmd := exec.Command("go", args...)

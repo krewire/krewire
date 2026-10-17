@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
@@ -150,7 +151,7 @@ func devApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	}
 
 	build := func() error {
-		cmd := exec.Command("go", "build", "-o", bin, ".")
+		cmd := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, ".")
 		cmd.Dir = root
 		cmd.Stdout = os.Stderr
 		cmd.Stderr = os.Stderr

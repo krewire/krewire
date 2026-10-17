@@ -5,10 +5,14 @@ package main
 import (
 	"os"
 
+	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/packages/tui"
 	"github.com/krewire/krewire/tools/kiw/internal/commands"
 	"github.com/krewire/krewire/tools/kiw/internal/version"
 )
+
+// Signature is the ecosystem watermark embedded into the binary at compile time via -ldflags.
+var Signature = kern.DefaultSignature
 
 func main() {
 	app := tui.NewApp("kiw", version.VersionString()).
