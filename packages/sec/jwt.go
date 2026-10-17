@@ -1,6 +1,6 @@
 // Package sec — JWT re-export.
 //
-// Deprecated: use github.com/krewire/libs/auth for JWT.
+// Deprecated: use github.com/krewire/krewire/packages/auth for JWT.
 package sec
 
 import "github.com/krewire/krewire/packages/auth"

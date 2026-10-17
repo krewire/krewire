@@ -90,8 +90,8 @@ func internalConfigTemplate() string {
 		"import (\n" +
 		"\t\"fmt\"\n" +
 		"\t\"os\"\n\n" +
-		"\trconfig \"github.com/krewire/libs/config\"\n" +
-		"	validation \"github.com/krewire/libs/validation\"\n" +
+		"\trconfig \"github.com/krewire/krewire/packages/config\"\n" +
+		"\tvalidation \"github.com/krewire/krewire/packages/validation\"\n" +
 		")\n\n" +
 		"// Metadata mirrors krewire.yaml.\n" +
 		"type Metadata struct {\n" +
@@ -141,9 +141,9 @@ func internalHttpTemplate() string {
 		"package http\n\n" +
 		"import (\n" +
 		"\t\"net/http\"\n\n" +
-		"\trvapp \"github.com/krewire/libs/app\"\n" +
-		"\trvweb \"github.com/krewire/libs/web\"\n" +
-		"	validation \"github.com/krewire/libs/validation\"\n" +
+		"\trvapp \"github.com/krewire/krewire/packages/app\"\n" +
+		"\trvweb \"github.com/krewire/krewire/packages/web\"\n" +
+		"\tvalidation \"github.com/krewire/krewire/packages/validation\"\n" +
 		")\n\n" +
 		"// Handler serves the JSON API endpoints.\n" +
 		"type Handler struct{}\n\n" +
@@ -155,7 +155,7 @@ func internalHttpTemplate() string {
 		"\t\tStatus  string `json:\"status\"`\n" +
 		"\t\tVersion string `json:\"version\"`\n" +
 		"\t}\n" +
-		"\trvweb.JSON(w, http.StatusOK, statusResp{Status: \"ok\", Version: \"0.6.0\"})\n" +
+		"\trvweb.JSON(w, http.StatusOK, statusResp{Status: \"ok\", Version: \"0.1.0\"})\n" +
 		"}\n\n" +
 		"// Contact validates and stores a contact request.\n" +
 		"func (h *Handler) Contact(w http.ResponseWriter, r *http.Request, _ rvweb.Params) {\n" +

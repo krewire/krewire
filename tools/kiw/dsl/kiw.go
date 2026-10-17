@@ -1,14 +1,13 @@
 // Package dsl is the historical import path for the `.kiw` module parser.
 //
-// The parser now lives in github.com/krewire/libs/kiw. It had to move: the
-// SSG loader in framework needs to parse a .kiw file, and framework must never
-// import the devtool that sits above it in the layering
-// (boost → kiw → framework → mdbind → libs). Keeping the parser in libs points
-// the dependency arrow down and lets ui and web parse .kiw files
-// without a cycle.
+// The parser now lives in github.com/krewire/krewire/packages/kiw. It had to move: the
+// SSG loader needs to parse a .kiw file, and libraries must never import the devtool
+// that sits above them in the layering (boost → kiw → packages/* → kern). Keeping the
+// parser in packages/kiw points the dependency arrow down and lets ui and web parse
+// .kiw files without a cycle.
 //
-// This package forwards to the new home so existing imports keep working. New
-// code should import github.com/krewire/libs/kiw directly.
+// This package forwards to the canonical home so existing imports keep working. New
+// code should import github.com/krewire/krewire/packages/kiw directly.
 package dsl
 
 import kiw "github.com/krewire/krewire/packages/kiw"

@@ -1,5 +1,5 @@
 // Package sec provides Krewire Security — browser hardening, CSRF, and
-// policy. Authentication primitives have moved to github.com/krewire/libs/auth
+// policy. Authentication primitives have moved to github.com/krewire/krewire/packages/auth
 // (Krewire Auth); this file re-exports auth for backward compatibility.
 package sec
 

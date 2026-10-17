@@ -174,7 +174,7 @@ func TestParseSpec_AcceptsLegitimateNames(t *testing.T) {
 		"@scope/pkg",
 		"@scope/pkg@1.0.0",
 		"github.com/krewire/krewire/packages",
-		"github.com/krewire/libs@v0.1.0",
+		"github.com/krewire/krewire@v0.1.0",
 	}
 	for _, raw := range valid {
 		if _, err := ParseSpec(raw); err != nil {

@@ -1,6 +1,6 @@
 // Package sec — BasicAuth re-export.
 //
-// Deprecated: use github.com/krewire/libs/auth.BasicAuth.
+// Deprecated: use github.com/krewire/krewire/packages/auth.BasicAuth.
 package sec
 
 import "github.com/krewire/krewire/packages/auth"

@@ -95,10 +95,9 @@ func Hello(_ *flag.FlagSet) kern.ExitCode {
 func cliReadmeTemplate(name string) string {
 	return fmt.Sprintf(`# %s
 
-A Krewire CLI project scaffolded by the [kiw CLI](https://github.com/krewire/kiw) (binary `+"`kiw`"+`, module `+"`github.com/krewire/kiw`"+`).
+A Krewire CLI project scaffolded by the [kiw CLI](https://github.com/krewire/krewire/tree/main/tools/kiw).
 
-Built on the [Krewire Framework](https://github.com/krewire/framework) and
-[Krewire Libraries](https://github.com/krewire/libs).
+Built on the [Krewire Ecosystem](https://github.com/krewire/krewire).
 
 ## Getting Started
 
@@ -121,8 +120,8 @@ func cliConfigTemplate() string {
 		"import (\n" +
 		"\t\"fmt\"\n" +
 		"\t\"os\"\n\n" +
-		"\trconfig \"github.com/krewire/libs/config\"\n" +
-		"	validation \"github.com/krewire/libs/validation\"\n" +
+		"\trconfig \"github.com/krewire/krewire/packages/config\"\n" +
+		"\tvalidation \"github.com/krewire/krewire/packages/validation\"\n" +
 		")\n\n" +
 		"// Metadata mirrors krewire.yaml.\n" +
 		"type Metadata struct {\n" +

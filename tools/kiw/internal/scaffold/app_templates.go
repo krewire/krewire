@@ -14,15 +14,8 @@ func detectLocalPaths(startDir string) (string, string) {
 	for {
 		modPath := filepath.Join(dir, "go.mod")
 		if data, err := os.ReadFile(modPath); err == nil {
-			if strings.Contains(string(data), "module github.com/krewire/kiw") {
-				frameworkPath := filepath.Join(dir, "..", "framework")
-				libsPath := filepath.Join(dir, "..", "libs")
-				if _, err := os.Stat(frameworkPath); err == nil {
-					if _, err := os.Stat(libsPath); err == nil {
-						return frameworkPath, libsPath
-					}
-				}
-				return "", ""
+			if strings.Contains(string(data), "module "+buildinfo.ModKrewire) {
+				return dir, ""
 			}
 		}
 		parent := filepath.Dir(dir)
@@ -98,10 +91,9 @@ func main() {
 func readmeTemplate(name string) string {
 	return fmt.Sprintf(`# %s
 
-A Krewire project scaffolded by the [kiw CLI](https://github.com/krewire/kiw) (binary `+"`kiw`"+`).
+A Krewire project scaffolded by the [kiw CLI](https://github.com/krewire/krewire/tree/main/tools/kiw) (binary `+"`kiw`"+`).
 
-Built on the [Krewire Framework](https://github.com/krewire/framework) and
-[Krewire Libraries](https://github.com/krewire/libs).
+Built on the [Krewire Ecosystem](https://github.com/krewire/krewire).
 
 ## Project Structure
 
