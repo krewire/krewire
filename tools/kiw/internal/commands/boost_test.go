@@ -18,13 +18,6 @@ func newBoostFlagSet(args ...string) *flag.FlagSet {
 	return fs
 }
 
-func newGuildFlagSet(args ...string) *flag.FlagSet {
-	fs := flag.NewFlagSet("guild", flag.ContinueOnError)
-	RegisterGuild(fs)
-	fs.Parse(append([]string{"install"}, args...))
-	return fs
-}
-
 func TestRunBoostInstallFresh(t *testing.T) {
 	target := t.TempDir()
 	var out bytes.Buffer
@@ -42,19 +35,6 @@ func TestRunBoostInstallFresh(t *testing.T) {
 	}
 }
 
-func TestRunGuildAliasInstallFresh(t *testing.T) {
-	target := t.TempDir()
-	var out bytes.Buffer
-	code := RunGuild(newGuildFlagSet(target))
-	if code != kern.ExitCodeSuccess {
-		t.Fatalf("want success, got %d (%s)", code.Int(), out.String())
-	}
-	for _, want := range []string{"AGENTS.md", "opencode.json"} {
-		if _, err := os.Stat(filepath.Join(target, want)); err != nil {
-			t.Errorf("missing %s: %v", want, err)
-		}
-	}
-}
 
 func TestRunBoostInstallConflictDeclines(t *testing.T) {
 	target := t.TempDir()
@@ -168,7 +148,7 @@ func TestIsYes(t *testing.T) {
 	}
 }
 
-func TestRunGuildInstall_InNodeJSProject(t *testing.T) {
+func TestRunBoostInstall_InNodeJSProject(t *testing.T) {
 	dir := t.TempDir()
 
 	// 1. Setup Node.js project
@@ -185,13 +165,13 @@ func TestRunGuildInstall_InNodeJSProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 2. Run kiw guild install <nodejs-project-dir>
-	code := RunGuild(newGuildFlagSet(dir))
+	// 2. Run kiw boost install <nodejs-project-dir>
+	code := RunBoost(newBoostFlagSet(dir))
 	if code != kern.ExitCodeSuccess {
 		t.Fatalf("expected success, got %d", code)
 	}
 
-	// 3. Verify Boost / Guild files exist
+	// 3. Verify Boost files exist
 	agentsPath := filepath.Join(dir, "AGENTS.md")
 	data, err := os.ReadFile(agentsPath)
 	if err != nil {
@@ -218,7 +198,7 @@ func TestRunGuildInstall_InNodeJSProject(t *testing.T) {
 	}
 }
 
-func TestRunGuildInstall_InLaravelProject(t *testing.T) {
+func TestRunBoostInstall_InLaravelProject(t *testing.T) {
 	dir := t.TempDir()
 
 	// 1. Setup Laravel project
@@ -235,13 +215,13 @@ func TestRunGuildInstall_InLaravelProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 2. Run kiw guild install <laravel-project-dir>
-	code := RunGuild(newGuildFlagSet(dir))
+	// 2. Run kiw boost install <laravel-project-dir>
+	code := RunBoost(newBoostFlagSet(dir))
 	if code != kern.ExitCodeSuccess {
 		t.Fatalf("expected success, got %d", code)
 	}
 
-	// 3. Verify Boost / Guild files exist
+	// 3. Verify Boost files exist
 	agentsPath := filepath.Join(dir, "AGENTS.md")
 	data, err := os.ReadFile(agentsPath)
 	if err != nil {

@@ -166,9 +166,9 @@ logger.Info("processing order", "order_id", 1234)
 
 ---
 
-## 8. AI Boost / Guild Non-Interference
+## 8. AI Boost Non-Interference
 
-Running `kiw boost install <dir>` (or alias `kiw guild install <dir>`) installs the AI Agent Constitution (`AGENTS.md`), OpenCode configuration (`opencode.json`), and triad skills (`.agents/`) into any Node.js or Laravel project without modifying host code:
+Running `kiw boost install <dir>` installs the AI Agent Constitution (`AGENTS.md`), OpenCode configuration (`opencode.json`), and triad skills (`.agents/`) into any Node.js or Laravel project without modifying host code:
 - The top-level `AGENTS.md` contains an explicit project-agnostic disclaimer:
   > *If the current project is not a Krewire project, follow the generic principles and skip Krewire-specific sections marked Krewire.*
 - Agents will safely operate on JavaScript, TypeScript, and PHP codebases using universal SDLC principles.

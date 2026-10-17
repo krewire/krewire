@@ -172,7 +172,7 @@ Manages multi-module workspaces, monorepos, and microservice topologies.
 kiw ws status
 ```
 
-### `kiw boost install` (Alias: `kiw guild install`)
+### `kiw boost install`
 Installs the Boost AI Agent constitution and multi-agent workflows into `.agents/`.
 ```bash
 kiw boost install

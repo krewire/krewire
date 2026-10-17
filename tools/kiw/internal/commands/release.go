@@ -34,7 +34,7 @@ var (
 
 // RegisterRelease declares the flags for the release command.
 func RegisterRelease(fs *flag.FlagSet) {
-	fs.Var(&releaseModules, "module", "module to release; repeatable (framework, libs, kiw, mdbind, guild, ship); use with --all for every module")
+	fs.Var(&releaseModules, "module", "module to release; repeatable (framework, libs, kiw, mdbind, boost, ship); use with --all for every module")
 	fs.BoolVar(&releaseAll, "all", false, "release every Krewire module (maintainer mode, run inside the workspace)")
 	fs.StringVar(&releaseBump, "bump", "patch", "version component to increment: patch|minor|major")
 	fs.BoolVar(&releaseApply, "apply", false, "write the changes (default is a dry run)")

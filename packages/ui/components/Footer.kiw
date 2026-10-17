@@ -38,7 +38,7 @@
         <a href="/docs/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.getting_started">Getting Started</a>
         <a href="#pathways" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.pathways">Contribution Pathways</a>
         <a href="#standards" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.standards">The Krewire Way (Gates)</a>
-        <a href="#boost" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.guild">AI Boost Collaboration</a>
+        <a href="#boost" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.boost">AI Boost Collaboration</a>
         <a href="https://github.com/krewire/krewire/tree/main/docs/specs" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors" data-i18n="footer.kwf_specs">Specs</a>
       </div>
 

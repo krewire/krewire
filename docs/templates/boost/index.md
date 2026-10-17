@@ -11,8 +11,6 @@ Krewire Boost equips repositories with a complete team of specialized AI agents,
 To install Boost in any project:
 ```bash
 kiw boost install
-# Or using the alias:
-kiw guild install
 ```
 
 ---

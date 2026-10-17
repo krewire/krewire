@@ -21,11 +21,6 @@ func RegisterBoost(fs *flag.FlagSet) {
 	fs.Bool("dry-run", false, "report the files that would be written without writing")
 }
 
-// RegisterGuild is a backwards-compatible alias for RegisterBoost.
-func RegisterGuild(fs *flag.FlagSet) {
-	RegisterBoost(fs)
-}
-
 // RunBoost dispatches the boost sub-commands. Currently only "install" is
 // implemented; with no sub-command the wizard starts interactively.
 func RunBoost(fs *flag.FlagSet) kern.ExitCode {
@@ -38,11 +33,6 @@ func RunBoost(fs *flag.FlagSet) kern.ExitCode {
 	default:
 		return usageMessage(fmt.Sprintf("unknown boost sub-command %q (supported: install)", sub))
 	}
-}
-
-// RunGuild is a backwards-compatible alias for RunBoost.
-func RunGuild(fs *flag.FlagSet) kern.ExitCode {
-	return RunBoost(fs)
 }
 
 // runBoostInstall installs the Boost template into a target directory. When
