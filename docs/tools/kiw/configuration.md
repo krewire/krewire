@@ -1,10 +1,13 @@
-# `kiw` Configuration Specification (`krewire.yaml`)
+# Configuration Reference — `krewire.yaml` Specification
 
-The `krewire.yaml` file serves as the Single Source of Truth (SSOT) for configuring project metadata, workload behavior, server settings, custom scripts, and dependencies.
+## Description
+The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects.
 
 ---
 
-## 1. Minimal Specification
+## Minimal Configuration
+
+Every Krewire project requires a minimal `krewire.yaml` defining the project name and workload kind:
 
 ```yaml
 version: "0.1.0"
@@ -15,26 +18,51 @@ project:
 
 ---
 
-## 2. Full Schema Reference
+## Full Schema Reference
+
+A complete `krewire.yaml` schema with all supported options and multi-runtime controls:
 
 ```yaml
 version: "0.1.0"
 
-# Project metadata & invariants
+# Project metadata & workload invariants
 project:
   name: my-service          # Required: kebab-case ^[a-z][a-z0-9-]*$
   kind: service             # Required: app | cli | site | book | worker | service | infra | kernel
-  description: "Core API"
-  author: "Krewire Team"
+  description: "Core API Service"
+  author: "Krewire Contributors"
+  dirs:
+    cmd: "cmd/app"          # Custom entrypoint directory
+    internal: "internal"    # Internal package directory
+    web: "web"              # Web templates & components directory
+    public: "public"        # Static public assets directory
 
-# HTTP server settings (for app, service, site)
+# Multi-runtime coordination & environment binding (KWN-MRCN, KWN-Q7X4M)
+runtime:
+  namespace: "api"          # Prefix for environment variables: KREWIRE_API_<KEY>
+  env_file: ".env.local"    # Custom dotenv file path (defaults to .env)
+
+# Build pipeline & foreign dependency orchestration (KWN-BLD5Y)
+build:
+  depends_on:               # Ordered list of pre-build shell commands
+    - "npm run build"       # e.g., compile frontend before building Go binary
+    - "go generate ./..."
+
+# Primary HTTP server settings (for app, service, site)
 server:
   host: "0.0.0.0"
-  port: 8080
+  port: 8080                # Default port (must be between 1 and 65535)
   read_timeout: "15s"
   write_timeout: "15s"
 
-# SSG settings (kind: site)
+# Co-located microservices with distinct port allocations (FRK-CONF-032)
+services:
+  auth:
+    port: 8081
+  billing:
+    port: 8082
+
+# SSG static site settings (kind: site)
 ssg:
   content_dir: "content"
   templates_dir: "templates"
@@ -42,31 +70,70 @@ ssg:
   clean_urls: true
   minify: true
 
-# Book settings (kind: book)
+# Technical book settings (kind: book)
 book:
   source_dir: "manuscript"
   output_dir: ".krewire/build"
-  title: "User Manual"
+  title: "Engineering Handbook"
 
-# Worker settings (kind: worker)
+# Background worker settings (kind: worker)
 worker:
   concurrency: 4
   queues:
     - name: "default"
       rate_limit: 100
+    - name: "critical"
+      rate_limit: 500
 
-# Custom project scripts executable via `kiw run <script>`
+# Custom project tasks executable via `kiw run <script>`
 scripts:
   migrate: "go run ./cmd/migrate"
   seed: "go run ./cmd/seed"
   lint: "golangci-lint run"
+  test-e2e: "go test -tags=e2e ./..."
 ```
 
 ---
 
-## 3. Environment Variables & Overlays
+## Multi-Runtime & Environment Coordination
 
-Configuration values can be overridden via `.env` files or environment variables:
-- `KREWIRE_SERVER_PORT=9000` overrides `server.port`.
-- `KREWIRE_SERVER_HOST="127.0.0.1"` overrides `server.host`.
-- `DEBUG=1` enables verbose logging and diagnostic stack traces.
+Krewire coordinates cleanly with other runtimes (Node.js, Laravel/PHP) in the same directory:
+
+### 1. Dotenv Loading & Precedence
+- `kiw` loads `.env` files automatically on boot (`kiw run`, `kiw dev`, `kiw build`).
+- If `runtime.env_file` is specified, that file is loaded with higher precedence over `.env`.
+- If `.env` is missing but `.env.example` exists, `kiw` logs a warning and creates a template `.env` during scaffolding (`KWL-CFGV-005`).
+
+### 2. Namespace Prefixing & Synchronization
+When `runtime.namespace` is declared (e.g. `namespace: "api"`):
+- All keys are mirrored into the prefixed form: `PORT=8080` is synchronized to `KREWIRE_API_PORT=8080`.
+- Conversely, external systems setting `KREWIRE_API_DATABASE_URL` will have it available to the application as both `KREWIRE_API_DATABASE_URL` and `DATABASE_URL`.
+- This eliminates variable collisions between Node.js/Laravel host applications and co-located Go services.
+
+### 3. Port Allocation & Conflict Detection
+- `kiw info` and runtime boot (`kiw dev`, `kiw run`) automatically detect ports declared across:
+  - `krewire.yaml` (`server.port`, `services.<name>.port`)
+  - Node.js `package.json` (scripts containing `--port`, `PORT=`)
+  - Laravel/PHP `composer.json` or `artisan serve` defaults (:8000)
+  - Active `.env` files (`PORT=`, `APP_PORT=`, `SERVER_PORT=`)
+- If two services or runtimes claim the same port without explicit disambiguation, `kiw` warns of the conflict immediately (`FRK-CONF-030`).
+- The `--addr` command-line flag (`kiw run --addr :9000`) always takes precedence over all configuration and environment declarations.
+
+---
+
+## Build Orchestration (`build.depends_on`)
+
+When building fullstack applications composed of a Node.js frontend and a Go backend, declare dependencies in `build.depends_on`:
+- Commands are executed sequentially in the project root prior to Go compilation.
+- If any command fails with a non-zero exit code, the build aborts immediately with that exact exit code.
+- Control flags:
+  - `kiw build --skip-deps`: Skips pre-build dependencies and builds only Krewire targets.
+  - `kiw build --deps-only`: Executes pre-build dependency scripts without running Krewire compiler.
+
+---
+
+## Quick References
+
+- [`kiw` Commands Reference](./commands.md) — CLI flags and operational commands.
+- [Development & Build Pipelines](./dev-and-build.md) — Compilation, dev watch mode, and artifact staging.
+- [Multi-Runtime Coexistence Guide](../../guides/multi-runtime-coexistence.md) — Node.js and Laravel architectural patterns.
