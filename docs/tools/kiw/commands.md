@@ -55,13 +55,19 @@ kiw generate --kind handler --name CreateUser
 ## 2. Inspect Commands
 
 ### `kiw version`
-Prints CLI, framework, and Go runtime version information.
+Prints CLI, ecosystem version, Go runtime, and the verified build signature (`build with krewire`).
 ```bash
 kiw version
 ```
 
 ### `kiw info`
-Prints detected project kind, configuration details, scripts, and environment summary.
+Inspects and reports complete environment and project metadata:
+- **Environment**: CLI version, ecosystem version, verifiable signature, Go version, active environment (`local`, `production`), and debug status.
+- **Project**: Working directory, Go module path, Krewire foundation status, workload kind (`app`, `cli`, `site`, `book`, `worker`, `service`, `infra`, `kernel`), and detection marker.
+- **Host Ecosystem**: Automatically detects foreign platforms (`Node.js`, `Laravel`, `PHP/Composer`), active package manager (`pnpm`, `yarn`, `npm`, `bun`, `composer`), and framework (`SvelteKit`, `Nuxt`, `Next.js`, `Remix`, `Astro`, `Laravel`).
+- **Co-located Krewire**: Discovers and lists any Krewire sub-projects co-located in the directory tree.
+- **Ports & Coexistence**: Displays allocated ports across Krewire and foreign runtimes, reporting any conflicting port bindings.
+- **Multi-Runtime Build Suggestions**: Detects foreign build scripts (e.g. `npm run build`, `composer install`) and advises on `build.depends_on` orchestration.
 ```bash
 kiw info
 ```
@@ -79,15 +85,21 @@ kiw compat
 ### `kiw build [flags]`
 Builds the project according to its detected kind:
 - `site` / `book` $\rightarrow$ Compiles static assets into `.krewire/build`.
-- `app` / `cli` / `service` / `worker` $\rightarrow$ Compiles standalone Go binary into `bin/`.
+- `app` / `cli` / `service` / `worker` $\rightarrow$ Compiles standalone Go binary with embedded `-ldflags` signature (`build with krewire`).
 - `infra` $\rightarrow$ Compiles and plans infrastructure state.
+
+**Flags:**
+- `--skip-deps`: Skips pre-build dependency commands declared in `build.depends_on`.
+- `--deps-only`: Runs only `build.depends_on` commands without building Krewire artifacts.
+- `--plan`: Generates an infrastructure execution plan (`infra` kind).
 ```bash
 kiw build
+kiw build --skip-deps
 kiw build --plan
 ```
 
 ### `kiw serve [--port <port>]`
-Serves static site preview over HTTP with WebSocket-driven live-reload (HMR).
+Serves static site preview over HTTP with WebSocket-driven live-reload (HMR), or starts local server for web apps.
 ```bash
 kiw serve --port 3000
 ```
@@ -98,6 +110,8 @@ kiw serve --port 3000
 
 ### `kiw run [task|file.go] [-- args]`
 Executes an application, a standalone Go script, or a named task from `krewire.yaml`:
+- **Process Bridge**: Passes through standard input (`os.Stdin`), allowing Node.js `child_process` or Laravel Symfony `Process` to stream JSON IPC directly to/from the running binary.
+- **Signature Injection**: Compiles with canonical `build with krewire` ldflags.
 ```bash
 kiw run                 # Run project binary
 kiw run script.go       # Run standalone script with project environment
