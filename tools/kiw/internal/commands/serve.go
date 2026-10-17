@@ -106,12 +106,35 @@ func serveStaticBuild(root string, fs *flag.FlagSet) kern.ExitCode {
 	}
 	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
 	if info, err := os.Stat(filepath.Join(outDir, "index.html")); err != nil || info.IsDir() {
-		fmt.Fprintf(os.Stderr, "kiw serve: no build output at %s — run 'kiw build' first\n", outDir)
-		return kern.ExitCodeUsage
+		hasIndex := false
+		for _, o := range cfg.Build.Outputs {
+			p := joinRoot(root, o, o)
+			if fi, err := os.Stat(filepath.Join(p, "index.html")); err == nil && !fi.IsDir() {
+				hasIndex = true
+				break
+			}
+		}
+		if !hasIndex {
+			fmt.Fprintf(os.Stderr, "kiw serve: no build output at %s — run 'kiw build' first\n", outDir)
+			return kern.ExitCodeUsage
+		}
 	}
 	addr := firstNonEmpty(flagValue(fs, "addr"), ":8080")
 	slog.Info("serving static build", "dir", outDir, "addr", addr)
-	if err := http.ListenAndServe(addr, extensionlessFS(outDir)); err != nil {
+	roots := []string{outDir}
+	for _, o := range cfg.Build.Outputs {
+		p := joinRoot(root, o, o)
+		if hasDir(root, o) {
+			roots = append(roots, p)
+		}
+	}
+	var handler http.Handler
+	if len(roots) > 1 {
+		handler = virtualRootFS(roots...)
+	} else {
+		handler = extensionlessFS(outDir)
+	}
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		return fail(err)
 	}
 	return kern.ExitCodeSuccess

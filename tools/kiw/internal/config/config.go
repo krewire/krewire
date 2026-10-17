@@ -85,6 +85,11 @@ type BuildConfig struct {
 	// (nil) uses the mdbind defaults excluding README/readme developer
 	// notes; an empty list excludes nothing.
 	Exclude []string `yaml:"exclude"`
+	// DependsOn lists shell commands to run in order before building
+	// (e.g. ["npm run build", "composer install --no-dev"]).
+	DependsOn []string `yaml:"depends_on"`
+	// Outputs maps runtime names to output directories (e.g. nodejs: "dist", laravel: "public/build").
+	Outputs map[string]string `yaml:"outputs"`
 }
 
 // BookConfig holds book-specific settings under the `book:` key.

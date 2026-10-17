@@ -111,3 +111,29 @@ func TestPaletteMerge(t *testing.T) {
 		t.Error("nil palette must return the defaults unchanged")
 	}
 }
+
+func TestLoad_BuildDependsOnAndOutputs(t *testing.T) {
+	dir := t.TempDir()
+	body := `build:
+  depends_on:
+    - "npm run build"
+    - "composer install --no-dev"
+  outputs:
+    nodejs: "dist"
+    laravel: "public/build"
+    krewire: ".krewire/build"
+`
+	if err := os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	c, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(c.Build.DependsOn) != 2 || c.Build.DependsOn[0] != "npm run build" || c.Build.DependsOn[1] != "composer install --no-dev" {
+		t.Errorf("Build.DependsOn = %v, want 2 commands", c.Build.DependsOn)
+	}
+	if len(c.Build.Outputs) != 3 || c.Build.Outputs["nodejs"] != "dist" || c.Build.Outputs["laravel"] != "public/build" {
+		t.Errorf("Build.Outputs = %v, want 3 mapped outputs", c.Build.Outputs)
+	}
+}

@@ -30,6 +30,8 @@ func RegisterBuild(fs *flag.FlagSet) {
 	fs.String("author", "", "site author")
 	fs.String("theme", "", "theme mode: auto, light, dark, or off (default auto)")
 	fs.String("target", "ssg", "build target: ssg, book, or wasm (default ssg)")
+	fs.Bool("skip-deps", false, "skip executing build.depends_on commands")
+	fs.Bool("deps-only", false, "run only build.depends_on commands and skip Krewire build")
 }
 
 // RunBuild builds the current project's website. It supports both declarative
@@ -48,6 +50,24 @@ func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 	cfg, err := config.Load(root)
 	if err != nil {
 		return fail(err)
+	}
+
+	skipDeps := flagValue(fs, "skip-deps") == "true"
+	depsOnly := flagValue(fs, "deps-only") == "true"
+
+	if depsOnly {
+		if len(cfg.Build.DependsOn) == 0 {
+			return kern.ExitCodeSuccess
+		}
+		_ = cfg.LoadDotEnv(root)
+		return executeBuildDeps(root, cfg.Build.DependsOn, os.Environ())
+	}
+
+	if !skipDeps && len(cfg.Build.DependsOn) > 0 {
+		_ = cfg.LoadDotEnv(root)
+		if code := executeBuildDeps(root, cfg.Build.DependsOn, os.Environ()); code != kern.ExitCodeSuccess {
+			return code
+		}
 	}
 	hasPages := hasDir(root, "pages")
 	hasSSG := cfg.IsSSG()
@@ -98,7 +118,7 @@ func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 		built = true
 	}
 	if built {
-		writeManifest(outDir, collectCreated(outDir))
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
 	}
 	if !built {
 		return firstErr

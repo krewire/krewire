@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -21,18 +22,56 @@ func readManifest(outDir string) []string {
 	}
 	var out []string
 	for _, line := range strings.Split(string(data), "\n") {
-		if line = strings.TrimSpace(line); line != "" {
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "#") {
 			out = append(out, filepath.Clean(line))
 		}
 	}
 	return out
 }
 
-// writeManifest records rel (slash-separated) paths as the current build
-// output. Missing entries from a previous manifest were already pruned.
-func writeManifest(outDir string, rel []string) {
+// readManifestOutputs returns the runtime output directories recorded in the manifest.
+func readManifestOutputs(outDir string) map[string]string {
+	data, err := os.ReadFile(filepath.Join(outDir, manifestName))
+	if err != nil {
+		return nil
+	}
+	outputs := make(map[string]string)
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "# output:") {
+			entry := strings.TrimPrefix(line, "# output:")
+			parts := strings.SplitN(entry, "=", 2)
+			if len(parts) == 2 {
+				outputs[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			}
+		}
+	}
+	return outputs
+}
+
+// writeManifest records rel (slash-separated) paths and optional declared outputs
+// as the current build output. Missing entries from a previous manifest were already pruned.
+func writeManifest(outDir string, rel []string, outputs ...map[string]string) {
 	sort.Strings(rel)
-	body := strings.Join(rel, "\n") + "\n"
+	var header []string
+	if len(outputs) > 0 && len(outputs[0]) > 0 {
+		header = append(header, "# multi-runtime outputs")
+		var keys []string
+		for k := range outputs[0] {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			header = append(header, fmt.Sprintf("# output:%s=%s", k, outputs[0][k]))
+		}
+	}
+
+	body := ""
+	if len(header) > 0 {
+		body += strings.Join(header, "\n") + "\n"
+	}
+	body += strings.Join(rel, "\n") + "\n"
 	if err := os.WriteFile(filepath.Join(outDir, manifestName), []byte(body), 0o644); err != nil {
 		slog.Warn("kiw build: could not write build manifest", "err", err)
 	}

@@ -87,6 +87,17 @@ func RunInfo(_ *flag.FlagSet) kern.ExitCode {
 		fmt.Println(boldDim("─ Directories ────────────────────────────────"))
 		printAppDirsStyled(dir, cfg, tm)
 	}
+
+	suggestions := detectRuntimeBuildSuggestions(dir)
+	if len(suggestions) > 0 {
+		fmt.Println()
+		fmt.Println(boldDim("─ Multi-Runtime ──────────────────────────────"))
+		for _, s := range suggestions {
+			printKV(tm, s.Source, cyan(s.Command)+" "+dim("("+s.Hint+")"), dim)
+		}
+		printKV(tm, "Suggestion", yellow("add to build.depends_on in krewire.yaml to orchestrate build"), dim)
+	}
+
 	return kern.ExitCodeSuccess
 }
 
