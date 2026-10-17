@@ -242,11 +242,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "var(--color-primary, var(--forge-primary, #39D353))",
-        secondary: "var(--color-secondary, var(--forge-secondary, #00D1C1))",
-        accent: "var(--color-accent, var(--forge-accent, #FF3B2E))",
-        surface: "var(--color-surface, var(--forge-surface, #ffffff))",
-        muted: "var(--color-muted, var(--forge-muted, #57677d))",
+        primary: "var(--color-primary, var(--ui-primary, var(--forge-primary, #39D353)))",
+        secondary: "var(--color-secondary, var(--ui-secondary, var(--forge-secondary, #00D1C1)))",
+        accent: "var(--color-accent, var(--ui-accent, var(--forge-accent, #FF3B2E)))",
+        surface: "var(--color-surface, var(--ui-surface, var(--forge-surface, #ffffff)))",
+        muted: "var(--color-muted, var(--ui-muted, var(--forge-muted, #57677d)))",
       },
     },
   },

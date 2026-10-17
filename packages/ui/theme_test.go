@@ -60,6 +60,9 @@ func TestThemeStorageKeyAndDefault(t *testing.T) {
 func TestThemeCSS(t *testing.T) {
 	th := DefaultTheme()
 	css := string(th.CSS())
+	if !strings.Contains(css, "--ui-primary") {
+		t.Errorf("CSS missing --ui-primary")
+	}
 	if !strings.Contains(css, "--forge-primary") {
 		t.Errorf("CSS missing --forge-primary")
 	}
@@ -71,8 +74,9 @@ func TestThemeCSS(t *testing.T) {
 func TestThemeCSSScrollbar(t *testing.T) {
 	css := string(DefaultTheme().CSS())
 	for _, want := range []string{
-		"--forge-scrollbar-thumb: var(--forge-primary)",
-		"scrollbar-color: var(--forge-scrollbar-thumb) var(--forge-scrollbar-track)",
+		"--ui-scrollbar-thumb:",
+		"--forge-scrollbar-thumb:",
+		"scrollbar-color: var(--ui-scrollbar-thumb) var(--ui-scrollbar-track)",
 		"::-webkit-scrollbar",
 		"::-webkit-scrollbar-thumb",
 	} {
@@ -88,8 +92,8 @@ func TestThemeTailwindConfigScript(t *testing.T) {
 	if !strings.Contains(s, "tailwind.config") {
 		t.Errorf("missing tailwind.config in %s", s)
 	}
-	if !strings.Contains(s, "var(--forge-primary") {
-		t.Errorf("missing forge color token mapping in %s", s)
+	if !strings.Contains(s, "var(--ui-primary") {
+		t.Errorf("missing ui color token mapping in %s", s)
 	}
 }
 
@@ -106,6 +110,8 @@ func TestCSSDeclaresTokens(t *testing.T) {
 
 	// Mode-independent tokens belong to :root only, so they are declared once.
 	for _, token := range []string{
+		"--ui-radius", "--ui-pop-border", "--ui-pop-shadow",
+		"--ui-pop-shadow-sm", "--ui-font-sans", "--ui-font-mono",
 		"--forge-radius", "--forge-pop-border", "--forge-pop-shadow",
 		"--forge-pop-shadow-sm", "--forge-font-sans", "--forge-font-mono",
 	} {
@@ -116,6 +122,10 @@ func TestCSSDeclaresTokens(t *testing.T) {
 
 	// Colour tokens are declared for both modes.
 	for _, token := range []string{
+		"--ui-primary", "--ui-primary-content", "--ui-secondary",
+		"--ui-accent", "--ui-bg", "--ui-surface", "--ui-fg",
+		"--ui-muted", "--ui-border", "--ui-success", "--ui-warning",
+		"--ui-error",
 		"--forge-primary", "--forge-primary-content", "--forge-secondary",
 		"--forge-accent", "--forge-bg", "--forge-surface", "--forge-fg",
 		"--forge-muted", "--forge-border", "--forge-success", "--forge-warning",

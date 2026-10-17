@@ -19,7 +19,7 @@
         class="drawer-close"
         aria-label="Close drawer"
         data-drawer-close="{#if id}{id}{:else}drawer{/if}"
-        onclick="if(window.forgeDrawer){window.forgeDrawer.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');var b=document.getElementById('{#if id}{id}{:else}drawer{/if}-backdrop');if(b)b.classList.remove('backdrop-open');}">
+        onclick="var c=window.uiDrawer||window.forgeDrawer;if(c){c.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');var b=document.getElementById('{#if id}{id}{:else}drawer{/if}-backdrop');if(b)b.classList.remove('backdrop-open');}">
         ✕
       </button>
     </div>
@@ -42,7 +42,7 @@
   id="{#if id}{id}{:else}drawer{/if}-backdrop"
   class="drawer-backdrop {class}"
   data-drawer-backdrop="{#if id}{id}{:else}drawer{/if}"
-  onclick="if(window.forgeDrawer){window.forgeDrawer.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');this.classList.remove('backdrop-open');}"
+  onclick="var c=window.uiDrawer||window.forgeDrawer;if(c){c.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');this.classList.remove('backdrop-open');}"
   aria-hidden="true"></div>
 {/if}
 

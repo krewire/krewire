@@ -61,7 +61,7 @@ func LoadFromDir(root string) (*Site, error) {
 		}
 	}
 
-	// 1. Built-in atomic & reusable UI components from Krewire Forge
+	// 1. Built-in atomic & reusable UI components from Krewire UI
 	if entries, err := ui.ComponentsFS.ReadDir("."); err == nil {
 		for _, e := range entries {
 			if e.IsDir() || !strings.HasSuffix(e.Name(), ".kiw") {
@@ -81,7 +81,7 @@ func LoadFromDir(root string) (*Site, error) {
 		}
 	}
 
-	// 2. Project-specific components (overrides built-in Forge components if same name)
+	// 2. Project-specific components (overrides built-in UI components if same name)
 	for _, p := range findKiwFiles(filepath.Join(root, "components")) {
 		mod, err := kiwdsl.ParseKiwFile(p)
 		if err != nil {

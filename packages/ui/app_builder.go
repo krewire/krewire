@@ -12,10 +12,10 @@ import (
 	"github.com/krewire/krewire/packages/ui/widget"
 )
 
-// ComponentsFS embeds all built-in UI components provided by Krewire Forge.
+// ComponentsFS embeds all built-in UI components provided by Krewire UI.
 var ComponentsFS = components.FS
 
-// DefaultTailwindCDN is the standard TailwindCSS Play CDN URL used by Forge by default.
+// DefaultTailwindCDN is the standard TailwindCSS Play CDN URL used by Krewire UI by default.
 const DefaultTailwindCDN = "https://cdn.tailwindcss.com"
 
 // Document shell constants. Naming the markup fragments keeps RenderShell
@@ -28,12 +28,12 @@ const (
 	// cssSuffix identifies a prebuilt stylesheet URL rather than a CDN script.
 	cssSuffix = ".css"
 	// bodyClass is applied to the root body element.
-	bodyClass = "forge-app"
+	bodyClass = "ui-app forge-app"
 	// headerOpenTag opens the top navigation bar. The break belongs after
 	// </header>, where RenderShell writes it, so the tag itself stays on one line.
-	headerOpenTag = `<header style="background:var(--forge-surface); border-bottom:var(--forge-pop-border); padding:0.85rem 1.5rem; display:flex; align-items:center; justify-content:space-between;">`
+	headerOpenTag = `<header style="background:var(--ui-surface, var(--forge-surface)); border-bottom:var(--ui-pop-border, var(--forge-pop-border)); padding:0.85rem 1.5rem; display:flex; align-items:center; justify-content:space-between;">`
 	// brandMarkTag is the app mark shown at the head of the navigation bar.
-	brandMarkTag = "<span style=\"background:var(--forge-primary); color:var(--forge-primary-content); width:28px; height:28px; display:inline-grid; place-items:center; border-radius:6px; font-weight:900; border:var(--forge-pop-border); box-shadow:var(--forge-pop-shadow-sm);\">◈</span>"
+	brandMarkTag = "<span style=\"background:var(--ui-primary, var(--forge-primary)); color:var(--ui-primary-content, var(--forge-primary-content)); width:28px; height:28px; display:inline-grid; place-items:center; border-radius:6px; font-weight:900; border:var(--ui-pop-border, var(--forge-pop-border)); box-shadow:var(--ui-pop-shadow-sm, var(--forge-pop-shadow-sm));\">◈</span>"
 	// navOpenTag opens the navigation link list.
 	navOpenTag = `<nav style="display:flex; align-items:center; gap:0.5rem;">`
 	// mainOpenTag opens the main content canvas.
@@ -63,13 +63,13 @@ const tailwindConfigScript = `  <script>
       theme: {
         extend: {
           colors: {
-            primary: 'var(--forge-primary, ` + fallbackPrimary + `)',
-            'primary-content': 'var(--forge-primary-content, ` + fallbackPrimaryContent + `)',
-            secondary: 'var(--forge-secondary, ` + fallbackSecondary + `)',
-            'secondary-content': 'var(--forge-secondary-content, ` + fallbackSecondaryContent + `)',
-            accent: 'var(--forge-accent, ` + fallbackAccent + `)',
-            surface: 'var(--forge-surface, ` + fallbackSurface + `)',
-            muted: 'var(--forge-muted, ` + fallbackMuted + `)',
+            primary: 'var(--ui-primary, var(--forge-primary, ` + fallbackPrimary + `))',
+            'primary-content': 'var(--ui-primary-content, var(--forge-primary-content, ` + fallbackPrimaryContent + `))',
+            secondary: 'var(--ui-secondary, var(--forge-secondary, ` + fallbackSecondary + `))',
+            'secondary-content': 'var(--ui-secondary-content, var(--forge-secondary-content, ` + fallbackSecondaryContent + `))',
+            accent: 'var(--ui-accent, var(--forge-accent, ` + fallbackAccent + `))',
+            surface: 'var(--ui-surface, var(--forge-surface, ` + fallbackSurface + `))',
+            muted: 'var(--ui-muted, var(--forge-muted, ` + fallbackMuted + `))',
           }
         }
       }
@@ -82,7 +82,7 @@ type NavItem struct {
 	URL   string
 }
 
-// App represents a programmatic web application built with Forge.
+// App represents a programmatic web application built with Krewire UI.
 type App struct {
 	Title       string
 	Theme       *Theme
@@ -92,8 +92,8 @@ type App struct {
 	routes      map[string]bool
 }
 
-// New creates a new Forge programmatic application builder.
-// By default, Krewire Forge uses TailwindCSS for modern utility styling.
+// New creates a new Krewire UI programmatic application builder.
+// By default, Krewire UI uses TailwindCSS for modern utility styling.
 func New(title string) *App {
 	return &App{
 		Title:       title,
@@ -262,7 +262,7 @@ func (a *App) writeNav(b *strings.Builder) {
 	b.WriteString(navOpenTag)
 	for _, item := range a.Nav {
 		b.WriteString(`<a href="` + widget.SafeURL(item.URL) +
-			`" style="font-size:0.85rem; font-weight:700; padding:0.4rem 0.75rem; border-radius:6px; color:var(--forge-fg); text-decoration:none;">` +
+			`" style="font-size:0.85rem; font-weight:700; padding:0.4rem 0.75rem; border-radius:6px; color:var(--ui-fg, var(--forge-fg)); text-decoration:none;">` +
 			template.HTMLEscapeString(item.Label) + `</a>`)
 	}
 	b.WriteString(`</nav>`)

@@ -4,7 +4,7 @@
 // SSG loader in framework needs to parse a .kiw file, and framework must never
 // import the devtool that sits above it in the layering
 // (boost → kiw → framework → mdbind → libs). Keeping the parser in libs points
-// the dependency arrow down and lets forge and framework parse .kiw files
+// the dependency arrow down and lets ui and web parse .kiw files
 // without a cycle.
 //
 // This package forwards to the new home so existing imports keep working. New

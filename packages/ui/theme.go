@@ -103,7 +103,7 @@ func (t Theme) Button() template.HTML {
 }
 
 // TailwindConfigScript returns the inline <script> block configuring TailwindCSS
-// with Krewire/Forge design tokens and dark-mode mappings.
+// with Krewire UI design tokens and dark-mode mappings.
 func (t Theme) TailwindConfigScript() template.HTML {
 	return template.HTML(`<script>
   tailwind.config = {
@@ -111,13 +111,13 @@ func (t Theme) TailwindConfigScript() template.HTML {
     theme: {
       extend: {
         colors: {
-          primary: 'var(--forge-primary, #39D353)',
-          'primary-content': 'var(--forge-primary-content, #0B1F3B)',
-          secondary: 'var(--forge-secondary, #00D1C1)',
-          'secondary-content': 'var(--forge-secondary-content, #0B1F3B)',
-          accent: 'var(--forge-accent, #FF3B2E)',
-          surface: 'var(--forge-surface, #f0ede5)',
-          muted: 'var(--forge-muted, #475569)',
+          primary: 'var(--ui-primary, var(--forge-primary, #39D353))',
+          'primary-content': 'var(--ui-primary-content, var(--forge-primary-content, #0B1F3B))',
+          secondary: 'var(--ui-secondary, var(--forge-secondary, #00D1C1))',
+          'secondary-content': 'var(--ui-secondary-content, var(--forge-secondary-content, #0B1F3B))',
+          accent: 'var(--ui-accent, var(--forge-accent, #FF3B2E))',
+          surface: 'var(--ui-surface, var(--forge-surface, #f0ede5))',
+          muted: 'var(--ui-muted, var(--forge-muted, #475569))',
         }
       }
     }
@@ -125,7 +125,7 @@ func (t Theme) TailwindConfigScript() template.HTML {
 </script>`)
 }
 
-// CSS returns the complete CSS styles for Forge UI, Form, and Panel components:
+// CSS returns the complete CSS styles for Krewire UI, Form, and Panel components:
 // the mode variables, the theme toggle styles, the design tokens, and the
 // component rules.
 func (t *Theme) CSS() template.CSS {
@@ -135,7 +135,7 @@ func (t *Theme) CSS() template.CSS {
 	return template.CSS(`
 ` + ThemeModeVarsCSS + `
 ` + ThemeToggleCSS + `
-` + forgeTokenCSS() + `
+` + uiTokenCSS() + `
 ` + componentCSS + ScrollbarCSS + `
 `)
 }

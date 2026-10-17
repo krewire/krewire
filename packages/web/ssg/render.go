@@ -262,7 +262,7 @@ func (s *Site) prepare() error {
 	funcs["dict"] = dict
 	funcs["asset"] = s.asset
 	// assetLinks emits <link> and <script> tags for every asset that matches
-	// the well-known CSS/JS patterns (style.css, tailwind.css, forge.css, app.js …).
+	// the well-known CSS/JS patterns (style.css, tailwind.css, ui.css, app.js …).
 	// An optional version suffix is appended as a cache-busting query string.
 	// Templates use it as: {{assetLinks .Version}} or {{assetLinks ""}}
 	funcs["assetLinks"] = s.assetLinks

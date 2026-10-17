@@ -12,8 +12,8 @@ import (
 //
 // A blank or unreadable .kiw registers as an empty component and renders
 // nothing, with no error from the loader. Parsing is asserted in
-// framework/web/ssg (forge_atoms_test.go), which runs the real DSL pipeline —
-// forge cannot import libs/kiw here without a layering violation
+// framework/web/ssg (ui_atoms_test.go), which runs the real DSL pipeline —
+// ui cannot import libs/kiw here without a layering violation
 // (KWL-LAYER-001).
 //
 // This deliberately does not assert a class-name or style-block convention:

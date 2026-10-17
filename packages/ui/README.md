@@ -1,8 +1,8 @@
-# Krewire Forge 🔨
+# Krewire UI 🎨
 
-**Programmatic App Builder for the Krewire Ecosystem.**
+**Programmatic App Builder and UI Component Library for the Krewire Ecosystem.**
 
-Forge provides a pure Go, zero-npm, zero-bloat toolkit for constructing interactive web applications, internal tools, administrative dashboards, forms, and custom UI components programmatically.
+Krewire UI (`packages/ui`) provides a pure Go, zero-npm, zero-bloat toolkit for constructing interactive web applications, internal tools, administrative dashboards, forms, and custom UI components programmatically.
 
 ---
 
@@ -70,9 +70,9 @@ import (
 )
 
 func main() {
-	app := forge.New("Operations Hub").
+	app := ui.New("Operations Hub").
 		AddNav("Home", "/").
-		Page("/", "Dashboard", widget.NewCard("Welcome to Forge").
+		Page("/", "Dashboard", widget.NewCard("Welcome to Krewire UI").
 			WithDesc("Programmatic Go App Builder").
 			WithBody(widget.NewText("Built with pure Go and zero runtime bloat.").Strong()))
 
@@ -118,7 +118,7 @@ app.Dashboard("/metrics", dash)
 
 ## Ecosystem Integration
 
-Forge is an official package in the Krewire ecosystem (`packages/ui`), designed to work seamlessly with:
+Krewire UI is an official package in the Krewire ecosystem (`packages/ui`), designed to work seamlessly with:
 - `packages/web`: Fullstack web routing, SSR, and middleware.
 - `packages/kern`: Core utilities, lifecycle, and logging.
 - `tools/kiw`: CLI devtool, scaffolding, and builds.

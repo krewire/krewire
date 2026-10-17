@@ -45,7 +45,7 @@
 
 .kiw-collapse-title { flex: 1; }
 .kiw-collapse-badge {
-  font-family: var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-family: var(--ui-font-mono, var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
   font-size: 0.7rem;
   padding: 0.15rem 0.4rem;
   border-radius: 999px;

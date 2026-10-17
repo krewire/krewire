@@ -60,7 +60,7 @@ func ParseLayer(name string) (AssetLayer, error) {
 		return LayerScoped, nil
 	case "vendor", "plugin", "tailwind":
 		return LayerVendor, nil
-	case "component", "components", "forge":
+	case "component", "components", "forge", "ui":
 		return LayerComponent, nil
 	case "theme":
 		return LayerTheme, nil
@@ -183,6 +183,7 @@ type builtinAsset struct {
 var builtinAssets = []builtinAsset{
 	{name: "assets/style.css", kind: AssetCSS, layer: LayerScoped, conditional: func(s *Site) bool { return s.hasScopedCSS() }},
 	{name: "assets/tailwind.css", kind: AssetCSS, layer: LayerVendor},
+	{name: "assets/ui.css", kind: AssetCSS, layer: LayerComponent},
 	{name: "assets/forge.css", kind: AssetCSS, layer: LayerComponent},
 	{name: "assets/theme.css", kind: AssetCSS, layer: LayerTheme},
 	{name: "assets/mdbind.css", kind: AssetCSS, layer: LayerBook},

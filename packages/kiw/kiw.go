@@ -5,7 +5,7 @@
 // it to load a file-based site, and it must never be forced to reach upward into
 // the devtool for it (see the strict layering boost → kiw → framework → mdbind →
 // libs). Holding the parser here keeps the dependency arrow pointing down and
-// lets every layer above — framework, kiw, forge — parse a .kiw file without a
+// lets every layer above — framework, kiw, ui — parse a .kiw file without a
 // cycle. kiw/dsl remains as a thin alias of this package.
 package kiw
 

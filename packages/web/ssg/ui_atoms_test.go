@@ -1,9 +1,9 @@
 // FRK-FA-002, FRK-FA-004, FRK-FA-006, FRK-FA-020..026.
 //
-// Forge ships its components as .kiw modules, so they are only ever exercised
+// Krewire UI ships its components as .kiw modules, so they are only ever exercised
 // by the real pipeline: parse as a DSL module, then render through a site.
 // This lives in framework/web/ssg because that is the loader that consumes
-// ui.ComponentsFS; forge cannot import libs/kiw itself without violating
+// ui.ComponentsFS; ui cannot import libs/kiw itself without violating
 // the layering (KWL-LAYER-001).
 package ssg
 
@@ -16,8 +16,8 @@ import (
 	ui "github.com/krewire/krewire/packages/ui"
 )
 
-// forgeComponents lists the component names load.go will register.
-func forgeComponents() ([]string, error) {
+// uiComponents lists the component names load.go will register.
+func uiComponents() ([]string, error) {
 	entries, err := ui.ComponentsFS.ReadDir(".")
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func forgeComponents() ([]string, error) {
 	return out, nil
 }
 
-// atomicProbeSite writes a minimal site whose page renders every named Forge
+// atomicProbeSite writes a minimal site whose page renders every named UI
 // component, so each can be asserted through real output instead of by matching
 // its source text.
 func atomicProbeSite(t *testing.T, names ...string) string {
@@ -65,7 +65,7 @@ func atomicProbeSite(t *testing.T, names ...string) string {
 // ({{progressPercent}}) that no funcmap defines. load.go silently skips a module
 // it cannot parse, so a broken component would disappear from every site rather
 // than breaking a build — the check belongs here, where they actually render.
-func TestForgeAtomicComponentsRender(t *testing.T) {
+func TestUIAtomicComponentsRender(t *testing.T) {
 	cases := []struct {
 		name string
 		want string
@@ -109,17 +109,17 @@ func TestForgeAtomicComponentsRender(t *testing.T) {
 // Every component in the embedded FS must reach the site. load.go `continue`s
 // past a module it cannot parse, so without this a broken component would
 // vanish from every generated site and no build would report it.
-func TestAllForgeComponentsLoadIntoSite(t *testing.T) {
+func TestAllUIComponentsLoadIntoSite(t *testing.T) {
 	site, err := LoadFromDir(atomicProbeSite(t))
 	if err != nil {
 		t.Fatal(err)
 	}
-	names, err := forgeComponents()
+	names, err := uiComponents()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(names) == 0 {
-		t.Fatal("no Forge components found in the embedded FS")
+		t.Fatal("no UI components found in the embedded FS")
 	}
 	for _, name := range names {
 		if _, ok := site.comps[name]; !ok {
