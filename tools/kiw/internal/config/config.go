@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/krewire/krewire/packages/cloud/infra/provider"
 	"github.com/krewire/krewire/packages/ui"
 	"github.com/krewire/krewire/packages/web/ssg"
 	"gopkg.in/yaml.v3"
@@ -23,6 +24,8 @@ const DefaultInput = "content"
 
 // Config is the krewire.yaml schema consumed by the build command.
 type Config struct {
+	// Name holds the project name when declared at top level.
+	Name string `yaml:"name"`
 	// Project pins the project kind when discovery is ambiguous. Empty means
 	// auto-detection (app > site > book precedence).
 	Project Project `yaml:"project"`
@@ -122,8 +125,10 @@ type WorkerConfig struct {
 
 // InfraConfig holds cloud infrastructure settings under the `infra:` key (KWF-B7N3D).
 type InfraConfig struct {
-	Provider string `yaml:"provider"`
-	State    string `yaml:"state"`
+	Provider  string              `yaml:"provider"`
+	Region    string              `yaml:"region"`
+	State     string              `yaml:"state"`
+	Resources []provider.Resource `yaml:"resources"`
 }
 
 // BuildConfig tunes the build pipeline under the `build:` key.
@@ -211,6 +216,8 @@ func (c *Config) EffectiveEnvFile() string {
 
 // Project holds per-project settings in krewire.yaml.
 type Project struct {
+	// Name is the project name.
+	Name string `yaml:"name"`
 	// Kind pins the project kind: "app", "cli", "site", or "book". Empty
 	// lets the CLI detect it from marker files.
 	Kind string `yaml:"kind"`
@@ -379,6 +386,13 @@ func Load(dir string) (*Config, error) {
 	var c Config
 	if err := yaml.Unmarshal(data, &c); err != nil {
 		return nil, fmt.Errorf("config: parse %s: %w", path, err)
+	}
+	// Fold project.name or title into top-level Name
+	if c.Name == "" {
+		c.Name = c.Project.Name
+	}
+	if c.Name == "" {
+		c.Name = c.Title
 	}
 	// A project declares its version either at the top level or next to the
 	// kind. Fold the latter into the single effective value so both pipelines

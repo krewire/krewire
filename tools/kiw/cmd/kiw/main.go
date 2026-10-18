@@ -22,7 +22,7 @@ func main() {
 		Command(tui.NewCommand("compat", "check version compatibility across all modules", nil, commands.RunCompat).WithGroup("inspect").WithExample("kiw compat")).
 		Command(tui.NewCommand("new", "scaffold a minimal Krewire project kernel", commands.RegisterNew, commands.RunNew).WithGroup("project").WithExample("kiw new my-site")).
 		Command(tui.NewCommand("init", "equip the project with a variant: monolith, --site, --book, --cli, or --template", commands.RegisterInit, commands.RunInit).WithGroup("project").WithExample("kiw init --site")).
-		Command(tui.NewCommand("build", "build the current project's website", commands.RegisterBuild, commands.RunBuild).WithGroup("build").WithExample("kiw build")).
+		Command(tui.NewCommand("build", "build the project for production (site, book, app, cli, worker, service, infra)", commands.RegisterBuild, commands.RunBuild).WithGroup("build").WithExample("kiw build")).
 		Command(tui.NewCommand("serve", "preview the current project's website over HTTP", commands.RegisterServe, commands.RunServe).WithGroup("build").WithExample("kiw serve --port 3000")).
 		Command(tui.NewCommand("run", "build and run the current app, a Go file, or a task from krewire.yaml\n\nModes:\n  kiw run [args...]         build and run project app/cli binary\n  kiw run <file.go> [args]  execute standalone Go file with project environment\n  kiw run <task>            run a named task defined under scripts in krewire.yaml", commands.RegisterRun, commands.RunRun).WithGroup("develop").WithExample("kiw run [task|path/to/file.go] [-- args]")).
 		Command(tui.NewCommand("dev", "run the current app in dev mode with auto-restart", commands.RegisterDev, commands.RunDev).WithGroup("develop").WithExample("kiw dev")).

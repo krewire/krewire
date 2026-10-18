@@ -143,3 +143,120 @@ name: test-progressive
 		t.Errorf("expected book intro.html in output: %v", err)
 	}
 }
+
+func TestRunBuild_AppBinary(t *testing.T) {
+	dir := t.TempDir()
+	outDir := filepath.Join(dir, ".krewire", "build")
+
+	for name, content := range map[string]string{
+		"go.mod":       "module testapp\n\ngo 1.22\n",
+		"main.go":      "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"ok\") }\n",
+		"krewire.yaml": "project:\n  name: testapp\n  kind: app\n",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	chdir(t, dir)
+	fs := flag.NewFlagSet("build", flag.ContinueOnError)
+	RegisterBuild(fs)
+
+	code := RunBuild(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("RunBuild failed with exit code %v", code)
+	}
+
+	binPath := filepath.Join(outDir, "bin", "testapp")
+	if _, err := os.Stat(binPath); err != nil {
+		t.Errorf("expected binary %s to be created: %v", binPath, err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, ".kiw-build-manifest")); err != nil {
+		t.Errorf("expected .kiw-build-manifest: %v", err)
+	}
+}
+
+func TestRunBuild_InfraPlan(t *testing.T) {
+	dir := t.TempDir()
+	outDir := filepath.Join(dir, ".krewire", "build")
+
+	for name, content := range map[string]string{
+		"krewire.yaml": "project:\n  name: my-cloud\n  kind: infra\ninfra:\n  provider: krewire-cloud\n  region: asia-southeast1\nserver:\n  port: 8080\n",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	chdir(t, dir)
+	fs := flag.NewFlagSet("build", flag.ContinueOnError)
+	RegisterBuild(fs)
+	_ = fs.Set("plan", "true")
+
+	code := RunBuild(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("RunBuild failed with exit code %v", code)
+	}
+
+	planFile := filepath.Join(outDir, "infra", "plan.json")
+	data, err := os.ReadFile(planFile)
+	if err != nil {
+		t.Fatalf("expected plan.json to be created: %v", err)
+	}
+	if !strings.Contains(string(data), "my-cloud") {
+		t.Errorf("plan.json missing my-cloud resource: %s", string(data))
+	}
+}
+
+func TestRunBuild_KernelRequiresInit(t *testing.T) {
+	dir := t.TempDir()
+	for name, content := range map[string]string{
+		"go.mod":       "module starter\n\ngo 1.22\n",
+		"main.go":      "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"hello, krewire\") }\n",
+		"krewire.yaml": "title: Starter\n",
+		".gitignore":   ".krewire/\n",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	chdir(t, dir)
+	fs := flag.NewFlagSet("build", flag.ContinueOnError)
+	RegisterBuild(fs)
+
+	code := RunBuild(fs)
+	if code != kern.ExitCodeUsage {
+		t.Fatalf("RunBuild on kernel = %v, want ExitCodeUsage (2)", code)
+	}
+}
+
+func TestRunBuild_WorkerAndService(t *testing.T) {
+	for _, kind := range []string{"worker", "service"} {
+		t.Run(kind, func(t *testing.T) {
+			dir := t.TempDir()
+			for name, content := range map[string]string{
+				"go.mod":       "module testmod\n\ngo 1.22\n",
+				"main.go":      "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"ok\") }\n",
+				"krewire.yaml": "project:\n  name: " + kind + "-app\n  kind: " + kind + "\n",
+			} {
+				if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			chdir(t, dir)
+			fs := flag.NewFlagSet("build", flag.ContinueOnError)
+			RegisterBuild(fs)
+
+			code := RunBuild(fs)
+			if code != kern.ExitCodeSuccess {
+				t.Fatalf("RunBuild on %s failed: %v", kind, code)
+			}
+			binPath := filepath.Join(dir, ".krewire", "build", "bin", kind+"-app")
+			if _, err := os.Stat(binPath); err != nil {
+				t.Fatalf("expected binary at %s: %v", binPath, err)
+			}
+		})
+	}
+}

@@ -1,20 +1,26 @@
 package commands
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/krewire/krewire/packages/cloud/infra/provider"
+	"github.com/krewire/krewire/packages/cloud/infra/schema"
 	"github.com/krewire/krewire/packages/hub/plugin"
 	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/packages/runtime/build"
 	"github.com/krewire/krewire/packages/ui"
 	"github.com/krewire/krewire/packages/web/ssg"
+	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
+	"github.com/krewire/krewire/tools/kiw/internal/shape"
 	"github.com/krewire/mdbind/book"
 )
 
@@ -29,19 +35,21 @@ func RegisterBuild(fs *flag.FlagSet) {
 	fs.String("title", "", "site title (defaults to the project name)")
 	fs.String("author", "", "site author")
 	fs.String("theme", "", "theme mode: auto, light, dark, or off (default auto)")
-	fs.String("target", "ssg", "build target: ssg, book, or wasm (default ssg)")
+	fs.String("target", "ssg", "build target: site, book, binary, wasm, or infra (default ssg)")
 	fs.Bool("skip-deps", false, "skip executing build.depends_on commands")
 	fs.Bool("deps-only", false, "run only build.depends_on commands and skip Krewire build")
 	fs.Bool("bundle", false, "bundle all CSS and JS into assets/krewire.css and assets/krewire.js")
+	fs.Bool("plan", false, "infra: compile and show infrastructure plan without applying")
+	fs.String("env", "", "infra: target environment (local, production, testing)")
 }
 
-// RunBuild builds the current project's website. It supports both declarative
-// shapes — a krewire.yaml with an `ssg:` key or pages/*.kiw built with
-// web/ssg, and content/**/*.md built with mdbind — and allows them to
-// coexist for progressive enhancement (a docs site can start as book and
-// grow a custom ssg site without rewrite). When both are present both are
-// built into the same output (shared .krewire/build default); the book then
-// suppresses its root TOC so the ssg landing page owns "/".
+// RunBuild builds the project for production. It dispatches according to the
+// detected project workload kind (site, book, app, cli, worker, service, infra)
+// or explicit --target flag (KWN-BUILD-001).
+//
+// Progressive enhancement is preserved: when web pages or manuscript docs coexist
+// in an app, worker, or service project, both the Go binary and web assets are built
+// into the shared output (.krewire/build).
 func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 	root, err := findRoot()
 	if err != nil {
@@ -70,26 +78,115 @@ func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 			return code
 		}
 	}
+
+	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
+	pruneStale(outDir)
+
+	target := ""
+	if flagProvided(fs, "target") {
+		target = strings.ToLower(strings.TrimSpace(flagValue(fs, "target")))
+	}
+
+	// Explicit target overrides
+	switch target {
+	case "wasm":
+		if code := buildWASM(root, cfg, fs); code != kern.ExitCodeSuccess {
+			return code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return kern.ExitCodeSuccess
+	case "infra":
+		if code := buildInfra(root, cfg, fs); code != kern.ExitCodeSuccess {
+			return code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return kern.ExitCodeSuccess
+	case "binary":
+		if code := buildAppBinary(root, cfg, fs, shape.KindApp); code != kern.ExitCodeSuccess {
+			return code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return kern.ExitCodeSuccess
+	case "ssg", "site":
+		hasPages := hasDir(root, "pages")
+		hasSSG := cfg.IsSSG()
+		if !hasPages && !hasSSG {
+			fmt.Fprintln(os.Stderr, "kiw build: no SSG pages or ssg: config found")
+			return kern.ExitCodeUsage
+		}
+		var code kern.ExitCode
+		if hasPages {
+			code, _, _ = buildSSGFromFile(root, cfg, fs)
+		} else {
+			code, _, _ = buildSSGFromConfig(root, cfg, fs)
+		}
+		if code != kern.ExitCodeSuccess {
+			return code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return kern.ExitCodeSuccess
+	case "book":
+		hasBook := hasDir(root, "content") || hasDir(root, "manuscript")
+		if !hasBook {
+			fmt.Fprintln(os.Stderr, "kiw build: no content/ or manuscript/ directory found for book")
+			return kern.ExitCodeUsage
+		}
+		if code := buildManuscript(root, cfg, fs, false, nil, nil); code != kern.ExitCodeSuccess {
+			return code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return kern.ExitCodeSuccess
+	case "":
+		// auto-detect below
+	default:
+		fmt.Fprintf(os.Stderr, "kiw build: unknown target %q — supported: site, book, binary, wasm, infra\n", target)
+		return kern.ExitCodeUsage
+	}
+
+	// Auto-detect project shape
+	res, err := shape.Detect(root, cfg.Kind())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
+		return kern.ExitCodeUsage
+	}
+
+	if res.Kind == shape.KindKernel {
+		fmt.Fprintln(os.Stderr, "kiw build: kernel project must be initialized first — run 'kiw init' to choose a starter")
+		return kern.ExitCodeUsage
+	}
+
 	hasPages := hasDir(root, "pages")
 	hasSSG := cfg.IsSSG()
 	hasBook := hasDir(root, "content") || hasDir(root, "manuscript")
-	if !hasPages && !hasSSG && !hasBook {
-		fmt.Fprintln(os.Stderr, "kiw: no website found — add pages/*.kiw, an `ssg:` key to krewire.yaml, or a content/ directory")
-		return kern.ExitCodeUsage
-	}
-	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
-	pruneStale(outDir)
-	var firstErr kern.ExitCode = kern.ExitCodeSuccess
+
 	built := false
-	// assetPlan is the resolved CSS/JS order reported by the ssg half. A book
-	// mounted into the same output reuses it verbatim instead of keeping its own
-	// copy of the asset list (AGENTS.md § No Hardcoding).
+	var firstErr kern.ExitCode = kern.ExitCodeSuccess
+
+	// 1. Infra workload dispatch
+	if res.Kind == shape.KindInfra {
+		if code := buildInfra(root, cfg, fs); code != kern.ExitCodeSuccess {
+			return code
+		}
+		built = true
+	}
+
+	// 2. Binary workload dispatch (app, cli, worker, service)
+	if res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService {
+		if code := buildAppBinary(root, cfg, fs, res.Kind); code != kern.ExitCodeSuccess {
+			return code
+		}
+		built = true
+	}
+
+	// 3. Static web assets / Book documentation
 	var planCSS, planJS []string
 	if hasPages {
 		code, css, js := buildSSGFromFile(root, cfg, fs)
 		planCSS, planJS = css, js
 		if code != kern.ExitCodeSuccess {
-			firstErr = code
+			if firstErr == kern.ExitCodeSuccess {
+				firstErr = code
+			}
 		} else {
 			built = true
 		}
@@ -97,11 +194,14 @@ func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 		code, css, js := buildSSGFromConfig(root, cfg, fs)
 		planCSS, planJS = css, js
 		if code != kern.ExitCodeSuccess {
-			firstErr = code
+			if firstErr == kern.ExitCodeSuccess {
+				firstErr = code
+			}
 		} else {
 			built = true
 		}
 	}
+
 	if hasBook {
 		hybrid := hasPages || hasSSG
 		if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != kern.ExitCodeSuccess {
@@ -112,18 +212,24 @@ func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 			built = true
 		}
 	}
-	if flagValue(fs, "target") == "wasm" {
+
+	// 4. WASM entry point if configured
+	if cfg.Wasm.Entry != "" {
 		if code := buildWASM(root, cfg, fs); code != kern.ExitCodeSuccess {
 			return code
 		}
 		built = true
 	}
-	if built {
-		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
-	}
+
 	if !built {
-		return firstErr
+		if firstErr != kern.ExitCodeSuccess {
+			return firstErr
+		}
+		fmt.Fprintln(os.Stderr, "kiw: no buildable workload found — add main.go, pages/*.kiw, an `ssg:`/`infra:` key to krewire.yaml, or content/")
+		return kern.ExitCodeUsage
 	}
+
+	writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
 	return kern.ExitCodeSuccess
 }
 
@@ -476,4 +582,179 @@ func navFromConfig(links []config.Link) []book.Link {
 		out = append(out, book.Link{Text: l.Text, URL: l.URL})
 	}
 	return out
+}
+
+// buildAppBinary compiles the project Go binary into .krewire/build/bin/<name> (KWN-BUILD-001).
+func buildAppBinary(root string, cfg *config.Config, fs *flag.FlagSet, kind shape.Kind) kern.ExitCode {
+	name := firstNonEmpty(cfg.Name, moduleName(root), "app")
+	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
+	binDir := filepath.Join(outDir, "bin")
+	if err := os.MkdirAll(binDir, 0o755); err != nil {
+		return fail(err)
+	}
+	binPath := filepath.Join(binDir, name)
+
+	entry := "."
+	if !hasFile(root, "main.go") {
+		found := false
+		if entries, err := os.ReadDir(filepath.Join(root, "cmd")); err == nil {
+			for _, e := range entries {
+				if e.IsDir() {
+					entry = "./cmd/" + e.Name()
+					found = true
+					break
+				} else if e.Name() == "main.go" {
+					entry = "./cmd"
+					found = true
+					break
+				}
+			}
+		}
+		if !found && !hasGoFiles(root) {
+			return fail(fmt.Errorf("build %s: no main package found in root or cmd/", kind))
+		}
+	}
+
+	slog.Info("building binary", "kind", kind, "entry", entry, "output", binPath)
+	cmd := exec.Command("go", "build", "-trimpath", "-ldflags="+buildinfo.LDFlags(true), "-o", binPath, entry)
+	cmd.Dir = root
+	cmd.Stdout = os.Stderr
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fail(fmt.Errorf("build %s: %w", kind, err))
+	}
+	fmt.Println("created " + binPath)
+	return kern.ExitCodeSuccess
+}
+
+// buildInfra compiles and verifies cloud infrastructure topology into plan.json (KWN-BUILD-001, KWF-B7N3D).
+func buildInfra(root string, cfg *config.Config, fs *flag.FlagSet) kern.ExitCode {
+	providerName := "krewire-cloud"
+	region := "asia-southeast1"
+	if cfg.Infra != nil {
+		if cfg.Infra.Provider != "" {
+			providerName = cfg.Infra.Provider
+		}
+		if cfg.Infra.Region != "" {
+			region = cfg.Infra.Region
+		}
+	}
+	env := firstNonEmpty(flagValue(fs, "env"), cfg.Env, "production")
+
+	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
+	infraDir := filepath.Join(outDir, "infra")
+	if err := os.MkdirAll(infraDir, 0o755); err != nil {
+		return fail(err)
+	}
+	planFile := filepath.Join(infraDir, "plan.json")
+
+	// 1. Gather desired resources
+	var resources []provider.Resource
+	if cfg.Infra != nil && len(cfg.Infra.Resources) > 0 {
+		resources = append(resources, cfg.Infra.Resources...)
+	} else {
+		// Synthesize declarative infrastructure resources from project definition
+		appName := firstNonEmpty(cfg.Name, moduleName(root), "app")
+		resources = append(resources, provider.Resource{
+			Kind: schema.KindCompute,
+			ID:   appName,
+			Properties: map[string]any{
+				"runtime":  "fargate",
+				"replicas": 2,
+			},
+		})
+		if len(cfg.Services) > 0 {
+			for _, svc := range cfg.Services {
+				if svc.Name == "" {
+					continue
+				}
+				resources = append(resources, provider.Resource{
+					Kind: schema.KindCompute,
+					ID:   svc.Name,
+					Properties: map[string]any{
+						"port": svc.Port,
+					},
+					DependsOn: []string{appName},
+				})
+			}
+		}
+		if cfg.Worker != nil {
+			resources = append(resources, provider.Resource{
+				Kind: schema.KindCompute,
+				ID:   "worker",
+				Properties: map[string]any{
+					"concurrency": cfg.Worker.Concurrency,
+					"queues":      cfg.Worker.Queues,
+				},
+				DependsOn: []string{appName},
+			})
+		}
+	}
+
+	// 2. Validate topology (no duplicate IDs, all dependsOn exist)
+	idMap := make(map[string]bool)
+	for _, r := range resources {
+		if r.ID == "" {
+			return fail(fmt.Errorf("infra topology error: resource missing id (kind: %s)", r.Kind))
+		}
+		if idMap[r.ID] {
+			return fail(fmt.Errorf("infra topology error: duplicate resource id %q", r.ID))
+		}
+		idMap[r.ID] = true
+	}
+	for _, r := range resources {
+		for _, dep := range r.DependsOn {
+			if !idMap[dep] {
+				return fail(fmt.Errorf("infra topology error: resource %q depends on non-existent resource %q", r.ID, dep))
+			}
+		}
+	}
+
+	// 3. Assemble execution plan
+	plan := provider.Plan{
+		Actions: make([]provider.Action, len(resources)),
+	}
+	for i, r := range resources {
+		plan.Actions[i] = provider.Action{
+			Op:       provider.OpCreate,
+			Resource: r,
+			Reason:   "declared in infrastructure blueprint",
+		}
+	}
+
+	data, err := json.MarshalIndent(plan, "", "  ")
+	if err != nil {
+		return fail(fmt.Errorf("marshal infra plan: %w", err))
+	}
+	if err := os.WriteFile(planFile, data, 0o644); err != nil {
+		return fail(fmt.Errorf("write infra plan: %w", err))
+	}
+	fmt.Println("created " + planFile)
+
+	if fs != nil && (flagValue(fs, "plan") == "true" || flagProvided(fs, "plan")) {
+		fmt.Printf("Infrastructure Plan (%s, env=%s, region=%s):\n", providerName, env, region)
+		for _, act := range plan.Actions {
+			fmt.Printf("  + [%s] %s (%s)\n", act.Op, act.Resource.Kind, act.Resource.ID)
+			if len(act.Resource.DependsOn) > 0 {
+				fmt.Printf("      depends on: %s\n", strings.Join(act.Resource.DependsOn, ", "))
+			}
+		}
+		fmt.Printf("Plan: %d to add, 0 to change, 0 to destroy.\n", len(plan.Actions))
+	}
+
+	return kern.ExitCodeSuccess
+}
+
+// hasGoFiles reports whether dir contains non-test Go source files.
+func hasGoFiles(dir string) bool {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return false
+	}
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(e.Name(), ".go") && !strings.HasSuffix(e.Name(), "_test.go") {
+			return true
+		}
+	}
+	return false
 }

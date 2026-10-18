@@ -245,4 +245,3 @@ func TestMake_Service(t *testing.T) {
 		t.Errorf("expected BillingService interface and constructor, got: %s", content)
 	}
 }
-
