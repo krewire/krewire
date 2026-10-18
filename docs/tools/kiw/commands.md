@@ -44,10 +44,13 @@ Removes a package or plugin from the project.
 kiw remove twcss
 ```
 
-### `kiw generate --kind <kind> --name <name>`
-Generates code boilerplate (handlers, services, migrations, specs).
+### `kiw make <kind> <name>`
+Scaffolds code boilerplate (components, pages, handlers, migrations).
 ```bash
-kiw generate --kind handler --name CreateUser
+kiw make component Card
+kiw make page about
+kiw make handler CreateUser
+kiw make migration create_users_table
 ```
 
 ---

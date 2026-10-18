@@ -21,39 +21,39 @@ func setupTestRoot(t *testing.T) string {
 	return dir
 }
 
-func TestGenerate_Usage(t *testing.T) {
-	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
-	RegisterGenerate(fs)
+func TestMake_Usage(t *testing.T) {
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
 
 	// No arguments
-	code := RunGenerate(fs)
+	code := RunMake(fs)
 	if code != kern.ExitCodeUsage {
-		t.Errorf("RunGenerate() with no args = %v, want ExitCodeUsage", code)
+		t.Errorf("RunMake() with no args = %v, want ExitCodeUsage", code)
 	}
 
 	// Unknown kind
-	fsUnknown := flag.NewFlagSet("generate", flag.ContinueOnError)
-	RegisterGenerate(fsUnknown)
+	fsUnknown := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fsUnknown)
 	_ = fsUnknown.Parse([]string{"unknown_kind", "sample"})
-	code = RunGenerate(fsUnknown)
+	code = RunMake(fsUnknown)
 	if code != kern.ExitCodeUsage {
-		t.Errorf("RunGenerate() with unknown kind = %v, want ExitCodeUsage", code)
+		t.Errorf("RunMake() with unknown kind = %v, want ExitCodeUsage", code)
 	}
 }
 
-func TestGenerate_Component(t *testing.T) {
+func TestMake_Component(t *testing.T) {
 	root := setupTestRoot(t)
 	oldWd, _ := os.Getwd()
 	defer os.Chdir(oldWd)
 	_ = os.Chdir(root)
 
-	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
-	RegisterGenerate(fs)
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
 	_ = fs.Parse([]string{"component", "card-item"})
 
-	code := RunGenerate(fs)
+	code := RunMake(fs)
 	if code != kern.ExitCodeSuccess {
-		t.Fatalf("RunGenerate component failed with code %v", code)
+		t.Fatalf("RunMake component failed with code %v", code)
 	}
 
 	target := filepath.Join(root, "components", "CardItem.kiw")
@@ -67,27 +67,38 @@ func TestGenerate_Component(t *testing.T) {
 	}
 
 	// Duplicate component should fail
-	fsDup := flag.NewFlagSet("generate", flag.ContinueOnError)
-	RegisterGenerate(fsDup)
+	fsDup := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fsDup)
 	_ = fsDup.Parse([]string{"component", "CardItem"})
-	if code := RunGenerate(fsDup); code != kern.ExitCodeFailure {
+	if code := RunMake(fsDup); code != kern.ExitCodeFailure {
 		t.Errorf("duplicate component generation should fail, got code %v", code)
+	}
+
+	// Colon syntax: make:component Button
+	fsColon := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fsColon)
+	_ = fsColon.Parse([]string{"make:component", "button"})
+	if code := RunMake(fsColon); code != kern.ExitCodeSuccess {
+		t.Errorf("make:component button failed, got code %v", code)
+	}
+	if _, err := os.Stat(filepath.Join(root, "components", "Button.kiw")); err != nil {
+		t.Errorf("expected components/Button.kiw to exist: %v", err)
 	}
 }
 
-func TestGenerate_Page(t *testing.T) {
+func TestMake_Page(t *testing.T) {
 	root := setupTestRoot(t)
 	oldWd, _ := os.Getwd()
 	defer os.Chdir(oldWd)
 	_ = os.Chdir(root)
 
-	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
-	RegisterGenerate(fs)
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
 	_ = fs.Parse([]string{"page", "pricing"})
 
-	code := RunGenerate(fs)
+	code := RunMake(fs)
 	if code != kern.ExitCodeSuccess {
-		t.Fatalf("RunGenerate page failed with code %v", code)
+		t.Fatalf("RunMake page failed with code %v", code)
 	}
 
 	target := filepath.Join(root, "pages", "pricing.kiw")
@@ -101,19 +112,19 @@ func TestGenerate_Page(t *testing.T) {
 	}
 }
 
-func TestGenerate_Handler(t *testing.T) {
+func TestMake_Handler(t *testing.T) {
 	root := setupTestRoot(t)
 	oldWd, _ := os.Getwd()
 	defer os.Chdir(oldWd)
 	_ = os.Chdir(root)
 
-	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
-	RegisterGenerate(fs)
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
 	_ = fs.Parse([]string{"handler", "create-user"})
 
-	code := RunGenerate(fs)
+	code := RunMake(fs)
 	if code != kern.ExitCodeSuccess {
-		t.Fatalf("RunGenerate handler failed with code %v", code)
+		t.Fatalf("RunMake handler failed with code %v", code)
 	}
 
 	target := filepath.Join(root, "internal", "handlers", "create_user.go")
@@ -127,19 +138,19 @@ func TestGenerate_Handler(t *testing.T) {
 	}
 }
 
-func TestGenerate_Migration(t *testing.T) {
+func TestMake_Migration(t *testing.T) {
 	root := setupTestRoot(t)
 	oldWd, _ := os.Getwd()
 	defer os.Chdir(oldWd)
 	_ = os.Chdir(root)
 
-	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
-	RegisterGenerate(fs)
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
 	_ = fs.Parse([]string{"--kind", "migration", "--name", "create_teams"})
 
-	code := RunGenerate(fs)
+	code := RunMake(fs)
 	if code != kern.ExitCodeSuccess {
-		t.Fatalf("RunGenerate migration failed with code %v", code)
+		t.Fatalf("RunMake migration failed with code %v", code)
 	}
 
 	entries, err := os.ReadDir(filepath.Join(root, "migrations"))

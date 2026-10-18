@@ -12,29 +12,39 @@ import (
 	"github.com/krewire/krewire/packages/kern"
 )
 
-// RegisterGenerate registers flags for the generate command.
-func RegisterGenerate(fs *flag.FlagSet) {
+// RegisterMake registers flags for the make command.
+func RegisterMake(fs *flag.FlagSet) {
 	fs.String("kind", "", "generator kind: component, page, handler, migration")
 	fs.String("name", "", "name for the generated artifact")
 }
 
-// RunGenerate scaffolds new components, pages, handlers, or migrations.
-func RunGenerate(fs *flag.FlagSet) kern.ExitCode {
+// RunMake scaffolds new components, pages, handlers, or migrations.
+func RunMake(fs *flag.FlagSet) kern.ExitCode {
 	kind := flagValue(fs, "kind")
 	name := flagValue(fs, "name")
 
-	// Support positional arguments: kiw generate <kind> <name>
+	// Support positional arguments: kiw make <kind> <name>
 	args := fs.Args()
 	if kind == "" && len(args) > 0 {
 		kind = args[0]
 		args = args[1:]
+	}
+	// Support colon syntax e.g. "make:component" or "component:Card"
+	if strings.Contains(kind, ":") {
+		parts := strings.SplitN(kind, ":", 2)
+		if strings.ToLower(parts[0]) == "make" {
+			kind = parts[1]
+		} else if name == "" && parts[1] != "" {
+			kind = parts[0]
+			name = parts[1]
+		}
 	}
 	if name == "" && len(args) > 0 {
 		name = args[0]
 	}
 
 	if kind == "" || name == "" {
-		fmt.Fprintln(os.Stderr, "kiw generate: usage: kiw generate <kind> <name>")
+		fmt.Fprintln(os.Stderr, "kiw make: usage: kiw make <kind> <name>")
 		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration")
 		return kern.ExitCodeUsage
 	}
@@ -55,12 +65,12 @@ func RunGenerate(fs *flag.FlagSet) kern.ExitCode {
 	case "migration":
 		err = generateMigration(root, name)
 	default:
-		fmt.Fprintf(os.Stderr, "kiw generate: unknown kind %q — supported: component, page, handler, migration\n", kind)
+		fmt.Fprintf(os.Stderr, "kiw make: unknown kind %q — supported: component, page, handler, migration\n", kind)
 		return kern.ExitCodeUsage
 	}
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "kiw generate: "+err.Error())
+		fmt.Fprintln(os.Stderr, "kiw make: "+err.Error())
 		return kern.ExitCodeFailure
 	}
 	return kern.ExitCodeSuccess
