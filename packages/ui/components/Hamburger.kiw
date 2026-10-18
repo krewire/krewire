@@ -1,13 +1,13 @@
 <button
   type="button"
-  class="hamburger inline-flex items-center justify-center p-0 min-h-0 shrink-0 cursor-pointer select-none {class}"
+  class="hamburger inline-flex items-center justify-center p-0 min-h-0 shrink-0 cursor-pointer select-none {#if class}{class}{:else if Class}{Class}{/if}"
   style="display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; min-width: 2.25rem; min-height: 2.25rem; padding: 0; background: var(--bg, #FAF8F4); border: 2px solid var(--border, #0B1F3B); border-radius: 6px; box-shadow: 2px 2px 0px var(--border, #0B1F3B); cursor: pointer;"
-  {#if id}id="{id}"{/if}
-  aria-label="{#if label}{label}{:else}Toggle navigation{/if}"
-  aria-expanded="{#if expanded}{expanded}{:else}false{/if}"
-  {#if controls}aria-controls="{controls}"{/if}
-  {#if dataDrawerToggle}data-drawer-toggle="{dataDrawerToggle}"{/if}
-  {#if onClick}onclick="{onClick}"{/if}
+  {#if id}id="{id}"{:else if ID}id="{ID}"{/if}
+  aria-label="{#if label}{label}{:else if Label}{Label}{:else}Toggle navigation{/if}"
+  aria-expanded="{#if expanded}{expanded}{:else if Expanded}{Expanded}{:else}false{/if}"
+  {#if controls}aria-controls="{controls}"{:else if Controls}aria-controls="{Controls}"{/if}
+  {#if dataDrawerToggle}data-drawer-toggle="{dataDrawerToggle}"{:else if DataDrawerToggle}data-drawer-toggle="{DataDrawerToggle}"{:else if controls}data-drawer-toggle="{controls}"{:else if Controls}data-drawer-toggle="{Controls}"{/if}
+  onclick="{#if onClick}{onClick}{:else if OnClick}{OnClick}{:else}window.uiToggleDrawer && window.uiToggleDrawer(this, '{#if dataDrawerToggle}{dataDrawerToggle}{:else if DataDrawerToggle}{DataDrawerToggle}{:else if controls}{controls}{:else if Controls}{Controls}{/if}'){/if}"
   data-kiw-component="Hamburger">
   <span class="hamburger-box" aria-hidden="true" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; width: 1.125rem; height: 0.875rem; flex-shrink: 0;">
     <span class="hamburger-line line-1" style="display: block; width: 100%; height: 2px; min-height: 2px; background-color: var(--fg, #0B1F3B); border-radius: 1px;"></span>

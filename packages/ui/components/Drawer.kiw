@@ -1,48 +1,50 @@
 <div
-  id="{#if id}{id}{:else}drawer{/if}"
-  class="drawer drawer-{#if side}{side}{:else}right{/if} {class}"
+  id="{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}"
+  class="drawer drawer-{#if side}{side}{:else if Side}{Side}{:else}right{/if} {#if class}{class}{:else if Class}{Class}{/if}"
   role="dialog"
   aria-modal="true"
-  aria-label="{#if title}{title}{:else}Drawer Navigation{/if}"
+  aria-label="{#if title}{title}{:else if Title}{Title}{:else}Drawer Navigation{/if}"
   data-kiw-component="Drawer">
   
   <div class="drawer-panel">
-    {#if title || !noClose}
+    {#if title || Title || !noClose && !NoClose}
     <div class="drawer-head">
       <div class="drawer-title-area">
         {#if title}
         <h3 class="drawer-title">{title}</h3>
+        {:else if Title}
+        <h3 class="drawer-title">{Title}</h3>
         {/if}
       </div>
       <button
         type="button"
         class="drawer-close"
         aria-label="Close drawer"
-        data-drawer-close="{#if id}{id}{:else}drawer{/if}"
-        onclick="var c=window.uiDrawer||window.forgeDrawer;if(c){c.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');var b=document.getElementById('{#if id}{id}{:else}drawer{/if}-backdrop');if(b)b.classList.remove('backdrop-open');}">
+        data-drawer-close="{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}"
+        onclick="window.uiCloseDrawer ? window.uiCloseDrawer('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}') : (window.uiDrawer && window.uiDrawer.close('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}'))">
         ✕
       </button>
     </div>
     {/if}
 
     <div class="drawer-body">
-      {#if body}{body}{/if}
+      {#if body}{body}{:else if Body}{Body}{/if}
     </div>
 
-    {#if footer}
+    {#if footer || Footer}
     <div class="drawer-footer">
-      {footer}
+      {#if footer}{footer}{:else if Footer}{Footer}{/if}
     </div>
     {/if}
   </div>
 </div>
 
-{#if !noBackdrop}
+{#if !noBackdrop && !NoBackdrop}
 <div
-  id="{#if id}{id}{:else}drawer{/if}-backdrop"
-  class="drawer-backdrop {class}"
-  data-drawer-backdrop="{#if id}{id}{:else}drawer{/if}"
-  onclick="var c=window.uiDrawer||window.forgeDrawer;if(c){c.close('{#if id}{id}{:else}drawer{/if}')}else{var d=document.getElementById('{#if id}{id}{:else}drawer{/if}');if(d)d.classList.remove('drawer-open');this.classList.remove('backdrop-open');}"
+  id="{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}-backdrop"
+  class="drawer-backdrop {#if class}{class}{:else if Class}{Class}{/if}"
+  data-drawer-backdrop="{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}"
+  onclick="window.uiCloseDrawer ? window.uiCloseDrawer('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}') : (window.uiDrawer && window.uiDrawer.close('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}'))"
   aria-hidden="true"></div>
 {/if}
 

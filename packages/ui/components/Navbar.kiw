@@ -2,7 +2,7 @@
   <div class="container-site flex items-center justify-between gap-3 py-3">
     <div class="flex items-center gap-3 min-w-0">
       {#if showSidebarToggle}
-      <Hamburger ID="site-sidebar-toggle" Label="Open navigation" Controls="site-sidebar" Class="lg:hidden sidebar-toggle shrink-0" />
+      <Hamburger ID="site-sidebar-toggle" Label="Open navigation" Controls="site-sidebar" DataDrawerToggle="site-sidebar" Class="lg:hidden sidebar-toggle shrink-0" />
       {/if}
       <Brand {version} Badge={brandBadge} BadgeI18n={brandBadgeI18n} />
     </div>
