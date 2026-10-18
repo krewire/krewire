@@ -32,6 +32,7 @@ func RegisterBuild(fs *flag.FlagSet) {
 	fs.String("target", "ssg", "build target: ssg, book, or wasm (default ssg)")
 	fs.Bool("skip-deps", false, "skip executing build.depends_on commands")
 	fs.Bool("deps-only", false, "run only build.depends_on commands and skip Krewire build")
+	fs.Bool("bundle", false, "bundle all CSS and JS into assets/krewire.css and assets/krewire.js")
 }
 
 // RunBuild builds the current project's website. It supports both declarative
@@ -164,6 +165,9 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (kern.E
 			site.DeclareAsset(ap.Assets(root)...)
 		}
 	}
+	if flagValue(fs, "bundle") == "true" {
+		site.WithBundle(true)
+	}
 	created, err := site.Build(outDir)
 	if err != nil {
 		return fail(err), nil, nil
@@ -190,6 +194,13 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (kern.E
 // ssg.Config so they don't need to be repeated under ssg:.
 func buildSSGFromConfig(root string, cfg *config.Config, fs *flag.FlagSet) (kern.ExitCode, []string, []string) {
 	ssgCfg := cfg.ToSSGConfig()
+	if flagValue(fs, "bundle") == "true" {
+		if ssgCfg.AutoAssets == nil {
+			ssgCfg.AutoAssets = &ssg.AutoAssetConfig{}
+		}
+		trueVal := true
+		ssgCfg.AutoAssets.Bundle = &trueVal
+	}
 	output := firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output, config.DefaultOutput)
 	outDir := joinRoot(root, output, config.DefaultOutput)
 	slog.Info("building SSG site from krewire.yaml", "output", outDir)

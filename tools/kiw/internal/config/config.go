@@ -63,6 +63,8 @@ type Config struct {
 	// the web/ssg generator instead of mdbind. Top-level fields (Title,
 	// Author, Base, Output, Theme) are injected into the SSG config.
 	SSG *SSGConfig `yaml:"ssg"`
+	// AutoAssets configures asset injection and bundling at top-level.
+	AutoAssets *ssg.AutoAssetConfig `yaml:"auto_assets"`
 	// Wasm holds WASM build configuration (KWF-T4X9P).
 	Wasm WasmConfig `yaml:"wasm"`
 	// Runtime holds multi-runtime coordination settings (KWN-MRCN).
@@ -265,6 +267,10 @@ type SSGPageConfig struct {
 // Callers must check IsSSG() before calling this method.
 func (c *Config) ToSSGConfig() *ssg.Config {
 	s := c.SSG
+	autoAssets := s.AutoAssets
+	if autoAssets == nil {
+		autoAssets = c.AutoAssets
+	}
 	cfg := &ssg.Config{
 		Title:       c.Title,
 		Description: s.Description,
@@ -272,7 +278,7 @@ func (c *Config) ToSSGConfig() *ssg.Config {
 		Version:     c.Version,
 		Output:      c.Output,
 		Assets:      s.Assets,
-		AutoAssets:  s.AutoAssets,
+		AutoAssets:  autoAssets,
 	}
 	if c.Theme != nil {
 		cfg.Theme = &ssg.ThemeConfig{

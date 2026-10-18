@@ -29,6 +29,9 @@ type AutoAssetConfig struct {
 	// hatch for a project that needs a plugin stylesheet to load before or
 	// after a specific site asset without changing the framework.
 	Order map[string]AssetOrder `yaml:"order"`
+	// Bundle bundles all eligible CSS and JS assets into assets/krewire.css and
+	// assets/krewire.js, reducing requests to a single stylesheet and script.
+	Bundle *bool `yaml:"bundle"`
 }
 
 // jsInHead reports whether scripts are injected into <head>.
@@ -41,6 +44,11 @@ func (c *AutoAssetConfig) isEnabled() bool {
 	return c == nil || c.Enabled == nil || *c.Enabled
 }
 
+// isBundle reports whether asset bundling is enabled.
+func (c *AutoAssetConfig) isBundle() bool {
+	return c != nil && c.Bundle != nil && *c.Bundle
+}
+
 // autoAssets is the resolved injection state of a Site. Enabled defaults to
 // true, so New() sites inject automatically unless AutoAssets(false) opts out.
 type autoAssets struct {
@@ -49,6 +57,9 @@ type autoAssets struct {
 	// jsInHead injects scripts into <head> (default) so first-paint scripts
 	// such as theme bootstrapping still run before the body renders.
 	jsInHead bool
+	// bundle bundles all eligible CSS and JS into assets/krewire.css and
+	// assets/krewire.js.
+	bundle bool
 }
 
 // skips reports whether an asset is excluded from site-wide injection.
@@ -85,9 +96,22 @@ func (s *Site) AutoAssets(c *AutoAssetConfig) *Site {
 		enabled:  c.isEnabled(),
 		exclude:  append([]string(nil), c.Exclude...),
 		jsInHead: c.jsInHead(),
+		bundle:   c.isBundle(),
 	}
 	s.applyOrderOverrides(c.Order)
 	return s
+}
+
+// WithBundle configures whether all injected CSS and JS assets are bundled
+// into assets/krewire.css and assets/krewire.js.
+func (s *Site) WithBundle(bundle bool) *Site {
+	s.auto.bundle = bundle
+	return s
+}
+
+// Bundle reports whether asset bundling is enabled.
+func (s *Site) Bundle() bool {
+	return s.auto.bundle
 }
 
 // applyOrderOverrides applies configured layer/order pins onto recorded asset

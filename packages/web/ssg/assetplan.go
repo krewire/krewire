@@ -286,11 +286,9 @@ func (s *Site) plan() []resolvedAsset {
 	return out
 }
 
-// injectedPlan filters the resolved plan down to what injection emits: only
-// CSS and JS assets under assets/ (the prefix the emitted URL and written path
-// agree on), skipping non-injectable static assets (images, fonts, binary files),
-// page-scoped assets, and exclusions.
-func (s *Site) injectedPlan() []resolvedAsset {
+// rawInjectedPlan returns the unbundled list of assets eligible for injection,
+// ordered by layer and registration sequence.
+func (s *Site) rawInjectedPlan() []resolvedAsset {
 	var out []resolvedAsset
 	for _, a := range s.plan() {
 		if a.kind != AssetCSS && a.kind != AssetJS {
@@ -306,6 +304,44 @@ func (s *Site) injectedPlan() []resolvedAsset {
 			continue
 		}
 		out = append(out, a)
+	}
+	return out
+}
+
+// injectedPlan filters the resolved plan down to what injection emits: only
+// CSS and JS assets under assets/ (the prefix the emitted URL and written path
+// agree on), skipping non-injectable static assets (images, fonts, binary files),
+// page-scoped assets, and exclusions. When bundling is enabled, all CSS and JS
+// are collapsed into assets/krewire.css and assets/krewire.js.
+func (s *Site) injectedPlan() []resolvedAsset {
+	raw := s.rawInjectedPlan()
+	if !s.auto.bundle {
+		return raw
+	}
+	var hasCSS, hasJS bool
+	for _, a := range raw {
+		if a.kind == AssetCSS {
+			hasCSS = true
+		} else if a.kind == AssetJS {
+			hasJS = true
+		}
+	}
+	var out []resolvedAsset
+	if hasCSS {
+		out = append(out, resolvedAsset{
+			name:  "assets/krewire.css",
+			kind:  AssetCSS,
+			layer: LayerScoped,
+			url:   s.asset("assets/krewire.css"),
+		})
+	}
+	if hasJS {
+		out = append(out, resolvedAsset{
+			name:  "assets/krewire.js",
+			kind:  AssetJS,
+			layer: LayerVendor,
+			url:   s.asset("assets/krewire.js"),
+		})
 	}
 	return out
 }

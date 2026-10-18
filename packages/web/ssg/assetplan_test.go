@@ -1,7 +1,9 @@
 package ssg
 
 import (
+	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -309,5 +311,102 @@ func TestInjectedAssetsNeverInjectsStaticFiles(t *testing.T) {
 	}
 	if len(js) != 1 || !strings.Contains(js[0], "app.js") {
 		t.Errorf("expected only app.js in js, got: %v", js)
+	}
+}
+
+func TestBundleAssets_InjectedPlanReturnsBundles(t *testing.T) {
+	s := New().
+		WithBundle(true).
+		Asset("assets/tailwind.css", "/* tw */").
+		Asset("assets/forge.css", "/* forge */").
+		Asset("assets/app.js", "console.log(1);")
+
+	css, js := s.InjectedAssets()
+	if len(css) != 1 || css[0] != "/assets/krewire.css" {
+		t.Errorf("expected [/assets/krewire.css], got: %v", css)
+	}
+	if len(js) != 1 || js[0] != "/assets/krewire.js" {
+		t.Errorf("expected [/assets/krewire.js], got: %v", js)
+	}
+}
+
+func TestBundleAssets_BuildWritesBundledAndIndividualFiles(t *testing.T) {
+	outDir := t.TempDir()
+	s := New().
+		WithBundle(true).
+		Asset("assets/tailwind.css", "/* tw css */").
+		Asset("assets/forge.css", "/* forge css */").
+		Asset("assets/a.js", "var a = 1;").
+		Asset("assets/b.js", "var b = 2;").
+		Layout(Layout{
+			Name: "base",
+			Body: "<!DOCTYPE html><html><head><title>{{.Title}}</title></head><body>{{.Content}}</body></html>",
+		}).
+		Component(Component{Name: "home", Body: "<h1>Hello</h1>"}).
+		Page(Page{Path: "/", Layout: "base", Root: "home"})
+
+	created, err := s.Build(outDir)
+	if err != nil {
+		t.Fatalf("Build failed: %v", err)
+	}
+
+	// Verify both bundled and individual files are created
+	expectedFiles := []string{
+		"assets/krewire.css",
+		"assets/krewire.js",
+		"assets/tailwind.css",
+		"assets/forge.css",
+		"assets/a.js",
+		"assets/b.js",
+	}
+	for _, ef := range expectedFiles {
+		fullPath := filepath.Join(outDir, ef)
+		if _, err := os.Stat(fullPath); err != nil {
+			t.Errorf("expected file %s to exist: %v", ef, err)
+		}
+	}
+
+	// Check content of krewire.css: order matters (tailwind before forge)
+	cssBytes, err := os.ReadFile(filepath.Join(outDir, "assets/krewire.css"))
+	if err != nil {
+		t.Fatalf("failed to read krewire.css: %v", err)
+	}
+	cssStr := string(cssBytes)
+	twIdx := strings.Index(cssStr, "/* tw css */")
+	forgeIdx := strings.Index(cssStr, "/* forge css */")
+	if twIdx == -1 || forgeIdx == -1 || twIdx > forgeIdx {
+		t.Errorf("krewire.css does not contain assets in cascade order: %s", cssStr)
+	}
+
+	// Check content of krewire.js: separated properly
+	jsBytes, err := os.ReadFile(filepath.Join(outDir, "assets/krewire.js"))
+	if err != nil {
+		t.Fatalf("failed to read krewire.js: %v", err)
+	}
+	jsStr := string(jsBytes)
+	if !strings.Contains(jsStr, "var a = 1;") || !strings.Contains(jsStr, "var b = 2;") {
+		t.Errorf("krewire.js missing contents: %s", jsStr)
+	}
+
+	_ = created
+}
+
+func TestAutoAssetConfig_Bundle(t *testing.T) {
+	b := true
+	cfg := &AutoAssetConfig{
+		Bundle: &b,
+	}
+	s := New().AutoAssets(cfg)
+	if !s.Bundle() {
+		t.Errorf("expected s.Bundle() to be true")
+	}
+
+	bFalse := false
+	cfgFalse := &AutoAssetConfig{
+		Bundle: &bFalse,
+	}
+	s2 := New().AutoAssets(cfgFalse)
+	if s2.Bundle() {
+		t.Errorf("expected s2.Bundle() to be false")
 	}
 }

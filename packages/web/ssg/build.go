@@ -51,6 +51,11 @@ func (s *Site) Build(outDir string) ([]string, error) {
 
 	created = append(created, s.writeAssets(outDir)...)
 
+	// In bundle mode, re-run bundle generation after plugins may have emitted output
+	if s.auto.bundle {
+		s.writeBundleAssets(outDir)
+	}
+
 	return created, nil
 }
 
@@ -175,7 +180,84 @@ func (s *Site) writeAssets(outDir string) []string {
 			}
 		}
 	}
+	if s.auto.bundle {
+		created = append(created, s.writeBundleAssets(outDir)...)
+	}
 	return created
+}
+
+// writeBundleAssets concatenates all eligible CSS and JS assets in resolved plan order
+// into assets/krewire.css and assets/krewire.js.
+func (s *Site) writeBundleAssets(outDir string) []string {
+	var created []string
+	var cssBundle strings.Builder
+	var jsBundle strings.Builder
+
+	for _, a := range s.rawInjectedPlan() {
+		content := s.assetContent(a.name, outDir)
+		if strings.TrimSpace(content) == "" {
+			continue
+		}
+		switch a.kind {
+		case AssetCSS:
+			if cssBundle.Len() > 0 {
+				cssBundle.WriteString("\n\n")
+			}
+			cssBundle.WriteString("/* " + a.name + " */\n")
+			cssBundle.WriteString(content)
+		case AssetJS:
+			if jsBundle.Len() > 0 {
+				jsBundle.WriteString("\n\n;\n")
+			}
+			jsBundle.WriteString("/* " + a.name + " */\n")
+			jsBundle.WriteString(content)
+		}
+	}
+
+	if cssBundle.Len() > 0 {
+		rel := "assets/krewire.css"
+		out := filepath.Join(outDir, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(out), 0o755); err == nil {
+			if werr := os.WriteFile(out, []byte(cssBundle.String()), 0o644); werr == nil {
+				created = append(created, rel)
+			}
+		}
+	}
+	if jsBundle.Len() > 0 {
+		rel := "assets/krewire.js"
+		out := filepath.Join(outDir, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(out), 0o755); err == nil {
+			if werr := os.WriteFile(out, []byte(jsBundle.String()), 0o644); werr == nil {
+				created = append(created, rel)
+			}
+		}
+	}
+	return created
+}
+
+// assetContent retrieves the body of an asset for bundling, supporting generated
+// scoped styles and assets written to disk by external plugins.
+func (s *Site) assetContent(name, outDir string) string {
+	if name == "assets/style.css" {
+		collected := s.collectedCSS()
+		raw := s.assets[name]
+		if collected != "" && raw != "" {
+			return collected + "\n" + raw
+		}
+		if collected != "" {
+			return collected
+		}
+		return raw
+	}
+	if content, ok := s.assets[name]; ok && content != "" {
+		return content
+	}
+	if outDir != "" {
+		if b, err := os.ReadFile(filepath.Join(outDir, filepath.FromSlash(name))); err == nil {
+			return string(b)
+		}
+	}
+	return ""
 }
 
 // Handler returns an HTTP handler serving the site's pages and assets,
