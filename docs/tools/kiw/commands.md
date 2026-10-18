@@ -183,3 +183,23 @@ Bumps semver versions and coordinates multi-module releases.
 ```bash
 kiw release framework --bump minor --apply
 ```
+
+---
+
+## 6. Package & Plugin Commands (Opt-In)
+
+### `kiw add <package[@version]>`
+Installs a Go module or activates an opt-in ecosystem plugin (such as Tailwind CSS).
+- **Zero JS by Default**: Krewire projects default to pure Go with native CSS design tokens and zero external toolchains.
+- **Opt-In Technology**: Adding `twcss` configures the Tailwind plugin and auto-detects runners (standalone binary in `bin/tailwindcss`, Bun, PNPM, or npm/npx).
+```bash
+kiw add twcss@latest
+kiw add tailwindcss
+kiw add github.com/krewire/krewire@v0.1.0
+```
+
+### `kiw remove <package>`
+Uninstalls an external package or deactivates an opt-in plugin.
+```bash
+kiw remove twcss
+```
