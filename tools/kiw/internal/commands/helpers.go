@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/krewire/krewire/packages/kern"
@@ -22,6 +23,15 @@ func flagValue(fs *flag.FlagSet, name string) string {
 		return f.Value.String()
 	}
 	return ""
+}
+
+func flagInt(fs *flag.FlagSet, name string) int {
+	v := flagValue(fs, name)
+	if v == "" {
+		return 0
+	}
+	n, _ := strconv.Atoi(v)
+	return n
 }
 
 func commandError(err error) kern.ExitCode {

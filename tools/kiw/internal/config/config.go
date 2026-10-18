@@ -84,10 +84,32 @@ type Config struct {
 	Services []ServiceConfig `yaml:"services"`
 	// Infra holds cloud infrastructure configuration (KWF-B7N3D).
 	Infra *InfraConfig `yaml:"infra"`
+	// Gateway holds API gateway reverse proxy configuration (KWF-L5H2F).
+	Gateway *GatewayConfig `yaml:"gateway"`
 	// Scripts holds named shell commands runnable via `kiw run <task>`.
 	// Keys are task names, values are shell commands executed with `sh -c`
 	// (Unix) or `cmd /C` (Windows). Optional, zero-value nil means no tasks.
 	Scripts map[string]string `yaml:"scripts"`
+}
+
+// GatewayConfig holds API gateway configuration under the `gateway:` key (KWF-L5H2F).
+type GatewayConfig struct {
+	Port   int            `yaml:"port"`
+	Host   string         `yaml:"host"`
+	Routes []GatewayRoute `yaml:"routes"`
+}
+
+// GatewayRoute maps a path to a service or target URL.
+type GatewayRoute struct {
+	Path        string   `yaml:"path"`
+	Method      string   `yaml:"method"`
+	Service     string   `yaml:"service"`
+	TargetURL   string   `yaml:"target_url"`
+	Prefix      bool     `yaml:"prefix"`
+	StripPrefix bool     `yaml:"strip_prefix"`
+	Middleware  []string `yaml:"middleware"`
+	RateLimit   int      `yaml:"rate_limit"`
+	Timeout     string   `yaml:"timeout"`
 }
 
 // RuntimeConfig holds multi-runtime coordination settings under the `runtime:` key (KWN-MRCN).

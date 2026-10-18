@@ -10,28 +10,36 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/krewire/krewire/packages/cloud/service/registry"
 )
 
 // Route maps a path/method pair to a target service (FRK-SVC-020).
 type Route struct {
-	Path       string
-	Method     string
-	Service    string
-	Middleware []string
-	RateLimit  int
-	Auth       bool
+	Path        string        `json:"path"`
+	Method      string        `json:"method,omitempty"`
+	Service     string        `json:"service,omitempty"`
+	TargetURL   string        `json:"targetUrl,omitempty"`
+	Prefix      bool          `json:"prefix,omitempty"`
+	StripPrefix bool          `json:"stripPrefix,omitempty"`
+	Middleware  []string      `json:"middleware,omitempty"`
+	RateLimit   int           `json:"rateLimit,omitempty"`
+	Timeout     time.Duration `json:"timeout,omitempty"`
+	RetryCount  int           `json:"retryCount,omitempty"`
+	Auth        bool          `json:"auth,omitempty"`
 }
 
 // Gateway is the API gateway (FRK-SVC-020).
 type Gateway struct {
-	mu       sync.RWMutex
-	routes   []Route
-	registry registry.Registry
-	mws      map[string]Middleware
-	proxy    *httputil.ReverseProxy
+	mu         sync.RWMutex
+	routes     []Route
+	registry   registry.Registry
+	mws        map[string]Middleware
+	lbCounters map[string]*uint64
 }
 
 // Middleware is a function that wraps an http.Handler (FRK-SVC-021).
@@ -53,7 +61,8 @@ func WithMiddleware(name string, mw Middleware) Option {
 // New creates a gateway with the given options.
 func New(opts ...Option) *Gateway {
 	g := &Gateway{
-		mws: map[string]Middleware{},
+		mws:        map[string]Middleware{},
+		lbCounters: map[string]*uint64{},
 	}
 	for _, o := range opts {
 		o(g)
@@ -75,37 +84,105 @@ func (g *Gateway) Reload(routes []Route) {
 	g.routes = routes
 }
 
-// ServeHTTP implements http.Handler (FRK-SVC-020).
-func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// matchRoute searches for a route matching the request path and method.
+// Exact matches are evaluated before prefix matches.
+func (g *Gateway) matchRoute(path, method string) *Route {
 	g.mu.RLock()
 	routes := g.routes
 	g.mu.RUnlock()
 
-	var matched *Route
+	// 1. Try exact matches first
 	for i := range routes {
-		if routes[i].Path == r.URL.Path && (routes[i].Method == "" || routes[i].Method == r.Method) {
-			matched = &routes[i]
-			break
+		if !routes[i].Prefix && routes[i].Path == path {
+			if routes[i].Method == "" || routes[i].Method == method {
+				return &routes[i]
+			}
 		}
 	}
+
+	// 2. Try prefix matches
+	for i := range routes {
+		if routes[i].Prefix {
+			p := routes[i].Path
+			if strings.HasPrefix(path, p) {
+				if routes[i].Method == "" || routes[i].Method == method {
+					return &routes[i]
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// ServeHTTP implements http.Handler (FRK-SVC-020).
+func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	matched := g.matchRoute(r.URL.Path, r.Method)
 	if matched == nil {
 		writeProblem(w, http.StatusNotFound, "no route for "+r.URL.Path)
 		return
 	}
 
+	// Clone request so modifications like StripPrefix don't leak upstream
+	req := r.Clone(r.Context())
+	if matched.Prefix && matched.StripPrefix {
+		trimmed := strings.TrimPrefix(req.URL.Path, matched.Path)
+		if !strings.HasPrefix(trimmed, "/") {
+			trimmed = "/" + trimmed
+		}
+		req.URL.Path = trimmed
+	}
+
 	// Build middleware chain
 	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		g.proxyTo(w, r, matched.Service)
+		if matched.TargetURL != "" {
+			g.proxyDirect(w, r, matched.TargetURL)
+		} else {
+			g.proxyTo(w, r, matched.Service)
+		}
 	})
+
 	for i := len(matched.Middleware) - 1; i >= 0; i-- {
 		if mw, ok := g.mws[matched.Middleware[i]]; ok {
 			handler = mw(handler)
 		}
 	}
-	handler.ServeHTTP(w, r)
+	handler.ServeHTTP(w, req)
 }
 
-// proxyTo discovers the service and proxies the request (FRK-SVC-020).
+// nextIndex returns a round-robin index for the given service.
+func (g *Gateway) nextIndex(service string, count int) int {
+	if count <= 1 {
+		return 0
+	}
+	g.mu.Lock()
+	counter, ok := g.lbCounters[service]
+	if !ok {
+		var zero uint64
+		counter = &zero
+		g.lbCounters[service] = counter
+	}
+	g.mu.Unlock()
+
+	val := atomic.AddUint64(counter, 1)
+	return int((val - 1) % uint64(count))
+}
+
+// proxyDirect proxies the request to a fixed URL.
+func (g *Gateway) proxyDirect(w http.ResponseWriter, r *http.Request, targetURL string) {
+	u, err := url.Parse(schemeHostURL(targetURL))
+	if err != nil {
+		writeProblem(w, http.StatusBadGateway, "invalid target URL: "+targetURL)
+		return
+	}
+	proxy := httputil.NewSingleHostReverseProxy(u)
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		writeProblem(w, http.StatusBadGateway, "upstream error: "+err.Error())
+	}
+	proxy.ServeHTTP(w, r)
+}
+
+// proxyTo discovers the service and proxies the request with round-robin load balancing (FRK-SVC-020).
 func (g *Gateway) proxyTo(w http.ResponseWriter, r *http.Request, serviceName string) {
 	if g.registry == nil {
 		writeProblem(w, http.StatusBadGateway, "no registry configured")
@@ -116,7 +193,10 @@ func (g *Gateway) proxyTo(w http.ResponseWriter, r *http.Request, serviceName st
 		writeProblem(w, http.StatusBadGateway, "service "+serviceName+" unavailable")
 		return
 	}
-	target := eps[0].Address
+
+	idx := g.nextIndex(serviceName, len(eps))
+	target := eps[idx].Address
+
 	u, err := url.Parse(schemeHostURL(target))
 	if err != nil {
 		writeProblem(w, http.StatusBadGateway, "invalid upstream address")
