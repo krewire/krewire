@@ -314,6 +314,28 @@ func LoadFromDir(root string) (*Site, error) {
 		})
 	}
 
+	// Project root assets/ directory: load any static assets placed directly
+	// under assets/ (e.g. assets/tailwind.css) that are not already present
+	// from public/. This supports standalone assets while giving public/ precedence.
+	assetsDir := filepath.Join(root, "assets")
+	if st, err := os.Stat(assetsDir); err == nil && st.IsDir() {
+		_ = filepath.WalkDir(assetsDir, func(path string, d os.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return nil
+			}
+			rel, _ := filepath.Rel(root, path)
+			rel = filepath.ToSlash(rel)
+			if _, exists := site.AssetBody(rel); !exists {
+				b, err := os.ReadFile(path)
+				if err != nil {
+					return nil
+				}
+				site.Asset(rel, string(b))
+			}
+			return nil
+		})
+	}
+
 	// Theme assets for file-based: emit theme.css if krewire.yaml has theme.
 	// public/ files (loaded above) win over machine-generated assets at the
 	// same path (KWF-DF3PL FRK-FLS-040).

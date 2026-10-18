@@ -84,8 +84,11 @@ func normalizeLayerName(name string) string {
 type AssetKind uint8
 
 const (
+	// AssetStatic represents static assets (images, fonts, binary files)
+	// that are not automatically injected into HTML documents.
+	AssetStatic AssetKind = iota
 	// AssetCSS is a stylesheet, injected as <link rel="stylesheet">.
-	AssetCSS AssetKind = iota
+	AssetCSS
 	// AssetJS is a script, injected as <script src>.
 	AssetJS
 )
@@ -284,11 +287,15 @@ func (s *Site) plan() []resolvedAsset {
 }
 
 // injectedPlan filters the resolved plan down to what injection emits: only
-// names under assets/ (the prefix the emitted URL and written path agree on),
-// skipping page-scoped assets and exclusions.
+// CSS and JS assets under assets/ (the prefix the emitted URL and written path
+// agree on), skipping non-injectable static assets (images, fonts, binary files),
+// page-scoped assets, and exclusions.
 func (s *Site) injectedPlan() []resolvedAsset {
 	var out []resolvedAsset
 	for _, a := range s.plan() {
+		if a.kind != AssetCSS && a.kind != AssetJS {
+			continue
+		}
 		if !strings.HasPrefix(a.name, "assets/") {
 			continue
 		}
@@ -309,9 +316,10 @@ func (s *Site) injectedPlan() []resolvedAsset {
 // output styled identically, instead of duplicating the asset list.
 func (s *Site) InjectedAssets() (css, js []string) {
 	for _, a := range s.injectedPlan() {
-		if a.kind == AssetCSS {
+		switch a.kind {
+		case AssetCSS:
 			css = append(css, a.url)
-		} else {
+		case AssetJS:
 			js = append(js, a.url)
 		}
 	}
@@ -320,8 +328,11 @@ func (s *Site) InjectedAssets() (css, js []string) {
 
 // defaultMeta derives metadata for a name that is not a known builtin.
 func defaultMeta(name string) assetMeta {
-	m := assetMeta{kind: AssetCSS, layer: LayerComponent}
+	m := assetMeta{kind: AssetStatic, layer: LayerComponent}
 	switch strings.ToLower(path.Ext(name)) {
+	case ".css":
+		m.kind = AssetCSS
+		m.layer = LayerComponent
 	case ".js", ".mjs":
 		m.kind = AssetJS
 		m.layer = LayerVendor

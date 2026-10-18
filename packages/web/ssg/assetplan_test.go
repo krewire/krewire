@@ -279,3 +279,35 @@ func TestAssetLinksMatchesInjectedOrder(t *testing.T) {
 		}
 	}
 }
+
+// Static assets like images, fonts, icons, manifests must never be injected
+// into HTML documents as stylesheets or scripts.
+func TestInjectedAssetsNeverInjectsStaticFiles(t *testing.T) {
+	s := New().
+		Asset("assets/images/logo.png", "dummy-image-bytes").
+		Asset("assets/images/banner.jpg", "dummy-image-bytes").
+		Asset("assets/fonts/inter.woff2", "dummy-font-bytes").
+		Asset("assets/icons/favicon.ico", "dummy-icon-bytes").
+		Asset("assets/theme.css", "body{}").
+		Asset("assets/app.js", "console.log(1)")
+
+	css, js := s.InjectedAssets()
+	for _, c := range css {
+		if strings.HasSuffix(c, ".png") || strings.HasSuffix(c, ".jpg") ||
+			strings.HasSuffix(c, ".woff2") || strings.HasSuffix(c, ".ico") {
+			t.Errorf("static non-css file injected into css: %s", c)
+		}
+	}
+	for _, j := range js {
+		if strings.HasSuffix(j, ".png") || strings.HasSuffix(j, ".jpg") ||
+			strings.HasSuffix(j, ".woff2") || strings.HasSuffix(j, ".ico") {
+			t.Errorf("static non-js file injected into js: %s", j)
+		}
+	}
+	if len(css) != 1 || !strings.Contains(css[0], "theme.css") {
+		t.Errorf("expected only theme.css in css, got: %v", css)
+	}
+	if len(js) != 1 || !strings.Contains(js[0], "app.js") {
+		t.Errorf("expected only app.js in js, got: %v", js)
+	}
+}
