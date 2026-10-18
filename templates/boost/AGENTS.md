@@ -105,9 +105,32 @@ The `kiw` CLI is the unified entry point:
 | `kiw test` | Run `go test ./...` | all Go projects |
 | `kiw vet` | Run `go vet ./...` | all Go projects |
 | `kiw fmt` | Run `gofmt -l .` / format code | all Go projects |
+| `kiw make <kind> <name>` | Scaffold component, page, handler, migration, model, middleware, service | all |
+| `kiw dashboard` | Interactive dev dashboard, metrics & SSE telemetry (`:4000`) | all |
+| `kiw mcp [--stdio]` | Native Model Context Protocol (MCP) server for AI coding agents | all |
 | `kiw info` | Display project environment and kind | all |
 | `kiw version` | Display CLI and ecosystem version | all |
 | `kiw boost install` | Install Krewire Boost AI templates | all |
+
+## Native Agentic Integration: Model Context Protocol (MCP)
+
+Krewire projects feature native bidirectional Model Context Protocol (MCP) support for AI coding assistants (Antigravity, Cursor, Claude Desktop, OpenCode):
+
+- **stdio transport**: Connect local IDEs and desktop assistants directly with `kiw mcp --stdio`. Configured out of the box in `opencode.json` and `.cursor/mcp.json`.
+- **SSE / HTTP transport**: Access telemetry and tools over network streams via `kiw dashboard` at `http://127.0.0.1:4000/mcp/sse`.
+
+### MCP Resources
+- `krewire://project/info` — Project metadata, workload kind, Go runtime, and active services.
+- `krewire://project/routes` — Discovered `.kiw` pages, Markdown articles, and Go HTTP handlers.
+- `krewire://runtime/metrics` — Live memory allocation, system memory, goroutines, and GC stats.
+- `krewire://runtime/health` — Continuous uptime and health status probe.
+
+### MCP Tools
+- `kiw_inspect_project` — Read project configuration and ecosystem topology.
+- `kiw_list_routes` — Inspect full routing table.
+- `kiw_make_scaffold` — Execute verified Krewire generators for components, pages, handlers, models, middleware, and services.
+- `kiw_get_metrics` — Retrieve runtime memory telemetry.
+- `kiw_run_tests` — Run test suite (`go test ./...`) with structured outcome.
 
 ## Quality Gates
 

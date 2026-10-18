@@ -96,6 +96,7 @@ func managed() []string {
 	return []string{
 		"AGENTS.md",
 		"opencode.json",
+		".cursor/mcp.json",
 		".agents/agents",
 		".agents/commands",
 		".agents/skills",

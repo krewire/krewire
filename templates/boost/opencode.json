@@ -4,6 +4,12 @@
     "@capybearista/opencode-agents-loader"
   ],
   "default_agent": "builder",
+  "mcp": {
+    "krewire": {
+      "command": "kiw",
+      "args": ["mcp", "--stdio"]
+    }
+  },
   "permission": {
     "edit": "ask",
     "bash": {
