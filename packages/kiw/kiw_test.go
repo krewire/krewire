@@ -395,3 +395,76 @@ console.log("Ready");
 		t.Errorf("expected 1 script block, got %d", len(mod.Scripts))
 	}
 }
+
+func TestDesugar_IslandHydrationDirectives(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+		hydrate  string
+		comp     string
+	}{
+		{
+			name:     "client:load with props",
+			input:    `<Counter client:load initial=0 step=1 />`,
+			expected: `{{mount "Counter" "load" (dict "initial" 0 "step" 1)}}`,
+			hydrate:  "load",
+			comp:     "Counter",
+		},
+		{
+			name:     "client:idle with string prop",
+			input:    `<Search client:idle placeholder="Search docs..." />`,
+			expected: `{{mount "Search" "idle" (dict "placeholder" "Search docs...")}}`,
+			hydrate:  "idle",
+			comp:     "Search",
+		},
+		{
+			name:     "client:visible without props",
+			input:    `<Comments client:visible />`,
+			expected: `{{mount "Comments" "visible" (dict)}}`,
+			hydrate:  "visible",
+			comp:     "Comments",
+		},
+		{
+			name:     "explicit hydrate attribute",
+			input:    `<Analytics hydrate="idle" siteId="kw-100" />`,
+			expected: `{{mount "Analytics" "idle" (dict "siteId" "kw-100")}}`,
+			hydrate:  "idle",
+			comp:     "Analytics",
+		},
+		{
+			name:     "client:hydrate attribute",
+			input:    `<Widget client:hydrate="visible" active />`,
+			expected: `{{mount "Widget" "visible" (dict "active" true)}}`,
+			hydrate:  "visible",
+			comp:     "Widget",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := DesugarTemplate(tc.input)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if res != tc.expected {
+				t.Errorf("got %q, want %q", res, tc.expected)
+			}
+
+			mod, err := ParseKiw(tc.input)
+			if err != nil {
+				t.Fatalf("ParseKiw error: %v", err)
+			}
+			found := false
+			for _, c := range mod.Components {
+				if c.Name == tc.comp && c.Hydrate == tc.hydrate {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("expected component %q with hydrate %q in parsed components: %+v", tc.comp, tc.hydrate, mod.Components)
+			}
+		})
+	}
+}

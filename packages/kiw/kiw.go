@@ -29,6 +29,7 @@ var (
 	selfClosingCompRe = regexp.MustCompile(`(?s)<([A-Z][a-zA-Z0-9_]*)([^>]*?)\s*/>`)
 	openCompTagRe     = regexp.MustCompile(`<([A-Z][a-zA-Z0-9_]*)([^>]*)>`)
 	mustacheCompRe    = regexp.MustCompile(`{{\s*component\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
+	mustacheMountRe   = regexp.MustCompile(`{{\s*mount\s+"([^"]+)"\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
 	compAttrRe        = regexp.MustCompile("([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|\\{([^}]*)\\}|([^\\s\"'=<>`]+)))?")
 )
 
@@ -50,11 +51,13 @@ type ScriptBlock struct {
 }
 
 // ComponentCall records a parsed component invocation in a .kiw template,
-// whether written as {{component "Name" ...}} or <Name ... />.
+// whether written as {{component "Name" ...}}, {{mount "Name" "mode" ...}},
+// or <Name ... /> with optional hydration directives.
 type ComponentCall struct {
-	Name  string            `json:"name"`
-	Props map[string]string `json:"props,omitempty"`
-	Raw   string            `json:"raw"`
+	Name    string            `json:"name"`
+	Hydrate string            `json:"hydrate,omitempty"`
+	Props   map[string]string `json:"props,omitempty"`
+	Raw     string            `json:"raw"`
 }
 
 // KiwModule is the parsed result of a .kiw file.
@@ -129,6 +132,7 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 
 	var dictPairs []string
 	cleanAttr := attrStr
+	var hydrateMode string
 	if trimmedAttr != "" {
 		punned := punnedPropRe.FindAllStringSubmatch(attrStr, -1)
 		for _, pm := range punned {
@@ -155,6 +159,34 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 				continue
 			}
 			key := sm[1]
+
+			// Check for hydration directives (e.g. client:load, client:idle, client:visible, client:hydrate="load", hydrate="load")
+			switch key {
+			case "client:load":
+				hydrateMode = "load"
+				continue
+			case "client:idle":
+				hydrateMode = "idle"
+				continue
+			case "client:visible":
+				hydrateMode = "visible"
+				continue
+			case "client:hydrate", "hydrate":
+				v := ""
+				if len(sm) > 2 && sm[2] != "" {
+					v = sm[2]
+				} else if len(sm) > 3 && sm[3] != "" {
+					v = sm[3]
+				} else if len(sm) > 5 && sm[5] != "" {
+					v = sm[5]
+				}
+				if v == "" {
+					v = "load"
+				}
+				hydrateMode = v
+				continue
+			}
+
 			// boolean flag without explicit value (e.g. <Navbar ShowSidebarToggle />)
 			if (len(sm) < 3 || (sm[2] == "" && sm[3] == "" && sm[4] == "" && sm[5] == "")) && !strings.Contains(sm[0], "=") {
 				call.Props[key] = "true"
@@ -212,6 +244,14 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 		}
 		call.Props["Body"] = trimmedBody
 		dictPairs = append(dictPairs, fmt.Sprintf("%q %q", "Body", trimmedBody))
+	}
+
+	if hydrateMode != "" {
+		call.Hydrate = hydrateMode
+		if len(dictPairs) == 0 {
+			return fmt.Sprintf(`{{mount %q %q (dict)}}`, name, hydrateMode), call
+		}
+		return fmt.Sprintf(`{{mount %q %q (dict %s)}}`, name, hydrateMode, strings.Join(dictPairs, " ")), call
 	}
 
 	if len(dictPairs) == 0 {
@@ -432,7 +472,7 @@ func ParseKiw(src string) (*KiwModule, error) {
 	desugared, _ := DesugarTemplate(body)
 	body = desugared
 
-	// Extract all component invocations (both original {{component ...}} and desugared <Tag />)
+	// Extract all component invocations (both original {{component ...}}, {{mount ...}}, and desugared <Tag />)
 	nameSet := make(map[string]bool)
 	for _, match := range mustacheCompRe.FindAllStringSubmatch(body, -1) {
 		if len(match) < 2 {
@@ -442,6 +482,19 @@ func ParseKiw(src string) (*KiwModule, error) {
 		m.Components = append(m.Components, ComponentCall{
 			Name: compName,
 			Raw:  match[0],
+		})
+		nameSet[compName] = true
+	}
+	for _, match := range mustacheMountRe.FindAllStringSubmatch(body, -1) {
+		if len(match) < 3 {
+			continue
+		}
+		compName := match[1]
+		hydrate := match[2]
+		m.Components = append(m.Components, ComponentCall{
+			Name:    compName,
+			Hydrate: hydrate,
+			Raw:     match[0],
 		})
 		nameSet[compName] = true
 	}
