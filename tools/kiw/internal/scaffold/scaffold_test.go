@@ -550,3 +550,94 @@ func TestNew_SideBySideInLaravelProject(t *testing.T) {
 	assertFileContains(t, filepath.Join(laraDir, "worker", "krewire.yaml"), "name: worker")
 	assertFileContains(t, filepath.Join(laraDir, "worker", ".gitignore"), ".krewire")
 }
+
+func TestEquip_Worker(t *testing.T) {
+	dir := t.TempDir()
+	for name, content := range map[string]string{
+		"go.mod":       "module testworker\n\ngo 1.22\n",
+		"main.go":      kernelBody,
+		"krewire.yaml": "project:\n  name: testworker\n",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	created, err := Equip(EquipOptions{
+		Dir:     dir,
+		Name:    "testworker",
+		Module:  "testworker",
+		Variant: VariantWorker,
+	})
+	if err != nil {
+		t.Fatalf("Equip(VariantWorker) failed: %v", err)
+	}
+	if len(created) == 0 {
+		t.Fatal("expected files created")
+	}
+
+	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "kind: worker")
+	assertFileContains(t, filepath.Join(dir, "main.go"), "cloud/worker")
+	assertFileContains(t, filepath.Join(dir, "internal", "jobs", "jobs.go"), "ExampleJob")
+}
+
+func TestEquip_Service(t *testing.T) {
+	dir := t.TempDir()
+	for name, content := range map[string]string{
+		"go.mod":       "module testsvc\n\ngo 1.22\n",
+		"main.go":      kernelBody,
+		"krewire.yaml": "project:\n  name: testsvc\n",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	created, err := Equip(EquipOptions{
+		Dir:     dir,
+		Name:    "testsvc",
+		Module:  "testsvc",
+		Variant: VariantService,
+	})
+	if err != nil {
+		t.Fatalf("Equip(VariantService) failed: %v", err)
+	}
+	if len(created) == 0 {
+		t.Fatal("expected files created")
+	}
+
+	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "kind: service")
+	assertFileContains(t, filepath.Join(dir, "main.go"), "cloud/service/registry")
+	assertFileContains(t, filepath.Join(dir, "internal", "handler", "handler.go"), "func Health")
+}
+
+func TestEquip_Infra(t *testing.T) {
+	dir := t.TempDir()
+	for name, content := range map[string]string{
+		"krewire.yaml": "project:\n  name: testinfra\n",
+		"main.go":      kernelBody,
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	created, err := Equip(EquipOptions{
+		Dir:     dir,
+		Name:    "testinfra",
+		Variant: VariantInfra,
+	})
+	if err != nil {
+		t.Fatalf("Equip(VariantInfra) failed: %v", err)
+	}
+	if len(created) == 0 {
+		t.Fatal("expected files created")
+	}
+
+	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "kind: infra")
+	assertFileContains(t, filepath.Join(dir, "infra", "blueprint.go"), "DesiredResources")
+	// Verify placeholder main.go was removed for infra
+	if _, err := os.Stat(filepath.Join(dir, "main.go")); !os.IsNotExist(err) {
+		t.Errorf("expected placeholder main.go to be removed for infra variant")
+	}
+}

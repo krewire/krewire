@@ -44,6 +44,12 @@ const (
 	// VariantCLI is a command-line application on framework/tui + libs/core,
 	// mirroring the kiw devtool layout.
 	VariantCLI Variant = "cli"
+	// VariantWorker is a background job queue worker application (cloud/worker).
+	VariantWorker Variant = "worker"
+	// VariantService is a standalone microservice application (cloud/service).
+	VariantService Variant = "service"
+	// VariantInfra is a declarative cloud infrastructure blueprint project (cloud/infra).
+	VariantInfra Variant = "infra"
 	// VariantTemplate clones a remote starter repository into the target.
 	VariantTemplate Variant = "template"
 )
@@ -285,6 +291,12 @@ func Equip(opts EquipOptions) ([]string, error) {
 		return equipBook(opts)
 	case VariantCLI:
 		return equipCLI(opts)
+	case VariantWorker:
+		return equipWorker(opts)
+	case VariantService:
+		return equipService(opts)
+	case VariantInfra:
+		return equipInfra(opts)
 	case VariantTemplate:
 		return equipTemplate(opts)
 	default:

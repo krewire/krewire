@@ -18,6 +18,9 @@ func RegisterNew(fs *flag.FlagSet) {
 	fs.Bool("book", false, "equip a manuscript book (mdbind)")
 	fs.Bool("cli", false, "equip a command-line application (framework/tui)")
 	fs.Bool("app", false, "equip a fullstack monolith application")
+	fs.Bool("worker", false, "equip a background job queue worker (cloud/worker)")
+	fs.Bool("service", false, "equip a standalone microservice (cloud/service)")
+	fs.Bool("infra", false, "equip a cloud infrastructure blueprint (cloud/infra)")
 	fs.String("template", "", "bootstrap from a remote git template (git URL)")
 	fs.String("title", "", "site title for the site and book variants")
 }
@@ -26,7 +29,7 @@ func RegisterNew(fs *flag.FlagSet) {
 func RunNew(fs *flag.FlagSet) kern.ExitCode {
 	name := fs.Arg(0)
 	if name == "" {
-		fmt.Fprintln(os.Stderr, "usage: kiw new <project> [--site|--book|--cli|--app|--template <git-url>]")
+		fmt.Fprintln(os.Stderr, "usage: kiw new <project> [--site|--book|--cli|--app|--worker|--service|--infra|--template <git-url>]")
 		return kern.ExitCodeUsage
 	}
 
@@ -34,10 +37,13 @@ func RunNew(fs *flag.FlagSet) kern.ExitCode {
 	book := flagBool(fs, "book")
 	cli := flagBool(fs, "cli")
 	app := flagBool(fs, "app")
+	worker := flagBool(fs, "worker")
+	service := flagBool(fs, "service")
+	infra := flagBool(fs, "infra")
 	templateURL := flagValue(fs, "template")
 
-	if count := boolCount(site, book, cli, app, templateURL != ""); count > 1 {
-		fmt.Fprintln(os.Stderr, "kiw new: choose at most one variant: --site, --book, --cli, --app, or --template")
+	if count := boolCount(site, book, cli, app, worker, service, infra, templateURL != ""); count > 1 {
+		fmt.Fprintln(os.Stderr, "kiw new: choose at most one variant: --site, --book, --cli, --app, --worker, --service, --infra, or --template")
 		return kern.ExitCodeUsage
 	}
 
@@ -94,6 +100,23 @@ func RunNew(fs *flag.FlagSet) kern.ExitCode {
 		fw, libs := resolveVersions()
 		opts.FrameworkVersion = fw
 		opts.LibsVersion = libs
+	case worker:
+		opts.Variant = scaffold.VariantWorker
+		opts.Module = modulePath
+		opts.Name = name
+		fw, libs := resolveVersions()
+		opts.FrameworkVersion = fw
+		opts.LibsVersion = libs
+	case service:
+		opts.Variant = scaffold.VariantService
+		opts.Module = modulePath
+		opts.Name = name
+		fw, libs := resolveVersions()
+		opts.FrameworkVersion = fw
+		opts.LibsVersion = libs
+	case infra:
+		opts.Variant = scaffold.VariantInfra
+		opts.Name = name
 	case templateURL != "":
 		opts.Variant = scaffold.VariantTemplate
 	default: // app fullstack monolith scaffolding
