@@ -1,7 +1,9 @@
 package hmr
 
 import (
+	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -78,5 +80,58 @@ func TestEventLog_Truncation(t *testing.T) {
 	s.mu.RUnlock()
 	if count > 64 {
 		t.Fatalf("event log should be truncated to 64, got %d", count)
+	}
+}
+
+func TestServeHTTP_ClientScript(t *testing.T) {
+	s := NewServer()
+	req := httptest.NewRequest("GET", "/__krewire/hmr.js", nil)
+	w := httptest.NewRecorder()
+
+	s.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status code = %d, want %d", w.Code, http.StatusOK)
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/javascript" {
+		t.Errorf("content-type = %q, want application/javascript", ct)
+	}
+	if !strings.Contains(w.Body.String(), "/__krewire/hmr") {
+		t.Errorf("expected body to contain /__krewire/hmr SSE endpoint")
+	}
+}
+
+func TestHandler_InjectsHMRIntoHTML(t *testing.T) {
+	s := NewServer()
+
+	// Mock handler serving HTML
+	htmlHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write([]byte("<!DOCTYPE html><html><body><h1>Hello</h1></body></html>"))
+	})
+
+	wrapped := s.Handler(htmlHandler)
+
+	req := httptest.NewRequest("GET", "/index.html", nil)
+	w := httptest.NewRecorder()
+	wrapped.ServeHTTP(w, req)
+
+	body := w.Body.String()
+	if !strings.Contains(body, `<script src="/__krewire/hmr.js" defer></script></body>`) {
+		t.Errorf("expected script injected before closing body, got: %s", body)
+	}
+
+	// Mock handler serving non-HTML (e.g. CSS)
+	cssHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/css")
+		_, _ = w.Write([]byte("body { color: red; }"))
+	})
+	wrappedCSS := s.Handler(cssHandler)
+
+	reqCSS := httptest.NewRequest("GET", "/style.css", nil)
+	wCSS := httptest.NewRecorder()
+	wrappedCSS.ServeHTTP(wCSS, reqCSS)
+
+	if strings.Contains(wCSS.Body.String(), "hmr.js") {
+		t.Errorf("non-HTML response must not have HMR script injected")
 	}
 }

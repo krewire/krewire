@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/web/ssg/hmr"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
@@ -82,9 +83,10 @@ func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 
 	outDir := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
 
+	hmrServer := hmr.NewServer()
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: extensionlessFS(outDir),
+		Handler: hmrServer.Handler(extensionlessFS(outDir)),
 	}
 
 	serverErrCh := make(chan error, 1)
@@ -126,6 +128,7 @@ func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 				continue
 			}
 			slog.Info("site rebuilt successfully")
+			hmrServer.Broadcast(hmr.Event{Type: hmr.EventReload})
 		}
 	}
 }
