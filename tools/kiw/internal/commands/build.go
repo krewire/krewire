@@ -594,25 +594,9 @@ func buildAppBinary(root string, cfg *config.Config, fs *flag.FlagSet, kind shap
 	}
 	binPath := filepath.Join(binDir, name)
 
-	entry := "."
-	if !hasFile(root, "main.go") {
-		found := false
-		if entries, err := os.ReadDir(filepath.Join(root, "cmd")); err == nil {
-			for _, e := range entries {
-				if e.IsDir() {
-					entry = "./cmd/" + e.Name()
-					found = true
-					break
-				} else if e.Name() == "main.go" {
-					entry = "./cmd"
-					found = true
-					break
-				}
-			}
-		}
-		if !found && !hasGoFiles(root) {
-			return fail(fmt.Errorf("build %s: no main package found in root or cmd/", kind))
-		}
+	entry := resolveEntry(root)
+	if entry == "." && !hasFile(root, "main.go") && !hasGoFiles(root) {
+		return fail(fmt.Errorf("build %s: no main package found in root or cmd/", kind))
 	}
 
 	slog.Info("building binary", "kind", kind, "entry", entry, "output", binPath)

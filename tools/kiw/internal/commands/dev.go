@@ -50,10 +50,16 @@ func RunDev(fs *flag.FlagSet) kern.ExitCode {
 	}
 
 	switch res.Kind {
-	case shape.KindApp, shape.KindCLI:
+	case shape.KindApp, shape.KindCLI, shape.KindWorker, shape.KindService:
 		return devApp(rt, fs)
 	case shape.KindSite, shape.KindBook:
 		return devSite(rt, fs)
+	case shape.KindInfra:
+		fmt.Fprintln(os.Stderr, "kiw dev: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
+		return kern.ExitCodeUsage
+	case shape.KindKernel:
+		fmt.Fprintln(os.Stderr, "kiw dev: kernel project must be initialized first — run 'kiw init' to choose a starter")
+		return kern.ExitCodeUsage
 	default:
 		fmt.Fprintln(os.Stderr, "kiw dev: no project found — run 'kiw new <project>' first")
 		return kern.ExitCodeUsage
@@ -153,12 +159,13 @@ func devApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 		every = d
 	}
 
+	entry := resolveEntry(root)
 	build := func() error {
-		cmd := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, ".")
+		cmd := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, entry)
 		cmd.Dir = root
 		cmd.Stdout = os.Stderr
 		cmd.Stderr = os.Stderr
-		slog.Info("dev build")
+		slog.Info("dev build", "entry", entry)
 		return cmd.Run()
 	}
 	if err := build(); err != nil {

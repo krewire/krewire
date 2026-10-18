@@ -78,12 +78,18 @@ func RunRun(fs *flag.FlagSet) kern.ExitCode {
 	}
 
 	switch res.Kind {
-	case shape.KindApp:
+	case shape.KindApp, shape.KindWorker, shape.KindService:
 		return runApp(rt, fs)
 	case shape.KindCLI:
 		return runCLI(rt, fs)
 	case shape.KindSite, shape.KindBook:
 		fmt.Fprintf(os.Stderr, "kiw run: this is a %s project — build and serve it instead: 'kiw build' then 'kiw serve'\n", res.Kind)
+		return kern.ExitCodeUsage
+	case shape.KindInfra:
+		fmt.Fprintln(os.Stderr, "kiw run: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
+		return kern.ExitCodeUsage
+	case shape.KindKernel:
+		fmt.Fprintln(os.Stderr, "kiw run: kernel project must be initialized first — run 'kiw init' to choose a starter")
 		return kern.ExitCodeUsage
 	default:
 		fmt.Fprintln(os.Stderr, "kiw run: no app found — add a main.go building a web.App, or run 'kiw new <project>' first")
@@ -109,8 +115,9 @@ func runApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 	bin := filepath.Join(dir, "app")
 	addr := resolvedAddr(flagValue(fs, "addr"), rt.cfg)
 
-	slog.Info("building app", "bin", bin)
-	build := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, ".")
+	entry := resolveEntry(rt.root)
+	slog.Info("building app", "bin", bin, "entry", entry)
+	build := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, entry)
 	build.Dir = rt.root
 	build.Stdout = os.Stderr
 	build.Stderr = os.Stderr
@@ -145,8 +152,9 @@ func runCLI(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 
 	bin := filepath.Join(dir, "app")
 
-	slog.Info("building CLI", "bin", bin)
-	build := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, ".")
+	entry := resolveEntry(rt.root)
+	slog.Info("building CLI", "bin", bin, "entry", entry)
+	build := exec.Command("go", "build", "-ldflags="+buildinfo.LDFlags(false), "-o", bin, entry)
 	build.Dir = rt.root
 	build.Stdout = os.Stderr
 	build.Stderr = os.Stderr

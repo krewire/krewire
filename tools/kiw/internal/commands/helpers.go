@@ -189,6 +189,23 @@ func hasFile(root, path string) bool {
 	return err == nil && !info.IsDir()
 }
 
+// resolveEntry finds the main entry point package for go build / go run.
+func resolveEntry(root string) string {
+	if hasFile(root, "main.go") {
+		return "."
+	}
+	if entries, err := os.ReadDir(filepath.Join(root, "cmd")); err == nil {
+		for _, e := range entries {
+			if e.IsDir() {
+				return "./cmd/" + e.Name()
+			} else if e.Name() == "main.go" {
+				return "./cmd"
+			}
+		}
+	}
+	return "."
+}
+
 // moduleName returns the last path element of the module declared in root's
 // go.mod.
 func moduleName(root string) string {
