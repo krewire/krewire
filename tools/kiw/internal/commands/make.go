@@ -14,11 +14,11 @@ import (
 
 // RegisterMake registers flags for the make command.
 func RegisterMake(fs *flag.FlagSet) {
-	fs.String("kind", "", "generator kind: component, page, handler, migration")
+	fs.String("kind", "", "generator kind: component, page, handler, migration, model, middleware, service")
 	fs.String("name", "", "name for the generated artifact")
 }
 
-// RunMake scaffolds new components, pages, handlers, or migrations.
+// RunMake scaffolds new components, pages, handlers, migrations, models, middleware, or services.
 func RunMake(fs *flag.FlagSet) kern.ExitCode {
 	kind := flagValue(fs, "kind")
 	name := flagValue(fs, "name")
@@ -45,7 +45,7 @@ func RunMake(fs *flag.FlagSet) kern.ExitCode {
 
 	if kind == "" || name == "" {
 		fmt.Fprintln(os.Stderr, "kiw make: usage: kiw make <kind> <name>")
-		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration")
+		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration, model, middleware, service")
 		return kern.ExitCodeUsage
 	}
 
@@ -64,8 +64,14 @@ func RunMake(fs *flag.FlagSet) kern.ExitCode {
 		err = generateHandler(root, name)
 	case "migration":
 		err = generateMigration(root, name)
+	case "model":
+		err = generateModel(root, name)
+	case "middleware":
+		err = generateMiddleware(root, name)
+	case "service":
+		err = generateService(root, name)
 	default:
-		fmt.Fprintf(os.Stderr, "kiw make: unknown kind %q — supported: component, page, handler, migration\n", kind)
+		fmt.Fprintf(os.Stderr, "kiw make: unknown kind %q — supported: component, page, handler, migration, model, middleware, service\n", kind)
 		return kern.ExitCodeUsage
 	}
 
@@ -221,6 +227,145 @@ func generateMigration(root, name string) error {
 		return err
 	}
 	fmt.Printf("created migrations/%s\n", fileName)
+	return nil
+}
+
+func generateModel(root, name string) error {
+	name = strings.TrimSuffix(name, ".go")
+	pascal := toPascal(name)
+	slug := toSlug(name)
+
+	destDir := filepath.Join(root, "internal", "models")
+	if hasDir(root, "models") {
+		destDir = filepath.Join(root, "models")
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return err
+	}
+
+	fileName := strings.ReplaceAll(slug, "-", "_") + ".go"
+	target := filepath.Join(destDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		rel, _ := filepath.Rel(root, target)
+		return fmt.Errorf("model already exists at %s", rel)
+	}
+
+	content := fmt.Sprintf(`package models
+
+import (
+	"time"
+)
+
+// %s represents the %s domain entity.
+type %s struct {
+	ID        int64     `+"`"+`json:"id" db:"id"`+"`"+`
+	CreatedAt time.Time `+"`"+`json:"created_at" db:"created_at"`+"`"+`
+	UpdatedAt time.Time `+"`"+`json:"updated_at" db:"updated_at"`+"`"+`
+}
+`, pascal, pascal, pascal)
+
+	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(root, target)
+	fmt.Printf("created %s\n", filepath.ToSlash(rel))
+	return nil
+}
+
+func generateMiddleware(root, name string) error {
+	name = strings.TrimSuffix(name, ".go")
+	pascal := toPascal(name)
+	slug := toSlug(name)
+
+	destDir := filepath.Join(root, "internal", "middleware")
+	if hasDir(root, "middleware") {
+		destDir = filepath.Join(root, "middleware")
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return err
+	}
+
+	fileName := strings.ReplaceAll(slug, "-", "_") + ".go"
+	target := filepath.Join(destDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		rel, _ := filepath.Rel(root, target)
+		return fmt.Errorf("middleware already exists at %s", rel)
+	}
+
+	content := fmt.Sprintf(`package middleware
+
+import (
+	"net/http"
+)
+
+// %s is an HTTP middleware that wraps the next handler.
+func %s(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Pre-handler logic
+		next.ServeHTTP(w, r)
+		// Post-handler logic
+	})
+}
+`, pascal, pascal)
+
+	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(root, target)
+	fmt.Printf("created %s\n", filepath.ToSlash(rel))
+	return nil
+}
+
+func generateService(root, name string) error {
+	name = strings.TrimSuffix(name, ".go")
+	pascal := toPascal(name)
+	slug := toSlug(name)
+	lowerFirst := strings.ToLower(string(pascal[0])) + pascal[1:]
+
+	destDir := filepath.Join(root, "internal", "services")
+	if hasDir(root, "services") {
+		destDir = filepath.Join(root, "services")
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return err
+	}
+
+	fileName := strings.ReplaceAll(slug, "-", "_") + ".go"
+	target := filepath.Join(destDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		rel, _ := filepath.Rel(root, target)
+		return fmt.Errorf("service already exists at %s", rel)
+	}
+
+	content := fmt.Sprintf(`package services
+
+import (
+	"context"
+)
+
+// %sService defines business operations for %s.
+type %sService interface {
+	Execute(ctx context.Context) error
+}
+
+type %sService struct {
+}
+
+// New%sService constructs a new %sService instance.
+func New%sService() %sService {
+	return &%sService{}
+}
+
+func (s *%sService) Execute(ctx context.Context) error {
+	return nil
+}
+`, pascal, pascal, pascal, lowerFirst, pascal, pascal, pascal, pascal, lowerFirst, lowerFirst)
+
+	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(root, target)
+	fmt.Printf("created %s\n", filepath.ToSlash(rel))
 	return nil
 }
 

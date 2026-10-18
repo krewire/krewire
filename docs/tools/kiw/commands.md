@@ -45,12 +45,15 @@ kiw remove twcss
 ```
 
 ### `kiw make <kind> <name>`
-Scaffolds code boilerplate (components, pages, handlers, migrations).
+Scaffolds code boilerplate (components, pages, handlers, migrations, models, middleware, services).
 ```bash
 kiw make component Card
 kiw make page about
 kiw make handler CreateUser
 kiw make migration create_users_table
+kiw make model Account
+kiw make middleware Auth
+kiw make service Billing
 ```
 
 ---

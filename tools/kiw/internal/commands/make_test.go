@@ -167,3 +167,82 @@ func TestMake_Migration(t *testing.T) {
 		t.Errorf("expected SQL migration markers in: %s", content)
 	}
 }
+
+func TestMake_Model(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"model", "account"})
+
+	code := RunMake(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("RunMake model failed with code %v", code)
+	}
+
+	target := filepath.Join(root, "internal", "models", "account.go")
+	b, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("expected internal/models/account.go to exist: %v", err)
+	}
+	content := string(b)
+	if !strings.Contains(content, "type Account struct") || !strings.Contains(content, `json:"created_at"`) {
+		t.Errorf("expected Account struct with timestamps, got: %s", content)
+	}
+}
+
+func TestMake_Middleware(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"middleware", "auth"})
+
+	code := RunMake(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("RunMake middleware failed with code %v", code)
+	}
+
+	target := filepath.Join(root, "internal", "middleware", "auth.go")
+	b, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("expected internal/middleware/auth.go to exist: %v", err)
+	}
+	content := string(b)
+	if !strings.Contains(content, "func Auth(next http.Handler) http.Handler") {
+		t.Errorf("expected Auth middleware function, got: %s", content)
+	}
+}
+
+func TestMake_Service(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"service", "billing"})
+
+	code := RunMake(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("RunMake service failed with code %v", code)
+	}
+
+	target := filepath.Join(root, "internal", "services", "billing.go")
+	b, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("expected internal/services/billing.go to exist: %v", err)
+	}
+	content := string(b)
+	if !strings.Contains(content, "type BillingService interface") || !strings.Contains(content, "NewBillingService()") {
+		t.Errorf("expected BillingService interface and constructor, got: %s", content)
+	}
+}
+
