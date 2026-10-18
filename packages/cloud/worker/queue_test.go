@@ -221,6 +221,13 @@ func TestInMemoryBackend_NoExternalDeps_EndToEnd(t *testing.T) {
 	if q.DLQ()[0].ID == "mutated" {
 		t.Fatal("DLQ snapshot is not a copy")
 	}
+
+	if err := q.ClearDLQ(context.Background()); err != nil {
+		t.Fatalf("ClearDLQ failed: %v", err)
+	}
+	if len(q.DLQ()) != 0 {
+		t.Fatalf("DLQ not empty after clear: %+v", q.DLQ())
+	}
 }
 
 func mustNoErr(t *testing.T, err error) {

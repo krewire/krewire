@@ -149,6 +149,13 @@ func TestKVQueue_RetryAndDLQ(t *testing.T) {
 	if dlq[0].ID != id {
 		t.Fatalf("expected DLQ job ID %s, got %s", id, dlq[0].ID)
 	}
+
+	if err := q.ClearDLQ(ctx); err != nil {
+		t.Fatalf("ClearDLQ failed: %v", err)
+	}
+	if len(q.DLQ()) != 0 {
+		t.Fatalf("expected 0 dead letters after ClearDLQ, got %d", len(q.DLQ()))
+	}
 }
 
 func TestKVQueue_RunnerIntegration(t *testing.T) {

@@ -21,6 +21,8 @@ func TestMakeArtifact(t *testing.T) {
 		{"model", "Account", filepath.Join("internal", "models", "account.go")},
 		{"middleware", "Auth", filepath.Join("internal", "middleware", "auth.go")},
 		{"service", "Payment", filepath.Join("internal", "services", "payment.go")},
+		{"job", "EmailDelivery", filepath.Join("internal", "jobs", "email_delivery_job.go")},
+		{"worker", "ReportExport", filepath.Join("internal", "jobs", "report_export_job.go")},
 	}
 
 	for _, tc := range tests {

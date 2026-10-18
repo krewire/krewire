@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -19,8 +20,8 @@ import (
 // RegisterWorker registers flags for the worker command.
 func RegisterWorker(fs *flag.FlagSet) {
 	fs.String("queue", "memory", "queue backend: memory, file, or kv (default memory)")
-	fs.Int("concurrency", 1, "number of concurrent workers")
-	fs.String("dlq", "", "inspect DLQ: list")
+	fs.Int("concurrency", 0, "number of concurrent workers (default: config or GOMAXPROCS)")
+	fs.String("dlq", "", "inspect or manage DLQ: list, clear")
 }
 
 // RunWorker starts background workers for the current project (KWF-L5H2F FRK-SVC-060/061).
@@ -38,8 +39,11 @@ func RunWorker(fs *flag.FlagSet) kern.ExitCode {
 		return fail(err)
 	}
 
-	if cfg.Kind() != string(kern.KindWorker) {
-		fmt.Fprintf(os.Stderr, "kiw worker: project kind is %q, not 'worker' — add 'project.kind: worker' to krewire.yaml\n", cfg.Kind())
+	kind := cfg.Kind()
+	isWorkerProject := kind == string(kern.KindWorker)
+	isSupportedKind := kind == string(kern.KindApp) || kind == string(kern.KindService) || isWorkerProject
+	if !isSupportedKind || (!isWorkerProject && cfg.Worker == nil) {
+		fmt.Fprintf(os.Stderr, "kiw worker: project kind %q does not support worker without 'worker:' configuration in krewire.yaml\n", kind)
 		return kern.ExitCodeUsage
 	}
 
@@ -70,15 +74,40 @@ func RunWorker(fs *flag.FlagSet) kern.ExitCode {
 		return runDLQ(ctx, q, dlqCmd)
 	}
 
-	slog.Info("worker started", "backend", queueBackend, "concurrency", flagValue(fs, "concurrency"))
+	concurrency := flagInt(fs, "concurrency")
+	if concurrency <= 0 && cfg.Worker != nil && cfg.Worker.Concurrency > 0 {
+		concurrency = cfg.Worker.Concurrency
+	}
 
-	// Run queue processor until signal
-	<-ctx.Done()
-	slog.Info("worker shutting down")
-	return kern.ExitCodeSuccess
+	var opts []worker.RunnerOption
+	if concurrency > 0 {
+		opts = append(opts, worker.WithConcurrency(concurrency))
+	}
+	runner := worker.NewRunner(q, opts...)
+
+	slog.Info("worker runner started", "backend", queueBackend, "concurrency", concurrency)
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- runner.Run(ctx)
+	}()
+
+	select {
+	case <-ctx.Done():
+		slog.Info("worker shutting down")
+		runner.Stop()
+		<-errCh
+		return kern.ExitCodeSuccess
+	case err := <-errCh:
+		if err != nil && !errors.Is(err, context.Canceled) {
+			slog.Error("worker runner error", "error", err)
+			return kern.ExitCodeFailure
+		}
+		return kern.ExitCodeSuccess
+	}
 }
 
-// runDLQ handles DLQ inspection commands (KWF-L5H2F FRK-SVC-062).
+// runDLQ handles DLQ inspection and management commands (KWF-L5H2F FRK-SVC-062).
 func runDLQ(ctx context.Context, q worker.Queue, cmd string) kern.ExitCode {
 	switch cmd {
 	case "list":
@@ -92,8 +121,15 @@ func runDLQ(ctx context.Context, q worker.Queue, cmd string) kern.ExitCode {
 			fmt.Printf(" [%d] ID: %s | Attempts: %d | Error: %v | At: %s\n", i+1, dl.ID, dl.Attempts, dl.Err, dl.At.Format("2006-01-02 15:04:05"))
 		}
 		return kern.ExitCodeSuccess
+	case "clear":
+		if err := q.ClearDLQ(ctx); err != nil {
+			fmt.Fprintf(os.Stderr, "kiw worker dlq: failed to clear DLQ: %v\n", err)
+			return kern.ExitCodeFailure
+		}
+		fmt.Println("DLQ cleared successfully")
+		return kern.ExitCodeSuccess
 	default:
-		fmt.Fprintf(os.Stderr, "kiw worker dlq: unknown sub-command %q (supported: list)\n", cmd)
+		fmt.Fprintf(os.Stderr, "kiw worker dlq: unknown sub-command %q (supported: list, clear)\n", cmd)
 		return kern.ExitCodeUsage
 	}
 }

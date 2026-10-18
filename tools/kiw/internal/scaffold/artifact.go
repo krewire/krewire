@@ -31,8 +31,10 @@ func MakeArtifact(root, kind, name string) error {
 		return generateMiddleware(root, name)
 	case "service":
 		return generateService(root, name)
+	case "job", "worker":
+		return generateJob(root, name)
 	default:
-		return fmt.Errorf("%w %q — supported: component, page, handler, migration, model, middleware, service", ErrUnknownKind, kind)
+		return fmt.Errorf("%w %q — supported: component, page, handler, migration, model, middleware, service, job", ErrUnknownKind, kind)
 	}
 }
 
@@ -314,6 +316,62 @@ func (s *%sService) Execute(ctx context.Context) error {
 	return nil
 }
 `, pascal, pascal, pascal, lowerFirst, pascal, pascal, pascal, pascal, lowerFirst, lowerFirst)
+
+	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(root, target)
+	fmt.Printf("created %s\n", filepath.ToSlash(rel))
+	return nil
+}
+
+func generateJob(root, name string) error {
+	name = strings.TrimSuffix(name, ".go")
+	name = strings.TrimSuffix(name, "Job")
+	name = strings.TrimSuffix(name, "job")
+	pascal := toPascal(name)
+	slug := toSlug(name)
+
+	destDir := filepath.Join(root, "internal", "jobs")
+	if hasDir(root, "jobs") {
+		destDir = filepath.Join(root, "jobs")
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return err
+	}
+
+	fileName := strings.ReplaceAll(slug, "-", "_") + "_job.go"
+	target := filepath.Join(destDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		rel, _ := filepath.Rel(root, target)
+		return fmt.Errorf("job already exists at %s", filepath.ToSlash(rel))
+	}
+
+	content := fmt.Sprintf(`package jobs
+
+import (
+	"context"
+	"log/slog"
+)
+
+// %sJob represents a background task.
+type %sJob struct {
+	Payload string `+"`"+`json:"payload"`+"`"+`
+}
+
+// New%sJob creates a new %sJob instance.
+func New%sJob(payload string) *%sJob {
+	return &%sJob{
+		Payload: payload,
+	}
+}
+
+// Run executes the background job.
+func (j *%sJob) Run(ctx context.Context) error {
+	slog.Info("executing job", "job", "%sJob", "payload", j.Payload)
+	return nil
+}
+`, pascal, pascal, pascal, pascal, pascal, pascal, pascal, pascal, pascal)
 
 	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
 		return err

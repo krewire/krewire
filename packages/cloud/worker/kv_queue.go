@@ -416,6 +416,18 @@ func (q *KVQueue) DLQ() []DeadLetter {
 	return out
 }
 
+// ClearDLQ removes all dead-lettered tasks from persistent storage.
+func (q *KVQueue) ClearDLQ(ctx context.Context) error {
+	keys, err := q.kv.List(ctx, "worker/dlq/")
+	if err != nil {
+		return err
+	}
+	for _, k := range keys {
+		_ = q.kv.Delete(ctx, k)
+	}
+	return nil
+}
+
 func (q *KVQueue) popReady(now time.Time) *Task {
 	best := -1
 	for i, t := range q.pending {

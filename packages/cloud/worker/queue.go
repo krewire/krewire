@@ -59,6 +59,8 @@ type Queue interface {
 	Nack(ctx context.Context, task *Task) error
 	// DLQ returns a snapshot of dead-lettered tasks, oldest first.
 	DLQ() []DeadLetter
+	// ClearDLQ empties the dead-letter queue.
+	ClearDLQ(ctx context.Context) error
 }
 
 // ErrUnknownTask is returned by Ack and Nack when the task was already
@@ -223,6 +225,14 @@ func (q *InMemoryQueue) DLQ() []DeadLetter {
 	out := make([]DeadLetter, len(q.dlq))
 	copy(out, q.dlq)
 	return out
+}
+
+// ClearDLQ implements Queue, removing all dead letters.
+func (q *InMemoryQueue) ClearDLQ(_ context.Context) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.dlq = nil
+	return nil
 }
 
 func (q *InMemoryQueue) popReady(now time.Time) *Task {
