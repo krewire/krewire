@@ -35,7 +35,6 @@ func TestRunBoostInstallFresh(t *testing.T) {
 	}
 }
 
-
 func TestRunBoostInstallConflictDeclines(t *testing.T) {
 	target := t.TempDir()
 	if err := os.WriteFile(filepath.Join(target, "AGENTS.md"), []byte("mine"), 0o644); err != nil {
