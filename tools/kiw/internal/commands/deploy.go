@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -9,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/krewire/krewire/packages/cloud/deploy"
 	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
@@ -21,7 +23,7 @@ var pagesBranches = []string{"gh-deploy", "gh-pages"}
 
 // RegisterDeploy registers flags for the deploy command.
 func RegisterDeploy(fs *flag.FlagSet) {
-	fs.String("target", "binary", "deploy target: binary, gh-pages, or infra")
+	fs.String("target", "binary", "deploy target: binary, systemd, gh-pages, or infra")
 	fs.String("remote", "origin", "git remote to publish the pages branch to")
 	fs.String("branch", "", "pages branch to publish (default: existing gh-deploy or gh-pages, else gh-pages)")
 	fs.Bool("dry-run", false, "stage dist/ but skip publishing and tests")
@@ -30,6 +32,11 @@ func RegisterDeploy(fs *flag.FlagSet) {
 	fs.Bool("auto-approve", false, "infra: skip confirmation prompt")
 	fs.Bool("destroy", false, "infra: tear down infrastructure")
 	fs.String("env", "", "infra: target environment (local, production, testing)")
+	fs.String("user", "www-data", "systemd: user to run service as")
+	fs.String("group", "www-data", "systemd: group to run service as")
+	fs.String("exec-start", "", "systemd: custom ExecStart path (default: /usr/local/bin/<service>)")
+	fs.String("working-dir", "", "systemd: custom WorkingDirectory (default: /var/www/<service>)")
+	fs.String("restart", "always", "systemd: restart policy (always, on-failure, no)")
 }
 
 // RunDeploy validates the project then stages a deployable artifact in
@@ -40,9 +47,9 @@ func RegisterDeploy(fs *flag.FlagSet) {
 func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
 	target := flagValue(fs, "target")
 	switch target {
-	case "binary", "gh-pages", "infra":
+	case "binary", "systemd", "gh-pages", "infra":
 	default:
-		fmt.Fprintf(os.Stderr, "kiw deploy: unknown target %q — supported: binary, gh-pages, infra\n", target)
+		fmt.Fprintf(os.Stderr, "kiw deploy: unknown target %q — supported: binary, systemd, gh-pages, infra\n", target)
 		return kern.ExitCodeUsage
 	}
 	dryRun := flagBool(fs, "dry-run")
@@ -82,9 +89,48 @@ func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
 	}
 	slog.Info("staging deploy artifacts", "dist", dist)
 
-	if (res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService) && target == "binary" {
+	if (res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService) && (target == "binary" || target == "systemd") {
 		if code := buildBinary(root, dist); code != kern.ExitCodeSuccess {
 			return code
+		}
+		name := moduleName(root)
+		binPath := filepath.Join(dist, name)
+
+		if target == "binary" {
+			if d, err := deploy.Get(deploy.TargetBinary); err == nil {
+				_, _ = d.Deploy(context.Background(), deploy.Options{
+					Root:        root,
+					ArtifactDir: dist,
+					BinaryPath:  binPath,
+					ServiceName: name,
+					DryRun:      dryRun,
+				})
+			}
+		} else if target == "systemd" {
+			if d, err := deploy.Get(deploy.TargetSystemd); err == nil {
+				user := firstNonEmpty(flagValue(fs, "user"), "www-data")
+				group := firstNonEmpty(flagValue(fs, "group"), "www-data")
+				execStart := flagValue(fs, "exec-start")
+				workingDir := flagValue(fs, "working-dir")
+				restart := firstNonEmpty(flagValue(fs, "restart"), "always")
+				res, err := d.Deploy(context.Background(), deploy.Options{
+					Root:        root,
+					ArtifactDir: dist,
+					BinaryPath:  binPath,
+					ServiceName: name,
+					User:        user,
+					Group:       group,
+					ExecStart:   execStart,
+					WorkingDir:  workingDir,
+					Restart:     restart,
+					EnvFile:     cfg.EffectiveEnvFile(),
+					DryRun:      dryRun,
+				})
+				if err != nil {
+					return fail(err)
+				}
+				slog.Info("systemd service unit staged", "service", name, "msg", res.Message)
+			}
 		}
 	}
 	siteStaged := ""
@@ -130,6 +176,17 @@ func runInfraDeploy(root string, cfg *config.Config, fs *flag.FlagSet, dryRun bo
 	planSrc := filepath.Join(outDir, "infra", "plan.json")
 	if data, err := os.ReadFile(planSrc); err == nil {
 		_ = os.WriteFile(filepath.Join(dist, "plan.json"), data, 0o644)
+	}
+
+	if d, err := deploy.Get(deploy.TargetInfra); err == nil {
+		_, _ = d.Deploy(context.Background(), deploy.Options{
+			Root:        root,
+			ArtifactDir: dist,
+			Environment: env,
+			PlanOnly:    plan,
+			AutoApprove: autoApprove,
+			DryRun:      dryRun,
+		})
 	}
 
 	if dryRun {

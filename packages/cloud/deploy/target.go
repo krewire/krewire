@@ -30,6 +30,18 @@ type Options struct {
 	Remote      string
 	PlanOnly    bool
 	AutoApprove bool
+
+	// Extended deployment options
+	ServiceName string
+	BinaryPath  string
+	User        string
+	Group       string
+	WorkingDir  string
+	ExecStart   string
+	EnvFile     string
+	Description string
+	Restart     string
+	DryRun      bool
 }
 
 // Result describes the outcome of a deployment operation.
@@ -46,6 +58,18 @@ var Registry = map[Target]Deployer{}
 // Register registers a new deployer.
 func Register(d Deployer) {
 	Registry[d.Target()] = d
+}
+
+// RegisterDefaultDeployers installs the standard built-in deployers.
+func RegisterDefaultDeployers() {
+	Register(&BinaryDeployer{})
+	Register(&SystemdDeployer{})
+	Register(&GhPagesDeployer{})
+	Register(&InfraDeployer{})
+}
+
+func init() {
+	RegisterDefaultDeployers()
 }
 
 // Get returns the deployer for a target.

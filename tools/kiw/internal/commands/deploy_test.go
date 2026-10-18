@@ -38,6 +38,65 @@ func TestRunDeploy_BinaryWorkloads(t *testing.T) {
 			if _, err := os.Stat(distBin); err != nil {
 				t.Fatalf("expected binary at %s: %v", distBin, err)
 			}
+
+			// Verify SHA256SUMS was generated
+			sumsFile := filepath.Join(dir, ".krewire", "dist", "SHA256SUMS")
+			if _, err := os.Stat(sumsFile); err != nil {
+				t.Fatalf("expected SHA256SUMS at %s: %v", sumsFile, err)
+			}
+		})
+	}
+}
+
+func TestRunDeploy_SystemdTarget(t *testing.T) {
+	for _, kind := range []string{"worker", "service", "app"} {
+		t.Run(kind, func(t *testing.T) {
+			dir := t.TempDir()
+			for name, content := range map[string]string{
+				"go.mod":       "module test" + kind + "\n\ngo 1.22\n",
+				"main.go":      "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"ok\") }\n",
+				"krewire.yaml": "project:\n  name: " + kind + "-sys\n  kind: " + kind + "\n",
+			} {
+				if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			chdir(t, dir)
+			fs := flag.NewFlagSet("deploy", flag.ContinueOnError)
+			RegisterDeploy(fs)
+			_ = fs.Set("target", "systemd")
+			_ = fs.Set("user", "myuser")
+			_ = fs.Set("group", "mygroup")
+			_ = fs.Set("dry-run", "true")
+
+			code := RunDeploy(fs)
+			if code != kern.ExitCodeSuccess {
+				t.Fatalf("RunDeploy on %s systemd target failed: %v", kind, code)
+			}
+
+			distBin := filepath.Join(dir, ".krewire", "dist", "test"+kind)
+			if _, err := os.Stat(distBin); err != nil {
+				t.Fatalf("expected binary at %s: %v", distBin, err)
+			}
+
+			unitFile := filepath.Join(dir, ".krewire", "dist", "test"+kind+".service")
+			unitData, err := os.ReadFile(unitFile)
+			if err != nil {
+				t.Fatalf("expected systemd service at %s: %v", unitFile, err)
+			}
+			unit := string(unitData)
+			if !strings.Contains(unit, "User=myuser") {
+				t.Errorf("systemd unit missing user: %s", unit)
+			}
+			if !strings.Contains(unit, "Group=mygroup") {
+				t.Errorf("systemd unit missing group: %s", unit)
+			}
+
+			installScript := filepath.Join(dir, ".krewire", "dist", "install.sh")
+			if _, err := os.Stat(installScript); err != nil {
+				t.Fatalf("expected install.sh at %s: %v", installScript, err)
+			}
 		})
 	}
 }
