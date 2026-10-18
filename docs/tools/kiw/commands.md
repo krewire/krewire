@@ -156,10 +156,24 @@ kiw worker
 ```
 
 ### `kiw dashboard`
-Opens local developer dashboard visualizing microservices, background jobs, logs, and traces.
+Opens an interactive local developer dashboard and telemetry server visualizing microservices, background jobs, detected routes, memory metrics, and real-time SSE telemetry pulses.
 ```bash
 kiw dashboard
+kiw dashboard --port 4000 --host 127.0.0.1
 ```
+
+**Options:**
+- `--port`: HTTP listen port (default: `4000`).
+- `--host`: Bind host address (default: `127.0.0.1`).
+- `--env`: Override runtime environment (`local`, `production`, `testing`).
+- `--kind`: Force project kind detection (`app`, `site`, `service`, `worker`, etc.).
+
+**Built-in Telemetry APIs:**
+- `GET /`: Dark-themed Web Dashboard UI with live stats and SSE event feed.
+- `GET /api/info`: JSON metadata for project, framework version, services, and routes.
+- `GET /api/metrics`: Live memory allocation, system memory, goroutine count, and GC cycles.
+- `GET /api/health`: Standardized health check response.
+- `GET /api/events`: Real-time Server-Sent Events (SSE) pulse stream (`text/event-stream`).
 
 ---
 
