@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/krewire/krewire/packages/kern/model"
 )
 
 func writeFile(t *testing.T, dir, name, body string) {
@@ -121,25 +123,84 @@ func TestDetectBook(t *testing.T) {
 	}
 }
 
-func TestDetectExplicitKind(t *testing.T) {
+func TestDetectWorkerByYamlKey(t *testing.T) {
 	dir := t.TempDir()
-	got, err := Detect(dir, "book")
+	writeFile(t, dir, "krewire.yaml", "worker:\n  concurrency: 4\n")
+	writeFile(t, dir, "main.go", `package main
+
+func main() {}
+`)
+	got, err := Detect(dir, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Kind != KindBook || got.Marker != "project.kind" {
-		t.Errorf("got %v (%s), want book (project.kind)", got.Kind, got.Marker)
+	if got.Kind != KindWorker || got.Marker != "krewire.yaml#worker" {
+		t.Errorf("got %v (%s), want worker (krewire.yaml#worker)", got.Kind, got.Marker)
 	}
 }
 
-func TestDetectExplicitCLI(t *testing.T) {
+func TestDetectServiceByYamlKey(t *testing.T) {
 	dir := t.TempDir()
-	got, err := Detect(dir, "cli")
+	writeFile(t, dir, "krewire.yaml", "service:\n  name: auth\n  port: 8081\n")
+	writeFile(t, dir, "main.go", `package main
+
+func main() {}
+`)
+	got, err := Detect(dir, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Kind != KindCLI || got.Marker != "project.kind" {
-		t.Errorf("got %v (%s), want cli (project.kind)", got.Kind, got.Marker)
+	if got.Kind != KindService || got.Marker != "krewire.yaml#service" {
+		t.Errorf("got %v (%s), want service (krewire.yaml#service)", got.Kind, got.Marker)
+	}
+}
+
+func TestDetectInfraByYamlKey(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "krewire.yaml", "infra:\n  provider: aws\n")
+	got, err := Detect(dir, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Kind != KindInfra || got.Marker != "krewire.yaml#infra" {
+		t.Errorf("got %v (%s), want infra (krewire.yaml#infra)", got.Kind, got.Marker)
+	}
+}
+
+func TestDetectKernelPreInit(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "go.mod", "module example.com/starter\n\ngo 1.27.1\n")
+	writeFile(t, dir, "krewire.yaml", "project:\n  name: starter\n")
+	writeFile(t, dir, ".gitignore", ".krewire/\n")
+	writeFile(t, dir, "main.go", `package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("hello, krewire")
+}
+`)
+	got, err := Detect(dir, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Kind != KindKernel || got.Marker != "kernel" {
+		t.Errorf("got %v (%s), want kernel (kernel)", got.Kind, got.Marker)
+	}
+}
+
+func TestDetectAllEightExplicitKinds(t *testing.T) {
+	for _, kind := range model.AllKinds {
+		t.Run(string(kind), func(t *testing.T) {
+			dir := t.TempDir()
+			got, err := Detect(dir, string(kind))
+			if err != nil {
+				t.Fatalf("Detect failed for explicit kind %s: %v", kind, err)
+			}
+			if got.Kind != kind || got.Marker != "project.kind" {
+				t.Errorf("got %v (%s), want %s (project.kind)", got.Kind, got.Marker, kind)
+			}
+		})
 	}
 }
 

@@ -73,8 +73,14 @@ type Config struct {
 	Dev DevConfig `yaml:"dev"`
 	// Server holds server/service settings (e.g. host and port).
 	Server ServerConfig `yaml:"server"`
+	// Worker holds background worker settings (KWF-L5H2F).
+	Worker *WorkerConfig `yaml:"worker"`
+	// Service holds standalone microservice configuration (KWF-L5H2F).
+	Service *ServiceConfig `yaml:"service"`
 	// Services holds multiple declared services in the project (FRK-CONF-032).
 	Services []ServiceConfig `yaml:"services"`
+	// Infra holds cloud infrastructure configuration (KWF-B7N3D).
+	Infra *InfraConfig `yaml:"infra"`
 	// Scripts holds named shell commands runnable via `kiw run <task>`.
 	// Keys are task names, values are shell commands executed with `sh -c`
 	// (Unix) or `cmd /C` (Windows). Optional, zero-value nil means no tasks.
@@ -102,10 +108,22 @@ type ServerConfig struct {
 	Port int    `yaml:"port"`
 }
 
-// ServiceConfig holds service-specific settings under the `services:` key (FRK-CONF-032).
+// ServiceConfig holds service-specific settings under the `service:` or `services:` key (FRK-CONF-032).
 type ServiceConfig struct {
 	Name string `yaml:"name"`
 	Port int    `yaml:"port"`
+}
+
+// WorkerConfig holds queue and background processing settings under the `worker:` key (KWF-L5H2F).
+type WorkerConfig struct {
+	Concurrency int      `yaml:"concurrency"`
+	Queues      []string `yaml:"queues"`
+}
+
+// InfraConfig holds cloud infrastructure settings under the `infra:` key (KWF-B7N3D).
+type InfraConfig struct {
+	Provider string `yaml:"provider"`
+	State    string `yaml:"state"`
 }
 
 // BuildConfig tunes the build pipeline under the `build:` key.

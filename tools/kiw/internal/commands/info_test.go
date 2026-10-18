@@ -126,3 +126,45 @@ func TestRunInfo_LaravelEcosystemAndColocated(t *testing.T) {
 		t.Errorf("expected output to mention co-located worker/, got:\n%s", output)
 	}
 }
+
+func TestRunInfo_ReportsWorkloadKinds(t *testing.T) {
+	orig, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.Chdir(orig) }()
+
+	tests := []struct {
+		yamlContent string
+		wantKind    string
+	}{
+		{"project:\n  kind: worker\n", "worker"},
+		{"project:\n  kind: service\n", "service"},
+		{"project:\n  kind: infra\n", "infra"},
+		{"project:\n  kind: cli\n", "cli"},
+		{"worker:\n  concurrency: 2\n", "worker"},
+		{"service:\n  name: payment\n  port: 8082\n", "service"},
+		{"infra:\n  provider: aws\n", "infra"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.wantKind, func(t *testing.T) {
+			dir := t.TempDir()
+			if err := os.Chdir(dir); err != nil {
+				t.Fatal(err)
+			}
+			_ = os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module test/mod\n\ngo 1.27.1\n"), 0o644)
+			_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte(tc.yamlContent), 0o644)
+
+			output, code := captureStdout(t, func() kern.ExitCode {
+				return RunInfo(&flag.FlagSet{})
+			})
+			if code != kern.ExitCodeSuccess {
+				t.Fatalf("expected exit code success, got %d", code)
+			}
+			if !strings.Contains(output, tc.wantKind) {
+				t.Errorf("expected output to contain kind %q, got:\n%s", tc.wantKind, output)
+			}
+		})
+	}
+}

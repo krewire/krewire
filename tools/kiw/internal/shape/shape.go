@@ -10,26 +10,23 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/krewire/krewire/packages/kern/model"
 )
 
-// Kind identifies a Krewire project kind.
-type Kind string
+// Kind identifies a Krewire project kind. Re-exported from model for SSOT.
+type Kind = model.Kind
 
 const (
-	// KindApp is a fullstack monolith: an explicit main.go / cmd/* building
-	// a web.App. Driven by kiw run and kiw dev.
-	KindApp Kind = "app"
-	// KindSite is a declarative static site configured by krewire.yaml (ssg:)
-	// or ssg.yaml. Driven by kiw build and kiw serve.
-	KindSite Kind = "site"
-	// KindBook is a manuscript/ directory rendered by mdbind. Driven by
-	// kiw build and kiw serve.
-	KindBook Kind = "book"
-	// KindCLI is a command-line application on framework/tui + libs/core,
-	// built and run from the root main.go. Driven by kiw run and kiw dev.
-	KindCLI Kind = "cli"
-	// KindNone means no known marker was found.
-	KindNone Kind = ""
+	KindApp          = model.KindApp
+	KindCLI          = model.KindCLI
+	KindSite         = model.KindSite
+	KindBook         = model.KindBook
+	KindWorker       = model.KindWorker
+	KindService      = model.KindService
+	KindInfra        = model.KindInfra
+	KindKernel       = model.KindKernel
+	KindNone    Kind = ""
 )
 
 // Result is the outcome of a detection.
@@ -52,33 +49,74 @@ func (r Result) String() string {
 // Detect classifies the project rooted at dir. explicitKind, when non-empty,
 // comes from config.project.kind and wins over any marker detection.
 func Detect(dir, explicitKind string) (Result, error) {
-	switch explicitKind {
-	case string(KindApp), string(KindSite), string(KindBook), string(KindCLI):
-		return Result{Kind: Kind(explicitKind), Marker: "project.kind"}, nil
-	case "":
-		// fall through to marker detection.
-	default:
-		return Result{}, fmt.Errorf("shape: unknown project kind %q", explicitKind)
+	if explicitKind != "" {
+		parsed, err := model.ParseKind(explicitKind)
+		if err != nil {
+			return Result{}, fmt.Errorf("shape: unknown project kind %q", explicitKind)
+		}
+		return Result{Kind: parsed, Marker: "project.kind"}, nil
 	}
 
+	// 1. Explicit marker keys in krewire.yaml
+	if hasYamlKey(dir, "worker") {
+		return Result{Kind: KindWorker, Marker: "krewire.yaml#worker"}, nil
+	}
+	if hasYamlKey(dir, "service") {
+		return Result{Kind: KindService, Marker: "krewire.yaml#service"}, nil
+	}
+	if hasYamlKey(dir, "infra") {
+		return Result{Kind: KindInfra, Marker: "krewire.yaml#infra"}, nil
+	}
+
+	// 2. Pre-init minimal kernel (go.mod + krewire.yaml + starter main.go + .gitignore)
+	if isKernel(dir) {
+		return Result{Kind: KindKernel, Marker: "kernel"}, nil
+	}
+
+	// 3. Application entry point
 	if isApp(dir) {
 		return Result{Kind: KindApp, Marker: appMarker(dir)}, nil
 	}
-	if hasFile(dir, "ssg.yaml") || hasSSGKey(dir) || isDir(dir, "pages") {
+
+	// 4. Declarative SSG site (ssg.yaml, ssg: key, or pages/ directory)
+	if hasFile(dir, "ssg.yaml") || hasYamlKey(dir, "ssg") || isDir(dir, "pages") {
 		marker := "pages/"
 		if hasFile(dir, "ssg.yaml") {
 			marker = "ssg.yaml"
-		} else if hasSSGKey(dir) {
+		} else if hasYamlKey(dir, "ssg") {
 			marker = "krewire.yaml#ssg"
 		}
 		return Result{Kind: KindSite, Marker: marker}, nil
 	}
+
+	// 5. Manuscript / Content documentation (book)
 	for _, marker := range []string{"content", "manuscript"} {
 		if isDir(dir, marker) {
 			return Result{Kind: KindBook, Marker: marker + "/"}, nil
 		}
 	}
+
 	return Result{Kind: KindNone}, nil
+}
+
+// isKernel reports whether dir is a fresh, pre-init kernel project.
+func isKernel(dir string) bool {
+	if !hasFile(dir, "main.go") || !hasFile(dir, "krewire.yaml") || !hasFile(dir, "go.mod") {
+		return false
+	}
+	data, err := os.ReadFile(filepath.Join(dir, "main.go"))
+	if err != nil {
+		return false
+	}
+	if !strings.Contains(string(data), "hello, krewire") {
+		return false
+	}
+	for _, sub := range []string{"pages", "content", "manuscript", "cmd", "internal", "components"} {
+		if isDir(dir, sub) {
+			return false
+		}
+	}
+	return true
 }
 
 // isApp reports whether dir builds an application package main directly from
@@ -145,13 +183,20 @@ func packageMain(pkgDir string) bool {
 	return hasMain
 }
 
-// hasSSGKey reports whether krewire.yaml declares an `ssg:` key.
-func hasSSGKey(dir string) bool {
+// hasYamlKey reports whether krewire.yaml declares a top-level key (e.g. `worker:`, `ssg:`).
+func hasYamlKey(dir, key string) bool {
 	data, err := os.ReadFile(filepath.Join(dir, "krewire.yaml"))
 	if err != nil {
 		return false
 	}
-	return strings.Contains(string(data), "ssg:")
+	prefix := key + ":"
+	for _, line := range strings.Split(string(data), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, prefix) {
+			return true
+		}
+	}
+	return false
 }
 
 // hasFile reports whether file exists as a regular file under dir.
