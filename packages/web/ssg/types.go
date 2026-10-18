@@ -119,6 +119,21 @@ type Site struct {
 	// used records every component and layout whose styles were referenced
 	// during a build.
 	used map[string]bool
+	// wasm holds client WebAssembly island hydration configuration.
+	wasm WasmConfig
+}
+
+// WasmConfig configures client WebAssembly island hydration (KWF-T4X9P).
+type WasmConfig struct {
+	Enabled bool
+	WASMURL string
+	JSURL   string
+}
+
+// Wasm configures WebAssembly island hydration.
+func (s *Site) Wasm(cfg WasmConfig) *Site {
+	s.wasm = cfg
+	return s
 }
 
 // New returns an empty Site.

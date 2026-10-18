@@ -129,3 +129,26 @@ layout: Base
 		}
 	}
 }
+
+func TestMount_WasmLoaderInjected(t *testing.T) {
+	site, err := LoadFromDir("testdata/mount")
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	if _, err := site.Build(out); err != nil {
+		t.Fatal(err)
+	}
+	body, err := os.ReadFile(filepath.Join(out, "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(body)
+
+	if !strings.Contains(html, "wasm_exec.js") {
+		t.Errorf("expected wasm_exec.js script injected in html: %s", html)
+	}
+	if !strings.Contains(html, "WebAssembly.instantiateStreaming") {
+		t.Errorf("expected WebAssembly bootstrap loader injected in html: %s", html)
+	}
+}

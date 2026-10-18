@@ -121,10 +121,14 @@ func resolveGoRoot(override string) (string, error) {
 }
 
 func copyJSGlue(goRoot, outDir string) (string, error) {
-	src := filepath.Join(goRoot, "misc", "wasm", "wasm_exec.js")
+	src := filepath.Join(goRoot, "lib", "wasm", "wasm_exec.js")
 	data, err := os.ReadFile(src)
 	if err != nil {
-		return "", fmt.Errorf("build: read wasm_exec.js: %w (go version may be incompatible)", err)
+		src = filepath.Join(goRoot, "misc", "wasm", "wasm_exec.js")
+		data, err = os.ReadFile(src)
+		if err != nil {
+			return "", fmt.Errorf("build: read wasm_exec.js: %w (go version may be incompatible)", err)
+		}
 	}
 	dst := filepath.Join(outDir, "wasm_exec.js")
 	if err := os.WriteFile(dst, data, 0o644); err != nil {

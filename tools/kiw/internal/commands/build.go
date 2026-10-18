@@ -213,8 +213,8 @@ func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 		}
 	}
 
-	// 4. WASM entry point if configured
-	if cfg.Wasm.Entry != "" {
+	// 4. WASM entry point if configured or wasm directory present
+	if cfg.Wasm.Entry != "" || hasDir(root, "wasm") {
 		if code := buildWASM(root, cfg, fs); code != kern.ExitCodeSuccess {
 			return code
 		}
@@ -423,6 +423,17 @@ func buildWASM(root string, cfg *config.Config, fs *flag.FlagSet) kern.ExitCode 
 	if err != nil {
 		return fail(err)
 	}
+
+	// Mirror artifacts into assets/ subdirectory for web client availability
+	assetsDir := filepath.Join(outDir, "assets")
+	_ = os.MkdirAll(assetsDir, 0o755)
+	if data, err := os.ReadFile(artifacts.WASM); err == nil {
+		_ = os.WriteFile(filepath.Join(assetsDir, filepath.Base(artifacts.WASM)), data, 0o644)
+	}
+	if data, err := os.ReadFile(artifacts.JS); err == nil {
+		_ = os.WriteFile(filepath.Join(assetsDir, filepath.Base(artifacts.JS)), data, 0o644)
+	}
+
 	fp := build.Fingerprint(artifacts.Digest)
 	slog.Info("WASM build complete", "wasm", filepath.Base(artifacts.WASM), "js", filepath.Base(artifacts.JS), "fingerprint", fp)
 	fmt.Printf("created %s (fingerprint: %s)\n", artifacts.WASM, fp)

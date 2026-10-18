@@ -63,6 +63,7 @@ func defaultWatchDirs() []string {
 		"ui",
 		"frontend",
 		"static",
+		"wasm",
 	}
 }
 

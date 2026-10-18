@@ -260,3 +260,39 @@ func TestRunBuild_WorkerAndService(t *testing.T) {
 		})
 	}
 }
+
+func TestRunBuild_WasmAutomaticSideBySide(t *testing.T) {
+	dir := t.TempDir()
+	outDir := filepath.Join(dir, ".krewire", "build")
+
+	for name, content := range map[string]string{
+		"go.mod":           "module testwasm\n\ngo 1.22\n",
+		"krewire.yaml":     "project:\n  kind: site\nwasm:\n  entry: ./wasm\n  name: client\n",
+		"pages/index.html": "<!DOCTYPE html><html><body><h1>Hello</h1></body></html>",
+		"wasm/main.go":     "package main\nfunc main() {}\n",
+	} {
+		p := filepath.Join(dir, name)
+		_ = os.MkdirAll(filepath.Dir(p), 0o755)
+		if err := os.WriteFile(p, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	chdir(t, dir)
+	fs := flag.NewFlagSet("build", flag.ContinueOnError)
+	RegisterBuild(fs)
+
+	code := RunBuild(fs)
+	if code != kern.ExitCodeSuccess {
+		t.Fatalf("RunBuild failed: %v", code)
+	}
+
+	wasmFile := filepath.Join(outDir, "client.wasm")
+	if _, err := os.Stat(wasmFile); err != nil {
+		t.Fatalf("expected client.wasm at %s: %v", wasmFile, err)
+	}
+	wasmAsset := filepath.Join(outDir, "assets", "client.wasm")
+	if _, err := os.Stat(wasmAsset); err != nil {
+		t.Fatalf("expected assets/client.wasm at %s: %v", wasmAsset, err)
+	}
+}

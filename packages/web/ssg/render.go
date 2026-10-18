@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"path"
 	"sort"
 	"strings"
 
+	"github.com/krewire/krewire/packages/runtime/mount"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -127,7 +129,70 @@ func (s *Site) renderPage(p *Page) (string, error) {
 	if len(allScripts) > 0 {
 		body = injectScripts(body, allScripts)
 	}
+	if s.wasm.Enabled || strings.Contains(body, mount.AttrMount) {
+		body = s.injectWasmLoader(body)
+	}
 	return body, nil
+}
+
+// injectWasmLoader appends the Go WebAssembly glue and initialization script before </body>.
+func (s *Site) injectWasmLoader(doc string) string {
+	jsURL := s.wasm.JSURL
+	if jsURL == "" {
+		jsURL = s.asset("wasm_exec.js")
+	}
+	wasmURL := s.wasm.WASMURL
+	if wasmURL == "" {
+		wasmURL = s.asset("runtime.wasm")
+	}
+
+	root, err := html.Parse(strings.NewReader(doc))
+	if err != nil {
+		return doc
+	}
+	bodyNode := findElement(root, "body")
+	if bodyNode == nil {
+		return doc
+	}
+	referenced := referencedAssets(root)
+
+	// Inject wasm_exec.js if not already present
+	if !referenced[jsURL] && !referenced[path.Base(jsURL)] {
+		bodyNode.AppendChild(&html.Node{
+			Type:     html.ElementNode,
+			Data:     "script",
+			DataAtom: atom.Script,
+			Attr:     []html.Attribute{{Key: "src", Val: jsURL}},
+		})
+	}
+
+	loaderScript := fmt.Sprintf(`if (!WebAssembly.instantiateStreaming) {
+  WebAssembly.instantiateStreaming = async (resp, importObject) => {
+    const source = await (await resp).arrayBuffer();
+    return await WebAssembly.instantiate(source, importObject);
+  };
+}
+const go = new Go();
+WebAssembly.instantiateStreaming(fetch("%s"), go.importObject).then((result) => {
+  go.run(result.instance);
+});`, wasmURL)
+
+	scriptNode := &html.Node{
+		Type:     html.ElementNode,
+		Data:     "script",
+		DataAtom: atom.Script,
+	}
+	scriptNode.AppendChild(&html.Node{
+		Type: html.TextNode,
+		Data: loaderScript,
+	})
+	bodyNode.AppendChild(scriptNode)
+
+	var buf bytes.Buffer
+	if err := html.Render(&buf, root); err != nil {
+		return doc
+	}
+	return buf.String()
 }
 
 // markUsed records that a component or layout was referenced.

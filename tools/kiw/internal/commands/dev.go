@@ -166,7 +166,13 @@ func devApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 		cmd.Stdout = os.Stderr
 		cmd.Stderr = os.Stderr
 		slog.Info("dev build", "entry", entry)
-		return cmd.Run()
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+		if hasDir(root, "wasm") || cfg.Wasm.Entry != "" {
+			_ = buildWASM(root, cfg, fs)
+		}
+		return nil
 	}
 	if err := build(); err != nil {
 		return fail(err)
