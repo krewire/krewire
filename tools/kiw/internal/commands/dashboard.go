@@ -22,6 +22,7 @@ import (
 	"github.com/krewire/krewire/packages/term"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
+	"github.com/krewire/krewire/tools/kiw/internal/mcp"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
 
@@ -82,7 +83,8 @@ func RunDashboard(fs *flag.FlagSet) kern.ExitCode {
 	fmt.Printf("  %s %s (kind: %s, env: %s)\n", dim("Project:    "), info.Name, info.Kind, info.Env)
 	fmt.Printf("  %s http://%s\n", dim("Dashboard:  "), green(addr))
 	fmt.Printf("  %s http://%s/api/health\n", dim("Health API: "), addr)
-	fmt.Printf("  %s http://%s/api/metrics\n\n", dim("Metrics API:"), addr)
+	fmt.Printf("  %s http://%s/api/metrics\n", dim("Metrics API:"), addr)
+	fmt.Printf("  %s http://%s/mcp/sse\n\n", dim("MCP Server: "), addr)
 	fmt.Printf("  %s\n\n", dim("Press Ctrl+C to stop."))
 
 	sigChan := make(chan os.Signal, 1)
@@ -175,6 +177,11 @@ func (d *dashboardServer) Handler() http.Handler {
 	mux.HandleFunc("/api/metrics", d.handleMetrics)
 	mux.HandleFunc("/api/health", d.handleHealth)
 	mux.HandleFunc("/api/events", d.handleEvents)
+
+	mcpSrv := mcp.NewServer(d.root, d.cfg)
+	mcpTransport := mcp.NewHTTPTransport(mcpSrv)
+	mcpTransport.Mount(mux, "/mcp")
+
 	return mux
 }
 

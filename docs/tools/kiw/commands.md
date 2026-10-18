@@ -174,6 +174,25 @@ kiw dashboard --port 4000 --host 127.0.0.1
 - `GET /api/metrics`: Live memory allocation, system memory, goroutine count, and GC cycles.
 - `GET /api/health`: Standardized health check response.
 - `GET /api/events`: Real-time Server-Sent Events (SSE) pulse stream (`text/event-stream`).
+- `GET /mcp/sse`: Native Model Context Protocol (MCP) SSE endpoint for AI coding agents.
+- `POST /mcp/message`: Native MCP JSON-RPC message endpoint.
+
+### `kiw mcp`
+Starts a native Model Context Protocol (MCP) server for AI coding agents (Antigravity, Cursor, Claude Desktop, OpenCode). Exposes project metadata, routes, runtime metrics, health probes, and scaffolding tools directly to agents over stdio or HTTP/SSE.
+```bash
+kiw mcp --stdio                      # Run over stdio (standard for AI IDEs)
+kiw mcp --port 4000 --host 127.0.0.1 # Run standalone over HTTP/SSE
+```
+
+**Options:**
+- `--stdio`: Run MCP server over standard input/output (default: `true`).
+- `--port`: Run MCP server over HTTP/SSE on the specified port.
+- `--host`: Bind host address for HTTP/SSE (default: `127.0.0.1`).
+
+**Supported Resources & Tools:**
+- **Resources**: `krewire://project/info`, `krewire://project/routes`, `krewire://runtime/metrics`, `krewire://runtime/health`.
+- **Tools**: `kiw_inspect_project`, `kiw_list_routes`, `kiw_make_scaffold`, `kiw_get_metrics`, `kiw_run_tests`.
+- **Dashboard Integration**: `kiw dashboard` also mounts MCP at `http://127.0.0.1:4000/mcp/sse` and `http://127.0.0.1:4000/mcp/message`.
 
 ---
 

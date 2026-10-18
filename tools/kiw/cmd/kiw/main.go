@@ -34,6 +34,7 @@ func main() {
 		Command(tui.NewCommand("deploy", "stage deployable artifacts in dist/", commands.RegisterDeploy, commands.RunDeploy).WithGroup("ship").WithExample("kiw deploy --preview")).
 		Command(tui.NewCommand("worker", "run background workers / job queues", commands.RegisterWorker, commands.RunWorker).WithGroup("develop").WithExample("kiw worker")).
 		Command(tui.NewCommand("dashboard", "local dev dashboard (services, logs, traces)", commands.RegisterDashboard, commands.RunDashboard).WithGroup("develop").WithExample("kiw dashboard")).
+		Command(tui.NewCommand("mcp", "native Model Context Protocol server for AI coding agents", commands.RegisterMCP, commands.RunMCP).WithGroup("develop").WithExample("kiw mcp --stdio")).
 		Command(tui.NewCommand("ws", "workspace for monorepo, multi-repo, multi-project, microservices", commands.RegisterWs, commands.RunWs).WithGroup("ship").WithExample("kiw ws help")).
 		Command(tui.NewCommand("boost", "install the Boost AI agent template into a project", commands.RegisterBoost, commands.RunBoost).WithGroup("ship").WithExample("kiw boost install")).
 		Command(tui.NewCommand("release", "bump versions and stage a release across modules", commands.RegisterRelease, commands.RunRelease).WithGroup("ship").WithExample("kiw release framework --bump minor --apply")).
