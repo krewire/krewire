@@ -6,6 +6,7 @@
       <span class="code-window-dot dot-green"></span>
     </div>
     <span class="code-window-title font-mono">{#if title}{title}{:else}terminal{/if}</span>
+    <button type="button" class="btn-copy-code" aria-label="Copy code to clipboard" onclick="copyCodeWindow(this)">Copy</button>
   </div>
   <pre class="code-window-pre"><code class="code-window-code">{#if body}{body}{:else}<span class="c"># Krewire Devtool</span>
 <span class="p">$ </span><span class="k">kiw</span> new my-project --site
@@ -59,7 +60,7 @@ html[data-theme="dark"] .code-window-bar {
 .dot-yellow { background: #ffbd2e; }
 .dot-green { background: #39D353; }
 .code-window-title {
-  margin-left: auto;
+  margin-left: 10px;
   font-size: 0.75rem;
   font-weight: 700;
   color: #8fa2bc;
@@ -67,6 +68,30 @@ html[data-theme="dark"] .code-window-bar {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.btn-copy-code {
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #FAF8F4;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+.btn-copy-code:hover {
+  background: var(--primary, #39D353);
+  color: var(--primary-content, #0B1F3B);
+  border-color: var(--primary, #39D353);
+  transform: translate(-1px, -1px);
+}
+.btn-copy-code:active {
+  transform: translate(0, 0);
 }
 .code-window-pre {
   margin: 0;
@@ -86,3 +111,38 @@ html[data-theme="dark"] .code-window-bar {
 .code-window .t { color: #39D353; font-weight: 700; }
 .code-window .p { color: #8fa2bc; user-select: none; }
 </style>
+
+<script>
+function copyCodeWindow(btn) {
+  var win = btn.closest('.code-window');
+  var code = win ? win.querySelector('code') : null;
+  var text = (code ? code.innerText : '').replace(/\n$/, '');
+  var orig = btn.innerText;
+  function showCopied() {
+    btn.innerText = '✓ Copied!';
+    setTimeout(function() { btn.innerText = orig; }, 2000);
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(function() {
+      fallbackCopyText(text, showCopied);
+    });
+  } else {
+    fallbackCopyText(text, showCopied);
+  }
+}
+function fallbackCopyText(text, cb) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (cb) cb();
+  } catch (err) {}
+}
+window.copyCodeWindow = copyCodeWindow;
+</script>
