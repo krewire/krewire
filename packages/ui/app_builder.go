@@ -40,36 +40,23 @@ const (
 	mainOpenTag = `<main style="max-width:1200px; margin:0 auto; padding:2rem 1.5rem;">`
 )
 
-// Fallback palette values for the Tailwind config bridge. Each entry points at
-// the CSS variable the theme already defines and repeats its value as a literal,
-// so Tailwind's generated utilities keep their colour even when the variables
-// resolve later. These are the Krewire defaults and live here so the shell does
-// not inline hex values into a script string.
-const (
-	fallbackPrimary          = "#39D353"
-	fallbackPrimaryContent   = "#0B1F3B"
-	fallbackSecondary        = "#00D1C1"
-	fallbackSecondaryContent = "#0B1F3B"
-	fallbackAccent           = "#FF3B2E"
-	fallbackSurface          = "#f0ede5"
-	fallbackMuted            = "#475569"
-)
-
 // tailwindConfigScript configures Tailwind's dark-mode strategy and maps the
-// theme's CSS variables onto Tailwind colour utilities.
-const tailwindConfigScript = `  <script>
+// theme's CSS variables onto Tailwind colour utilities. Fallback values are
+// derived from DefaultLightPalette — the single source of truth for Krewire
+// brand colours — so the Tailwind bridge never drifts from the palette.
+var tailwindConfigScript = `  <script>
     tailwind.config = {
       darkMode: ['class', '[data-theme="dark"]'],
       theme: {
         extend: {
           colors: {
-            primary: 'var(--ui-primary, var(--forge-primary, ` + fallbackPrimary + `))',
-            'primary-content': 'var(--ui-primary-content, var(--forge-primary-content, ` + fallbackPrimaryContent + `))',
-            secondary: 'var(--ui-secondary, var(--forge-secondary, ` + fallbackSecondary + `))',
-            'secondary-content': 'var(--ui-secondary-content, var(--forge-secondary-content, ` + fallbackSecondaryContent + `))',
-            accent: 'var(--ui-accent, var(--forge-accent, ` + fallbackAccent + `))',
-            surface: 'var(--ui-surface, var(--forge-surface, ` + fallbackSurface + `))',
-            muted: 'var(--ui-muted, var(--forge-muted, ` + fallbackMuted + `))',
+            primary: 'var(--ui-primary, var(--forge-primary, ` + string(DefaultLightPalette.Primary) + `))',
+            'primary-content': 'var(--ui-primary-content, var(--forge-primary-content, ` + string(DefaultLightPalette.PrimaryContent) + `))',
+            secondary: 'var(--ui-secondary, var(--forge-secondary, ` + string(DefaultLightPalette.Secondary) + `))',
+            'secondary-content': 'var(--ui-secondary-content, var(--forge-secondary-content, ` + string(DefaultLightPalette.SecondaryContent) + `))',
+            accent: 'var(--ui-accent, var(--forge-accent, ` + string(DefaultLightPalette.Accent) + `))',
+            surface: 'var(--ui-surface, var(--forge-surface, ` + string(DefaultLightPalette.Base2) + `))',
+            muted: 'var(--ui-muted, var(--forge-muted, ` + string(DefaultLightPalette.NeutralContent) + `))',
           }
         }
       }

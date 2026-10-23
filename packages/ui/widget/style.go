@@ -1,10 +1,10 @@
 package widget
 
-// Inline styles are named rather than embedded in the render functions so the
-// visual language can be adjusted in one place, and so a review of "what does
-// this look like" does not require reading the markup assembly. Where a value is
-// already exposed as a theme token (var(--forge-...)) the token is used rather
-// than a literal colour or size.
+// style.go — inline style constants for widget rendering.
+// Naming these strings keeps the visual language to a single edit per value
+// instead of scattering literals through the render functions. Every value
+// resolves through a --forge-* custom property so callers can override the
+// palette without editing this file.
 const (
 	styleMutedText   = `style="color:var(--forge-muted)"`
 	styleCardHeader  = ` style="display:flex; justify-content:space-between; align-items:flex-start;"`
@@ -23,25 +23,4 @@ const (
 	styleModalFoot   = ` style="padding:0.75rem 1.25rem; border-top:1.5px solid var(--forge-border); background:var(--forge-surface); display:flex; justify-content:flex-end; gap:0.5rem;"`
 	styleFormActions = ` style="margin-top:0.5rem;"`
 	styleCheckboxRow = ` style="flex-direction:row; align-items:center; gap:0.5rem;"`
-)
-
-// Layout bounds, named so the supported range is stated once instead of being
-// implied by an if-chain.
-const (
-	// minHeadingLevel and maxHeadingLevel bound Heading.Level.
-	minHeadingLevel, maxHeadingLevel = 1, 6
-	// defaultHeadingLevel is used when a caller asks for a level outside the
-	// bound, since emitting <h0> or <h7> is invalid HTML.
-	defaultHeadingLevel = 2
-	// minGridColumns and maxGridColumns bound Grid.Columns. The stylesheet ships
-	// forge-grid-2, forge-grid-3, and forge-grid-4 only, so 2 is the lower bound:
-	// a one-column layout is not a grid here.
-	minGridColumns, maxGridColumns = 2, 4
-	// defaultGridColumns is the fallback for an out-of-range request.
-	defaultGridColumns = 2
-	// defaultStackGap and defaultCheckboxRows are the layout defaults applied
-	// when the caller does not choose one.
-	defaultStackGap     = "1rem"
-	defaultStackAlign   = "center"
-	defaultCheckboxRows = 4
 )

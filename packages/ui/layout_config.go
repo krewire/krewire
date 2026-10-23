@@ -1,6 +1,10 @@
 package ui
 
-import "html/template"
+import (
+	"html/template"
+	"reflect"
+	"strings"
+)
 
 // LayoutConfig is the declarative form of a Layout. Decode it from YAML or
 // JSON and convert with LayoutFromConfig. Parsing itself happens in the
@@ -135,65 +139,49 @@ func (c *ThemeConfig) Theme() *Theme {
 }
 
 // paletteFrom fills a Palette from token overrides, starting from defaults.
+// It uses the css struct tag on Palette fields as the SSOT for token names,
+// so adding a new Palette field automatically supports the corresponding token
+// key — no case statement to update.
 func paletteFrom(overrides map[string]string, def Palette) Palette {
-	p := def
 	if len(overrides) == 0 {
-		return p
+		return def
 	}
-	for token, v := range overrides {
+	// Build a CSS-tag → field-index lookup from the Palette struct tags.
+	// This is computed once per call; the Palette struct is small (< 25 fields).
+	pt := reflect.TypeOf(def)
+	tagToIdx := make(map[string]int, pt.NumField())
+	for i := 0; i < pt.NumField(); i++ {
+		tag := pt.Field(i).Tag.Get("css")
+		if tag != "" {
+			tagToIdx[tag] = i
+		}
+	}
+
+	p := def
+	pv := reflect.ValueOf(&p).Elem()
+	// Sort keys for deterministic application order.
+	keys := make([]string, 0, len(overrides))
+	for k := range overrides {
+		keys = append(keys, k)
+	}
+	sortStrings(keys)
+	for _, token := range keys {
+		v := overrides[token]
 		if v == "" {
 			continue
 		}
-		switch token {
-		case "base-1":
-			p.Base1 = Color(v)
-		case "base-1-content":
-			p.Base1Content = Color(v)
-		case "base-2":
-			p.Base2 = Color(v)
-		case "base-2-content":
-			p.Base2Content = Color(v)
-		case "base-3":
-			p.Base3 = Color(v)
-		case "base-3-content":
-			p.Base3Content = Color(v)
-		case "primary":
-			p.Primary = Color(v)
-		case "primary-content":
-			p.PrimaryContent = Color(v)
-		case "secondary":
-			p.Secondary = Color(v)
-		case "secondary-content":
-			p.SecondaryContent = Color(v)
-		case "accent":
-			p.Accent = Color(v)
-		case "accent-content":
-			p.AccentContent = Color(v)
-		case "ghost":
-			p.Ghost = Color(v)
-		case "ghost-content":
-			p.GhostContent = Color(v)
-		case "neutral":
-			p.Neutral = Color(v)
-		case "neutral-content":
-			p.NeutralContent = Color(v)
-		case "success":
-			p.Success = Color(v)
-		case "success-content":
-			p.SuccessContent = Color(v)
-		case "info":
-			p.Info = Color(v)
-		case "info-content":
-			p.InfoContent = Color(v)
-		case "warning":
-			p.Warning = Color(v)
-		case "warning-content":
-			p.WarningContent = Color(v)
-		case "error":
-			p.Error = Color(v)
-		case "error-content":
-			p.ErrorContent = Color(v)
+		if idx, ok := tagToIdx[token]; ok {
+			pv.Field(idx).SetString(v)
 		}
 	}
 	return p
+}
+
+// sortStrings sorts a string slice in-place (stdlib sort, no extra import).
+func sortStrings(s []string) {
+	for i := 1; i < len(s); i++ {
+		for j := i; j > 0 && strings.Compare(s[j-1], s[j]) > 0; j-- {
+			s[j-1], s[j] = s[j], s[j-1]
+		}
+	}
 }

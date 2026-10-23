@@ -27,22 +27,22 @@ func NewRegistry() *Registry {
 	return &Registry{components: map[string]Component{}}
 }
 
-// Default returns the registry pre-loaded with the standard UI components.
+// Default returns the registry pre-loaded with all standard UI components.
+// The component set is defined in builtinComponents (components.go) so adding
+// a new built-in component only requires editing that slice — not this function.
 func Default() *Registry {
 	r := NewRegistry()
-	r.Register("Header", typed(func(h Header) template.HTML { return h.Render() }))
-	r.Register("Footer", typed(func(f Footer) template.HTML { return f.Render() }))
-	r.Register("Nav", typed(func(n Nav) template.HTML { return n.Render() }))
-	r.Register("Container", typed(func(c Container) template.HTML { return c.Render() }))
-	r.Register("Grid", typed(func(g Grid) template.HTML { return g.Render() }))
-	r.Register("Card", typed(func(c Card) template.HTML { return c.Render() }))
-	r.Register("Section", typed(func(s Section) template.HTML { return s.Render() }))
-	r.Register("Hero", typed(func(h Hero) template.HTML { return h.Render() }))
-	r.Register("ThemeToggle", typed(func(t ThemeToggle) template.HTML { return t.Render() }))
-	r.Register("Badge", typed(func(b Badge) template.HTML { return b.Render() }))
-	r.Register("Button", typed(func(b Button) template.HTML { return b.Render() }))
+	for _, e := range builtinComponents {
+		r.components[e.Name] = componentFunc(e.render)
+	}
 	return r
 }
+
+// componentFunc adapts a plain render function into the Component interface.
+type componentFunc func(any) (template.HTML, error)
+
+// Render implements Component.
+func (f componentFunc) Render(props any) (template.HTML, error) { return f(props) }
 
 // Register binds a name to a Component. Re-registering an existing name
 // replaces the previous component.

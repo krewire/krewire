@@ -29,17 +29,32 @@ const (
 )
 
 // Class prefixes. Every widget composes its class list from these so the
-// stylesheet surface has one place to change.
+// stylesheet surface has one place to change. Exported so external packages
+// can compose class names consistently with the Krewire widget system.
 const (
-	buttonClassPrefix  = "forge-btn"
-	badgeClassPrefix   = "forge-badge"
-	alertClassPrefix   = "forge-alert"
-	cardClassPrefix    = "forge-card"
-	tableClassPrefix   = "forge-table"
-	modalClassPrefix   = "forge-modal"
-	stackClassPrefix   = "forge-stack"
-	gridClassPrefix    = "forge-grid"
-	headingClassPrefix = "forge-heading"
+	ButtonClassPrefix  = "forge-btn"
+	BadgeClassPrefix   = "forge-badge"
+	AlertClassPrefix   = "forge-alert"
+	CardClassPrefix    = "forge-card"
+	TableClassPrefix   = "forge-table"
+	ModalClassPrefix   = "forge-modal"
+	StackClassPrefix   = "forge-stack"
+	GridClassPrefix    = "forge-grid"
+	HeadingClassPrefix = "forge-heading"
+)
+
+// unexported aliases used inside the widget package — kept to avoid rewriting
+// every reference in the same package while still exporting the names.
+const (
+	buttonClassPrefix  = ButtonClassPrefix
+	badgeClassPrefix   = BadgeClassPrefix
+	alertClassPrefix   = AlertClassPrefix
+	cardClassPrefix    = CardClassPrefix
+	tableClassPrefix   = TableClassPrefix
+	modalClassPrefix   = ModalClassPrefix
+	stackClassPrefix   = StackClassPrefix
+	gridClassPrefix    = GridClassPrefix
+	headingClassPrefix = HeadingClassPrefix
 )
 
 // Default alert icons, paired with their variants. The pairing is the point: a

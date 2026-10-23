@@ -82,8 +82,3 @@ func uiTokenCSS() string {
 	return ":root {" + geometryTokenDecls + fmt.Sprintf(colorTokenDecls, paletteArgs(DefaultLightPalette)...) + "}\n" +
 		"\n[data-theme=\"dark\"], .dark {" + fmt.Sprintf(colorTokenDecls, paletteArgs(DefaultDarkPalette)...) + "}\n"
 }
-
-// forgeTokenCSS is a backward-compatible alias for uiTokenCSS.
-func forgeTokenCSS() string {
-	return uiTokenCSS()
-}

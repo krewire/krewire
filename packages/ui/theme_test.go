@@ -185,7 +185,7 @@ func TestStorageKeyAndDefaultMode(t *testing.T) {
 
 // TestBuildersAreChainable covers the fluent setters.
 func TestBuildersAreChainable(t *testing.T) {
-	th := NewTheme().WithStorageKey("k").WithDefault("dark")
+	th := DefaultTheme().WithStorageKey("k").WithDefault("dark")
 	if th.StorageKey != "k" || th.Default != "dark" {
 		t.Errorf("builders produced %+v", th)
 	}

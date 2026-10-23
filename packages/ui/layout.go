@@ -5,6 +5,17 @@ import (
 	"strings"
 )
 
+// Slot concatenates multiple pre-rendered HTML fragments into one value.
+// It is the composition primitive for layout regions: callers assemble header
+// actions, nav, and other fragments before passing them to a Layout field.
+func Slot(parts ...template.HTML) template.HTML {
+	var b strings.Builder
+	for _, p := range parts {
+		b.WriteString(string(p))
+	}
+	return template.HTML(b.String())
+}
+
 // Layout is a composable page shell with named regions. Regions accept
 // pre-rendered template.HTML so callers can compose programmatically or from
 // declarative config. Omitted regions don't render their wrapper elements.

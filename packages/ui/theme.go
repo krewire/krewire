@@ -29,7 +29,7 @@ type Theme struct {
 	Dark Palette `json:"dark,omitempty"`
 }
 
-// Default returns a new Theme initialized with default light and dark palettes.
+// DefaultTheme returns a new Theme initialized with default light and dark palettes.
 func DefaultTheme() *Theme {
 	return &Theme{
 		Name:    "krewire",
@@ -37,11 +37,6 @@ func DefaultTheme() *Theme {
 		Light:   DefaultLightPalette,
 		Dark:    DefaultDarkPalette,
 	}
-}
-
-// New returns a new Theme with default settings.
-func NewTheme() *Theme {
-	return DefaultTheme()
 }
 
 // WithStorageKey sets a custom localStorage key.
