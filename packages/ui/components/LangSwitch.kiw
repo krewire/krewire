@@ -3,7 +3,7 @@
         {#if id}id="{id}"{/if}
         data-lang-toggle=""
         aria-label="{#if label}{label}{:else}Toggle language{/if}"
-        onclick="{#if onClick}{onClick}{:else}window.krewireI18n && window.krewireI18n.toggle(){/if}"
+
         data-kiw-component="LangSwitch">
   <span class="lang-icon" aria-hidden="true">{#if icon}{icon}{:else}🌐{/if}</span>
   <span class="lang-code font-bold">{#if code}{code}{:else}EN{/if}</span>

@@ -21,7 +21,7 @@
         class="drawer-close"
         aria-label="Close drawer"
         data-drawer-close="{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}"
-        onclick="window.uiCloseDrawer ? window.uiCloseDrawer('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}') : (window.uiDrawer && window.uiDrawer.close('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}'))">
+>
         ✕
       </button>
     </div>
@@ -44,7 +44,6 @@
   id="{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}-backdrop"
   class="drawer-backdrop {#if class}{class}{:else if Class}{Class}{/if}"
   data-drawer-backdrop="{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}"
-  onclick="window.uiCloseDrawer ? window.uiCloseDrawer('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}') : (window.uiDrawer && window.uiDrawer.close('{#if id}{id}{:else if ID}{ID}{:else}drawer{/if}'))"
   aria-hidden="true"></div>
 {/if}
 
