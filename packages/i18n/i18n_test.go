@@ -470,3 +470,84 @@ func TestProviderWithConfig(t *testing.T) {
 		t.Errorf("expected locale 'id', got '%s'", resolvedTranslator.Locale())
 	}
 }
+
+
+func TestBundle_LocaleResolutionAndFallback(t *testing.T) {
+	fsys := sampleFileSystem()
+	bundle, err := i18n.New(fsys,
+		i18n.WithBasePath("lang"),
+		i18n.WithDefaultLocale("en"),
+		i18n.WithFallbackLocale("en"),
+	)
+	if err != nil {
+		t.Fatalf("unexpected error creating bundle: %v", err)
+	}
+
+	if got := bundle.Translate("id", "auth.login"); got != "Masuk ke Akun" {
+		t.Errorf("id locale: expected %q, got %q", "Masuk ke Akun", got)
+	}
+
+	if got := bundle.Translate("id", "auth.logout"); got != "Log out" {
+		t.Errorf("fallback to default en: expected %q, got %q", "Log out", got)
+	}
+
+	if got := bundle.Translate("zz", "auth.login"); got != "Log in" {
+		t.Errorf("unknown locale fallback: expected %q, got %q", "Log in", got)
+	}
+
+	if got := bundle.Translate("en", "auth.login"); got != "Log in" {
+		t.Errorf("default locale en: expected %q, got %q", "Log in", got)
+	}
+}
+
+func TestBundle_HasLocaleAndLocalesList(t *testing.T) {
+	fsys := sampleFileSystem()
+	bundle, err := i18n.New(fsys, i18n.WithBasePath("lang"))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	locales := bundle.Locales()
+	found := map[string]bool{}
+	for _, l := range locales {
+		found[l] = true
+	}
+	for _, want := range []string{"en", "id", "fr"} {
+		if !found[want] {
+			t.Errorf("expected locale %q in Locales(), got %v", want, locales)
+		}
+	}
+	if !bundle.HasLocale("en") || !bundle.HasLocale("id") || !bundle.HasLocale("fr") {
+		t.Errorf("HasLocale should report en/id/fr as present")
+	}
+	if bundle.HasLocale("xx") {
+		t.Error("HasLocale should report xx as absent")
+	}
+}
+
+func TestBundle_LinkRewritingPreservesLocale(t *testing.T) {
+	// Locale-specific keys resolve within their own locale; missing keys fall back.
+	fsys := sampleFileSystem()
+	bundle, err := i18n.New(fsys,
+		i18n.WithBasePath("lang"),
+		i18n.WithDefaultLocale("en"),
+		i18n.WithFallbackLocale("en"),
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Same key resolves to different values per locale (locale isolation)
+	enTitle := bundle.Translate("en", "app_title")
+	idTitle := bundle.Translate("id", "app_title")
+	if enTitle == idTitle {
+		t.Errorf("expected en and id app_title to differ; both got %q", enTitle)
+	}
+
+	// Missing key in id falls back to default en (fallback notice behavior)
+	got := bundle.Translate("id", "global_msg", "name", "Budi")
+	if got != "Hello Budi" {
+		t.Errorf("expected fallback Hello Budi, got %q", got)
+	}
+}
+

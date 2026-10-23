@@ -1,19 +1,71 @@
 package commands
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
+	"syscall"
+	"time"
 
 	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 	"github.com/krewire/mdbind/book"
 )
+
+// serveDefaultTimeouts mirrors web.App.Serve to prevent Slowloris attacks.
+const (
+	serveReadHeaderTimeout = 5 * time.Second
+	serveReadTimeout       = 15 * time.Second
+	serveWriteTimeout      = 15 * time.Second
+	serveIdleTimeout       = 60 * time.Second
+	serveShutdownTimeout   = 10 * time.Second
+)
+
+// listenAndServe starts an http.Server with hardened timeouts on addr and
+// blocks until the process receives SIGINT/SIGTERM, then shuts down
+// gracefully within serveShutdownTimeout.
+func listenAndServe(addr string, h http.Handler) error {
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           h,
+		ReadHeaderTimeout: serveReadHeaderTimeout,
+		ReadTimeout:       serveReadTimeout,
+		WriteTimeout:      serveWriteTimeout,
+		IdleTimeout:       serveIdleTimeout,
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	errCh := make(chan error, 1)
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- err
+		}
+		close(errCh)
+	}()
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+	}
+
+	shutCtx, cancel := context.WithTimeout(context.Background(), serveShutdownTimeout)
+	defer cancel()
+	if err := srv.Shutdown(shutCtx); err != nil {
+		_ = srv.Close()
+		return err
+	}
+	return nil
+}
 
 // RegisterServe registers flags for the serve command.
 func RegisterServe(fs *flag.FlagSet) {
@@ -134,7 +186,7 @@ func serveStaticBuild(root string, fs *flag.FlagSet) kern.ExitCode {
 	} else {
 		handler = extensionlessFS(outDir)
 	}
-	if err := http.ListenAndServe(addr, handler); err != nil {
+	if err := listenAndServe(addr, handler); err != nil {
 		return fail(err)
 	}
 	return kern.ExitCodeSuccess
@@ -172,7 +224,11 @@ func serveSSG(fs *flag.FlagSet, cfg *config.Config) kern.ExitCode {
 	ssgCfg := cfg.ToSSGConfig()
 	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	slog.Info("serving site", "addr", addr)
-	if err := http.ListenAndServe(addr, ssgCfg.Site().Handler()); err != nil {
+	site, err := ssgCfg.Site()
+	if err != nil {
+		return fail(err)
+	}
+	if err := listenAndServe(addr, site.Handler()); err != nil {
 		return fail(err)
 	}
 	return kern.ExitCodeSuccess

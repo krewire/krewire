@@ -204,12 +204,39 @@ func RunBuild(fs *flag.FlagSet) kern.ExitCode {
 
 	if hasBook {
 		hybrid := hasPages || hasSSG
-		if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != kern.ExitCodeSuccess {
-			if firstErr == kern.ExitCodeSuccess {
-				firstErr = code
+
+		// I18n: build per-locale book output trees when i18n is configured.
+		// content/docs/<locale>/ → .krewire/build/<locale>/docs/
+		if cfg.I18n != nil && len(cfg.I18n.Locales) > 0 {
+			for _, locale := range cfg.I18n.Locales {
+				localeInput := filepath.Join("content", "docs", locale)
+				if !hasDir(root, localeInput) {
+					slog.Warn("i18n: skipping locale, input dir missing", "locale", locale, "input", localeInput)
+					continue
+				}
+				origInput := cfg.Input
+				origOutput := cfg.Output
+				cfg.Input = localeInput
+				cfg.Output = filepath.Join(origOutput, locale, "docs")
+				slog.Info("i18n: building book for locale", "locale", locale, "input", cfg.Input, "output", cfg.Output)
+				if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != kern.ExitCodeSuccess {
+					if firstErr == kern.ExitCodeSuccess {
+						firstErr = code
+					}
+				} else {
+					built = true
+				}
+				cfg.Input = origInput
+				cfg.Output = origOutput
 			}
 		} else {
-			built = true
+			if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != kern.ExitCodeSuccess {
+				if firstErr == kern.ExitCodeSuccess {
+					firstErr = code
+				}
+			} else {
+				built = true
+			}
 		}
 	}
 

@@ -90,6 +90,10 @@ type Config struct {
 	// Keys are task names, values are shell commands executed with `sh -c`
 	// (Unix) or `cmd /C` (Windows). Optional, zero-value nil means no tasks.
 	Scripts map[string]string `yaml:"scripts"`
+	// I18n configures internationalization for the site/book build.
+	// When set, kiw build iterates over supported locales and generates
+	// localized output trees (e.g. .krewire/build/en/docs/, .../id/docs/).
+	I18n *ssg.I18nConfig `yaml:"i18n"`
 }
 
 // GatewayConfig holds API gateway configuration under the `gateway:` key (KWF-L5H2F).

@@ -100,10 +100,11 @@ type PageConfig struct {
 	Data   map[string]any `yaml:"data"`
 }
 
-// Site converts the config into a buildable Site. Page data merges the
-// site-wide Data with page-specific overrides; Title, Description, and the
-// configured Theme are injected so templates can reference them directly.
-func (c *Config) Site() *Site {
+// Site converts the config into a buildable Site, or returns an error when
+// a collection cannot be built. Page data merges the site-wide Data with
+// page-specific overrides; Title, Description, and the configured Theme are
+// injected so templates can reference them directly.
+func (c *Config) Site() (*Site, error) {
 	s := New().Funcs(template.FuncMap{
 		// html marks a string as trusted HTML so templates can render data
 		// fields that intentionally contain markup.
@@ -149,7 +150,7 @@ func (c *Config) Site() *Site {
 	for _, cc := range c.Collections {
 		col, err := BuildCollection(cc, ".")
 		if err != nil {
-			panic(fmt.Sprintf("collection %s: %v", cc.Name, err))
+			return nil, fmt.Errorf("collection %s: %w", cc.Name, err)
 		}
 		col.FilterDrafts(c.IncludeDrafts)
 		col.FilterFuture(c.IncludeFuture)
@@ -189,13 +190,17 @@ func (c *Config) Site() *Site {
 	if c.AutoAssets != nil {
 		s.AutoAssets(c.AutoAssets)
 	}
-	return s
+	return s, nil
 }
 
 // BuildFromConfig builds the declarative site into outDir and returns the
 // paths created, relative to outDir.
 func BuildFromConfig(cfg *Config, outDir string) ([]string, error) {
-	return cfg.Site().Build(outDir)
+	s, err := cfg.Site()
+	if err != nil {
+		return nil, err
+	}
+	return s.Build(outDir)
 }
 
 // BuildFromConfigSite builds the site and also returns it, so a caller that
@@ -203,7 +208,10 @@ func BuildFromConfig(cfg *Config, outDir string) ([]string, error) {
 // an ssg site, for example — can ask the site for its resolved asset plan
 // instead of guessing which assets exist and in what order.
 func BuildFromConfigSite(cfg *Config, outDir string) (*Site, []string, error) {
-	s := cfg.Site()
+	s, err := cfg.Site()
+	if err != nil {
+		return nil, nil, err
+	}
 	created, err := s.Build(outDir)
 	if err != nil {
 		return nil, nil, err
