@@ -3,7 +3,7 @@ package plugin
 import (
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/version"
 )
 
 // Plugin is a site build extension. It is detected by presence of its
@@ -27,7 +27,7 @@ type Plugin interface {
 	// directory, e.g., site/). It may read config and source files from root.
 	Build(root, outDir string) error
 	// Version returns the plugin's version for compatibility checking.
-	Version() kern.Version
+	Version() version.Version
 }
 
 // Installer is the optional install/uninstall contract for a plugin. A
@@ -94,7 +94,7 @@ func FindInstaller(name string) Installer {
 
 // FindByVersion returns the plugin whose Name or Aliases match name and
 // whose version satisfies the required version per semver caret semantics.
-func FindByVersion(name string, required kern.Version) Plugin {
+func FindByVersion(name string, required version.Version) Plugin {
 	p := Find(name)
 	if p == nil {
 		return nil
@@ -107,7 +107,7 @@ func FindByVersion(name string, required kern.Version) Plugin {
 
 // FindInstallerByVersion returns the Installer for name if the plugin
 // implements it and satisfies the required version.
-func FindInstallerByVersion(name string, required kern.Version) Installer {
+func FindInstallerByVersion(name string, required version.Version) Installer {
 	p := FindByVersion(name, required)
 	if p == nil {
 		return nil

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestRunReleaseDryRunDoesNotMutate(t *testing.T) {
@@ -20,7 +20,7 @@ func TestRunReleaseDryRunDoesNotMutate(t *testing.T) {
 
 	releaseModules = append(releaseModules, "krewire")
 
-	if got := RunRelease(flag.NewFlagSet("release", flag.ContinueOnError)); got != kern.ExitCodeSuccess {
+	if got := RunRelease(flag.NewFlagSet("release", flag.ContinueOnError)); got != errs.ExitCodeSuccess {
 		t.Errorf("RunRelease dry-run = %v, want ExitCodeSuccess", got)
 	}
 	// Dry run must not request a workspace root or mutate files; success implies that.
@@ -43,7 +43,7 @@ func TestRunReleaseProjectDryRunDoesNotMutate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got := RunRelease(flag.NewFlagSet("release", flag.ContinueOnError)); got != kern.ExitCodeSuccess {
+	if got := RunRelease(flag.NewFlagSet("release", flag.ContinueOnError)); got != errs.ExitCodeSuccess {
 		t.Errorf("project release dry-run = %v, want ExitCodeSuccess", got)
 	}
 	data, _ := os.ReadFile(filepath.Join(dir, "krewire.yaml"))
@@ -65,7 +65,7 @@ func TestRunReleaseProjectMissingConfigFails(t *testing.T) {
 	if err := os.Chdir(dir); err != nil {
 		t.Fatal(err)
 	}
-	if got := RunRelease(flag.NewFlagSet("release", flag.ContinueOnError)); got == kern.ExitCodeSuccess {
+	if got := RunRelease(flag.NewFlagSet("release", flag.ContinueOnError)); got == errs.ExitCodeSuccess {
 		t.Error("expected failure when no Krewire project is present")
 	}
 }

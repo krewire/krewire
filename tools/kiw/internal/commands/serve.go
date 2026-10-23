@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 	"github.com/krewire/mdbind/book"
@@ -80,16 +80,16 @@ func RegisterServe(fs *flag.FlagSet) {
 // static output over HTTP. A hybrid project (ssg + book) serves the merged
 // .krewire/build statically. It shares the runtime bootstrap with run and
 // dev (RND-SRV-002).
-func RunServe(fs *flag.FlagSet) kern.ExitCode {
+func RunServe(fs *flag.FlagSet) errs.ExitCode {
 	rt, code := bootRuntime(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		return code
 	}
 	explicit := firstNonEmpty(flagValue(fs, "kind"), rt.cfg.Kind())
 	res, err := shape.Detect(rt.root, explicit)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	hasSSGShape := hasDir(rt.root, "pages") || rt.cfg.IsSSG()
@@ -111,7 +111,7 @@ func RunServe(fs *flag.FlagSet) kern.ExitCode {
 			return serveStaticBuild(rt.root, fs)
 		}
 		fmt.Fprintln(os.Stderr, "kiw serve: site detected without an ssg: config")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	case shape.KindBook:
 		if hasSSGShape && hasBookShape {
 			return serveStaticBuild(rt.root, fs)
@@ -119,7 +119,7 @@ func RunServe(fs *flag.FlagSet) kern.ExitCode {
 		return serveBook(rt.root, fs)
 	default:
 		fmt.Fprintln(os.Stderr, "kiw serve: no project found — add a root main.go, an `ssg:` key in krewire.yaml, or a content/ directory")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 }
 
@@ -127,7 +127,7 @@ func RunServe(fs *flag.FlagSet) kern.ExitCode {
 // input resolves like every other setting: --input flag > krewire.yaml
 // `input:` > config.DefaultInput ("content"). Include/exclude globs follow
 // the same precedence as kiw build so preview matches the export.
-func serveBook(root string, fs *flag.FlagSet) kern.ExitCode {
+func serveBook(root string, fs *flag.FlagSet) errs.ExitCode {
 	cfg, err := config.Load(root)
 	if err != nil {
 		return fail(err)
@@ -146,12 +146,12 @@ func serveBook(root string, fs *flag.FlagSet) kern.ExitCode {
 	if err := book.Serve(b, addr); err != nil {
 		return fail(err)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // serveStaticBuild previews the built .krewire/build output over HTTP — the
 // shared preview for hybrid (ssg + book) projects and file-mode sites.
-func serveStaticBuild(root string, fs *flag.FlagSet) kern.ExitCode {
+func serveStaticBuild(root string, fs *flag.FlagSet) errs.ExitCode {
 	cfg, err := config.Load(root)
 	if err != nil {
 		return fail(err)
@@ -168,7 +168,7 @@ func serveStaticBuild(root string, fs *flag.FlagSet) kern.ExitCode {
 		}
 		if !hasIndex {
 			fmt.Fprintf(os.Stderr, "kiw serve: no build output at %s — run 'kiw build' first\n", outDir)
-			return kern.ExitCodeUsage
+			return errs.ExitCodeUsage
 		}
 	}
 	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
@@ -189,7 +189,7 @@ func serveStaticBuild(root string, fs *flag.FlagSet) kern.ExitCode {
 	if err := listenAndServe(addr, handler); err != nil {
 		return fail(err)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // extensionlessFS serves the build output with extensionless URL resolution,
@@ -220,7 +220,7 @@ func extensionlessFS(root string) http.Handler {
 }
 
 // serveSSG previews the project's declarative ssg site from krewire.yaml.
-func serveSSG(fs *flag.FlagSet, cfg *config.Config) kern.ExitCode {
+func serveSSG(fs *flag.FlagSet, cfg *config.Config) errs.ExitCode {
 	ssgCfg := cfg.ToSSGConfig()
 	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	slog.Info("serving site", "addr", addr)
@@ -231,5 +231,5 @@ func serveSSG(fs *flag.FlagSet, cfg *config.Config) kern.ExitCode {
 	if err := listenAndServe(addr, site.Handler()); err != nil {
 		return fail(err)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }

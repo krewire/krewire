@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
 )
@@ -33,7 +33,7 @@ func RegisterInit(fs *flag.FlagSet) {
 // (default: current directory), creating krewire.yaml, .gitignore, and running git init.
 // If krewire.yaml already exists, it prompts the user to reset it to default (or resets with --force).
 // If a variant flag is given, it equips that variant into the project.
-func RunInit(fs *flag.FlagSet) kern.ExitCode {
+func RunInit(fs *flag.FlagSet) errs.ExitCode {
 	dir := fs.Arg(0)
 	if dir == "" {
 		dir = "."
@@ -83,12 +83,12 @@ func RunInit(fs *flag.FlagSet) kern.ExitCode {
 			fmt.Println("created " + path)
 		}
 		fmt.Printf("Initialized empty Krewire project in %s\n", dir)
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 
 	if count := boolCount(site, book, cli, app, worker, service, infra, templateURL != ""); count > 1 {
 		fmt.Fprintln(os.Stderr, "kiw init: choose at most one variant: --site, --book, --cli, --app, --worker, --service, --infra, or --template")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	opts := scaffold.EquipOptions{
@@ -171,7 +171,7 @@ func RunInit(fs *flag.FlagSet) kern.ExitCode {
 	for _, path := range created {
 		fmt.Println("created " + path)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // moduleBase returns the last path segment of a module path, used as the

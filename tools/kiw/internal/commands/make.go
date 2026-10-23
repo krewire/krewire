@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
 )
 
@@ -18,7 +18,7 @@ func RegisterMake(fs *flag.FlagSet) {
 }
 
 // RunMake scaffolds new components, pages, handlers, migrations, models, middleware, services, or jobs.
-func RunMake(fs *flag.FlagSet) kern.ExitCode {
+func RunMake(fs *flag.FlagSet) errs.ExitCode {
 	kind := flagValue(fs, "kind")
 	name := flagValue(fs, "name")
 
@@ -45,23 +45,23 @@ func RunMake(fs *flag.FlagSet) kern.ExitCode {
 	if kind == "" || name == "" {
 		fmt.Fprintln(os.Stderr, "kiw make: usage: kiw make <kind> <name>")
 		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration, model, middleware, service, job")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	root, err := findRoot()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	if err := Make(root, kind, name); err != nil {
 		fmt.Fprintln(os.Stderr, "kiw make: "+err.Error())
 		if errors.Is(err, scaffold.ErrUnknownKind) {
-			return kern.ExitCodeUsage
+			return errs.ExitCodeUsage
 		}
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // Make executes the scaffolding generator for a given kind and artifact name.

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestExecuteBuildDeps_Success(t *testing.T) {
@@ -22,7 +22,7 @@ func TestExecuteBuildDeps_Success(t *testing.T) {
 	}
 
 	code := executeBuildDeps(dir, deps, os.Environ())
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("executeBuildDeps() = %v, want ExitCodeSuccess (0)", code)
 	}
 
@@ -44,7 +44,7 @@ func TestExecuteBuildDeps_AbortsOnFailure(t *testing.T) {
 	}
 
 	code := executeBuildDeps(dir, deps, os.Environ())
-	if code != kern.ExitCode(42) && code != kern.ExitCodeFailure {
+	if code != errs.ExitCode(42) && code != errs.ExitCodeFailure {
 		t.Fatalf("executeBuildDeps() = %v, want non-zero exit code", code)
 	}
 
@@ -64,7 +64,7 @@ func TestExecuteBuildDeps_InheritsEnvironment(t *testing.T) {
 	}
 
 	code := executeBuildDeps(dir, deps, env)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("executeBuildDeps() = %v, want ExitCodeSuccess (0)", code)
 	}
 
@@ -149,7 +149,7 @@ build:
 	_ = fsDepsOnly.Set("deps-only", "true")
 
 	code := RunBuild(fsDepsOnly)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunBuild(deps-only) code = %v, want ExitCodeSuccess (0)", code)
 	}
 	if _, err := os.Stat(filepath.Join(dir, "dep.txt")); err != nil {
@@ -165,7 +165,7 @@ build:
 	_ = fsSkipDeps.Set("skip-deps", "true")
 
 	code = RunBuild(fsSkipDeps)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunBuild(skip-deps) code = %v, want ExitCodeSuccess (0)", code)
 	}
 	if _, err := os.Stat(filepath.Join(dir, "dep.txt")); !os.IsNotExist(err) {

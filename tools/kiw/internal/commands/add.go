@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/hub/resolver"
-	"github.com/krewire/krewire/packages/kern"
 )
 
 func RegisterAdd(fs *flag.FlagSet) {
@@ -15,14 +15,14 @@ func RegisterAdd(fs *flag.FlagSet) {
 	// Future: --dev, --save-dev for npm dev deps.
 }
 
-func RunAdd(fs *flag.FlagSet) kern.ExitCode {
+func RunAdd(fs *flag.FlagSet) errs.ExitCode {
 	args := fs.Args()
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: kiw add <package[@version]> [package[@version] ...]")
 		fmt.Fprintln(os.Stderr, "  package@latest  latest version")
 		fmt.Fprintln(os.Stderr, "  package@1.2.3   specific version")
 		fmt.Fprintln(os.Stderr, "examples: kiw add twcss, kiw add tailwindcss@3.4.1, kiw add github.com/foo/bar@v1.2.3")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	root, err := os.Getwd()
 	if err != nil {
@@ -33,21 +33,21 @@ func RunAdd(fs *flag.FlagSet) kern.ExitCode {
 		spec, err := resolver.ParseSpec(raw)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "invalid package %q: %v\n", raw, err)
-			return kern.ExitCodeUsage
+			return errs.ExitCodeUsage
 		}
 		resolved, err := chain.Resolve(spec)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "cannot resolve %q: %v\n", raw, err)
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 		version := spec.EffectiveVersion()
 		slog.Info("adding package", "package", spec.Name, "version", version, "kind", resolved.Kind, "resolver", resolved.Installer.Describe())
 		fmt.Printf("→ adding %s (%s) ...\n", spec.Name+"@"+version, resolved.Kind)
 		if err := resolved.Installer.Add(root, version); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to add %q: %v\n", raw, err)
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 		fmt.Printf("✓ added %s\n", spec.Name+"@"+version)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }

@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/term"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/mcp"
@@ -25,7 +25,7 @@ func RegisterMCP(fs *flag.FlagSet) {
 }
 
 // RunMCP starts the Model Context Protocol (MCP) server for Krewire projects (KWN-MCP-001).
-func RunMCP(fs *flag.FlagSet) kern.ExitCode {
+func RunMCP(fs *flag.FlagSet) errs.ExitCode {
 	root, err := os.Getwd()
 	if err != nil {
 		return fail(err)
@@ -80,12 +80,12 @@ func RunMCP(fs *flag.FlagSet) kern.ExitCode {
 		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			return fail(err)
 		}
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 
 	// Default: Run stdio transport
 	if err := mcp.RunStdio(ctx, srv, os.Stdin, os.Stdout); err != nil && err != context.Canceled {
 		return fail(err)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }

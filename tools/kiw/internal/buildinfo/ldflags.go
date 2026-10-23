@@ -12,7 +12,7 @@ const Signature = "build with krewire"
 // the compiled binary at link time.
 //
 // Target variables:
-//   - github.com/krewire/krewire/packages/kern.Signature
+//   - github.com/krewire/krewire/packages/version.Signature
 //   - github.com/krewire/krewire.Signature
 //   - main.Signature
 //
@@ -23,7 +23,7 @@ func LDFlags(strip bool) string {
 		parts = append(parts, "-s", "-w")
 	}
 	symbols := []string{
-		"github.com/krewire/krewire/packages/kern.Signature",
+		"github.com/krewire/krewire/packages/version.Signature",
 		"github.com/krewire/krewire.Signature",
 		"main.Signature",
 	}

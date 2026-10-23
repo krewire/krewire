@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/env"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func writeConfig(t *testing.T, body string) *Config {
@@ -27,17 +28,17 @@ func TestLoadParsesEnvAndDebug(t *testing.T) {
 	if c.Env != "production" || !c.Debug {
 		t.Errorf("config = (env %q, debug %v), want (production, true)", c.Env, c.Debug)
 	}
-	env, err := c.ResolveEnv("")
-	if err != nil || env != kern.EnvProduction {
-		t.Errorf("ResolveEnv = (%q, %v), want (production, nil)", env, err)
+	gotEnv, err := c.ResolveEnv("")
+	if err != nil || gotEnv != env.EnvProduction {
+		t.Errorf("ResolveEnv = (%q, %v), want (production, nil)", gotEnv, err)
 	}
 }
 
 func TestEmptyConfigResolvesDefaults(t *testing.T) {
 	c := writeConfig(t, "title: x\n")
-	env, err := c.ResolveEnv("")
-	if err != nil || env != kern.DefaultEnv {
-		t.Errorf("ResolveEnv = (%q, %v), want (%q, nil)", env, err, kern.DefaultEnv)
+	envVal, err := c.ResolveEnv("")
+	if err != nil || envVal != env.DefaultEnv {
+		t.Errorf("ResolveEnv = (%q, %v), want (%q, nil)", envVal, err, env.DefaultEnv)
 	}
 	if c.ResolveDebug("", false) {
 		t.Error("ResolveDebug = true, want default false")
@@ -48,16 +49,16 @@ func TestResolveEnv_Precedence(t *testing.T) {
 	yamlTesting := writeConfig(t, "env: testing\n")
 
 	t.Setenv("KIW_ENV", "production")
-	if env, _ := yamlTesting.ResolveEnv(""); env != kern.EnvProduction {
-		t.Errorf("KIW_ENV should beat krewire.yaml, got %q", env)
+	if envVal, _ := yamlTesting.ResolveEnv(""); envVal != env.EnvProduction {
+		t.Errorf("KIW_ENV should beat krewire.yaml, got %q", envVal)
 	}
-	if env, _ := yamlTesting.ResolveEnv("local"); env != kern.EnvLocal {
-		t.Errorf("flag should beat KIW_ENV and yaml, got %q", env)
+	if envVal, _ := yamlTesting.ResolveEnv("local"); envVal != env.EnvLocal {
+		t.Errorf("flag should beat KIW_ENV and yaml, got %q", envVal)
 	}
 
 	t.Setenv("KIW_ENV", "")
-	if env, _ := yamlTesting.ResolveEnv(""); env != kern.EnvTesting {
-		t.Errorf("yaml should win when no overrides, got %q", env)
+	if envVal, _ := yamlTesting.ResolveEnv(""); envVal != env.EnvTesting {
+		t.Errorf("yaml should win when no overrides, got %q", envVal)
 	}
 }
 
@@ -67,8 +68,8 @@ func TestResolveEnv_InvalidYamlValueIsUsageError(t *testing.T) {
 	if err == nil {
 		t.Fatal("ResolveEnv(staging) = nil error, want usage error")
 	}
-	var ce interface{ ExitCode() kern.ExitCode }
-	if !errors.As(err, &ce) || ce.ExitCode() != kern.ExitCodeUsage {
+	var ce interface{ ExitCode() errs.ExitCode }
+	if !errors.As(err, &ce) || ce.ExitCode() != errs.ExitCodeUsage {
 		t.Errorf("ResolveEnv(staging) error = %v, want usage exit code", err)
 	}
 }

@@ -1,14 +1,17 @@
 package krewire
 
-import "github.com/krewire/krewire/packages/kern"
+import (
+	"github.com/krewire/krewire/packages/model"
+	"github.com/krewire/krewire/packages/version"
+)
 
 // Version is the master version of the Krewire monorepo and its constituent packages.
-var Version = kern.MustParseVersion("0.1.0")
+var Version = version.MustParseVersion("0.1.0")
 
 // Tier is the default ecosystem tier assigned to the krewire monorepo.
 // All code in krewire/krewire is 100% open source; all packages are currently
 // free-tier by default.
-var Tier = kern.TierFree
+var Tier = model.TierFree
 
 // VersionString returns the master version as a formatted semver string.
 func VersionString() string {
@@ -21,7 +24,7 @@ func TierString() string {
 }
 
 // Signature is the master ecosystem build watermark.
-var Signature = kern.DefaultSignature
+var Signature = version.DefaultSignature
 
 // BuildSignature returns the ecosystem build signature.
 func BuildSignature() string {

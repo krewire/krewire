@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestLoadScriptsFromKrewireYaml(t *testing.T) {
@@ -26,7 +26,7 @@ scripts:
 		t.Fatal(err)
 	}
 	rt, code := bootRuntime(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("bootRuntime = %d", code)
 	}
 	if len(rt.cfg.Scripts) != 2 {
@@ -52,7 +52,7 @@ func TestRunGoFile_ExecutesAndForwardsExit(t *testing.T) {
 	}
 	chdir(t, dir)
 
-	run := func(args ...string) kern.ExitCode {
+	run := func(args ...string) errs.ExitCode {
 		fs := flag.NewFlagSet("run", flag.ContinueOnError)
 		RegisterRun(fs)
 		if err := fs.Parse(args); err != nil {
@@ -60,19 +60,19 @@ func TestRunGoFile_ExecutesAndForwardsExit(t *testing.T) {
 		}
 		return RunRun(fs)
 	}
-	if code := run("hello.go"); code != kern.ExitCodeSuccess {
+	if code := run("hello.go"); code != errs.ExitCodeSuccess {
 		t.Errorf("run hello.go = %d want 0", code)
 	}
-	if code := run("fail.go"); code != kern.ExitCodeFailure {
+	if code := run("fail.go"); code != errs.ExitCodeFailure {
 		t.Errorf("run fail.go = %d want 1 (failure mapping)", code)
 	}
-	if code := run("hello.go", "--", "extra"); code != kern.ExitCodeSuccess {
+	if code := run("hello.go", "--", "extra"); code != errs.ExitCodeSuccess {
 		t.Errorf("run hello.go with extra args = %d want 0", code)
 	}
-	if code := run("args.go", "world"); code != kern.ExitCodeSuccess {
+	if code := run("args.go", "world"); code != errs.ExitCodeSuccess {
 		t.Errorf("run args.go world = %d want 0", code)
 	}
-	if code := run("nonexist.go"); code != kern.ExitCodeUsage {
+	if code := run("nonexist.go"); code != errs.ExitCodeUsage {
 		t.Errorf("run nonexist.go = %d want 2 (usage)", code)
 	}
 }
@@ -89,7 +89,7 @@ func TestRunTask_ExecutesAndUnknownTask(t *testing.T) {
 	}
 	chdir(t, dir)
 
-	run := func(args ...string) kern.ExitCode {
+	run := func(args ...string) errs.ExitCode {
 		fs := flag.NewFlagSet("run", flag.ContinueOnError)
 		RegisterRun(fs)
 		if err := fs.Parse(args); err != nil {
@@ -97,13 +97,13 @@ func TestRunTask_ExecutesAndUnknownTask(t *testing.T) {
 		}
 		return RunRun(fs)
 	}
-	if code := run("hello"); code != kern.ExitCodeSuccess {
+	if code := run("hello"); code != errs.ExitCodeSuccess {
 		t.Errorf("run hello task = %d want 0", code)
 	}
-	if code := run("fail"); code != kern.ExitCodeFailure {
+	if code := run("fail"); code != errs.ExitCodeFailure {
 		t.Errorf("run fail task = %d want 1", code)
 	}
-	if code := run("unknown-task"); code != kern.ExitCodeUsage {
+	if code := run("unknown-task"); code != errs.ExitCodeUsage {
 		t.Errorf("run unknown-task = %d want 2", code)
 	}
 }
@@ -126,7 +126,7 @@ func TestPrecedence_FileOverScript(t *testing.T) {
 		t.Fatal(err)
 	}
 	code := RunRun(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Errorf("precedence dup.go = %d want 0 (file wins)", code)
 	}
 }
@@ -152,7 +152,7 @@ func main(){ fmt.Println("app-run") }
 	if err := fs.Parse(nil); err != nil {
 		t.Fatal(err)
 	}
-	if code := RunRun(fs); code != kern.ExitCodeSuccess {
+	if code := RunRun(fs); code != errs.ExitCodeSuccess {
 		t.Errorf("bare run app = %d want 0", code)
 	}
 }
@@ -195,7 +195,7 @@ scripts:
 	chdir(t, dir)
 	fs := flag.NewFlagSet("info", flag.ContinueOnError)
 	code := RunInfo(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Errorf("RunInfo = %d want 0", code)
 	}
 }

@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/packages/config"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	kiwconfig "github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
@@ -24,7 +24,7 @@ func RegisterVet(fs *flag.FlagSet) {
 }
 
 // RunVet runs `go vet` and optional security posture and vulnerability audits.
-func RunVet(fs *flag.FlagSet) kern.ExitCode {
+func RunVet(fs *flag.FlagSet) errs.ExitCode {
 	dir, err := os.Getwd()
 	if err != nil {
 		return fail(err)
@@ -32,7 +32,7 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 	mod, err := gomod.Find(dir)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: not inside a Go module — run 'kiw new <project>' first")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	secCheck := flagValue(fs, "sec") == "true"
@@ -66,7 +66,7 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
 
 	if secCheck {
@@ -76,7 +76,7 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 			for _, iss := range issues {
 				fmt.Fprintf(os.Stderr, "  ✗ [SEC] %s\n", iss)
 			}
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 		fmt.Fprintln(os.Stdout, "  ✓ Secrets hygiene: verified (no plaintext credentials found)")
 		fmt.Fprintln(os.Stdout, "  ✓ Environment referencing: ${env:...} contract upheld")
@@ -90,7 +90,7 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 		verifyCmd.Dir = dir
 		if out, err := verifyCmd.CombinedOutput(); err != nil {
 			fmt.Fprintf(os.Stderr, "  ✗ [VULN] go mod verify failed: %s\n", strings.TrimSpace(string(out)))
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 		fmt.Fprintln(os.Stdout, "  ✓ Module checksum integrity: verified (go mod verify)")
 
@@ -98,7 +98,7 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 		if mod != nil && mod.GoVersion != "" {
 			if err := gomod.CheckGoVersion(runtime.Version(), mod.GoVersion); err != nil {
 				fmt.Fprintf(os.Stderr, "  ✗ [VULN] %s\n", err)
-				return kern.ExitCodeFailure
+				return errs.ExitCodeFailure
 			}
 			fmt.Fprintf(os.Stdout, "  ✓ Go toolchain version: %s matches minimum required %s\n", runtime.Version(), mod.GoVersion)
 		}
@@ -106,12 +106,12 @@ func RunVet(fs *flag.FlagSet) kern.ExitCode {
 		// Check 3: govulncheck if available
 		if err := runGovulncheck(dir); err != nil {
 			fmt.Fprintf(os.Stderr, "  ✗ [VULN] %s\n", err)
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 		fmt.Fprintln(os.Stdout, "  ✓ Vulnerability audit: passed (zero known CVEs)")
 	}
 
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 func runGovulncheck(dir string) error {

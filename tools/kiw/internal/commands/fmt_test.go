@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestRunFmt_CleanCode(t *testing.T) {
@@ -35,7 +35,7 @@ func TestRunFmt_CleanCode(t *testing.T) {
 	RegisterFmt(fs)
 
 	code := RunFmt(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("got exit code %v, want ExitCodeSuccess (0)", code)
 	}
 }
@@ -69,7 +69,7 @@ func TestRunFmt_UnformattedCodeCheckAndWrite(t *testing.T) {
 
 	// Check mode should detect failure
 	code := RunFmt(fsCheck)
-	if code != kern.ExitCodeFailure {
+	if code != errs.ExitCodeFailure {
 		t.Fatalf("RunFmt(check) exit code = %v, want ExitCodeFailure (1)", code)
 	}
 
@@ -79,7 +79,7 @@ func TestRunFmt_UnformattedCodeCheckAndWrite(t *testing.T) {
 	_ = fsWrite.Set("write", "true")
 
 	code = RunFmt(fsWrite)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunFmt(write) exit code = %v, want ExitCodeSuccess (0)", code)
 	}
 

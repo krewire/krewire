@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func setupTestRoot(t *testing.T) string {
@@ -27,7 +27,7 @@ func TestMake_Usage(t *testing.T) {
 
 	// No arguments
 	code := RunMake(fs)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Errorf("RunMake() with no args = %v, want ExitCodeUsage", code)
 	}
 
@@ -36,7 +36,7 @@ func TestMake_Usage(t *testing.T) {
 	RegisterMake(fsUnknown)
 	_ = fsUnknown.Parse([]string{"unknown_kind", "sample"})
 	code = RunMake(fsUnknown)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Errorf("RunMake() with unknown kind = %v, want ExitCodeUsage", code)
 	}
 }
@@ -52,7 +52,7 @@ func TestMake_Component(t *testing.T) {
 	_ = fs.Parse([]string{"component", "card-item"})
 
 	code := RunMake(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunMake component failed with code %v", code)
 	}
 
@@ -70,7 +70,7 @@ func TestMake_Component(t *testing.T) {
 	fsDup := flag.NewFlagSet("make", flag.ContinueOnError)
 	RegisterMake(fsDup)
 	_ = fsDup.Parse([]string{"component", "CardItem"})
-	if code := RunMake(fsDup); code != kern.ExitCodeFailure {
+	if code := RunMake(fsDup); code != errs.ExitCodeFailure {
 		t.Errorf("duplicate component generation should fail, got code %v", code)
 	}
 
@@ -78,7 +78,7 @@ func TestMake_Component(t *testing.T) {
 	fsColon := flag.NewFlagSet("make", flag.ContinueOnError)
 	RegisterMake(fsColon)
 	_ = fsColon.Parse([]string{"make:component", "button"})
-	if code := RunMake(fsColon); code != kern.ExitCodeSuccess {
+	if code := RunMake(fsColon); code != errs.ExitCodeSuccess {
 		t.Errorf("make:component button failed, got code %v", code)
 	}
 	if _, err := os.Stat(filepath.Join(root, "components", "Button.kiw")); err != nil {
@@ -97,7 +97,7 @@ func TestMake_Page(t *testing.T) {
 	_ = fs.Parse([]string{"page", "pricing"})
 
 	code := RunMake(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunMake page failed with code %v", code)
 	}
 
@@ -123,7 +123,7 @@ func TestMake_Handler(t *testing.T) {
 	_ = fs.Parse([]string{"handler", "create-user"})
 
 	code := RunMake(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunMake handler failed with code %v", code)
 	}
 
@@ -149,7 +149,7 @@ func TestMake_Migration(t *testing.T) {
 	_ = fs.Parse([]string{"--kind", "migration", "--name", "create_teams"})
 
 	code := RunMake(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunMake migration failed with code %v", code)
 	}
 
@@ -179,7 +179,7 @@ func TestMake_Model(t *testing.T) {
 	_ = fs.Parse([]string{"model", "account"})
 
 	code := RunMake(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunMake model failed with code %v", code)
 	}
 
@@ -205,7 +205,7 @@ func TestMake_Middleware(t *testing.T) {
 	_ = fs.Parse([]string{"middleware", "auth"})
 
 	code := RunMake(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunMake middleware failed with code %v", code)
 	}
 
@@ -231,7 +231,7 @@ func TestMake_Service(t *testing.T) {
 	_ = fs.Parse([]string{"service", "billing"})
 
 	code := RunMake(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunMake service failed with code %v", code)
 	}
 

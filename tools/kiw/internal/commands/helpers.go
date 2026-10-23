@@ -9,7 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/env"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
@@ -34,23 +35,23 @@ func flagInt(fs *flag.FlagSet, name string) int {
 	return n
 }
 
-func commandError(err error) kern.ExitCode {
-	fmt.Fprint(os.Stderr, kern.FormatTree(err))
+func commandError(err error) errs.ExitCode {
+	fmt.Fprint(os.Stderr, errs.FormatTree(err))
 	switch {
 	case errors.Is(err, scaffold.ErrInvalidName),
 		errors.Is(err, scaffold.ErrProjectExists),
 		errors.Is(err, scaffold.ErrNotEmpty),
 		errors.Is(err, scaffold.ErrConflict):
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	default:
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
 }
 
-func fail(err error) kern.ExitCode {
-	fmt.Fprint(os.Stderr, kern.FormatTree(err))
+func fail(err error) errs.ExitCode {
+	fmt.Fprint(os.Stderr, errs.FormatTree(err))
 	printStackIfDebug(err)
-	return kern.ExitCodeFailure
+	return errs.ExitCodeFailure
 }
 
 // printStackIfDebug renders an attached stack after the error line when the
@@ -59,22 +60,22 @@ func printStackIfDebug(err error) {
 	if !debugEnabled {
 		return
 	}
-	frames := kern.StackOf(err)
+	frames := errs.StackOf(err)
 	if len(frames) == 0 {
 		return
 	}
 	fmt.Fprintln(os.Stderr, "stack trace (newest first):")
-	fmt.Fprint(os.Stderr, kern.FormatStack(frames))
+	fmt.Fprint(os.Stderr, errs.FormatStack(frames))
 }
 
 // usageOrFail prints err and maps core usage errors to exit code 2
 // (KWL-K4T7W KWL-ENVV-007).
-func usageOrFail(err error) kern.ExitCode {
-	var ce interface{ ExitCode() kern.ExitCode }
-	if errors.As(err, &ce) && ce.ExitCode() == kern.ExitCodeUsage {
-		fmt.Fprint(os.Stderr, kern.FormatTree(err))
+func usageOrFail(err error) errs.ExitCode {
+	var ce interface{ ExitCode() errs.ExitCode }
+	if errors.As(err, &ce) && ce.ExitCode() == errs.ExitCodeUsage {
+		fmt.Fprint(os.Stderr, errs.FormatTree(err))
 		printStackIfDebug(err)
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	return fail(err)
 }
@@ -120,8 +121,8 @@ func resolvedAddr(flagAddr string, cfg *config.Config) string {
 
 // childEnviron composes the child-process environment for run and dev,
 // exporting APP_ADDR plus KIW_ENV/KIW_DEBUG (KWL-K4T7W KWL-ENVV-006).
-// Vein is applied: env via kern.Env.
-func childEnviron(base []string, addr string, env kern.Env, debug bool) []string {
+// Vein is applied: env via env.Env.
+func childEnviron(base []string, addr string, env env.Env, debug bool) []string {
 	e := append([]string(nil), base...)
 	if addr != "" {
 		e = append(e, "APP_ADDR="+addr)

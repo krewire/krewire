@@ -10,7 +10,8 @@ import (
 	"strings"
 
 	krewire "github.com/krewire/krewire"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/model"
+	"github.com/krewire/krewire/packages/version"
 	"github.com/krewire/mdbind"
 )
 
@@ -28,13 +29,13 @@ type Manifest struct {
 	Name        string
 	Dir         string // workspace-relative directory
 	VersionFile string // workspace-relative path to the file declaring Version
-	Tier        kern.Tier
+	Tier        model.Tier
 }
 
 // Modules lists the ecosystem modules in dependency order (dependencies first).
 var Modules = []Manifest{
-	{Name: "krewire", Dir: ".", VersionFile: "version.go", Tier: kern.TierFree},
-	{Name: "mdbind", Dir: "../mdbind", VersionFile: "../mdbind/version.go", Tier: kern.TierFree},
+	{Name: "krewire", Dir: ".", VersionFile: "version.go", Tier: model.TierFree},
+	{Name: "mdbind", Dir: "../mdbind", VersionFile: "../mdbind/version.go", Tier: model.TierFree},
 }
 
 // dependents maps each module to the modules that require it.
@@ -91,7 +92,7 @@ func ParseBump(s string) (BumpType, error) {
 }
 
 // CurrentTier returns the declared Tier of module name.
-func CurrentTier(name string) (kern.Tier, error) {
+func CurrentTier(name string) (model.Tier, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Tier, nil
@@ -135,38 +136,38 @@ func CheckTierCompliance(root string) error {
 
 // CurrentVersion returns the currently compiled Version of module name.
 // For the CLI and local packages, it reads directly from krewire.Version.
-func CurrentVersion(name string) (kern.Version, error) {
+func CurrentVersion(name string) (version.Version, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Version, nil
 	case ModuleMdbind:
-		return kern.MustParseVersion(mdbind.Version.String()), nil
+		return version.MustParseVersion(mdbind.Version.String()), nil
 	default:
-		return kern.Version{}, fmt.Errorf("unknown module %q", name)
+		return version.Version{}, fmt.Errorf("unknown module %q", name)
 	}
 }
 
 // RequiredVersion returns the minimum version that dependent currently requires
 // of name.
-func RequiredVersion(dependent, name string) (kern.Version, bool) {
+func RequiredVersion(dependent, name string) (version.Version, bool) {
 	switch ModuleName(dependent) {
 	case ModuleMdbind:
 		if name == string(ModuleKrewire) {
 			return krewire.Version, true
 		}
 	}
-	return kern.Version{}, false
+	return version.Version{}, false
 }
 
 // Bump returns a new Version with the chosen semver component incremented.
-func Bump(v kern.Version, b BumpType) kern.Version {
+func Bump(v version.Version, b BumpType) version.Version {
 	switch b {
 	case BumpMajor:
-		return kern.Version{Major: v.Major + 1, Minor: 0, Patch: 0}
+		return version.Version{Major: v.Major + 1, Minor: 0, Patch: 0}
 	case BumpMinor:
-		return kern.Version{Major: v.Major, Minor: v.Minor + 1, Patch: 0}
+		return version.Version{Major: v.Major, Minor: v.Minor + 1, Patch: 0}
 	case BumpPatch:
-		return kern.Version{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}
+		return version.Version{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}
 	default:
 		return v
 	}
@@ -245,11 +246,11 @@ func Plan(targets []string, b BumpType) ([]Edit, error) {
 }
 
 func versionDecl(name, ver string) string {
-	return fmt.Sprintf(`var Version = kern.MustParseVersion("%s")`, ver)
+	return fmt.Sprintf(`var Version = version.MustParseVersion("%s")`, ver)
 }
 
 func reqDecl(name, ver string) string {
-	return fmt.Sprintf(`"%s": kern.MustParseVersion("%s"),`, name, ver)
+	return fmt.Sprintf(`"%s": version.MustParseVersion("%s"),`, name, ver)
 }
 
 // Apply executes a list of Edits against the filesystem.
@@ -281,7 +282,7 @@ func Apply(edits []Edit, root string, dryRun bool) ([]string, error) {
 	return modified, nil
 }
 
-func mustCur(name string) kern.Version {
+func mustCur(name string) version.Version {
 	v, err := CurrentVersion(name)
 	if err != nil {
 		panic(err)

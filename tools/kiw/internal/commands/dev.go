@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/web/ssg/hmr"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
@@ -36,9 +36,9 @@ func RegisterDev(fs *flag.FlagSet) {
 // RunDev runs the project in dev mode. For an app it rebuilds and restarts
 // the child on change; for site/book projects it runs a live development server
 // with file watching and auto-rebuild.
-func RunDev(fs *flag.FlagSet) kern.ExitCode {
+func RunDev(fs *flag.FlagSet) errs.ExitCode {
 	rt, code := bootRuntime(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		return code
 	}
 
@@ -46,7 +46,7 @@ func RunDev(fs *flag.FlagSet) kern.ExitCode {
 	res, err := shape.Detect(rt.root, explicit)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	switch res.Kind {
@@ -56,19 +56,19 @@ func RunDev(fs *flag.FlagSet) kern.ExitCode {
 		return devSite(rt, fs)
 	case shape.KindInfra:
 		fmt.Fprintln(os.Stderr, "kiw dev: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	case shape.KindKernel:
 		fmt.Fprintln(os.Stderr, "kiw dev: kernel project must be initialized first — run 'kiw init' to choose a starter")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	default:
 		fmt.Fprintln(os.Stderr, "kiw dev: no project found — run 'kiw new <project>' first")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 }
 
 // devSite runs a live development server for static sites and book projects,
 // rebuilding into .krewire/build whenever source files change.
-func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
+func devSite(rt *runtimeEnv, fs *flag.FlagSet) errs.ExitCode {
 	root, cfg := rt.root, rt.cfg
 	addr := resolvedAddr(flagValue(fs, "addr"), cfg)
 	interval := fs.Lookup("interval").Value
@@ -77,12 +77,12 @@ func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 		every = d
 	}
 
-	buildSite := func() kern.ExitCode {
+	buildSite := func() errs.ExitCode {
 		return RunBuild(fs)
 	}
 
 	slog.Info("building site for development")
-	if code := buildSite(); code != kern.ExitCodeSuccess {
+	if code := buildSite(); code != errs.ExitCodeSuccess {
 		slog.Error("initial site build failed")
 		return code
 	}
@@ -125,11 +125,11 @@ func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			defer cancel()
 			_ = srv.Shutdown(ctx)
-			return kern.ExitCodeSuccess
+			return errs.ExitCodeSuccess
 		case <-watcher.Changed():
 			watcher.Reset()
 			slog.Info("change detected, rebuilding...")
-			if code := buildSite(); code != kern.ExitCodeSuccess {
+			if code := buildSite(); code != errs.ExitCodeSuccess {
 				slog.Error("site rebuild failed; keeping previous preview server running", "code", code)
 				continue
 			}
@@ -142,7 +142,7 @@ func devSite(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 // devApp runs the app, watching the module and declared asset/markup roots,
 // rebuilding and restarting on change. A failed rebuild keeps the previous
 // child running (RND-DEV-002).
-func devApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
+func devApp(rt *runtimeEnv, fs *flag.FlagSet) errs.ExitCode {
 	root, cfg := rt.root, rt.cfg
 	env, debug := rt.env, rt.debug
 	dir, err := os.MkdirTemp("", "krewire-dev-")
@@ -192,7 +192,7 @@ func devApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 		case sig := <-sigCh:
 			slog.Info("dev received signal, stopping app", "signal", sig)
 			stopChild()
-			return kern.ExitCodeSuccess
+			return errs.ExitCodeSuccess
 		case <-watcher.Changed():
 			watcher.Reset()
 			slog.Info("change detected")

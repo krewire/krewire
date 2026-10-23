@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestRegisterGateway(t *testing.T) {
@@ -45,7 +45,7 @@ func TestRunGateway_WithRoutesFlag(t *testing.T) {
 	_ = fs.Set("host", "127.0.0.1")
 	_ = fs.Set("routes", fmt.Sprintf("/api=%s", upstream.URL))
 
-	done := make(chan kern.ExitCode, 1)
+	done := make(chan errs.ExitCode, 1)
 	go func() {
 		done <- RunGateway(fs)
 	}()
@@ -81,7 +81,7 @@ func TestRunGateway_WithRoutesFlag(t *testing.T) {
 
 	select {
 	case code := <-done:
-		if code != kern.ExitCodeSuccess {
+		if code != errs.ExitCodeSuccess {
 			t.Fatalf("expected success exit code, got %v", code)
 		}
 	case <-time.After(2 * time.Second):
@@ -117,7 +117,7 @@ gateway:
 	fs := flag.NewFlagSet("gateway", flag.ContinueOnError)
 	RegisterGateway(fs)
 
-	done := make(chan kern.ExitCode, 1)
+	done := make(chan errs.ExitCode, 1)
 	go func() {
 		done <- RunGateway(fs)
 	}()
@@ -149,7 +149,7 @@ gateway:
 
 	select {
 	case code := <-done:
-		if code != kern.ExitCodeSuccess {
+		if code != errs.ExitCodeSuccess {
 			t.Fatalf("expected success, got %v", code)
 		}
 	case <-time.After(2 * time.Second):

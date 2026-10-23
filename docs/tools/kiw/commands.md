@@ -177,6 +177,24 @@ kiw dashboard --port 4000 --host 127.0.0.1
 - `GET /mcp/sse`: Native Model Context Protocol (MCP) SSE endpoint for AI coding agents.
 - `POST /mcp/message`: Native MCP JSON-RPC message endpoint.
 
+### `kiw gateway`
+Runs the Krewire API Gateway reverse proxy for microservices, routing inbound HTTP requests to upstream services via local service discovery or static URLs with built-in tracing, rate limiting, and CORS.
+```bash
+kiw gateway
+kiw gateway --port 8080 --host 0.0.0.0
+kiw gateway --routes "/api/auth=auth-service,/api/pay=https://payment.internal"
+```
+
+**Options:**
+- `--port`: Listen port for the API gateway (default: `8080`, or `gateway.port` in `krewire.yaml`).
+- `--host`: Listen host for the API gateway (default: `0.0.0.0`, or `gateway.host` in `krewire.yaml`).
+- `--routes`: Comma-separated route mapping (e.g. `/api/auth=auth-service,/api/pay=https://payment.internal`).
+
+**Gateway Features:**
+- Reads route rules and timeouts directly from `gateway:` in `krewire.yaml`.
+- Propagates W3C `traceparent` headers and correlation IDs across upstream services.
+- Integrates with `packages/cloud/service/registry` for dynamic service resolution.
+
 ### `kiw mcp`
 Starts a native Model Context Protocol (MCP) server for AI coding agents (Antigravity, Cursor, Claude Desktop, OpenCode). Exposes project metadata, routes, runtime metrics, health probes, and scaffolding tools directly to agents over stdio or HTTP/SSE.
 ```bash

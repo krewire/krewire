@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
 
@@ -18,7 +18,7 @@ func RegisterFmt(fs *flag.FlagSet) {
 }
 
 // RunFmt checks or fixes formatting with gofmt.
-func RunFmt(fs *flag.FlagSet) kern.ExitCode {
+func RunFmt(fs *flag.FlagSet) errs.ExitCode {
 	dir, err := os.Getwd()
 	if err != nil {
 		return fail(err)
@@ -54,9 +54,9 @@ func RunFmt(fs *flag.FlagSet) kern.ExitCode {
 			if ferr := fallback.Run(); ferr != nil {
 				return fail(err)
 			}
-			return kern.ExitCodeSuccess
+			return errs.ExitCodeSuccess
 		}
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 	slog.Info("checking format", "root", root)
 	cmd := exec.Command("gofmt", "-l", ".") // #nosec G204 — user-invoked devtool
@@ -71,7 +71,7 @@ func RunFmt(fs *flag.FlagSet) kern.ExitCode {
 	if len(out) > 0 {
 		fmt.Fprint(os.Stdout, string(out))
 		fmt.Fprintln(os.Stderr, "kiw fmt: some files need formatting — run 'kiw fmt --write' or 'gofmt -w .'")
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }

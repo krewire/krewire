@@ -62,6 +62,26 @@ services:
   billing:
     port: 8082
 
+# API gateway reverse proxy configuration (KWF-L5H2F)
+gateway:
+  host: "0.0.0.0"
+  port: 8080
+  routes:
+    - path: "/api/auth"
+      service: "auth"
+      timeout: "5s"
+    - path: "/api/billing"
+      service: "billing"
+      timeout: "10s"
+    - path: "/api/external"
+      target_url: "https://api.external.com"
+
+# Internationalization settings (kind: site, book)
+i18n:
+  default_locale: "en"
+  fallback_locale: "en"
+  locales: ["en", "id"]
+
 # SSG static site settings (kind: site)
 ssg:
   content_dir: "content"

@@ -12,8 +12,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/cloud/runner"
-	"github.com/krewire/krewire/packages/cloud/service"
 	"github.com/krewire/krewire/packages/web/ssg"
 )
 
@@ -113,14 +111,6 @@ func (a *App) Serve(ctx context.Context, addr string) error {
 	}
 	slog.Info("krewire server stopped")
 	return nil
-}
-
-// Runner adapts the App into a runner.Runner that serves HTTP on addr
-// within an Application lifecycle.
-func (a *App) Runner(addr string) runner.Runner {
-	return runner.Func(func(ctx context.Context, _ service.Registry) error {
-		return a.Serve(ctx, addr)
-	})
 }
 
 // Run serves the App over HTTP on addr, shutting down gracefully on

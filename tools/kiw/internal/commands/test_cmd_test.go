@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
 
@@ -73,7 +73,7 @@ func TestOutsideGoModuleExitCode(t *testing.T) {
 	defer func() { _ = os.Chdir(orig) }()
 
 	code := RunTest(nil)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Fatalf("got exit code %v, want ExitCodeUsage (2)", code)
 	}
 }
@@ -110,7 +110,7 @@ func TestSimplePass(t *testing.T) {
 	defer func() { _ = os.Chdir(orig) }()
 
 	code := RunTest(nil)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("got exit code %v, want ExitCodeSuccess (0)", code)
 	}
 }
@@ -145,7 +145,7 @@ func TestSimpleFail(t *testing.T) {
 	defer func() { _ = os.Chdir(orig) }()
 
 	code := RunTest(nil)
-	if code != kern.ExitCodeFailure {
+	if code != errs.ExitCodeFailure {
 		t.Fatalf("got exit code %v, want ExitCodeFailure (1)", code)
 	}
 }

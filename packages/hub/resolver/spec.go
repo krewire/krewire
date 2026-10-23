@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/version"
 )
 
 // Spec is a parsed package@version reference.
 type Spec struct {
-	Raw     string       // original input e.g. "twcss@1.2.3" or "pkg@latest"
-	Name    string       // package name e.g. "twcss" or "@scope/pkg" or "github.com/foo/bar"
-	Version kern.Version // parsed semantic version
-	RawVer  string       // raw version string from input (e.g. "latest", "1.2.3", "v1.0.0")
+	Raw     string          // original input e.g. "twcss@1.2.3" or "pkg@latest"
+	Name    string          // package name e.g. "twcss" or "@scope/pkg" or "github.com/foo/bar"
+	Version version.Version // parsed semantic version
+	RawVer  string          // raw version string from input (e.g. "latest", "1.2.3", "v1.0.0")
 }
 
 // ErrUnsafePackageName reports a package name that must not reach a package
@@ -71,7 +71,7 @@ func validatePackageName(name string) error {
 }
 
 // ParseSpec parses raw package@version. It supports:
-//   - "pkg"                → {Name:"pkg", Version:kern.Version{}}
+//   - "pkg"                → {Name:"pkg", Version:version.Version{}}
 //   - "pkg@1.2.3"           → {Name:"pkg", Version:{Major:1,Minor:2,Patch:3}}
 //   - "pkg@latest"          → {Name:"pkg", Version:{}, RawVer:"latest"}
 //   - "@scope/pkg@1.0.0"    → {Name:"@scope/pkg", Version:{Major:1,Patch:0}}
@@ -111,13 +111,13 @@ func parseSpecUnchecked(raw string) (Spec, error) {
 			if ver == "" {
 				return Spec{}, fmt.Errorf("invalid version in %q", raw)
 			}
-			v, err := kern.ParseVersion(ver)
+			v, err := version.ParseVersion(ver)
 			if err != nil {
 				return Spec{}, err
 			}
 			return Spec{Raw: raw, Name: name, Version: v, RawVer: ver}, nil
 		}
-		return Spec{Raw: raw, Name: raw, Version: kern.Version{}}, nil
+		return Spec{Raw: raw, Name: raw, Version: version.Version{}}, nil
 	}
 	// Non-scoped: split at last @ (to handle github.com/foo/bar@v1.2.3)
 	if at := strings.LastIndex(raw, "@"); at != -1 {
@@ -126,17 +126,17 @@ func parseSpecUnchecked(raw string) (Spec, error) {
 		if name == "" || ver == "" {
 			return Spec{}, fmt.Errorf("invalid package spec %q", raw)
 		}
-		v, err := kern.ParseVersion(ver)
+		v, err := version.ParseVersion(ver)
 		if err != nil {
 			// Allow "latest" as special case
 			if ver == "latest" {
-				return Spec{Raw: raw, Name: name, Version: kern.Version{}, RawVer: "latest"}, nil
+				return Spec{Raw: raw, Name: name, Version: version.Version{}, RawVer: "latest"}, nil
 			}
 			return Spec{}, err
 		}
 		return Spec{Raw: raw, Name: name, Version: v, RawVer: ver}, nil
 	}
-	return Spec{Raw: raw, Name: raw, Version: kern.Version{}}, nil
+	return Spec{Raw: raw, Name: raw, Version: version.Version{}}, nil
 }
 
 // EffectiveVersion returns version to use for install ("" or "latest" → "latest").
@@ -156,7 +156,7 @@ func (s Spec) String() string {
 }
 
 // SemVer returns the parsed semantic version, zero if not a valid semver.
-func (s Spec) SemVer() kern.Version {
+func (s Spec) SemVer() version.Version {
 	return s.Version
 }
 
@@ -166,8 +166,8 @@ func (s Spec) IsLatest() bool {
 }
 
 // Satisfies reports whether this spec's version satisfies the required version
-// per semver caret semantics (kern.Version.IsCompatible).
-func (s Spec) Satisfies(required kern.Version) bool {
+// per semver caret semantics (version.Version.IsCompatible).
+func (s Spec) Satisfies(required version.Version) bool {
 	if s.IsLatest() {
 		return true // latest satisfies any requirement
 	}

@@ -84,13 +84,13 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 // Hello prints a friendly greeting.
-func Hello(_ *flag.FlagSet) kern.ExitCode {
+func Hello(_ *flag.FlagSet) errs.ExitCode {
 	fmt.Println("hello, %s")
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 `, name, name)
 }

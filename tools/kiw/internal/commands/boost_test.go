@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func newBoostFlagSet(args ...string) *flag.FlagSet {
@@ -22,7 +22,7 @@ func TestRunBoostInstallFresh(t *testing.T) {
 	target := t.TempDir()
 	var out bytes.Buffer
 	code := runBoostInstall(newBoostFlagSet(target), strings.NewReader(""), &out)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("want success, got %d (%s)", code.Int(), out.String())
 	}
 	for _, want := range []string{"AGENTS.md", "opencode.json"} {
@@ -42,7 +42,7 @@ func TestRunBoostInstallConflictDeclines(t *testing.T) {
 	}
 	var out bytes.Buffer
 	code := runBoostInstall(newBoostFlagSet(target), strings.NewReader("n\n"), &out)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Fatalf("want usage on decline, got %d", code.Int())
 	}
 	if data, err := os.ReadFile(filepath.Join(target, "AGENTS.md")); err != nil || string(data) != "mine" {
@@ -57,7 +57,7 @@ func TestRunBoostInstallConflictAccepts(t *testing.T) {
 	}
 	var out bytes.Buffer
 	code := runBoostInstall(newBoostFlagSet(target), strings.NewReader("y\n"), &out)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("want success, got %d (%s)", code.Int(), out.String())
 	}
 	if data, err := os.ReadFile(filepath.Join(target, "AGENTS.md")); err != nil || !strings.Contains(string(data), "Agent Constitution") {
@@ -72,7 +72,7 @@ func TestRunBoostInstallForceSkipsPrompt(t *testing.T) {
 	}
 	var out bytes.Buffer
 	code := runBoostInstall(newBoostFlagSet(target, "--force"), strings.NewReader(""), &out)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("want success, got %d (%s)", code.Int(), out.String())
 	}
 }
@@ -81,7 +81,7 @@ func TestRunBoostInstallDryRunWritesNothing(t *testing.T) {
 	target := t.TempDir()
 	var out bytes.Buffer
 	code := runBoostInstall(newBoostFlagSet(target, "--dry-run"), strings.NewReader(""), &out)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("want success, got %d (%s)", code.Int(), out.String())
 	}
 	entries, err := os.ReadDir(target)
@@ -100,7 +100,7 @@ func TestRunBoostInstallPromptsForTarget(t *testing.T) {
 	target := t.TempDir()
 	var out bytes.Buffer
 	code := runBoostInstall(newBoostFlagSet(), strings.NewReader(target+"\n"), &out)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("want success, got %d (%s)", code.Int(), out.String())
 	}
 	if _, err := os.Stat(filepath.Join(target, "AGENTS.md")); err != nil {
@@ -111,7 +111,7 @@ func TestRunBoostInstallPromptsForTarget(t *testing.T) {
 func TestRunBoostMissingSubcommand(t *testing.T) {
 	fs := flag.NewFlagSet("boost", flag.ContinueOnError)
 	RegisterBoost(fs)
-	if code := RunBoost(fs); code != kern.ExitCodeUsage {
+	if code := RunBoost(fs); code != errs.ExitCodeUsage {
 		t.Fatalf("want usage, got %d", code.Int())
 	}
 }
@@ -120,7 +120,7 @@ func TestRunBoostUnknownSubcommand(t *testing.T) {
 	fs := flag.NewFlagSet("boost", flag.ContinueOnError)
 	RegisterBoost(fs)
 	fs.Parse([]string{"frobnicate"})
-	if code := RunBoost(fs); code != kern.ExitCodeUsage {
+	if code := RunBoost(fs); code != errs.ExitCodeUsage {
 		t.Fatalf("want usage, got %d", code.Int())
 	}
 }
@@ -129,7 +129,7 @@ func TestRunBoostInstallMissingTarget(t *testing.T) {
 	target := filepath.Join(t.TempDir(), "nope")
 	var out bytes.Buffer
 	code := runBoostInstall(newBoostFlagSet(target), strings.NewReader(""), &out)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Fatalf("want usage for missing target, got %d", code.Int())
 	}
 }
@@ -166,7 +166,7 @@ func TestRunBoostInstall_InNodeJSProject(t *testing.T) {
 
 	// 2. Run kiw boost install <nodejs-project-dir>
 	code := RunBoost(newBoostFlagSet(dir))
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("expected success, got %d", code)
 	}
 
@@ -216,7 +216,7 @@ func TestRunBoostInstall_InLaravelProject(t *testing.T) {
 
 	// 2. Run kiw boost install <laravel-project-dir>
 	code := RunBoost(newBoostFlagSet(dir))
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("expected success, got %d", code)
 	}
 

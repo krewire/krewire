@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/version"
 )
 
 func init() {
@@ -53,8 +53,8 @@ func (t *Tailwind) Name() string { return "tailwind" }
 
 func (t *Tailwind) Aliases() []string { return []string{"twcss", "tailwindcss"} }
 
-func (t *Tailwind) Version() kern.Version {
-	return kern.MustParseVersion("3.4.0") // Tailwind CSS baseline
+func (t *Tailwind) Version() version.Version {
+	return version.MustParseVersion("3.4.0") // Tailwind CSS baseline
 }
 
 func (t *Tailwind) Detect(root string) bool {

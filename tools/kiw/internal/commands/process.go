@@ -6,14 +6,14 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/env"
 )
 
 var currentChild *exec.Cmd
 
 // restartApp starts the app binary as a child, streaming its output and
 // exporting KIW_ENV/KIW_DEBUG alongside APP_ADDR (KWL-K4T7W).
-func restartApp(bin, root, addr string, env kern.Env, debug bool) {
+func restartApp(bin, root, addr string, env env.Env, debug bool) {
 	cmd := exec.Command(bin)
 	cmd.Dir = root
 	cmd.Stdout = os.Stdout

@@ -6,12 +6,13 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/term"
+	"github.com/krewire/krewire/packages/version"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 )
 
-func RunVersion(_ *flag.FlagSet) kern.ExitCode {
+func RunVersion(_ *flag.FlagSet) errs.ExitCode {
 	tm := term.NewTerminal()
 	bold := func(s string) string { return tm.Paint(s, term.ColorCyan, []term.Style{term.StyleBold}) }
 	dim := func(s string) string { return tm.Paint(s, term.ColorDefault, []term.Style{term.StyleDim}) }
@@ -25,7 +26,7 @@ func RunVersion(_ *flag.FlagSet) kern.ExitCode {
 		verColor = yellow(ver)
 	}
 	fmt.Printf("  %-18s %s\n", dim("Krewire Ecosystem"), verColor)
-	fmt.Printf("  %-18s %s\n", dim("Signature"), green(kern.BuildSignature()))
+	fmt.Printf("  %-18s %s\n", dim("Signature"), green(version.BuildSignature()))
 	fmt.Printf("  %-18s %s\n", dim("Go"), dim(runtime.Version()+" ("+runtime.GOOS+"/"+runtime.GOARCH+")"))
 	if prov, ok := buildinfo.ReadProvenance(); ok && prov.Revision != "" {
 		rev := prov.Revision
@@ -37,7 +38,7 @@ func RunVersion(_ *flag.FlagSet) kern.ExitCode {
 		}
 		fmt.Printf("  %-18s %s\n", dim("Commit"), dim(rev))
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 func humanVersion(v string) string {

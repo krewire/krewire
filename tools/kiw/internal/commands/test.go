@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
@@ -34,7 +34,7 @@ func RegisterTest(fs *flag.FlagSet) {
 }
 
 // RunTest executes tests for the current Go module project.
-func RunTest(fs *flag.FlagSet) kern.ExitCode {
+func RunTest(fs *flag.FlagSet) errs.ExitCode {
 	dir, err := os.Getwd()
 	if err != nil {
 		return fail(err)
@@ -42,7 +42,7 @@ func RunTest(fs *flag.FlagSet) kern.ExitCode {
 	mod, err := gomod.Find(dir)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: not inside a Go module — run 'kiw new <project>' first")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	slog.Info("running tests", "module", mod.Path)
 
@@ -150,7 +150,7 @@ func RunTest(fs *flag.FlagSet) kern.ExitCode {
 	return runTestOnce(dir, args, env)
 }
 
-func runTestOnce(dir string, args []string, env []string) kern.ExitCode {
+func runTestOnce(dir string, args []string, env []string) errs.ExitCode {
 	slog.Info("go test", "args", strings.Join(args, " "))
 	cmd := exec.Command("go", args...) // #nosec G204 — user-invoked devtool
 	cmd.Dir = dir
@@ -158,12 +158,12 @@ func runTestOnce(dir string, args []string, env []string) kern.ExitCode {
 	cmd.Stderr = os.Stderr
 	cmd.Env = env
 	if err := cmd.Run(); err != nil {
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
-func runTestWatch(dir string, args []string, env []string) kern.ExitCode {
+func runTestWatch(dir string, args []string, env []string) errs.ExitCode {
 	root := dir
 	if mod, err := gomod.Find(dir); err == nil {
 		if mdir := moduleDir(dir); mdir != "" {
@@ -177,7 +177,7 @@ func runTestWatch(dir string, args []string, env []string) kern.ExitCode {
 	defer func() { close(w.done) }()
 
 	code := runTestOnce(dir, args, env)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		slog.Info("watch: initial run failed, waiting for changes...")
 	}
 	fmt.Fprintln(os.Stdout, "watching for changes (Ctrl+C to stop)...")

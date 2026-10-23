@@ -4,13 +4,13 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/version"
 )
 
 // mustVersion parses v, failing the test if it is not valid semver.
-func mustVersion(t *testing.T, v string) kern.Version {
+func mustVersion(t *testing.T, v string) version.Version {
 	t.Helper()
-	ver, err := kern.ParseVersion(v)
+	ver, err := version.ParseVersion(v)
 	if err != nil {
 		t.Fatalf("ParseVersion(%q) error = %v", v, err)
 	}

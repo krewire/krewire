@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestRunDeploy_BinaryWorkloads(t *testing.T) {
@@ -30,7 +30,7 @@ func TestRunDeploy_BinaryWorkloads(t *testing.T) {
 			_ = fs.Set("dry-run", "true")
 
 			code := RunDeploy(fs)
-			if code != kern.ExitCodeSuccess {
+			if code != errs.ExitCodeSuccess {
 				t.Fatalf("RunDeploy on %s failed: %v", kind, code)
 			}
 
@@ -71,7 +71,7 @@ func TestRunDeploy_SystemdTarget(t *testing.T) {
 			_ = fs.Set("dry-run", "true")
 
 			code := RunDeploy(fs)
-			if code != kern.ExitCodeSuccess {
+			if code != errs.ExitCodeSuccess {
 				t.Fatalf("RunDeploy on %s systemd target failed: %v", kind, code)
 			}
 
@@ -118,7 +118,7 @@ func TestRunDeploy_InfraTarget(t *testing.T) {
 	_ = fs.Set("plan", "true")
 
 	code := RunDeploy(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunDeploy on infra target failed: %v", code)
 	}
 

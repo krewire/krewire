@@ -8,7 +8,7 @@ The `cli` workload targets standalone developer utilities, administrative comman
 
 - **`packages/tui`**: Declarative command tree structure, subcommands, flag binding, and interactive prompts.
 - **`packages/term`**: ANSI color styling, cursor control, spinners, tables, and box drawing.
-- **`packages/kern/errs`**: Standard exit code mapping (`0` for success, `1` for general error, `2` for usage error, `78` for config error).
+- **`packages/errs`**: Standard exit code mapping (`0` for success, `1` for general error, `2` for usage error, `78` for config error).
 
 ---
 

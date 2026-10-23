@@ -25,22 +25,31 @@ krewire/
 │   ├── foundation/       # Unified Architecture & Philosophy specifications
 │   ├── packages/         # Domain packages and module specifications
 │   └── tools/kiw/        # Developer CLI documentation
-├── packages/             # Domain libraries and control plane
-│   ├── kern/             # Kernel, lifecycle, errors, environment, model (workload & kinds)
+├── packages/             # Domain libraries and control plane (25 modular packages)
+│   ├── kern/             # Bedrock control plane: model, lifecycle, errs, log, env, version
 │   ├── web/              # HTTP router, middleware, SSR, SSG, gateway, HMR
 │   ├── app/              # Dependency injection container & application assembly
-│   ├── ui/               # UI components, layout, styling tokens
+│   ├── ui/               # UI components, layout, styling tokens, CSS theme palettes
 │   ├── tui/              # Terminal UI toolkit powering the kiw CLI
 │   ├── runtime/          # WebAssembly client runtime (VDOM, mounting, widgets)
+│   ├── ai/               # Native AI SDK: providers, streaming, tools, schema, object generation
 │   ├── sec/              # Secure defaults (headers, CSRF, CORS, SSRF, PII redaction)
-│   ├── auth/             # Authentication & token verification primitives
-│   ├── cloud/            # Runner, service, worker, storage, infra deployment targets
+│   ├── auth/             # Authentication & token verification primitives (Basic Auth, JWT)
+│   ├── assets/           # Asset management, pipeline, bundling, and hash busting
+│   ├── cloud/            # Runner, service, worker, storage, infra, deploy targets
 │   ├── config/           # Declarative configuration loader (krewire.yaml)
-│   ├── validation/       # Schema and struct validation
-│   ├── storage/          # Persistent storage abstractions
-│   ├── markdown/         # Markdown parsing & rendering
-│   ├── testing/          # Test harnesses and browser test utilities
+│   ├── file/             # Atomic file operations and safe replacement
+│   ├── fs/               # Testable filesystem abstraction boundary
+│   ├── functional/       # Generic collection and functional utilities (Map, Filter, Reduce)
 │   ├── hub/              # Plugin registry and package resolver
+│   ├── i18n/             # Internationalization, message bundles, pluralization, middleware
+│   ├── kiw/              # .kiw DSL compiler, parser, AST desugaring, component engine
+│   ├── markdown/         # Markdown parsing & rendering with link prefixing
+│   ├── resilience/       # Retry policies with exponential backoff & circuit breakers
+│   ├── storage/          # Persistent object storage abstractions (disk, memory, cloud)
+│   ├── term/             # Terminal detection, ANSI colors, and output formatting
+│   ├── testing/          # Test harnesses and browser automation utilities
+│   ├── validation/       # Schema and struct validation
 │   └── boost/            # Boost coordination package & embedded agentic template
 ├── apps/                 # Deployable services and applications
 ├── tools/                # Developer tooling
@@ -77,12 +86,12 @@ flowchart TD
         PlatformUtil["cloud, testing, hub, resilience, markdown, i18n"]
     end
 
-    subgraph L2 ["Layer 2: Kernel Execution & Supervision"]
-        KernLifecycle["packages/kern (Lifecycle, Supervisor, Env, Log)"]
+    subgraph L2 ["Layer 2: Execution & Supervision"]
+        KernLifecycle["packages/lifecycle, packages/env, packages/log"]
     end
 
-    subgraph L1 ["Layer 1: Declarative Core & Domain Invariants"]
-        KernModel["packages/kern/model, packages/kern/errs"]
+    subgraph L1 ["Layer 1: Declarative Core & Base Primitives"]
+        KernModel["packages/model, packages/errs, packages/version"]
     end
 
     subgraph L0 ["Layer 0: Platform Foundation"]
@@ -110,8 +119,8 @@ flowchart TD
 | **Layer 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Layers 0, 1, 2, 3, 4 | External project application code |
 | **Layer 4** | Developer Tooling | `tools/kiw` | Layers 0, 1, 2, 3 | Layer 5, Consumer application binaries |
 | **Layer 3** | Domain Libraries | `packages/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`tools/kiw` or `templates/*`) |
-| **Layer 2** | Kernel Execution & Supervision | `packages/kern` (`lifecycle`, `supervisor`, `env`, `log`) | Layers 0, 1 | Layers 3, 4, 5 (Zero domain package imports) |
-| **Layer 1** | Declarative Core Foundation | `packages/kern/model`, `packages/kern/errs` | Layer 0 (Stdlib only) | Layers 2, 3, 4, 5, Third-party packages |
+| **Layer 2** | Execution & Supervision | `packages/lifecycle`, `packages/env`, `packages/log` | Layers 0, 1 | Layers 3, 4, 5 (Zero domain package imports) |
+| **Layer 1** | Declarative Core & Base Primitives | `packages/model`, `packages/errs`, `packages/version` | Layer 0 (Stdlib only; `model` may import `errs`) | Layers 2, 3, 4, 5, Third-party packages |
 | **Layer 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
 
 ---
@@ -123,22 +132,22 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 #### Invariant 1: Downward-Only Directionality
 - **Rule:** For any package import edge $A \rightarrow B$, the architectural layer of $A$ must be strictly greater than $B$ ($Layer(A) > Layer(B)$), or within Layer 3 where $A$ and $B$ form a strictly acyclic dependency.
 - **Rationale:** Prevents circular dependencies, simplifies mental models, and ensures leaf packages can be compiled, benchmarked, and audited in total isolation.
-- **Enforcement:** Verified via AST analysis in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go) (`TestDownwardImportsOnly`).
+- **Enforcement:** Verified via AST analysis in [`layering_test.go`](../../layering_test.go) (`TestDownwardImportsOnly`).
 
-#### Invariant 2: Kernel Floor Invariant
-- **Rule:** `packages/kern` sits at the floor of the ecosystem dependency graph ($Depth(\text{kern}) = 0$ above stdlib). It requires no other ecosystem module.
-- **Rationale:** If the kernel depended on a domain package (such as `web` or `config`), every package in the ecosystem would transitively drag those dependencies along, destroying modularity.
-- **Enforcement:** Verified in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go) (`TestKernIsTheFloor`).
+#### Invariant 2: Base Floor Invariant
+- **Rule:** Base foundation packages (`packages/errs`, `packages/model`, `packages/version`) sit at the floor of the ecosystem dependency graph ($Depth(\text{base}) = 0$ above stdlib). They require no other ecosystem module.
+- **Rationale:** If base packages depended on a domain package (such as `web` or `config`), every package in the ecosystem would transitively drag those dependencies along, destroying modularity.
+- **Enforcement:** Verified in [`layering_test.go`](../../layering_test.go).
 
-#### Invariant 3: Zero-Ecosystem Coupling in Kernel
-- **Rule:** The kernel must contain **zero** references, string literals, or constants naming higher-layer modules or packages (`github.com/krewire/*`).
-- **Rationale:** True scalability requires that adding a new package to `packages/` never requires a corresponding code edit in `packages/kern`. The ecosystem roster is derived dynamically at runtime from `go.work` and module descriptors.
-- **Enforcement:** Verified via AST literal inspection in [`packages/kern/layering_test.go`](../../packages/kern/layering_test.go) (`TestNoEcosystemNames`).
+#### Invariant 3: Zero-Ecosystem Coupling in Base Foundation
+- **Rule:** Base foundation packages must contain **zero** references, string literals, or constants naming higher-layer modules or packages (`github.com/krewire/*`).
+- **Rationale:** True scalability requires that adding a new package to `packages/` never requires a corresponding code edit in base packages. The ecosystem roster is derived dynamically at runtime from `go.work` and module descriptors.
+- **Enforcement:** Verified via AST literal inspection in [`layering_test.go`](../../layering_test.go) (`TestNoEcosystemNames`).
 
 #### Invariant 4: Hermetic Core Boundary
-- **Rule:** `packages/kern/model` may import **only** the Go standard library and its internal `errs` sibling. It must never import external third-party dependencies or other Krewire packages.
+- **Rule:** `packages/model` may import **only** the Go standard library and its internal `errs` sibling. It must never import external third-party dependencies or other Krewire packages.
 - **Rationale:** Ensures that business models, workload definitions, and scope hierarchies are 100% portable, pure, and immune to third-party vulnerability churn.
-- **Enforcement:** Verified in [`packages/kern/dependency_test.go`](../../packages/kern/dependency_test.go) (`TestImportBoundary`).
+- **Enforcement:** Verified in [`packages/model/dependency_test.go`](../../packages/model/dependency_test.go) (`TestModel_StdlibBoundary`) and [`packages/errs/dependency_test.go`](../../packages/errs/dependency_test.go) (`TestImportBoundary`).
 
 #### Invariant 5: Complete Tooling Isolation (No `kiw` Imports)
 - **Rule:** No package under `packages/` or `templates/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
@@ -148,7 +157,7 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 #### Invariant 6: Opt-In Battery Boundaries (`OptInRule`)
 - **Rule:** Packages classified as specialized batteries for a specific workload kind (e.g. `cloud/worker`, `web/ssg`) are blocked from uninvited cross-import by non-owning kinds unless explicitly opted in.
 - **Rationale:** Guarantees that lightweight workloads (such as `cli` or `kernel`) incur zero binary weight or initialization cost from features they do not use.
-- **Enforcement:** Enforced via declarative opt-in policies in [`packages/kern/model/project.go`](../../packages/kern/model/project.go#L82) (`ViolatesOptIn`).
+- **Enforcement:** Enforced via declarative opt-in policies in [`packages/model/project.go`](../../packages/model/project.go#L82) (`ViolatesOptIn`).
 
 ---
 
@@ -190,10 +199,12 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 
 ## 5. Subsystem Architecture
 
-### A. Kernel & Lifecycle Control Plane (`packages/kern`)
-- **Kernel & Module Registry (`KWL-KERN-X8P3L`):** Provides structured lifecycle phases (`Init`, `Start`, `Stop`) with supervisor capabilities, graceful shutdown, and context propagation.
-- **Error Handling & Exit Codes (`KWL-W0J2X`, `KWL-P8W2N`):** Structured error categorization (`UsageError`, `SystemError`, `ConfigError`), stack trace capture, and deterministic process exit codes.
-- **Environment & Logging (`KWL-K4T7W`):** Standard-library-based structured logging (`log/slog`) with environment-aware formatting (JSON in production, styled text in local development) and automatic PII redaction.
+### A. Core Control Plane & Base Primitives (`packages/model`, `packages/lifecycle`, `packages/errs`)
+- **Lifecycle & Module Registry (`packages/lifecycle`):** Provides structured lifecycle phases (`Init`, `Start`, `Stop`) with supervisor capabilities, graceful shutdown, and context propagation.
+- **Error Handling & Exit Codes (`packages/errs`):** Structured error categorization (`UsageError`, `FailureError`), stack trace capture, and deterministic process exit codes (`0`, `1`, `2`).
+- **Environment & Logging (`packages/env`, `packages/log`):** Standard-library-based structured logging (`log/slog`) with environment-aware formatting (JSON in production, styled text in local development) and automatic PII redaction.
+- **Declarative Models & Workload Matrix (`packages/model`):** Canonical workload kinds, scope hierarchy, licensing tiers, and opt-in import constraints.
+- **Versioning & Watermark (`packages/version`):** Semantic version contracts, compatibility validation, and build signature watermarking.
 
 ### B. Domain Libraries (`packages/*`)
 - **Web (`packages/web`):** High-throughput HTTP routing, pipeline middleware, SSR templating, SSG asset pipeline, WebSocket-driven HMR, and API gateway routing.
@@ -209,7 +220,7 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
   - `run` / `dev`: Executes local apps, standalone scripts, or defined tasks with hot-reload.
   - `deploy`: Prepares and stages production artifacts into `dist/`.
   - `new` / `init`: Scaffolds projects from kernel blueprints and equips them with workload variants.
-- **Dogfooding:** Built entirely on `packages/tui` for interactive terminal UI and `packages/kern` for status and error codes.
+- **Dogfooding:** Built entirely on `packages/tui` for interactive terminal UI, `packages/errs` for status and error codes, and `packages/version` for versioning.
 
 ### D. AI-Native Boost Engine (`packages/boost` & `templates/boost`)
 - **Embedded Agent Constitution:** Embedded via `//go:embed` into `packages/boost`, providing a pre-configured multi-agent orchestration team (`.agents/`).

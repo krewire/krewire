@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestRunRun_RejectsNonRunnableWorkloads(t *testing.T) {
@@ -29,7 +29,7 @@ func TestRunRun_RejectsNonRunnableWorkloads(t *testing.T) {
 			fs := flag.NewFlagSet("run", flag.ContinueOnError)
 			RegisterRun(fs)
 			code := RunRun(fs)
-			if code != kern.ExitCodeUsage {
+			if code != errs.ExitCodeUsage {
 				t.Errorf("RunRun on %s = %v, want ExitCodeUsage (2)", tc.kind, code)
 			}
 		})
@@ -68,7 +68,7 @@ func TestRunDev_RejectsInfraAndKernel(t *testing.T) {
 			fs := flag.NewFlagSet("dev", flag.ContinueOnError)
 			RegisterDev(fs)
 			code := RunDev(fs)
-			if code != kern.ExitCodeUsage {
+			if code != errs.ExitCodeUsage {
 				t.Errorf("RunDev on %s = %v, want ExitCodeUsage (2)", tc.name, code)
 			}
 		})

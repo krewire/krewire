@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/web/ssg"
 	"github.com/krewire/mdbind/book"
 )
@@ -132,7 +132,7 @@ name: test-progressive
 	}
 
 	code := RunBuild(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunBuild failed with exit code %v", code)
 	}
 
@@ -163,7 +163,7 @@ func TestRunBuild_AppBinary(t *testing.T) {
 	RegisterBuild(fs)
 
 	code := RunBuild(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunBuild failed with exit code %v", code)
 	}
 
@@ -194,7 +194,7 @@ func TestRunBuild_InfraPlan(t *testing.T) {
 	_ = fs.Set("plan", "true")
 
 	code := RunBuild(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunBuild failed with exit code %v", code)
 	}
 
@@ -226,7 +226,7 @@ func TestRunBuild_KernelRequiresInit(t *testing.T) {
 	RegisterBuild(fs)
 
 	code := RunBuild(fs)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Fatalf("RunBuild on kernel = %v, want ExitCodeUsage (2)", code)
 	}
 }
@@ -250,7 +250,7 @@ func TestRunBuild_WorkerAndService(t *testing.T) {
 			RegisterBuild(fs)
 
 			code := RunBuild(fs)
-			if code != kern.ExitCodeSuccess {
+			if code != errs.ExitCodeSuccess {
 				t.Fatalf("RunBuild on %s failed: %v", kind, code)
 			}
 			binPath := filepath.Join(dir, ".krewire", "build", "bin", kind+"-app")
@@ -283,7 +283,7 @@ func TestRunBuild_WasmAutomaticSideBySide(t *testing.T) {
 	RegisterBuild(fs)
 
 	code := RunBuild(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("RunBuild failed: %v", code)
 	}
 

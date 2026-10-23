@@ -46,7 +46,7 @@ func TestApplication_RunsWebAndWorkerConcurrently(t *testing.T) {
 	runErrCh := make(chan error, 1)
 	go func() {
 		// Run both workloads under one application lifecycle
-		runErrCh <- appl.Run(ctx, webApp.Runner("127.0.0.1:0"), workerRunner.AsRunner())
+		runErrCh <- appl.Run(ctx, app.HttpRunner(webApp.Handler(), "127.0.0.1:0"), workerRunner.AsRunner())
 	}()
 
 	// Wait for worker job to complete

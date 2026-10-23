@@ -34,19 +34,19 @@ The choice of Go as the primary language across the entire Krewire ecosystem is 
 
 ### 3. Standard-Library-First (Stdlib-First)
 Where Go's standard library provides a robust capability (`flag`, `log/slog`, `os`, `net/http`, `io/fs`, `html/template`), Krewire builds upon it rather than wrapping or re-implementing it. 
-- `packages/kern/model` is 100% stdlib-only.
-- `packages/kern` uses stdlib plus `model` (no external framework dependency to prevent cyclic references).
+- `packages/errs` is 100% stdlib-only.
+- `packages/model` uses stdlib plus `errs` (no external framework dependency to prevent cyclic references).
 - Custom abstractions exist only where domain logic, type safety, or security defaults require formalization.
 
 ### 4. Declarative Definition vs. Imperative Execution
 Control flow in Krewire separates **what is valid** from **how it runs**:
-- **Declarative Core (`packages/kern/model`):** Pure data models, invariant validation, scope hierarchies, and business rules. Free of side effects and external dependencies.
-- **Imperative Runtime (`packages/kern/lifecycle`, `packages/app`):** Execution engines, dependency injection, supervised processes, and event dispatchers that operate upon declarative models.
+- **Declarative Core (`packages/model`):** Pure data models, invariant validation, scope hierarchies, and business rules. Free of side effects and external dependencies.
+- **Imperative Runtime (`packages/lifecycle`, `packages/app`):** Execution engines, dependency injection, supervised processes, and event dispatchers that operate upon declarative models.
 
 ### 5. Single Source of Truth (SSOT)
 Duplication breeds drift. Across the entire ecosystem:
-- **Configuration SSOT:** [`krewire.yaml`](../../packages/kern/model/project.go) is the single configuration authority for all eight workload kinds. Ad-hoc or tool-specific configuration formats are prohibited.
-- **Workload Matrix SSOT:** Canonical kinds and matrix entries are defined once in `packages/kern/model/workload.go`.
+- **Configuration SSOT:** [`krewire.yaml`](../../packages/model/project.go) is the single configuration authority for all eight workload kinds. Ad-hoc or tool-specific configuration formats are prohibited.
+- **Workload Matrix SSOT:** Canonical kinds and matrix entries are defined once in `packages/model/workload.go`.
 - **Specification SSOT:** Requirements and progress tracking live in GitHub Issues tagged `spec`, eliminating out-of-sync markdown checkboxes.
 
 ### 6. Zero-Cost Abstractions & Opt-In Batteries
@@ -59,7 +59,7 @@ Projects evolve. A Krewire project starts from a clean `kernel` blueprint and pr
 
 ### 8. Local-First & Dogfooding Discipline
 Developers must be able to develop, preview, test, and audit their entire stack locally, offline, and rapidly:
-- The developer CLI (`kiw`) dogfoods the monorepo's own terminal UI toolkit (`packages/tui`) and error handling (`packages/kern`).
+- The developer CLI (`kiw`) dogfoods the monorepo's own terminal UI toolkit (`packages/tui`) and error handling (`packages/errs`).
 - `kiw dev` and `kiw serve` deliver instantaneous feedback loops via local servers and WebSocket-driven Hot Module Replacement (HMR).
 - Releases are verified locally against the built binary (`bin/kiw`) before being published.
 

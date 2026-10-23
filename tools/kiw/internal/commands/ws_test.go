@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
 
@@ -18,7 +18,7 @@ func newWsFlagSet(args ...string) *flag.FlagSet {
 	return fs
 }
 
-func captureStdout(t *testing.T, fn func() kern.ExitCode) (string, kern.ExitCode) {
+func captureStdout(t *testing.T, fn func() errs.ExitCode) (string, errs.ExitCode) {
 	t.Helper()
 	old := os.Stdout
 	r, w, err := os.Pipe()
@@ -44,10 +44,10 @@ func writeFile(t *testing.T, path, content string) {
 }
 
 func TestRunWs_DispatchesHelpAndRejectsUnknown(t *testing.T) {
-	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("help")) }); code != kern.ExitCodeUsage {
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("help")) }); code != errs.ExitCodeUsage {
 		t.Errorf("help exit code = %v, want Usage", code)
 	}
-	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("bogus")) }); code != kern.ExitCodeUsage {
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("bogus")) }); code != errs.ExitCodeUsage {
 		t.Errorf("unknown sub-command exit code = %v, want Usage", code)
 	}
 }
@@ -81,8 +81,8 @@ func TestRunWsInfo_PrintsRootTypeAndMembers(t *testing.T) {
 	writeFile(t, filepath.Join(solo, "go.mod"), "module example.com/solo\n")
 	chdir(t, solo)
 
-	out, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("info")) })
-	if code != kern.ExitCodeSuccess {
+	out, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("info")) })
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("info exit code = %v", code)
 	}
 	for _, want := range []string{"workspace:", "type:", "monorepo", "members:"} {
@@ -102,8 +102,8 @@ func TestRunWsList_RendersProjectKindModuleTable(t *testing.T) {
 	}
 	chdir(t, hub)
 
-	out, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("list")) })
-	if code != kern.ExitCodeSuccess {
+	out, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("list")) })
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("list exit code = %v", code)
 	}
 	for _, want := range []string{"PROJECT", "example.com/hub"} {
@@ -116,13 +116,13 @@ func TestRunWsList_RendersProjectKindModuleTable(t *testing.T) {
 func TestRunWsAddRemove_UsageWithoutArgsOrGoWork(t *testing.T) {
 	chdir(t, t.TempDir())
 
-	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("add")) }); code != kern.ExitCodeUsage {
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("add")) }); code != errs.ExitCodeUsage {
 		t.Errorf("add without path = %v, want Usage", code)
 	}
-	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("remove")) }); code != kern.ExitCodeUsage {
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("remove")) }); code != errs.ExitCodeUsage {
 		t.Errorf("remove without path = %v, want Usage", code)
 	}
-	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("add", "./x")) }); code != kern.ExitCodeUsage {
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("add", "./x")) }); code != errs.ExitCodeUsage {
 		t.Errorf("add outside go.work layout = %v, want Usage", code)
 	}
 }
@@ -133,7 +133,7 @@ func TestRunWsSync_SucceedsInTrivialWorkspace(t *testing.T) {
 	writeFile(t, filepath.Join(hub, "go.work"), "go 1.26\n\nuse (\n\t.\n)\n")
 	chdir(t, hub)
 
-	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("sync")) }); code != kern.ExitCodeSuccess {
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("sync")) }); code != errs.ExitCodeSuccess {
 		t.Fatalf("sync exit code = %v, want Success", code)
 	}
 }
@@ -145,24 +145,24 @@ func TestRunWsExec_AggregatesMemberFailures(t *testing.T) {
 	writeFile(t, filepath.Join(hub, "go.work"), "go 1.26\n\nuse (\n\t./good\n\t./bad\n)\n")
 	chdir(t, hub)
 
-	_, ok := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("exec", "--", "true")) })
-	if ok != kern.ExitCodeSuccess {
+	_, ok := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("exec", "--", "true")) })
+	if ok != errs.ExitCodeSuccess {
 		t.Fatalf("exec true exit code = %v, want Success", ok)
 	}
 
-	_, failed := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("exec", "false")) })
-	if failed != kern.ExitCodeFailure {
+	_, failed := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("exec", "false")) })
+	if failed != errs.ExitCodeFailure {
 		t.Fatalf("exec false exit code = %v, want Failure", failed)
 	}
 
-	if _, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("exec")) }); code != kern.ExitCodeUsage {
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("exec")) }); code != errs.ExitCodeUsage {
 		t.Errorf("exec without command = %v, want Usage", code)
 	}
 }
 
 func TestHelpTextDocumentsSubcommandsExamplesAndTypes(t *testing.T) {
-	out, code := captureStdout(t, func() kern.ExitCode { return RunWs(newWsFlagSet("help")) })
-	if code != kern.ExitCodeUsage {
+	out, code := captureStdout(t, func() errs.ExitCode { return RunWs(newWsFlagSet("help")) })
+	if code != errs.ExitCodeUsage {
 		t.Fatalf("help exit code = %v, want Usage", code)
 	}
 

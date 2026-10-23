@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestRunInfo_NodeJSEcosystemAndColocated(t *testing.T) {
@@ -47,11 +47,11 @@ func TestRunInfo_NodeJSEcosystemAndColocated(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	output, code := captureStdout(t, func() kern.ExitCode {
+	output, code := captureStdout(t, func() errs.ExitCode {
 		return RunInfo(&flag.FlagSet{})
 	})
 
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("expected exit code success, got %d", code)
 	}
 
@@ -108,11 +108,11 @@ func TestRunInfo_LaravelEcosystemAndColocated(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	output, code := captureStdout(t, func() kern.ExitCode {
+	output, code := captureStdout(t, func() errs.ExitCode {
 		return RunInfo(&flag.FlagSet{})
 	})
 
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("expected exit code success, got %d", code)
 	}
 
@@ -156,10 +156,10 @@ func TestRunInfo_ReportsWorkloadKinds(t *testing.T) {
 			_ = os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module test/mod\n\ngo 1.27.1\n"), 0o644)
 			_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte(tc.yamlContent), 0o644)
 
-			output, code := captureStdout(t, func() kern.ExitCode {
+			output, code := captureStdout(t, func() errs.ExitCode {
 				return RunInfo(&flag.FlagSet{})
 			})
-			if code != kern.ExitCodeSuccess {
+			if code != errs.ExitCodeSuccess {
 				t.Fatalf("expected exit code success, got %d", code)
 			}
 			if !strings.Contains(output, tc.wantKind) {

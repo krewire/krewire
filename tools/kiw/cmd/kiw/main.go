@@ -5,17 +5,17 @@ package main
 import (
 	"os"
 
-	"github.com/krewire/krewire/packages/kern"
 	"github.com/krewire/krewire/packages/tui"
+	"github.com/krewire/krewire/packages/version"
 	"github.com/krewire/krewire/tools/kiw/internal/commands"
-	"github.com/krewire/krewire/tools/kiw/internal/version"
+	kiwver "github.com/krewire/krewire/tools/kiw/internal/version"
 )
 
 // Signature is the ecosystem watermark embedded into the binary at compile time via -ldflags.
-var Signature = kern.DefaultSignature
+var Signature = version.DefaultSignature
 
 func main() {
-	app := tui.NewApp("kiw", version.VersionString()).
+	app := tui.NewApp("kiw", kiwver.VersionString()).
 		WithDescription("One CLI for every workload — site, book, app, worker, service, infra").
 		Command(tui.NewCommand("version", "print CLI and framework versions", nil, commands.RunVersion).WithGroup("inspect").WithExample("kiw version")).
 		Command(tui.NewCommand("info", "print environment and project information", nil, commands.RunInfo).WithGroup("inspect").WithExample("kiw info")).

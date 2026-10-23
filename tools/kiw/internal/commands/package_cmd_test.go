@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/hub/plugin"
 	"github.com/krewire/krewire/packages/hub/resolver"
-	"github.com/krewire/krewire/packages/kern"
 )
 
 func TestRunAdd_EmptyArgsReturnsUsage(t *testing.T) {
@@ -18,7 +18,7 @@ func TestRunAdd_EmptyArgsReturnsUsage(t *testing.T) {
 		t.Fatalf("fs.Parse: %v", err)
 	}
 	code := RunAdd(fs)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Errorf("RunAdd(empty) = %v, want ExitCodeUsage", code)
 	}
 }
@@ -30,7 +30,7 @@ func TestRunRemove_EmptyArgsReturnsUsage(t *testing.T) {
 		t.Fatalf("fs.Parse: %v", err)
 	}
 	code := RunRemove(fs)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Errorf("RunRemove(empty) = %v, want ExitCodeUsage", code)
 	}
 }
@@ -42,7 +42,7 @@ func TestRunAdd_UnsafePackageReturnsUsage(t *testing.T) {
 		t.Fatalf("fs.Parse: %v", err)
 	}
 	code := RunAdd(fs)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Errorf("RunAdd(unsafe) = %v, want ExitCodeUsage", code)
 	}
 }

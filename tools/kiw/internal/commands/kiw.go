@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/term"
 )
 
@@ -42,7 +42,7 @@ func RegisterKiw(fs *flag.FlagSet) {
 }
 
 // RunKiw executes the `kiw kiw` easter egg command.
-func RunKiw(_ *flag.FlagSet) kern.ExitCode {
+func RunKiw(_ *flag.FlagSet) errs.ExitCode {
 	if kiwFlagJSON {
 		if kiwFlagAll {
 			data, _ := json.MarshalIndent(map[string]any{
@@ -51,7 +51,7 @@ func RunKiw(_ *flag.FlagSet) kern.ExitCode {
 				"catcalls": ClientCatcalls,
 			}, "", "  ")
 			fmt.Println(string(data))
-			return kern.ExitCodeSuccess
+			return errs.ExitCodeSuccess
 		}
 		quote := ClientCatcalls[rand.IntN(len(ClientCatcalls))]
 		data, _ := json.MarshalIndent(map[string]string{
@@ -60,7 +60,7 @@ func RunKiw(_ *flag.FlagSet) kern.ExitCode {
 			"source":  "Client to Developer",
 		}, "", "  ")
 		fmt.Println(string(data))
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 
 	tm := term.NewTerminal()
@@ -75,7 +75,7 @@ func RunKiw(_ *flag.FlagSet) kern.ExitCode {
 			fmt.Printf("  %s %s\n", dim(fmt.Sprintf("[%02d]", i+1)), yellow(fmt.Sprintf("%q", q)))
 		}
 		fmt.Printf("\n  %s\n\n", dim("— Playfully whispered from Clients to Developers"))
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 
 	quote := ClientCatcalls[rand.IntN(len(ClientCatcalls))]
@@ -83,5 +83,5 @@ func RunKiw(_ *flag.FlagSet) kern.ExitCode {
 	fmt.Printf("  %s\n\n", yellow(fmt.Sprintf("%q", quote)))
 	fmt.Printf("  %s\n\n", dim("— Client to Developer"))
 
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }

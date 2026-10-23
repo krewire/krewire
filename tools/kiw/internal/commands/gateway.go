@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/krewire/krewire/packages/cloud/service/registry"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/web/gateway"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 )
@@ -26,7 +26,7 @@ func RegisterGateway(fs *flag.FlagSet) {
 }
 
 // RunGateway starts the Krewire API Gateway reverse proxy (KWF-L5H2F FRK-SVC-020).
-func RunGateway(fs *flag.FlagSet) kern.ExitCode {
+func RunGateway(fs *flag.FlagSet) errs.ExitCode {
 	root, _ := findRoot()
 	var cfg *config.Config
 	if root != "" {
@@ -124,7 +124,7 @@ func RunGateway(fs *flag.FlagSet) kern.ExitCode {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		_ = server.Shutdown(ctx)
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	case err := <-errCh:
 		slog.Error("gateway server error", "err", err)
 		return fail(err)

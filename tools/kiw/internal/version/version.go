@@ -3,7 +3,7 @@ package version
 
 import (
 	krewire "github.com/krewire/krewire"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/version"
 )
 
 // Version is the semantic version of the Krewire monorepo.
@@ -14,6 +14,6 @@ func VersionString() string { return krewire.VersionString() }
 
 // EcosystemRequires declares the minimum version of each external module this one
 // was built against.
-var EcosystemRequires = map[string]kern.Version{
-	"mdbind": kern.MustParseVersion("0.1.0"),
+var EcosystemRequires = map[string]version.Version{
+	"mdbind": version.MustParseVersion("0.1.0"),
 }

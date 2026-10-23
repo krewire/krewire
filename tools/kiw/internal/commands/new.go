@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
 )
 
@@ -26,11 +26,11 @@ func RegisterNew(fs *flag.FlagSet) {
 }
 
 // RunNew creates a new Krewire project: initializing minimal ecosystem files and scaffolding.
-func RunNew(fs *flag.FlagSet) kern.ExitCode {
+func RunNew(fs *flag.FlagSet) errs.ExitCode {
 	name := fs.Arg(0)
 	if name == "" {
 		fmt.Fprintln(os.Stderr, "usage: kiw new <project> [--site|--book|--cli|--app|--worker|--service|--infra|--template <git-url>]")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	site := flagBool(fs, "site")
@@ -44,7 +44,7 @@ func RunNew(fs *flag.FlagSet) kern.ExitCode {
 
 	if count := boolCount(site, book, cli, app, worker, service, infra, templateURL != ""); count > 1 {
 		fmt.Fprintln(os.Stderr, "kiw new: choose at most one variant: --site, --book, --cli, --app, --worker, --service, --infra, or --template")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	parentDir := flagValue(fs, "dir")
@@ -141,5 +141,5 @@ func RunNew(fs *flag.FlagSet) kern.ExitCode {
 		fmt.Println("created " + filepath.Join(name, path))
 	}
 	fmt.Printf("\nNext steps:\n  cd %s\n  kiw dev\n", name)
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }

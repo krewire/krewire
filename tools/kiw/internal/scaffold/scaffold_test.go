@@ -251,7 +251,7 @@ func TestEquipCLI(t *testing.T) {
 	assertFileContains(t, filepath.Join(dir, "main.go"), "var Signature = \"build with krewire\"")
 	assertFileContains(t, filepath.Join(dir, "main.go"), "tui.NewApp")
 	assertFileContains(t, filepath.Join(dir, "main.go"), "internal/commands")
-	assertFileContains(t, filepath.Join(dir, "internal/commands/commands.go"), "func Hello(_ *flag.FlagSet) kern.ExitCode")
+	assertFileContains(t, filepath.Join(dir, "internal/commands/commands.go"), "func Hello(_ *flag.FlagSet) errs.ExitCode")
 	assertFileContains(t, filepath.Join(dir, "internal/commands/commands.go"), "hello, demo")
 	for _, path := range []string{"README.md", ".gitignore"} {
 		found := false

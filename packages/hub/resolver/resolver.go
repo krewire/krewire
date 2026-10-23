@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/packages/hub/plugin"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/version"
 )
 
 // Installer is the install/uninstall contract for a resolved package.
@@ -24,7 +24,7 @@ type Resolved struct {
 }
 
 // EffectiveVersion returns the version string to use for installation,
-// using kern.Version compatibility semantics.
+// using version.Version compatibility semantics.
 func (r *Resolved) EffectiveVersion() string {
 	if r.Spec.IsLatest() {
 		return "latest"
@@ -34,7 +34,7 @@ func (r *Resolved) EffectiveVersion() string {
 
 // SatisfiesRequired reports whether the resolved package's version satisfies
 // the required version per semver caret semantics.
-func (r *Resolved) SatisfiesRequired(required kern.Version) bool {
+func (r *Resolved) SatisfiesRequired(required version.Version) bool {
 	return r.Spec.Satisfies(required)
 }
 

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestAuditSecurityPosture(t *testing.T) {
@@ -97,7 +97,7 @@ func main() {}
 	_ = fs.Set("vuln", "true")
 
 	code := RunVet(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("got exit code %v, want ExitCodeSuccess (0)", code)
 	}
 }

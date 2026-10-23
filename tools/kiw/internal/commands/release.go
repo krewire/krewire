@@ -9,8 +9,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/term"
+	"github.com/krewire/krewire/packages/version"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/release"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
@@ -51,11 +52,11 @@ func RegisterRelease(fs *flag.FlagSet) {
 //     project, so ecosystem developers can release the apps/sites/books they build.
 //
 // It is a dry run unless --apply is given.
-func RunRelease(fs *flag.FlagSet) kern.ExitCode {
+func RunRelease(fs *flag.FlagSet) errs.ExitCode {
 	bump, err := release.ParseBump(releaseBump)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	if releaseAll || len(releaseModules) > 0 {
@@ -65,7 +66,7 @@ func RunRelease(fs *flag.FlagSet) kern.ExitCode {
 }
 
 // runModuleRelease implements maintainer mode (Krewire's own modules).
-func runModuleRelease(bump release.BumpKind) kern.ExitCode {
+func runModuleRelease(bump release.BumpKind) errs.ExitCode {
 	var names []string
 	if releaseAll {
 		for _, m := range release.Modules {
@@ -75,7 +76,7 @@ func runModuleRelease(bump release.BumpKind) kern.ExitCode {
 		for _, s := range releaseModules {
 			if !validReleaseModule(s) {
 				fmt.Fprintf(os.Stderr, "release: unknown module %q\n", s)
-				return kern.ExitCodeUsage
+				return errs.ExitCodeUsage
 			}
 			names = append(names, s)
 		}
@@ -84,14 +85,14 @@ func runModuleRelease(bump release.BumpKind) kern.ExitCode {
 	edits, err := release.Plan(names, bump)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
 
 	var root string
 	if releaseApply || releaseNotes {
 		if root, err = findReleaseWorkspaceRoot(); err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 	}
 
@@ -101,7 +102,7 @@ func runModuleRelease(bump release.BumpKind) kern.ExitCode {
 	if root != "" {
 		if err := release.CheckTierCompliance(root); err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 	}
 
@@ -119,7 +120,7 @@ func runModuleRelease(bump release.BumpKind) kern.ExitCode {
 		modified, err := release.Apply(edits, root, false)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 		fmt.Printf("modified %d file(s)\n", len(modified))
 	}
@@ -137,26 +138,26 @@ func runModuleRelease(bump release.BumpKind) kern.ExitCode {
 	if releaseNotes {
 		printReleaseNotes(root, names)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // runProjectRelease implements developer mode: release the Krewire project in
 // the current directory by bumping its version in krewire.yaml and building it.
-func runProjectRelease(bump release.BumpKind) kern.ExitCode {
+func runProjectRelease(bump release.BumpKind) errs.ExitCode {
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
 	cfg, err := config.Load(dir)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
 	res, _ := shape.Detect(dir, cfg.Kind())
 	if res.Kind == shape.KindNone {
 		fmt.Fprintln(os.Stderr, "release: not a Krewire project (no krewire.yaml with project.kind); run inside your project, or use --module/--all inside the Krewire workspace")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	cur := cfg.Version
@@ -165,12 +166,12 @@ func runProjectRelease(bump release.BumpKind) kern.ExitCode {
 	if cur != stripped {
 		prefix = "v"
 	}
-	cv := kern.Version{}
+	cv := version.Version{}
 	if stripped == "" {
-		cv = kern.MustParseVersion("0.1.0")
-	} else if cv, err = kern.ParseVersion(stripped); err != nil {
+		cv = version.MustParseVersion("0.1.0")
+	} else if cv, err = version.ParseVersion(stripped); err != nil {
 		fmt.Fprintf(os.Stderr, "release: invalid project version %q in krewire.yaml: %v\n", cur, err)
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	nv := release.Bump(cv, bump)
 	newVer := prefix + nv.String()
@@ -186,12 +187,12 @@ func runProjectRelease(bump release.BumpKind) kern.ExitCode {
 	if releaseApply {
 		if err := bumpKrewireVersion(dir, newVer); err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 		fmt.Println("  • building the project with `kiw build`")
 		bfs := flag.NewFlagSet("build", flag.ContinueOnError)
 		RegisterBuild(bfs)
-		if code := RunBuild(bfs); code != kern.ExitCodeSuccess {
+		if code := RunBuild(bfs); code != errs.ExitCodeSuccess {
 			return code
 		}
 	}
@@ -203,7 +204,7 @@ func runProjectRelease(bump release.BumpKind) kern.ExitCode {
 			fmt.Printf("\nRelease notes:\n%s\n", notes)
 		}
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // bumpKrewireVersion sets the top-level `version:` field in dir/krewire.yaml to

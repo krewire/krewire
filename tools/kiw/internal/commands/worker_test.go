@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestWorkerCommand_KindMismatch(t *testing.T) {
@@ -24,8 +24,8 @@ func TestWorkerCommand_KindMismatch(t *testing.T) {
 	RegisterWorker(fs)
 
 	code := RunWorker(fs)
-	if code != kern.ExitCodeUsage {
-		t.Fatalf("expected exit code %v, got %v", kern.ExitCodeUsage, code)
+	if code != errs.ExitCodeUsage {
+		t.Fatalf("expected exit code %v, got %v", errs.ExitCodeUsage, code)
 	}
 }
 
@@ -46,7 +46,7 @@ func TestWorkerCommand_DLQListEmpty(t *testing.T) {
 	_ = fs.Set("queue", "file")
 
 	code := RunWorker(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("expected exit code success, got %v", code)
 	}
 }
@@ -67,7 +67,7 @@ func TestWorkerCommand_AppWithWorkerConfigAllowed(t *testing.T) {
 	_ = fs.Set("dlq", "list")
 
 	code := RunWorker(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("expected exit code success, got %v", code)
 	}
 }
@@ -89,7 +89,7 @@ func TestWorkerCommand_DLQClear(t *testing.T) {
 	_ = fs.Set("queue", "file")
 
 	code := RunWorker(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("expected exit code success, got %v", code)
 	}
 }
@@ -110,7 +110,7 @@ func TestWorkerCommand_DLQUnknownSubcommand(t *testing.T) {
 	_ = fs.Set("dlq", "unknown-action")
 
 	code := RunWorker(fs)
-	if code != kern.ExitCodeUsage {
+	if code != errs.ExitCodeUsage {
 		t.Fatalf("expected exit code usage, got %v", code)
 	}
 }

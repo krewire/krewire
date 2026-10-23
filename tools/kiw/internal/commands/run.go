@@ -13,7 +13,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
@@ -35,9 +35,9 @@ func RegisterRun(fs *flag.FlagSet) {
 // file path it runs `go run <file> -- args` (KWN-SCR-001); when it matches
 // `scripts.<task>` in krewire.yaml it runs the shell command (KWN-SCR-002).
 // Precedence is file > script > project (KWN-SCR-004).
-func RunRun(fs *flag.FlagSet) kern.ExitCode {
+func RunRun(fs *flag.FlagSet) errs.ExitCode {
 	rt, code := bootRuntime(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		return code
 	}
 
@@ -57,7 +57,7 @@ func RunRun(fs *flag.FlagSet) kern.ExitCode {
 		}
 		if strings.HasSuffix(first, ".go") {
 			fmt.Fprintf(os.Stderr, "kiw run: file %q not found\n", first)
-			return kern.ExitCodeUsage
+			return errs.ExitCodeUsage
 		}
 		if len(rt.cfg.Scripts) > 0 && isTaskLike(first) {
 			// Unknown task — only error if project is not a runnable app/cli,
@@ -65,7 +65,7 @@ func RunRun(fs *flag.FlagSet) kern.ExitCode {
 			// Peek detection without fully booting: check for main.go.
 			if !hasDir(rt.root, "cmd") && !hasFile(rt.root, "main.go") {
 				fmt.Fprintf(os.Stderr, "kiw run: unknown task %q\nAvailable tasks: %s\n", first, formatTasks(rt.cfg.Scripts))
-				return kern.ExitCodeUsage
+				return errs.ExitCodeUsage
 			}
 		}
 	}
@@ -74,7 +74,7 @@ func RunRun(fs *flag.FlagSet) kern.ExitCode {
 	res, err := shape.Detect(rt.root, explicit)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	switch res.Kind {
@@ -84,24 +84,24 @@ func RunRun(fs *flag.FlagSet) kern.ExitCode {
 		return runCLI(rt, fs)
 	case shape.KindSite, shape.KindBook:
 		fmt.Fprintf(os.Stderr, "kiw run: this is a %s project — build and serve it instead: 'kiw build' then 'kiw serve'\n", res.Kind)
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	case shape.KindInfra:
 		fmt.Fprintln(os.Stderr, "kiw run: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	case shape.KindKernel:
 		fmt.Fprintln(os.Stderr, "kiw run: kernel project must be initialized first — run 'kiw init' to choose a starter")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	default:
 		fmt.Fprintln(os.Stderr, "kiw run: no app found — add a main.go building a web.App, or run 'kiw new <project>' first")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 }
 
 // runApp builds the app to a temp binary and runs it, streaming output and
 // forwarding signals.
-func runApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
+func runApp(rt *runtimeEnv, fs *flag.FlagSet) errs.ExitCode {
 	if rt.cfg.IsSSG() || hasDir(rt.root, "manuscript") {
-		if code := exportSiteAssets(rt.root, fs); code != kern.ExitCodeSuccess {
+		if code := exportSiteAssets(rt.root, fs); code != errs.ExitCodeSuccess {
 			return code
 		}
 	}
@@ -143,7 +143,7 @@ func runApp(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 // root main.go into a temp binary and executes it, forwarding SIGINT/SIGTERM
 // so the CLI's own exit path resolves the process code. No listen address is
 // injected for CLI projects.
-func runCLI(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
+func runCLI(rt *runtimeEnv, fs *flag.FlagSet) errs.ExitCode {
 	dir, err := os.MkdirTemp("", "krewire-run-")
 	if err != nil {
 		return fail(err)
@@ -177,7 +177,7 @@ func runCLI(rt *runtimeEnv, fs *flag.FlagSet) kern.ExitCode {
 
 // waitChild forwards SIGINT/SIGTERM to the child process and resolves the
 // exit code from the child's status.
-func waitChild(cmd *exec.Cmd) kern.ExitCode {
+func waitChild(cmd *exec.Cmd) errs.ExitCode {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 	defer signal.Stop(sigCh)
@@ -189,7 +189,7 @@ func waitChild(cmd *exec.Cmd) kern.ExitCode {
 		select {
 		case err := <-done:
 			if err == nil {
-				return kern.ExitCodeSuccess
+				return errs.ExitCodeSuccess
 			}
 			return childExitCode(cmd, err)
 		case sig := <-sigCh:
@@ -203,19 +203,19 @@ func waitChild(cmd *exec.Cmd) kern.ExitCode {
 
 // childExitCode resolves a completed child command to a canonical exit code,
 // preferring the child's own exit status when available.
-func childExitCode(cmd *exec.Cmd, err error) kern.ExitCode {
+func childExitCode(cmd *exec.Cmd, err error) errs.ExitCode {
 	if cmd.Process != nil && cmd.ProcessState != nil {
-		return kern.ExitCodeFromInt(cmd.ProcessState.ExitCode())
+		return errs.ExitCodeFromInt(cmd.ProcessState.ExitCode())
 	}
 	if err != nil {
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // exportSiteAssets refreshes the site/book export so embedded assets are
 // current before the app starts (RND-RUN-005). No-op when no site is declared.
-func exportSiteAssets(root string, fs *flag.FlagSet) kern.ExitCode {
+func exportSiteAssets(root string, fs *flag.FlagSet) errs.ExitCode {
 	cfg, err := config.Load(root)
 	if err != nil {
 		return fail(err)
@@ -224,29 +224,29 @@ func exportSiteAssets(root string, fs *flag.FlagSet) kern.ExitCode {
 	hasSSG := cfg.IsSSG()
 	hasBook := hasDir(root, "content") || hasDir(root, "manuscript")
 	if !hasPages && !hasSSG && !hasBook {
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 	// Mirror RunBuild: SSG from file (pages/) takes precedence over ssg: config
 	var planCSS, planJS []string
 	if hasPages {
 		code, css, js := buildSSGFromFile(root, cfg, fs)
 		planCSS, planJS = css, js
-		if code != kern.ExitCodeSuccess {
+		if code != errs.ExitCodeSuccess {
 			return code
 		}
 	} else if hasSSG {
 		code, css, js := buildSSGFromConfig(root, cfg, fs)
 		planCSS, planJS = css, js
-		if code != kern.ExitCodeSuccess {
+		if code != errs.ExitCodeSuccess {
 			return code
 		}
 	}
 	if hasBook {
-		if code := buildManuscript(root, cfg, fs, hasPages || hasSSG, planCSS, planJS); code != kern.ExitCodeSuccess {
+		if code := buildManuscript(root, cfg, fs, hasPages || hasSSG, planCSS, planJS); code != errs.ExitCodeSuccess {
 			return code
 		}
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 func isGoFileArg(root, arg string) bool {
@@ -264,7 +264,7 @@ func isGoFileArg(root, arg string) bool {
 	return !info.IsDir()
 }
 
-func runGoFile(rt *runtimeEnv, path string, extraArgs []string) kern.ExitCode {
+func runGoFile(rt *runtimeEnv, path string, extraArgs []string) errs.ExitCode {
 	if len(extraArgs) > 0 && extraArgs[0] == "--" {
 		extraArgs = extraArgs[1:]
 	}
@@ -283,11 +283,11 @@ func runGoFile(rt *runtimeEnv, path string, extraArgs []string) kern.ExitCode {
 	return waitChild(cmd)
 }
 
-func runScript(rt *runtimeEnv, task string, extraArgs []string) kern.ExitCode {
+func runScript(rt *runtimeEnv, task string, extraArgs []string) errs.ExitCode {
 	script, ok := rt.cfg.Scripts[task]
 	if !ok {
 		fmt.Fprintf(os.Stderr, "kiw run: unknown task %q\nAvailable tasks: %s\n", task, formatTasks(rt.cfg.Scripts))
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	if len(extraArgs) > 0 && extraArgs[0] == "--" {
 		extraArgs = extraArgs[1:]

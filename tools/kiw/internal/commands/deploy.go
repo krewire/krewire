@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/packages/cloud/deploy"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
@@ -44,20 +44,20 @@ func RegisterDeploy(fs *flag.FlagSet) {
 // The gh-pages target additionally publishes the built site to the project's
 // pages branch on the configured remote (--dry-run skips both tests and
 // publishing). The infra target uses framework/infra for plan/apply (KWF-B7N3D).
-func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
+func RunDeploy(fs *flag.FlagSet) errs.ExitCode {
 	target := flagValue(fs, "target")
 	switch target {
 	case "binary", "systemd", "gh-pages", "infra":
 	default:
 		fmt.Fprintf(os.Stderr, "kiw deploy: unknown target %q — supported: binary, systemd, gh-pages, infra\n", target)
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	dryRun := flagBool(fs, "dry-run")
 
 	root, err := findRoot()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	cfg, err := config.Load(root)
 	if err != nil {
@@ -66,11 +66,11 @@ func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
 	res, err := shape.Detect(root, cfg.Kind())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "kiw: "+err.Error())
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	if res.Kind == shape.KindNone {
 		fmt.Fprintln(os.Stderr, "kiw deploy: no project found — run 'kiw new <project>' first")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 
 	if target == "infra" {
@@ -78,7 +78,7 @@ func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
 	}
 
 	if !dryRun && hasFile(root, "go.mod") {
-		if code := RunTest(nil); code != kern.ExitCodeSuccess {
+		if code := RunTest(nil); code != errs.ExitCodeSuccess {
 			return code
 		}
 	}
@@ -90,7 +90,7 @@ func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
 	slog.Info("staging deploy artifacts", "dist", dist)
 
 	if (res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService) && (target == "binary" || target == "systemd") {
-		if code := buildBinary(root, dist); code != kern.ExitCodeSuccess {
+		if code := buildBinary(root, dist); code != errs.ExitCodeSuccess {
 			return code
 		}
 		name := moduleName(root)
@@ -135,7 +135,7 @@ func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
 	}
 	siteStaged := ""
 	if cfg.IsSSG() || hasDir(root, "content") || hasDir(root, "manuscript") || target == "gh-pages" {
-		if code := exportSiteAssets(root, fs); code != kern.ExitCodeSuccess {
+		if code := exportSiteAssets(root, fs); code != errs.ExitCodeSuccess {
 			return code
 		}
 		siteOut := joinRoot(root, firstNonEmpty(flagValue(fs, "output"), flagValue(fs, "o"), cfg.Output), config.DefaultOutput)
@@ -150,11 +150,11 @@ func RunDeploy(fs *flag.FlagSet) kern.ExitCode {
 	}
 
 	fmt.Println("deployed " + dist)
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // runInfraDeploy handles infra target deployment (KWF-B7N3D FRK-INFRA-050/051).
-func runInfraDeploy(root string, cfg *config.Config, fs *flag.FlagSet, dryRun bool) kern.ExitCode {
+func runInfraDeploy(root string, cfg *config.Config, fs *flag.FlagSet, dryRun bool) errs.ExitCode {
 	plan := flagBool(fs, "plan")
 	destroy := flagBool(fs, "destroy")
 	autoApprove := flagBool(fs, "auto-approve")
@@ -163,7 +163,7 @@ func runInfraDeploy(root string, cfg *config.Config, fs *flag.FlagSet, dryRun bo
 	slog.Info("infra deploy", "env", env, "plan", plan, "destroy", destroy)
 
 	// Build and verify declarative cloud infrastructure plan
-	if code := buildInfra(root, cfg, fs); code != kern.ExitCodeSuccess {
+	if code := buildInfra(root, cfg, fs); code != errs.ExitCodeSuccess {
 		return code
 	}
 
@@ -191,26 +191,26 @@ func runInfraDeploy(root string, cfg *config.Config, fs *flag.FlagSet, dryRun bo
 
 	if dryRun {
 		fmt.Println("  dry-run: plan staged to " + dist + ", no remote changes made")
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 	if destroy {
 		fmt.Println("infra destroy: tearing down infrastructure resources")
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 	if !autoApprove && !plan {
 		fmt.Println("  use --auto-approve to apply changes, or --plan to preview")
-		return kern.ExitCodeSuccess
+		return errs.ExitCodeSuccess
 	}
 
 	fmt.Println("infra deployed: " + dist)
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // publishPages publishes the staged site to the project's pages branch using
 // a temporary throwaway clone of remote — the user's working tree is never
 // touched. When the branch already exists remotely it is rebased onto; a new
 // orphan history is created otherwise.
-func publishPages(root, src string, fs *flag.FlagSet) kern.ExitCode {
+func publishPages(root, src string, fs *flag.FlagSet) errs.ExitCode {
 	remoteName := flagValue(fs, "remote")
 	branch := flagValue(fs, "branch")
 	if branch == "" {
@@ -223,7 +223,7 @@ func publishPages(root, src string, fs *flag.FlagSet) kern.ExitCode {
 	url, err := gitOutput(root, "remote", "get-url", remoteName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "kiw deploy: remote %q not found in %s — add it first: git remote add origin <url>\n", remoteName, root)
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
 
 	tmp, err := os.MkdirTemp("", "kiw-ghpages-")
@@ -274,7 +274,7 @@ func publishPages(root, src string, fs *flag.FlagSet) kern.ExitCode {
 	}
 	slog.Info("published site", "remote", remoteName, "branch", branch)
 	fmt.Printf("published %s -> %s#%s\n", src, remoteName, branch)
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // commitPages commits staged changes with the fixed Krewire Bot identity so
@@ -323,7 +323,7 @@ func gitOutput(dir string, args ...string) (string, error) {
 }
 
 // buildBinary compiles the project into dist/<module-name>.
-func buildBinary(root, dist string) kern.ExitCode {
+func buildBinary(root, dist string) errs.ExitCode {
 	name := moduleName(root)
 	out := filepath.Join(dist, name)
 	entry := resolveEntry(root)
@@ -335,7 +335,7 @@ func buildBinary(root, dist string) kern.ExitCode {
 	if err := cmd.Run(); err != nil {
 		return fail(err)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // copyDir copies src into dst recursively.

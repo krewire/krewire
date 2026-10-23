@@ -7,7 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/env"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 // chdir moves into dir for the duration of the test, restoring afterwards
@@ -47,10 +48,10 @@ func TestBootRuntime_ResolvesConfigDotenvEnvAndDebug(t *testing.T) {
 		t.Fatal(err)
 	}
 	rt, code := bootRuntime(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("bootRuntime code = %d, want success", code)
 	}
-	if rt.env != kern.EnvProduction {
+	if rt.env != env.EnvProduction {
 		t.Errorf("rt.env = %q, want production from krewire.yaml", rt.env)
 	}
 	if !rt.debug {
@@ -88,7 +89,7 @@ func main() {
 	prev := slog.Default()
 	t.Cleanup(func() { slog.SetDefault(prev) })
 
-	run := func(args ...string) kern.ExitCode {
+	run := func(args ...string) errs.ExitCode {
 		fs := flag.NewFlagSet("serve", flag.ContinueOnError)
 		RegisterServe(fs)
 		if err := fs.Parse(args); err != nil {
@@ -96,10 +97,10 @@ func main() {
 		}
 		return RunServe(fs)
 	}
-	if code := run("ok"); code != kern.ExitCodeSuccess {
+	if code := run("ok"); code != errs.ExitCodeSuccess {
 		t.Errorf("RunServe(cli, ok) = %d, want 0 (arg passthrough)", code)
 	}
-	if code := run(); code != kern.ExitCodeFailure {
+	if code := run(); code != errs.ExitCodeFailure {
 		t.Errorf("RunServe(cli, no args) = %d, want child failure mapped to canonical exit 1 (G5)", code)
 	}
 }

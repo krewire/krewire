@@ -7,12 +7,15 @@ import (
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/krewire/krewire/packages/cloud/service/resilience"
 )
 
+// Breaker defines the circuit breaker execution contract required by gateway middleware.
+type Breaker interface {
+	Do(ctx context.Context, fn func() error) error
+}
+
 // CircuitBreakerMiddleware wraps an HTTP handler with a circuit breaker.
-func CircuitBreakerMiddleware(cb *resilience.CircuitBreaker) Middleware {
+func CircuitBreakerMiddleware(cb Breaker) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			err := cb.Do(r.Context(), func() error {
@@ -24,9 +27,7 @@ func CircuitBreakerMiddleware(cb *resilience.CircuitBreaker) Middleware {
 				return nil
 			})
 			if err != nil {
-				if _, ok := err.(resilience.ErrCircuitOpen); ok {
-					writeProblem(w, http.StatusServiceUnavailable, "circuit breaker open: "+err.Error())
-				}
+				writeProblem(w, http.StatusServiceUnavailable, "circuit breaker open: "+err.Error())
 			}
 		})
 	}

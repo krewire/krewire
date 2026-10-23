@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"syscall"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/ecosystem"
 )
 
@@ -20,7 +20,7 @@ import (
 // in the project root directory, inheriting environment variables. If any
 // command exits with a non-zero code, execution aborts and that exit code is returned.
 // (FRK-BLD-001, FRK-BLD-002, FRK-BLD-003, FRK-BLD-004, FRK-BLD-005, FRK-BLD-010)
-func executeBuildDeps(root string, deps []string, env []string) kern.ExitCode {
+func executeBuildDeps(root string, deps []string, env []string) errs.ExitCode {
 	for i, cmdStr := range deps {
 		slog.Info("executing build dependency", "step", i+1, "total", len(deps), "command", cmdStr)
 		fmt.Fprintf(os.Stdout, "── [%d/%d] %s ──\n", i+1, len(deps), cmdStr)
@@ -40,13 +40,13 @@ func executeBuildDeps(root string, deps []string, env []string) kern.ExitCode {
 			slog.Error("build dependency failed", "command", cmdStr, "error", err)
 			if exitErr, ok := err.(*exec.ExitError); ok {
 				if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-					return kern.ExitCode(status.ExitStatus())
+					return errs.ExitCode(status.ExitStatus())
 				}
 			}
-			return kern.ExitCodeFailure
+			return errs.ExitCodeFailure
 		}
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // RuntimeSuggestion represents an advisory build suggestion detected from project files.

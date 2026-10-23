@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestRunNew_WorkerServiceInfra(t *testing.T) {
@@ -29,7 +29,7 @@ func TestRunNew_WorkerServiceInfra(t *testing.T) {
 			_ = fs.Parse([]string{projectName})
 
 			code := RunNew(fs)
-			if code != kern.ExitCodeSuccess {
+			if code != errs.ExitCodeSuccess {
 				t.Fatalf("RunNew with --%s failed: %v", tc.flagName, code)
 			}
 
@@ -65,7 +65,7 @@ func TestRunInit_WorkerServiceInfra(t *testing.T) {
 			_ = fs.Parse(nil)
 
 			code := RunInit(fs)
-			if code != kern.ExitCodeSuccess {
+			if code != errs.ExitCodeSuccess {
 				t.Fatalf("RunInit with --%s failed: %v", tc.flagName, code)
 			}
 

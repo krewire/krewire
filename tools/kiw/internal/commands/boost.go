@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/packages/boost"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 // RegisterBoost registers flags for the boost command group.
@@ -23,7 +23,7 @@ func RegisterBoost(fs *flag.FlagSet) {
 
 // RunBoost dispatches the boost sub-commands. Currently only "install" is
 // implemented; with no sub-command the wizard starts interactively.
-func RunBoost(fs *flag.FlagSet) kern.ExitCode {
+func RunBoost(fs *flag.FlagSet) errs.ExitCode {
 	sub := fs.Arg(0)
 	switch sub {
 	case "install":
@@ -38,7 +38,7 @@ func RunBoost(fs *flag.FlagSet) kern.ExitCode {
 // runBoostInstall installs the Boost template into a target directory. When
 // the target is not supplied it is asked for interactively; existing managed
 // files prompt for confirmation unless --force is given.
-func runBoostInstall(fs *flag.FlagSet, in io.Reader, out io.Writer) kern.ExitCode {
+func runBoostInstall(fs *flag.FlagSet, in io.Reader, out io.Writer) errs.ExitCode {
 	target := fs.Arg(1)
 	if target == "" {
 		line, err := promptLine(in, out, "Target directory (enter `.` for current): ")
@@ -79,7 +79,7 @@ func runBoostInstall(fs *flag.FlagSet, in io.Reader, out io.Writer) kern.ExitCod
 			}
 			if !isYes(answer) {
 				fmt.Fprintln(out, "Aborted.")
-				return kern.ExitCodeUsage
+				return errs.ExitCodeUsage
 			}
 			force = true
 		}
@@ -117,13 +117,13 @@ func runBoostInstall(fs *flag.FlagSet, in io.Reader, out io.Writer) kern.ExitCod
 	fmt.Fprintln(out, "  1. cd "+target)
 	fmt.Fprintln(out, "  2. Open opencode there.")
 	fmt.Fprintln(out, "  3. Run /kickoff so the agent maps the project.")
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // absPath returns the absolute form of target.
 func absPath(target string) (string, error) {
 	if strings.HasPrefix(target, "~") {
-		return "", kern.UsageError("shell expansion is not applied; use an absolute or relative path")
+		return "", errs.UsageError("shell expansion is not applied; use an absolute or relative path")
 	}
 	return filepath.Abs(target)
 }
@@ -144,13 +144,13 @@ func detectManagedConflicts(target string) ([]string, error) {
 }
 
 // boostInstallError maps the library's sentinel errors onto exit codes.
-func boostInstallError(err error) kern.ExitCode {
+func boostInstallError(err error) errs.ExitCode {
 	fmt.Fprintln(os.Stderr, "kiw:", err)
 	switch {
 	case errors.Is(err, boost.ErrTargetMissing), errors.Is(err, boost.ErrConflicts):
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	default:
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
 }
 
@@ -174,9 +174,9 @@ func isYes(answer string) bool {
 }
 
 // usageMessage prints a usage line and returns ExitCodeUsage.
-func usageMessage(msg string) kern.ExitCode {
+func usageMessage(msg string) errs.ExitCode {
 	fmt.Fprintln(os.Stderr, "kiw: "+msg)
-	return kern.ExitCodeUsage
+	return errs.ExitCodeUsage
 }
 
 func boolFlag(fs *flag.FlagSet, name string) bool {

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestBootRuntime_InstallsEnvAppropriateLogger(t *testing.T) {
@@ -34,7 +34,7 @@ func TestBootRuntime_InstallsEnvAppropriateLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 	rt, code := bootRuntime(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		t.Fatalf("bootRuntime code = %d", code)
 	}
 	if !rt.debug {
@@ -60,11 +60,11 @@ func TestFail_PrintsAttachedStackWhenDebug(t *testing.T) {
 	debugEnabled = true
 	t.Cleanup(func() { os.Stderr = oldStderr; debugEnabled = prevDebug })
 
-	code := fail(kern.WithStack(kern.FailureError("diagnostic boom")))
+	code := fail(errs.WithStack(errs.FailureError("diagnostic boom")))
 	w.Close()
 
 	out, _ := io.ReadAll(r)
-	if code != kern.ExitCodeFailure {
+	if code != errs.ExitCodeFailure {
 		t.Errorf("fail code = %d, want failure", code)
 	}
 	logged := string(out)
@@ -78,7 +78,7 @@ func TestFail_PrintsAttachedStackWhenDebug(t *testing.T) {
 	debugEnabled = false
 	r2, w2, _ := os.Pipe()
 	os.Stderr = w2
-	fail(kern.WithStack(kern.FailureError("quiet boom")))
+	fail(errs.WithStack(errs.FailureError("quiet boom")))
 	w2.Close()
 	quiet, _ := io.ReadAll(r2)
 	if strings.Contains(string(quiet), "stack trace") {
@@ -97,8 +97,8 @@ func TestFail_PrintsTreeWithHintWithoutDebug(t *testing.T) {
 	debugEnabled = false
 	t.Cleanup(func() { os.Stderr = oldStderr; debugEnabled = prevDebug })
 
-	errd := kern.WithHint(
-		kern.WithAttrs(kern.UsageError("cannot read krewire.yaml"), kern.Attr{Key: "file", Value: "krewire.yaml"}),
+	errd := errs.WithHint(
+		errs.WithAttrs(errs.UsageError("cannot read krewire.yaml"), errs.Attr{Key: "file", Value: "krewire.yaml"}),
 		"run 'kiw init' to create one",
 	)
 	code := fail(errd)
@@ -114,17 +114,17 @@ func TestFail_PrintsTreeWithHintWithoutDebug(t *testing.T) {
 	if strings.Contains(tree, "stack trace") {
 		t.Errorf("stack leaked while debug off:\n%s", tree)
 	}
-	if code != kern.ExitCodeFailure {
+	if code != errs.ExitCodeFailure {
 		t.Errorf("fail code = %d, want failure", code)
 	}
 
 	// usage path keeps exit code 2 while rendering the same tree.
 	r2, w2, _ := os.Pipe()
 	os.Stderr = w2
-	code2 := usageOrFail(kern.WithHint(kern.UsageError("bad flag combo"), "see 'kiw init --help'"))
+	code2 := usageOrFail(errs.WithHint(errs.UsageError("bad flag combo"), "see 'kiw init --help'"))
 	w2.Close()
 	out2, _ := io.ReadAll(r2)
-	if code2 != kern.ExitCodeUsage {
+	if code2 != errs.ExitCodeUsage {
 		t.Errorf("usageOrFail code = %d, want usage", code2)
 	}
 	if !strings.Contains(string(out2), "Hint: see 'kiw init --help'") {

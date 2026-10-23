@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/version"
 )
 
 // isolateRegistry swaps the global registry for the duration of a test so
@@ -21,14 +21,14 @@ func isolateRegistry(t *testing.T) {
 type stubPlugin struct {
 	name    string
 	aliases []string
-	version kern.Version
+	version version.Version
 }
 
 func (s *stubPlugin) Name() string               { return s.name }
 func (s *stubPlugin) Aliases() []string          { return s.aliases }
 func (s *stubPlugin) Detect(string) bool         { return true }
 func (s *stubPlugin) Build(string, string) error { return nil }
-func (s *stubPlugin) Version() kern.Version      { return s.version }
+func (s *stubPlugin) Version() version.Version   { return s.version }
 
 // stubInstaller additionally satisfies the Installer contract.
 type stubInstaller struct{ stubPlugin }
@@ -40,7 +40,7 @@ func (s *stubInstaller) Remove(string) error      { return nil }
 // trims surrounding space, and matches both the plugin name and its aliases.
 func TestFindMatchesNameAndAliases(t *testing.T) {
 	isolateRegistry(t)
-	Register(&stubPlugin{name: "tailwind", aliases: []string{"twcss"}, version: kern.MustParseVersion("1.2.3")})
+	Register(&stubPlugin{name: "tailwind", aliases: []string{"twcss"}, version: version.MustParseVersion("1.2.3")})
 
 	for _, query := range []string{
 		"tailwind", "TAILWIND", "  tailwind  ", "twcss", "TWCSS",
@@ -69,12 +69,12 @@ func TestFindMapsTailwindcss(t *testing.T) {
 func TestFindInstaller(t *testing.T) {
 	isolateRegistry(t)
 
-	Register(&stubPlugin{name: "plain", version: kern.MustParseVersion("1.0.0")})
+	Register(&stubPlugin{name: "plain", version: version.MustParseVersion("1.0.0")})
 	if FindInstaller("plain") != nil {
 		t.Error("a plugin without Add/Remove must not satisfy Installer")
 	}
 
-	Register(&stubInstaller{stubPlugin{name: "managed", version: kern.MustParseVersion("1.0.0")}})
+	Register(&stubInstaller{stubPlugin{name: "managed", version: version.MustParseVersion("1.0.0")}})
 	if FindInstaller("managed") == nil {
 		t.Error("a plugin implementing Installer must be returned")
 	}
@@ -87,15 +87,15 @@ func TestFindInstaller(t *testing.T) {
 // does not satisfy the requirement.
 func TestFindByVersion(t *testing.T) {
 	isolateRegistry(t)
-	Register(&stubPlugin{name: "tw", version: kern.MustParseVersion("1.2.0")})
+	Register(&stubPlugin{name: "tw", version: version.MustParseVersion("1.2.0")})
 
-	if FindByVersion("tw", kern.MustParseVersion("1.0.0")) == nil {
+	if FindByVersion("tw", version.MustParseVersion("1.0.0")) == nil {
 		t.Error("a compatible version must be returned")
 	}
-	if FindByVersion("tw", kern.MustParseVersion("9.0.0")) != nil {
+	if FindByVersion("tw", version.MustParseVersion("9.0.0")) != nil {
 		t.Error("an incompatible version must be filtered out")
 	}
-	if FindByVersion("absent", kern.MustParseVersion("1.0.0")) != nil {
+	if FindByVersion("absent", version.MustParseVersion("1.0.0")) != nil {
 		t.Error("an unknown name must return nil")
 	}
 }
@@ -104,15 +104,15 @@ func TestFindByVersion(t *testing.T) {
 // filters apply to the Installer lookup.
 func TestFindInstallerByVersion(t *testing.T) {
 	isolateRegistry(t)
-	Register(&stubInstaller{stubPlugin{name: "tw", version: kern.MustParseVersion("1.2.0")}})
+	Register(&stubInstaller{stubPlugin{name: "tw", version: version.MustParseVersion("1.2.0")}})
 
-	if FindInstallerByVersion("tw", kern.MustParseVersion("1.0.0")) == nil {
+	if FindInstallerByVersion("tw", version.MustParseVersion("1.0.0")) == nil {
 		t.Error("a compatible installer must be returned")
 	}
-	if FindInstallerByVersion("tw", kern.MustParseVersion("9.0.0")) != nil {
+	if FindInstallerByVersion("tw", version.MustParseVersion("9.0.0")) != nil {
 		t.Error("an incompatible installer must be filtered out")
 	}
-	if FindInstallerByVersion("absent", kern.MustParseVersion("1.0.0")) != nil {
+	if FindInstallerByVersion("absent", version.MustParseVersion("1.0.0")) != nil {
 		t.Error("an unknown name must return nil")
 	}
 }

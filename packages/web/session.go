@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/krewire/krewire/packages/cloud/storage"
+	"github.com/krewire/krewire/packages/storage"
 )
 
 // Session is a server-side session: an opaque ID plus JSON-serializable data.

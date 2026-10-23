@@ -165,3 +165,44 @@ func (c *MemoryCenter) notifyLocked(key string, ch Change) {
 		}
 	}
 }
+
+// AsConfigSource adapts a Center into a key-value dynamic configuration source.
+func (c *MemoryCenter) AsConfigSource() CenterSource {
+	return CenterSource{Center: c}
+}
+
+// CenterSource adapts any Center into a dynamic string configuration source.
+type CenterSource struct {
+	Center Center
+}
+
+func (s CenterSource) Get(ctx context.Context, key string) (string, error) {
+	if s.Center == nil {
+		return "", ErrNotFound{Key: key}
+	}
+	val, err := s.Center.Get(ctx, key)
+	if err != nil {
+		return "", err
+	}
+	return val.Data, nil
+}
+
+func (s CenterSource) Watch(ctx context.Context, key string) (<-chan string, func(), error) {
+	if s.Center == nil {
+		return nil, nil, ErrNotFound{Key: key}
+	}
+	ch, cancel, err := s.Center.Watch(ctx, key)
+	if err != nil {
+		return nil, nil, err
+	}
+	out := make(chan string, 16)
+	go func() {
+		defer close(out)
+		for c := range ch {
+			if !c.Deleted {
+				out <- c.Value.Data
+			}
+		}
+	}()
+	return out, func() { cancel() }, nil
+}

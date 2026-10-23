@@ -8,14 +8,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
 
 func RegisterWs(fs *flag.FlagSet) {}
 
-func RunWs(fs *flag.FlagSet) kern.ExitCode {
+func RunWs(fs *flag.FlagSet) errs.ExitCode {
 	sub := fs.Arg(0)
 	args := fs.Args()
 	switch sub {
@@ -39,7 +39,7 @@ func RunWs(fs *flag.FlagSet) kern.ExitCode {
 	}
 }
 
-func wsHelp() kern.ExitCode {
+func wsHelp() errs.ExitCode {
 	fmt.Fprint(os.Stdout, `kiw ws — workspace for monorepo, multi-repo, multi-project, microservices
 
 Usage:
@@ -63,7 +63,7 @@ Workspace types:
   multi-project — go.work members have different kinds (app, service, worker)
   microservices — multiple kind=service members
 `)
-	return kern.ExitCodeUsage
+	return errs.ExitCodeUsage
 }
 
 func findWorkspaceRoot(dir string) (string, string, []string) {
@@ -127,7 +127,7 @@ func parseGoWork(path string) []string {
 	return members
 }
 
-func runWsInfo(fs *flag.FlagSet) kern.ExitCode {
+func runWsInfo(fs *flag.FlagSet) errs.ExitCode {
 	dir, _ := os.Getwd()
 	root, typ, members := findWorkspaceRoot(dir)
 	fmt.Fprintf(os.Stdout, "workspace: %s\n", root)
@@ -144,10 +144,10 @@ func runWsInfo(fs *flag.FlagSet) kern.ExitCode {
 	if _, err := os.Stat(goWork); err == nil {
 		fmt.Fprintf(os.Stdout, "go.work: %s\n", goWork)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
-func runWsList(fs *flag.FlagSet) kern.ExitCode {
+func runWsList(fs *flag.FlagSet) errs.ExitCode {
 	dir, _ := os.Getwd()
 	root, _, members := findWorkspaceRoot(dir)
 	if len(members) == 0 {
@@ -176,19 +176,19 @@ func runWsList(fs *flag.FlagSet) kern.ExitCode {
 		}
 		fmt.Fprintf(os.Stdout, "%-30s %-12s %s\n", rel, kind, modPath)
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
-func runWsAdd(fs *flag.FlagSet, args []string) kern.ExitCode {
+func runWsAdd(fs *flag.FlagSet, args []string) errs.ExitCode {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "kiw ws add: missing <path> (e.g., kiw ws add ./services/payment)")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	dir, _ := os.Getwd()
 	root, typ, _ := findWorkspaceRoot(dir)
 	if !strings.Contains(typ, "go.work") {
 		fmt.Fprintln(os.Stderr, "kiw ws add: no go.work found — run 'go work init' first or use monorepo")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	path := args[0]
 	cmd := exec.Command("go", "work", "use", path)
@@ -199,19 +199,19 @@ func runWsAdd(fs *flag.FlagSet, args []string) kern.ExitCode {
 		return fail(err)
 	}
 	fmt.Fprintf(os.Stdout, "added %s to go.work\n", path)
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
-func runWsRemove(fs *flag.FlagSet, args []string) kern.ExitCode {
+func runWsRemove(fs *flag.FlagSet, args []string) errs.ExitCode {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "kiw ws remove: missing <path>")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	dir, _ := os.Getwd()
 	root, typ, _ := findWorkspaceRoot(dir)
 	if !strings.Contains(typ, "go.work") {
 		fmt.Fprintln(os.Stderr, "kiw ws remove: no go.work found")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	path := args[0]
 	cmd := exec.Command("go", "work", "edit", "-dropuse", path)
@@ -222,10 +222,10 @@ func runWsRemove(fs *flag.FlagSet, args []string) kern.ExitCode {
 		return fail(err)
 	}
 	fmt.Fprintf(os.Stdout, "removed %s from go.work\n", path)
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
-func runWsSync(fs *flag.FlagSet) kern.ExitCode {
+func runWsSync(fs *flag.FlagSet) errs.ExitCode {
 	dir, _ := os.Getwd()
 	root, _, _ := findWorkspaceRoot(dir)
 	cmd := exec.Command("go", "work", "sync")
@@ -236,13 +236,13 @@ func runWsSync(fs *flag.FlagSet) kern.ExitCode {
 		return fail(err)
 	}
 	fmt.Fprintln(os.Stdout, "go work sync done")
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
-func runWsExec(fs *flag.FlagSet, args []string) kern.ExitCode {
+func runWsExec(fs *flag.FlagSet, args []string) errs.ExitCode {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "kiw ws exec: missing command (e.g., kiw ws exec -- go test ./...)")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	// strip leading -- if present
 	if args[0] == "--" {
@@ -250,7 +250,7 @@ func runWsExec(fs *flag.FlagSet, args []string) kern.ExitCode {
 	}
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "kiw ws exec: missing command after --")
-		return kern.ExitCodeUsage
+		return errs.ExitCodeUsage
 	}
 	dir, _ := os.Getwd()
 	root, _, members := findWorkspaceRoot(dir)
@@ -278,7 +278,7 @@ func runWsExec(fs *flag.FlagSet, args []string) kern.ExitCode {
 	}
 	if len(failed) > 0 {
 		fmt.Fprintf(os.Stderr, "kiw ws exec: %d member(s) failed: %s\n", len(failed), strings.Join(failed, ", "))
-		return kern.ExitCodeFailure
+		return errs.ExitCodeFailure
 	}
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }

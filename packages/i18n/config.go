@@ -7,13 +7,12 @@ import (
 	"io/fs"
 	"strings"
 
-	svcconfig "github.com/krewire/krewire/packages/cloud/service/config"
 	"gopkg.in/yaml.v3"
 )
 
 // Config defines the configuration schema for the i18n subsystem.
 // It can be loaded from YAML (e.g. krewire.yaml), JSON, environment variables,
-// or the framework's distributed configuration center.
+// or a dynamic configuration source.
 type Config struct {
 	// DefaultLocale is the primary locale used when none is specified (default: "en").
 	DefaultLocale string `yaml:"default_locale" json:"default_locale" env:"I18N_DEFAULT_LOCALE"`
@@ -75,45 +74,51 @@ func NewFromConfig(fsys fs.FS, cfg Config, opts ...Option) (*Bundle, error) {
 	return New(fsys, allOpts...)
 }
 
-// LoadConfigFromCenter reads an i18n Config from the framework's configuration center.
+// CancelFunc cancels a watch subscription.
+type CancelFunc func()
+
+// ConfigSource is the minimal contract required to load and watch dynamic configuration.
+type ConfigSource interface {
+	Get(ctx context.Context, key string) (string, error)
+	Watch(ctx context.Context, key string) (<-chan string, CancelFunc, error)
+}
+
+// LoadConfigFromSource reads an i18n Config from a dynamic ConfigSource.
 // It supports values stored as JSON or YAML under the given key.
-func LoadConfigFromCenter(ctx context.Context, center svcconfig.Center, key string) (Config, error) {
+func LoadConfigFromSource(ctx context.Context, src ConfigSource, key string) (Config, error) {
 	cfg := DefaultConfig()
-	if center == nil {
-		return cfg, fmt.Errorf("i18n: nil config center")
+	if src == nil {
+		return cfg, fmt.Errorf("i18n: nil config source")
 	}
 
-	val, err := center.Get(ctx, key)
+	data, err := src.Get(ctx, key)
 	if err != nil {
-		return cfg, fmt.Errorf("i18n: read config key %q from center: %w", key, err)
+		return cfg, fmt.Errorf("i18n: read config key %q from source: %w", key, err)
 	}
 
-	if err := parseConfigData(val.Data, &cfg); err != nil {
-		return cfg, fmt.Errorf("i18n: parse config from center: %w", err)
+	if err := parseConfigData(data, &cfg); err != nil {
+		return cfg, fmt.Errorf("i18n: parse config from source: %w", err)
 	}
 
 	return cfg, nil
 }
 
-// WatchCenter watches the framework's configuration center for dynamic updates to i18n configuration.
+// WatchSource watches a ConfigSource for dynamic updates to i18n configuration.
 // When changes occur, it updates the bundle's locales and settings dynamically.
-func WatchCenter(ctx context.Context, center svcconfig.Center, key string, bundle *Bundle) (svcconfig.Cancel, error) {
-	if center == nil || bundle == nil {
-		return func() {}, fmt.Errorf("i18n: center and bundle must not be nil")
+func WatchSource(ctx context.Context, src ConfigSource, key string, bundle *Bundle) (CancelFunc, error) {
+	if src == nil || bundle == nil {
+		return func() {}, fmt.Errorf("i18n: source and bundle must not be nil")
 	}
 
-	changes, cancel, err := center.Watch(ctx, key)
+	changes, cancel, err := src.Watch(ctx, key)
 	if err != nil {
 		return nil, err
 	}
 
 	go func() {
-		for change := range changes {
-			if change.Deleted || change.Key != key {
-				continue
-			}
+		for data := range changes {
 			var newCfg Config
-			if err := parseConfigData(change.Value.Data, &newCfg); err == nil {
+			if err := parseConfigData(data, &newCfg); err == nil {
 				bundle.mu.Lock()
 				if newCfg.DefaultLocale != "" {
 					bundle.defaultLocale = strings.ToLower(newCfg.DefaultLocale)

@@ -15,9 +15,9 @@ This repository contains the core monorepo: `packages/` (domain libraries),
 
 Strict downward-only dependencies:
 ```
-templates/boost → tools/kiw → packages/* → packages/kern (model/lifecycle)
+templates/boost → tools/kiw → packages/* → packages/model, packages/errs
 ```
-- `packages/kern/model` may depend only on standard library packages.
+- `packages/model` may depend only on standard library packages and `packages/errs`.
 - No package or library may **ever** import `kiw`.
 - `tools/kiw` imports packages from `packages/*` directly (e.g. `packages/hub/resolver`). Never duplicate logic between `tools/kiw` and `packages/`.
 - Single Source of Truth (SSOT): no duplicate literals, tables, or constants.

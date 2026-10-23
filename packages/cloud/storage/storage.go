@@ -16,82 +16,22 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
+
+	foundation "github.com/krewire/krewire/packages/storage"
 )
 
-// ErrNotFound is returned by backends when a key exists check fails; reads
-// also report ok=false so callers can treat missing values as normal.
-var ErrNotFound = errors.New("storage: key not found")
+// ErrNotFound is re-exported from the foundational storage package for backward compatibility.
+var ErrNotFound = foundation.ErrNotFound
 
-// KV is the minimal app-storage contract shared by every backend.
-type KV interface {
-	// Get returns the value for key; ok is false when absent.
-	Get(ctx context.Context, key string) (val []byte, ok bool, err error)
-	// Put stores val under key, creating intermediate namespaces.
-	Put(ctx context.Context, key string, val []byte) error
-	// Delete removes key; deleting an absent key is not an error.
-	Delete(ctx context.Context, key string) error
-	// List returns keys under prefix, sorted ascending.
-	List(ctx context.Context, prefix string) ([]string, error)
-}
+// KV is the canonical key-value storage contract defined in packages/storage.
+type KV = foundation.KV
 
-// MemoryKV is a goroutine-safe in-memory backend.
-type MemoryKV struct {
-	mu    sync.RWMutex
-	items map[string][]byte
-}
+// MemoryKV is a goroutine-safe in-memory backend re-exported from packages/storage.
+type MemoryKV = foundation.MemoryKV
 
 // NewMemory returns an empty in-memory store.
 func NewMemory() *MemoryKV {
-	return &MemoryKV{items: map[string][]byte{}}
-}
-
-func (m *MemoryKV) Get(_ context.Context, key string) ([]byte, bool, error) {
-	key = cleanKey(key)
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	val, ok := m.items[key]
-	if !ok {
-		return nil, false, nil
-	}
-	out := make([]byte, len(val))
-	copy(out, val)
-	return out, true, nil
-}
-
-func (m *MemoryKV) Put(_ context.Context, key string, val []byte) error {
-	key = cleanKey(key)
-	if key == "" {
-		return errors.New("storage: empty key")
-	}
-	cp := make([]byte, len(val))
-	copy(cp, val)
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.items[key] = cp
-	return nil
-}
-
-func (m *MemoryKV) Delete(_ context.Context, key string) error {
-	key = cleanKey(key)
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	delete(m.items, key)
-	return nil
-}
-
-func (m *MemoryKV) List(_ context.Context, prefix string) ([]string, error) {
-	prefix = cleanKey(prefix)
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	var out []string
-	for k := range m.items {
-		if strings.HasPrefix(k, prefix) {
-			out = append(out, k)
-		}
-	}
-	sort.Strings(out)
-	return out, nil
+	return foundation.NewMemoryKV()
 }
 
 // FileKV persists keys as files beneath root.

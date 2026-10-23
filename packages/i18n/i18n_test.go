@@ -2,6 +2,7 @@ package i18n_test
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -9,8 +10,6 @@ import (
 	"testing/fstest"
 	"time"
 
-	"github.com/krewire/krewire/packages/app"
-	svcconfig "github.com/krewire/krewire/packages/cloud/service/config"
 	"github.com/krewire/krewire/packages/i18n"
 )
 
@@ -311,36 +310,41 @@ func TestMiddleware(t *testing.T) {
 	}
 }
 
-func TestProvider(t *testing.T) {
-	fsys := sampleFileSystem()
-	bundle, err := i18n.New(fsys)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+type testConfigSource struct {
+	mu   sync.Mutex
+	data map[string]string
+	ch   chan string
+}
 
-	container, err := app.NewApp(i18n.Provider(bundle)).Build()
-	if err != nil {
-		t.Fatalf("container build error: %v", err)
+func newTestConfigSource() *testConfigSource {
+	return &testConfigSource{
+		data: make(map[string]string),
+		ch:   make(chan string, 10),
 	}
+}
 
-	resolvedBundle, err := app.Resolve[*i18n.Bundle](container)
-	if err != nil {
-		t.Fatalf("failed to resolve *i18n.Bundle: %v", err)
+func (s *testConfigSource) Get(ctx context.Context, key string) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	v, ok := s.data[key]
+	if !ok {
+		return "", fmt.Errorf("key not found")
 	}
-	if resolvedBundle == nil {
-		t.Fatal("resolved bundle is nil")
-	}
+	return v, nil
+}
 
-	resolvedTranslator, err := app.Resolve[*i18n.Translator](container)
-	if err != nil {
-		t.Fatalf("failed to resolve *i18n.Translator: %v", err)
+func (s *testConfigSource) Set(key, val string) {
+	s.mu.Lock()
+	s.data[key] = val
+	s.mu.Unlock()
+	select {
+	case s.ch <- val:
+	default:
 	}
-	if resolvedTranslator == nil {
-		t.Fatal("resolved translator is nil")
-	}
-	if resolvedTranslator.T("auth.login") != "Log in" {
-		t.Errorf("expected 'Log in', got '%s'", resolvedTranslator.T("auth.login"))
-	}
+}
+
+func (s *testConfigSource) Watch(ctx context.Context, key string) (<-chan string, i18n.CancelFunc, error) {
+	return s.ch, func() {}, nil
 }
 
 func TestBundle_Concurrency(t *testing.T) {
@@ -397,40 +401,36 @@ func TestConfigAndCenter(t *testing.T) {
 		t.Error("expected locale 'es' to be registered from config")
 	}
 
-	// Test framework config center integration
-	center := svcconfig.NewMemoryCenter()
+	// Test dynamic config source integration
+	src := newTestConfigSource()
 	ctx := context.Background()
 
-	// Store YAML config in center
+	// Store YAML config in source
 	yamlData := `
 default_locale: fr
 fallback_locale: en
 locales: [fr, en, de]
 `
-	if err := center.Set(ctx, "i18n.settings", yamlData); err != nil {
-		t.Fatalf("failed to set center config: %v", err)
-	}
+	src.Set("i18n.settings", yamlData)
 
-	loadedCfg, err := i18n.LoadConfigFromCenter(ctx, center, "i18n.settings")
+	loadedCfg, err := i18n.LoadConfigFromSource(ctx, src, "i18n.settings")
 	if err != nil {
-		t.Fatalf("failed to load config from center: %v", err)
+		t.Fatalf("failed to load config from source: %v", err)
 	}
 	if loadedCfg.DefaultLocale != "fr" {
 		t.Errorf("expected loaded default locale 'fr', got '%s'", loadedCfg.DefaultLocale)
 	}
 
-	// Watch center for hot-reload
-	cancel, err := i18n.WatchCenter(ctx, center, "i18n.settings", bundle)
+	// Watch source for hot-reload
+	cancel, err := i18n.WatchSource(ctx, src, "i18n.settings", bundle)
 	if err != nil {
-		t.Fatalf("failed to watch center: %v", err)
+		t.Fatalf("failed to watch source: %v", err)
 	}
 	defer cancel()
 
-	// Update in center
+	// Update in source
 	updatedData := `{"default_locale": "de", "locales": ["de", "en"]}`
-	if err := center.Set(ctx, "i18n.settings", updatedData); err != nil {
-		t.Fatalf("failed to update center: %v", err)
-	}
+	src.Set("i18n.settings", updatedData)
 
 	// Give watcher a moment to process change
 	for i := 0; i < 20; i++ {
@@ -444,33 +444,6 @@ locales: [fr, en, de]
 		t.Errorf("expected hot-reloaded locale 'de', got '%s'", bundle.DefaultLocale())
 	}
 }
-
-func TestProviderWithConfig(t *testing.T) {
-	fsys := sampleFileSystem()
-	cfg := i18n.Config{
-		DefaultLocale:  "id",
-		FallbackLocale: "en",
-	}
-
-	bundle, err := i18n.New(fsys)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	container, err := app.NewApp(i18n.ProviderWithConfig(bundle, cfg)).Build()
-	if err != nil {
-		t.Fatalf("failed to build container: %v", err)
-	}
-
-	resolvedTranslator, err := app.Resolve[*i18n.Translator](container)
-	if err != nil {
-		t.Fatalf("failed to resolve translator: %v", err)
-	}
-	if resolvedTranslator.Locale() != "id" {
-		t.Errorf("expected locale 'id', got '%s'", resolvedTranslator.Locale())
-	}
-}
-
 
 func TestBundle_LocaleResolutionAndFallback(t *testing.T) {
 	fsys := sampleFileSystem()
@@ -550,4 +523,3 @@ func TestBundle_LinkRewritingPreservesLocale(t *testing.T) {
 		t.Errorf("expected fallback Hello Budi, got %q", got)
 	}
 }
-

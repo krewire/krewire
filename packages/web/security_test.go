@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/krewire/krewire/packages/cloud/storage"
+	"github.com/krewire/krewire/packages/storage"
 	ftest "github.com/krewire/krewire/packages/testing"
 )
 
@@ -120,7 +120,7 @@ func TestCSRF_FlowWithSession(t *testing.T) {
 }
 
 func TestSession_Rotate_KV_vs_Memory(t *testing.T) {
-	kvStore := NewKVSessionStore(storage.NewMemory())
+	kvStore := NewKVSessionStore(storage.NewMemoryKV())
 	memStore := NewMemorySessionStore()
 	for name, store := range map[string]SessionStore{"kv": kvStore, "memory": memStore} {
 		t.Run(name, func(t *testing.T) {

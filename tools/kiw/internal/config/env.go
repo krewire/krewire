@@ -8,18 +8,18 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/packages/config"
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/env"
 )
 
 // ResolveEnv resolves the effective environment with strict precedence:
 // override (--env flag) > KIW_ENV > krewire.yaml > local
 // (KWL-K4T7W KWL-ENVV-004). An invalid resolved value is a usage error.
-func (c *Config) ResolveEnv(override string) (kern.Env, error) {
+func (c *Config) ResolveEnv(override string) (env.Env, error) {
 	v := firstNonEmpty(override, os.Getenv("KIW_ENV"))
 	if v == "" && c != nil {
 		v = c.Env
 	}
-	return kern.ParseEnv(v)
+	return env.ParseEnv(v)
 }
 
 // ResolveDebug resolves the effective debug switch with the same precedence:

@@ -16,7 +16,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern/errs"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/term"
 )
 

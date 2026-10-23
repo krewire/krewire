@@ -4,7 +4,7 @@ import (
 	"flag"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
 )
 
 func TestClientCatcallsHasAtLeastTenEntries(t *testing.T) {
@@ -23,25 +23,25 @@ func TestRunKiwSuccess(t *testing.T) {
 	RegisterKiw(fs)
 
 	// Test default random execution
-	if code := RunKiw(fs); code != kern.ExitCodeSuccess {
-		t.Errorf("RunKiw() = %v, want %v", code, kern.ExitCodeSuccess)
+	if code := RunKiw(fs); code != errs.ExitCodeSuccess {
+		t.Errorf("RunKiw() = %v, want %v", code, errs.ExitCodeSuccess)
 	}
 
 	// Test --all flag
 	kiwFlagAll = true
-	if code := RunKiw(fs); code != kern.ExitCodeSuccess {
-		t.Errorf("RunKiw(--all) = %v, want %v", code, kern.ExitCodeSuccess)
+	if code := RunKiw(fs); code != errs.ExitCodeSuccess {
+		t.Errorf("RunKiw(--all) = %v, want %v", code, errs.ExitCodeSuccess)
 	}
 	kiwFlagAll = false
 
 	// Test --json flag
 	kiwFlagJSON = true
-	if code := RunKiw(fs); code != kern.ExitCodeSuccess {
-		t.Errorf("RunKiw(--json) = %v, want %v", code, kern.ExitCodeSuccess)
+	if code := RunKiw(fs); code != errs.ExitCodeSuccess {
+		t.Errorf("RunKiw(--json) = %v, want %v", code, errs.ExitCodeSuccess)
 	}
 	kiwFlagAll = true
-	if code := RunKiw(fs); code != kern.ExitCodeSuccess {
-		t.Errorf("RunKiw(--json --all) = %v, want %v", code, kern.ExitCodeSuccess)
+	if code := RunKiw(fs); code != errs.ExitCodeSuccess {
+		t.Errorf("RunKiw(--json --all) = %v, want %v", code, errs.ExitCodeSuccess)
 	}
 	kiwFlagAll = false
 	kiwFlagJSON = false

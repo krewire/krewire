@@ -6,7 +6,7 @@ The `worker` workload powers autonomous background processes, asynchronous queue
 
 ## 1. Key Capabilities
 
-- **Supervised Lifecycle (`packages/kern/lifecycle`)**: Integrates with the kernel supervisor for automatic restart, health heartbeats, and graceful cancellation upon SIGTERM/SIGINT.
+- **Supervised Lifecycle (`packages/lifecycle`)**: Integrates with the kernel supervisor for automatic restart, health heartbeats, and graceful cancellation upon SIGTERM/SIGINT.
 - **Queue & Consumer Primitives (`packages/cloud/worker`)**: Pluggable queue abstractions (Redis, SQS, RabbitMQ, and in-memory).
 - **Concurrency & Resilience (`packages/resilience`)**: Configurable worker pool concurrency, exponential backoff retries, and circuit breakers.
 

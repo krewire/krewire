@@ -66,7 +66,7 @@
       </button>
     </div>
     <div class="toc-subs">
-      <a href="/docs/packages/kern" class="toc-sub">5.1 Kernel & Model (kern)</a>
+      <a href="/docs/packages/model" class="toc-sub">5.1 Core Model & Lifecycle (model, lifecycle)</a>
       <a href="/docs/packages/web-and-app" class="toc-sub">5.2 Web & Application (web, app)</a>
       <a href="/docs/packages/security-and-auth" class="toc-sub">5.3 Security & Auth (sec, auth)</a>
       <a href="/docs/packages/ui-and-tui" class="toc-sub">5.4 User Interfaces (ui, tui)</a>

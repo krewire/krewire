@@ -9,17 +9,19 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/env"
+	"github.com/krewire/krewire/packages/errs"
 	"github.com/krewire/krewire/packages/term"
+	"github.com/krewire/krewire/packages/version"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/ecosystem"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
-	"github.com/krewire/krewire/tools/kiw/internal/version"
+	kiwver "github.com/krewire/krewire/tools/kiw/internal/version"
 )
 
-func RunInfo(_ *flag.FlagSet) kern.ExitCode {
+func RunInfo(_ *flag.FlagSet) errs.ExitCode {
 	dir, err := os.Getwd()
 	if err != nil {
 		return fail(err)
@@ -41,9 +43,9 @@ func RunInfo(_ *flag.FlagSet) kern.ExitCode {
 	yellow := func(s string) string { return tm.Paint(s, term.ColorYellow, nil) }
 
 	fmt.Println(boldDim("─ Environment ─────────────────────────────────"))
-	printKV(tm, "CLI", cyan("kiw v"+version.Version.String()), dim)
+	printKV(tm, "CLI", cyan("kiw v"+kiwver.Version.String()), dim)
 	printKV(tm, "Ecosystem", cyan("Krewire "+qualifiedVersion(buildinfo.ModKrewire)), dim)
-	printKV(tm, "Signature", green(kern.BuildSignature()), dim)
+	printKV(tm, "Signature", green(version.BuildSignature()), dim)
 	printKV(tm, "Go", dim(runtime.Version()+" ")+yellow("("+runtime.GOOS+"/"+runtime.GOARCH+")"), dim)
 	printKV(tm, "Env", green(resolvedEnvLabel(cfg)), dim)
 	printKV(tm, "Debug", dim(fmt.Sprintf("%t", cfg.ResolveDebug("", false))), dim)
@@ -145,7 +147,7 @@ func RunInfo(_ *flag.FlagSet) kern.ExitCode {
 		}
 	}
 
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 func runtimeDisplayLabel(r string) string {
@@ -194,7 +196,7 @@ func resolvedEnvLabel(cfg *config.Config) string {
 	if cfg != nil && cfg.Env != "" {
 		return cfg.Env + " (invalid)"
 	}
-	return kern.DefaultEnv.String()
+	return env.DefaultEnv.String()
 }
 
 func printAppDirs(root string, cfg *config.Config) {

@@ -5,11 +5,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/model"
+	"github.com/krewire/krewire/packages/version"
 )
 
 func TestBump(t *testing.T) {
-	v := kern.MustParseVersion("0.3.1")
+	v := version.MustParseVersion("0.3.1")
 	if got := Bump(v, BumpPatch); got.String() != "0.3.2" {
 		t.Errorf("Bump patch = %s, want 0.3.2", got)
 	}
@@ -48,7 +49,7 @@ func TestPlanAllModules(t *testing.T) {
 func TestApplyWritesAndValidates(t *testing.T) {
 	dir := t.TempDir()
 	p := filepath.Join(dir, "v.go")
-	orig := `var Version = kern.MustParseVersion("0.1.0")`
+	orig := `var Version = version.MustParseVersion("0.1.0")`
 	if err := os.WriteFile(p, []byte(orig), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +59,7 @@ func TestApplyWritesAndValidates(t *testing.T) {
 		File:    p,
 		Summary: "bump",
 		From:    orig,
-		To:      `var Version = kern.MustParseVersion("0.1.1")`,
+		To:      `var Version = version.MustParseVersion("0.1.1")`,
 	}}
 	if _, err := Apply(edits, "", false); err != nil {
 		t.Fatal(err)
@@ -67,7 +68,7 @@ func TestApplyWritesAndValidates(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(got) != `var Version = kern.MustParseVersion("0.1.1")` {
+	if string(got) != `var Version = version.MustParseVersion("0.1.1")` {
 		t.Errorf("got %q, want updated", string(got))
 	}
 }
@@ -83,7 +84,7 @@ func TestCheckTierCompliance(t *testing.T) {
 		if err != nil {
 			t.Fatalf("CurrentTier(%s) err = %v", m.Name, err)
 		}
-		if tier != kern.TierFree {
+		if tier != model.TierFree {
 			t.Errorf("expected module %s to be free-tier, got %s", m.Name, tier)
 		}
 	}

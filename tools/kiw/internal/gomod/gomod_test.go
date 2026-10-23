@@ -22,7 +22,7 @@ func TestReadParsesModuleAndRequireBlock(t *testing.T) {
 go 1.22
 
 require (
-	github.com/krewire/krewire/packages/kern v0.0.0-20260818-abcdef
+	github.com/krewire/krewire/packages/model v0.0.0-20260818-abcdef
 	github.com/krewire/krewire/packages v0.1.0
 )
 `)
@@ -34,7 +34,7 @@ require (
 	if m.Path != "github.com/acme/demo" {
 		t.Errorf("Path = %q, want github.com/acme/demo", m.Path)
 	}
-	if got := m.Requires["github.com/krewire/krewire/packages/kern"]; got != "v0.0.0-20260818-abcdef" {
+	if got := m.Requires["github.com/krewire/krewire/packages/model"]; got != "v0.0.0-20260818-abcdef" {
 		t.Errorf("framework version = %q", got)
 	}
 	if got := m.Requires["github.com/krewire/krewire/packages"]; got != "v0.1.0" {

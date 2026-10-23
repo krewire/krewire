@@ -1,22 +1,38 @@
-# Krewire Packages
+# Krewire Packages — Module Catalog
 
-Documentation catalog for domain packages in `github.com/krewire/krewire`.
+Documentation catalog for all 29 domain packages in `github.com/krewire/krewire`.
 
 | Module | Documentation | Focus |
 |---|---|---|
-| `core` | [`core.md`](./core.md) | Domain primitives, workload, scope, version, and invariants |
-| `kern` | [`kern.md`](./kern.md) | Kernel execution, module registry, executor, and supervision |
-| `vein` | [`vein.md`](./vein.md) | Logging, diagnostics, errors, exit codes, and stack traces |
+| `ai` | [`ai.md`](./ai.md) | Native AI SDK: providers, streaming, tools, schema, object generation |
+| `app` | [`app.md`](./app.md) | Application container, dependency injection, and service provider lifecycle |
+| `assets` | [`assets.md`](./assets.md) | Static asset pipeline, bundling, minification, and fingerprinting |
 | `auth` | [`auth.md`](./auth.md) | Basic Authentication, JWT, identity, claims, and HTTP errors |
+| `boost` | [`boost.md`](./boost.md) | Boost AI agent coordination & embedded template installer |
+| `cloud` | [`cloud.md`](./cloud.md) | Cloud execution plane: runners, microservices, workers, infra blueprints |
+| `config` | [`config.md`](./config.md) | Declarative configuration loader (`krewire.yaml`), `.env`, environment overlays |
+| `env` | [`env.md`](./env.md) | Target environment resolution (`local`, `production`, `testing`) |
+| `errs` | [`errs.md`](./errs.md) | POSIX exit codes, diagnostic attributes, and stack traces |
+| `file` | [`file.md`](./file.md) | File-oriented operations, safe paths, and atomic replacement |
+| `fs` | [`fs.md`](./fs.md) | Testable filesystem abstraction boundary |
+| `functional` | [`functional.md`](./functional.md) | Generic closure-based utilities (`Map`, `Filter`, `Reduce`, `Chunk`, `Find`) |
+| `hub` | [`hub.md`](./hub.md) | Dynamic capability loader, plugin interface, and package resolver |
+| `i18n` | [`i18n.md`](./i18n.md) | Internationalization, localized message catalogs, pluralization, middleware |
+| `kiw` | [`kiw.md`](./kiw.md) | Unified `.kiw` DSL compiler, parser, AST desugaring, component runtime |
+| `lifecycle` | [`lifecycle.md`](./lifecycle.md) | Workload execution dispatch, registry resolution, and supervisor lifecycle |
+| `log` | [`log.md`](./log.md) | Structured `slog` logging tailored to environments and source tagging |
+| `markdown` | [`markdown.md`](./markdown.md) | Markdown-to-HTML rendering and relative link prefixing |
+| `model` | [`model.md`](./model.md) | Pure data models, workload matrix, scopes, tiers, and opt-in rules |
+| `resilience` | [`resilience.md`](./resilience.md) | Retry policies with exponential backoff and circuit breakers |
+| `runtime` | [`runtime.md`](./runtime.md) | Client WebAssembly VDOM engine, component mounting, reactive widgets |
 | `sec` | [`sec.md`](./sec.md) | Security middleware, policies, SSRF validation, and PII masking |
-| `config` | [`config.md`](./config.md) | YAML configuration, `.env`, and environment overlays |
+| `storage` | [`storage.md`](./storage.md) | Backend-independent object storage (disk, memory, cloud) |
+| `term` | [`term.md`](./term.md) | Terminal detection, ANSI colors, styles, and output formatting |
+| `testing` | [`testing.md`](./testing.md) | Test assertions, HTTP testing harnesses, headless browser automation |
+| `tui` | [`tui.md`](./tui.md) | Terminal UI toolkit powering the `kiw` CLI |
+| `ui` | [`ui.md`](./ui.md) | Web UI component library, layout panels, and CSS design tokens |
 | `validation` | [`validation.md`](./validation.md) | Struct-tag validation and extensible rules |
-| `fs` | [`fs.md`](./fs.md) | Testable filesystem boundary |
-| `file` | [`file.md`](./file.md) | File-oriented operations and atomic replacement |
-| `storage` | [`storage.md`](./storage.md) | Backend-independent object storage |
-| `functional` | [`functional.md`](./functional.md) | Generic closure-based utilities |
-| `resilience` | [`resilience.md`](./resilience.md) | Retry policies and circuit breakers |
-| `term` | [`term.md`](./term.md) | Terminal detection, ANSI colors, styles, and output |
-| `markdown` | [`markdown.md`](./markdown.md) | Markdown-to-HTML rendering and link prefixing |
+| `version` | [`version.md`](./version.md) | Semantic versioning, compatibility checks, and build watermark signature |
+| `web` | [`web.md`](./web.md) | HTTP router, middleware stack, SSG, SSR, HMR, and API Gateway |
 
-Repository architecture is documented in [`../architecture.md`](../architecture.md), while formal specifications are listed in [`../specs/`](../specs/).
+Repository architecture is documented in [`../foundation/architecture.md`](../foundation/architecture.md), while the high-level domain guide is in [`../index.md`](../index.md).

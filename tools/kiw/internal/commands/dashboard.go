@@ -18,7 +18,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/kern"
+	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/packages/model"
 	"github.com/krewire/krewire/packages/term"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
@@ -35,9 +36,9 @@ func RegisterDashboard(fs *flag.FlagSet) {
 
 // RunDashboard starts a local developer dashboard for services, routes, logs,
 // and runtime observability (KWN-DX-003, KWF-L5H2F).
-func RunDashboard(fs *flag.FlagSet) kern.ExitCode {
+func RunDashboard(fs *flag.FlagSet) errs.ExitCode {
 	rt, code := bootRuntime(fs)
-	if code != kern.ExitCodeSuccess {
+	if code != errs.ExitCodeSuccess {
 		return code
 	}
 
@@ -92,7 +93,7 @@ func RunDashboard(fs *flag.FlagSet) kern.ExitCode {
 	<-sigChan
 
 	fmt.Println("\nShutting down dev dashboard...")
-	return kern.ExitCodeSuccess
+	return errs.ExitCodeSuccess
 }
 
 // ProjectRoute represents an HTTP page, content article, or handler detected in the project.
@@ -505,7 +506,7 @@ func discoverWorkers(cfg *config.Config) []string {
 	if cfg == nil {
 		return workers
 	}
-	if cfg.Kind() == string(kern.KindWorker) {
+	if cfg.Kind() == string(model.KindWorker) {
 		workers = append(workers, "default (worker kind)")
 	}
 	return workers

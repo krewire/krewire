@@ -58,7 +58,7 @@ jobs:
       - name: Verify Layer 0 Invariants
         working-directory: krewire
         run: |
-          go test -v -run "TestKWL_L0_" ./packages/kern/... ./packages/kern/model/... ./tools/kiw/internal/buildinfo/... ./tools/kiw/internal/gomod/...
+          go test -v -run "TestKWL_L0_" ./packages/model/... ./packages/errs/... ./packages/version/... ./tools/kiw/internal/buildinfo/... ./tools/kiw/internal/gomod/...
 
       - name: Build kiw CLI Binary (Deterministic & Reproducible)
         working-directory: krewire

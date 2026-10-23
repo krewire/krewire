@@ -18,7 +18,7 @@ func TestLDFlags(t *testing.T) {
 	if !strings.HasPrefix(stripped, "-s -w") {
 		t.Errorf("LDFlags(true) should begin with -s -w, got %q", stripped)
 	}
-	if !strings.Contains(stripped, "github.com/krewire/krewire/packages/kern.Signature") {
-		t.Errorf("LDFlags(true) missing kern.Signature target: %q", stripped)
+	if !strings.Contains(stripped, "github.com/krewire/krewire/packages/version.Signature") {
+		t.Errorf("LDFlags(true) missing version.Signature target: %q", stripped)
 	}
 }
