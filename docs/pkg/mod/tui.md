@@ -10,8 +10,8 @@ Terminal UI toolkit powering the `kiw` CLI: declarative command routing, subcomm
 
 - `tui.NewApp(name, version)`: Initializes a CLI command application.
 - `tui.NewCommand(name, desc, registerFlags, runHandler)`: Declares a CLI command with group and examples.
-- `app.Command(cmd)`: Mounts a subcommand into the application.
-- `app.Run(args)`: Dispatches command execution and maps exit codes.
+- `(*tui.App).Command(cmd)`: Mounts a subcommand into the application.
+- `(*tui.App).Run(tokens)`: Dispatches command execution and maps exit codes.
 
 ## Example
 

@@ -17,7 +17,7 @@ Every application built using `pkg/web` should activate the security middleware 
 ## 2. SSRF (Server-Side Request Forgery) Prevention
 
 When performing outbound HTTP requests to user-supplied URLs:
-- Use `sec.ValidateURL(target)` to reject private IP ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `127.0.0.0/8`).
+- Use `sec.ValidateOutboundURL(target, allowedHosts...)` to reject literal private, loopback, link-local, and unspecified IP addresses and to require the host to be explicitly allowlisted. It performs no network request, so resolve-and-check DNS yourself when the allowlist is not enough.
 - Block cloud instance metadata endpoints (`169.254.169.254`).
 - Prevent IPv6 loopback and link-local addresses (`::1`, `fe80::/10`).
 
