@@ -21,18 +21,66 @@ func RegisterBoost(fs *flag.FlagSet) {
 	fs.Bool("dry-run", false, "report the files that would be written without writing")
 }
 
-// RunBoost dispatches the boost sub-commands. Currently only "install" is
-// implemented; with no sub-command the wizard starts interactively.
+// RunBoost dispatches the boost sub-commands. Supports "install" and "status" (or "check").
 func RunBoost(fs *flag.FlagSet) errs.ExitCode {
 	sub := fs.Arg(0)
 	switch sub {
 	case "install":
 		return runBoostInstall(fs, os.Stdin, os.Stdout)
-	case "":
-		return usageMessage("usage: kiw boost install [target] [--force] [--dry-run]")
+	case "status", "check":
+		return runBoostStatus(fs, os.Stdout)
+	case "", "help", "-h", "--help":
+		return usageMessage("usage: kiw boost <install|status> [target] [--force] [--dry-run]")
 	default:
-		return usageMessage(fmt.Sprintf("unknown boost sub-command %q (supported: install)", sub))
+		return usageMessage(fmt.Sprintf("unknown boost sub-command %q (supported: install, status)", sub))
 	}
+}
+
+// runBoostStatus checks the installation status of Boost AI in target directory.
+func runBoostStatus(fs *flag.FlagSet, out io.Writer) errs.ExitCode {
+	target := fs.Arg(1)
+	if target == "" {
+		target = "."
+	}
+	target, err := absPath(target)
+	if err != nil {
+		return fail(err)
+	}
+
+	conflicts, err := detectManagedConflicts(target)
+	if err != nil {
+		return fail(err)
+	}
+
+	allManaged := boost.Managed()
+	installedCount := len(conflicts)
+	totalCount := len(allManaged)
+
+	fmt.Fprintf(out, "Krewire Boost Status in %s:\n", target)
+	if installedCount == 0 {
+		fmt.Fprintln(out, "  Status: Not installed")
+		fmt.Fprintln(out, "\nTo install Boost AI agent template, run:")
+		fmt.Fprintf(out, "  kiw boost install %s\n", target)
+		return errs.ExitCodeSuccess
+	}
+
+	for _, m := range allManaged {
+		path := filepath.Join(target, m)
+		if _, err := os.Lstat(path); err == nil {
+			fmt.Fprintf(out, "  ✓ %-24s (installed)\n", m)
+		} else {
+			fmt.Fprintf(out, "  ✗ %-24s (missing)\n", m)
+		}
+	}
+
+	fmt.Fprintln(out)
+	if installedCount == totalCount {
+		fmt.Fprintf(out, "Boost AI is fully installed (%d/%d assets ready).\n", installedCount, totalCount)
+	} else {
+		fmt.Fprintf(out, "Boost AI is partially installed (%d/%d assets present).\n", installedCount, totalCount)
+		fmt.Fprintln(out, "Run 'kiw boost install --force' to repair missing assets.")
+	}
+	return errs.ExitCodeSuccess
 }
 
 // runBoostInstall installs the Boost template into a target directory. When

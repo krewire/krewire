@@ -288,10 +288,12 @@ Manages multi-module workspaces, monorepos, and microservice topologies.
 kiw ws status
 ```
 
-### `kiw boost install`
-Installs the Boost AI Agent constitution and multi-agent workflows into `.agents/`.
+### `kiw boost <install|status>`
+Manages the Boost AI Agent constitution, multi-agent presets, and tooling inside `.agents/`.
 ```bash
-kiw boost install
+kiw boost install            # Install Boost templates into project
+kiw boost status             # Inspect installation completeness and managed assets
+kiw boost install --force    # Overwrite/repair existing assets without prompt
 ```
 
 ### `kiw release <module> --bump <patch|minor|major> --apply`

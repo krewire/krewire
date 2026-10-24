@@ -40,7 +40,7 @@ func main() {
 		Command(tui.NewCommand("gateway", "run API gateway reverse proxy for microservices", commands.RegisterGateway, commands.RunGateway).WithGroup("develop").WithExample("kiw gateway --port 8080")).
 		Command(tui.NewCommand("mcp", "native Model Context Protocol server for AI coding agents", commands.RegisterMCP, commands.RunMCP).WithGroup("develop").WithExample("kiw mcp --stdio")).
 		Command(tui.NewCommand("ws", "workspace for monorepo, multi-repo, multi-project, microservices", commands.RegisterWs, commands.RunWs).WithGroup("ship").WithExample("kiw ws help")).
-		Command(tui.NewCommand("boost", "install the Boost AI agent template into a project", commands.RegisterBoost, commands.RunBoost).WithGroup("ship").WithExample("kiw boost install")).
+		Command(tui.NewCommand("boost", "manage Boost AI agent template (install, status)", commands.RegisterBoost, commands.RunBoost).WithGroup("ship").WithExample("kiw boost status")).
 		Command(tui.NewCommand("release", "bump versions and stage a release across modules", commands.RegisterRelease, commands.RunRelease).WithGroup("ship").WithExample("kiw release framework --bump minor --apply")).
 		Command(tui.NewCommand("make", "scaffold components, pages, handlers, migrations", commands.RegisterMake, commands.RunMake).WithGroup("project").WithExample("kiw make component Card")).
 		Command(tui.NewCommand("kiw", "easter egg: playful client catcalls to developers", commands.RegisterKiw, commands.RunKiw).WithHidden(true).WithExample("kiw kiw"))

@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"flag"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -238,5 +239,39 @@ func TestRunBoostInstall_InLaravelProject(t *testing.T) {
 	currentPHP, _ := os.ReadFile(filepath.Join(appDir, "User.php"))
 	if string(currentPHP) != phpFile {
 		t.Errorf("app/User.php was modified: got %s", string(currentPHP))
+	}
+}
+
+func TestRunBoostStatus(t *testing.T) {
+	dir := t.TempDir()
+
+	// 1. Status when not installed
+	fs := flag.NewFlagSet("boost", flag.ContinueOnError)
+	RegisterBoost(fs)
+	_ = fs.Parse([]string{"status", dir})
+
+	var out bytes.Buffer
+	code := runBoostStatus(fs, &out)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("expected success, got %v", code)
+	}
+	if !strings.Contains(out.String(), "Not installed") {
+		t.Errorf("expected Not installed in output, got: %s", out.String())
+	}
+
+	// 2. Install Boost
+	installCode := runBoostInstall(newBoostFlagSet(dir), strings.NewReader(""), io.Discard)
+	if installCode != errs.ExitCodeSuccess {
+		t.Fatalf("boost install failed: %v", installCode)
+	}
+
+	// 3. Status when installed
+	out.Reset()
+	code = runBoostStatus(fs, &out)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("expected success, got %v", code)
+	}
+	if !strings.Contains(out.String(), "fully installed") {
+		t.Errorf("expected fully installed in output, got: %s", out.String())
 	}
 }
