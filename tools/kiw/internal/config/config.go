@@ -163,6 +163,8 @@ type BuildConfig struct {
 	// Legacy top-level `base:` stays supported; nested `build.base`
 	// wins when both are set. kiw --base wins over both.
 	Base string `yaml:"base"`
+	// Output is the output directory relative to the project root.
+	Output string `yaml:"output"`
 	// Include holds glob patterns selecting which content files build
 	// (slash-separated, ** crosses segments). Unset (nil) uses the mdbind
 	// default "**/*.md"; an empty list disables the include filter.
@@ -434,6 +436,12 @@ func Load(dir string) (*Config, error) {
 	// Precedence: kiw --base flag > build.base > legacy top-level base:.
 	if c.Build.Base != "" {
 		c.Base = c.Build.Base
+	}
+	if c.Output == "" && c.Build.Output != "" {
+		c.Output = c.Build.Output
+	}
+	if c.Output == "" {
+		c.Output = DefaultOutput
 	}
 	if err := c.Validate(); err != nil {
 		return nil, err

@@ -216,18 +216,32 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 				}
 				origInput := cfg.Input
 				origOutput := cfg.Output
+				origBase := cfg.Base
 				cfg.Input = localeInput
-				cfg.Output = filepath.Join(origOutput, locale, "docs")
-				slog.Info("i18n: building book for locale", "locale", locale, "input", cfg.Input, "output", cfg.Output)
+				if locale == cfg.I18n.DefaultLocale {
+					cfg.Output = origOutput
+				} else {
+					cfg.Output = filepath.Join(origOutput, locale)
+					if origBase == "" || origBase == "/" {
+						cfg.Base = "/" + locale + "/"
+					} else {
+						cfg.Base = strings.TrimRight(origBase, "/") + "/" + locale + "/"
+					}
+				}
+				slog.Info("i18n: building book for locale", "locale", locale, "input", cfg.Input, "output", cfg.Output, "base", cfg.Base)
 				if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != errs.ExitCodeSuccess {
 					if firstErr == errs.ExitCodeSuccess {
 						firstErr = code
 					}
 				} else {
 					built = true
+					if locale == cfg.I18n.DefaultLocale {
+						_ = copyDir(filepath.Join(root, origOutput, "docs"), filepath.Join(root, origOutput, locale, "docs"))
+					}
 				}
 				cfg.Input = origInput
 				cfg.Output = origOutput
+				cfg.Base = origBase
 			}
 		} else {
 			if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != errs.ExitCodeSuccess {
