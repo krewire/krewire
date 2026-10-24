@@ -1,6 +1,6 @@
 # Krewire Packages — Module Catalog
 
-Documentation catalog for all 32 domain packages in `github.com/krewire/krewire`.
+Documentation catalog for all 34 domain packages in `github.com/krewire/krewire`.
 
 | Module | Documentation | Focus |
 |---|---|---|
@@ -23,9 +23,11 @@ Documentation catalog for all 32 domain packages in `github.com/krewire/krewire`
 | `kiw` | [`kiw.md`](./kiw.md) | Unified `.kiw` DSL compiler, parser, AST desugaring, component runtime |
 | `lifecycle` | [`lifecycle.md`](./lifecycle.md) | Workload execution dispatch, registry resolution, and supervisor lifecycle |
 | `log` | [`log.md`](./log.md) | Structured `slog` logging tailored to environments and source tagging |
+| `mail` | [`mail.md`](./mail.md) | Multi-driver email delivery system (SMTP, Resend, SendGrid, Postmark, Memory) |
 | `markdown` | [`markdown.md`](./markdown.md) | Markdown-to-HTML rendering and relative link prefixing |
 | `model` | [`model.md`](./model.md) | Pure data models, workload matrix, scopes, tiers, and opt-in rules |
 | `orm` | [`orm.md`](./orm.md) | Pure-Go multi-driver ORM & SQL Query Builder (SQLite, Postgres, MySQL) |
+| `redis` | [`redis.md`](./redis.md) | Pure-Go Redis client: RESP protocol, Strings, Hashes, Lists, Sets, and Pub/Sub |
 | `resilience` | [`resilience.md`](./resilience.md) | Retry policies with exponential backoff and circuit breakers |
 | `runtime` | [`runtime.md`](./runtime.md) | Client WebAssembly VDOM engine, component mounting, reactive widgets |
 | `sec` | [`sec.md`](./sec.md) | Security middleware, policies, SSRF validation, and PII masking |
