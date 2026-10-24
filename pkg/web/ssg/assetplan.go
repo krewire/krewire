@@ -187,7 +187,6 @@ var builtinAssets = []builtinAsset{
 	{name: "assets/style.css", kind: AssetCSS, layer: LayerScoped, conditional: func(s *Site) bool { return s.hasScopedCSS() }},
 	{name: "assets/tailwind.css", kind: AssetCSS, layer: LayerVendor},
 	{name: "assets/ui.css", kind: AssetCSS, layer: LayerComponent},
-	{name: "assets/forge.css", kind: AssetCSS, layer: LayerComponent},
 	{name: "assets/theme.css", kind: AssetCSS, layer: LayerTheme},
 	{name: "assets/mdbind.css", kind: AssetCSS, layer: LayerBook},
 	{name: "assets/app.js", kind: AssetJS, layer: LayerVendor},

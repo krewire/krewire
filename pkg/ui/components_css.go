@@ -197,7 +197,7 @@ const ButtonCSS = `.btn {
   transition: all var(--ui-transition);
 }
 .btn-primary { background: var(--primary); color: var(--primary-content); box-shadow: 0 4px 16px rgba(255, 140, 66, 0.25); }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(255, 140, 66, 0.4); }
+.btn-primary:hover { color: var(--primary-content); transform: translateY(-2px); box-shadow: 0 6px 22px rgba(255, 140, 66, 0.4); }
 .btn-ghost { background: var(--base-2); color: var(--base-1-content); border: 1px solid var(--base-3); }
 .btn-ghost:hover { background: var(--base-3); border-color: var(--primary); transform: translateY(-2px); }
 .btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }

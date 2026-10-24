@@ -24,12 +24,12 @@ func TestInjectedAssetsUsesCascadeOrderNotAlphabetical(t *testing.T) {
 	s := New().
 		Asset("assets/mdbind.css", "").
 		Asset("assets/tailwind.css", "").
-		Asset("assets/forge.css", "").
+		Asset("assets/ui.css", "").
 		Asset("assets/theme.css", "").
 		Component(Component{Name: "c", Body: "x", Style: ".c{}"})
 	css, _ := s.InjectedAssets()
 	got := names(css)
-	want := []string{"style.css", "tailwind.css", "forge.css", "theme.css", "mdbind.css"}
+	want := []string{"style.css", "tailwind.css", "ui.css", "theme.css", "mdbind.css"}
 	if strings.Join(got, ",") != strings.Join(want, ",") {
 		t.Errorf("css order = %v, want %v", got, want)
 	}
@@ -318,7 +318,7 @@ func TestBundleAssets_InjectedPlanReturnsBundles(t *testing.T) {
 	s := New().
 		WithBundle(true).
 		Asset("assets/tailwind.css", "/* tw */").
-		Asset("assets/forge.css", "/* forge */").
+		Asset("assets/ui.css", "/* ui */").
 		Asset("assets/app.js", "console.log(1);")
 
 	css, js := s.InjectedAssets()
@@ -335,7 +335,7 @@ func TestBundleAssets_BuildWritesBundledAndIndividualFiles(t *testing.T) {
 	s := New().
 		WithBundle(true).
 		Asset("assets/tailwind.css", "/* tw css */").
-		Asset("assets/forge.css", "/* forge css */").
+		Asset("assets/ui.css", "/* ui css */").
 		Asset("assets/a.js", "var a = 1;").
 		Asset("assets/b.js", "var b = 2;").
 		Layout(Layout{
@@ -355,7 +355,7 @@ func TestBundleAssets_BuildWritesBundledAndIndividualFiles(t *testing.T) {
 		"assets/krewire.css",
 		"assets/krewire.js",
 		"assets/tailwind.css",
-		"assets/forge.css",
+		"assets/ui.css",
 		"assets/a.js",
 		"assets/b.js",
 	}
@@ -366,15 +366,15 @@ func TestBundleAssets_BuildWritesBundledAndIndividualFiles(t *testing.T) {
 		}
 	}
 
-	// Check content of krewire.css: order matters (tailwind before forge)
+	// Check content of krewire.css: order matters (tailwind before ui)
 	cssBytes, err := os.ReadFile(filepath.Join(outDir, "assets/krewire.css"))
 	if err != nil {
 		t.Fatalf("failed to read krewire.css: %v", err)
 	}
 	cssStr := string(cssBytes)
 	twIdx := strings.Index(cssStr, "/* tw css */")
-	forgeIdx := strings.Index(cssStr, "/* forge css */")
-	if twIdx == -1 || forgeIdx == -1 || twIdx > forgeIdx {
+	uiIdx := strings.Index(cssStr, "/* ui css */")
+	if twIdx == -1 || uiIdx == -1 || twIdx > uiIdx {
 		t.Errorf("krewire.css does not contain assets in cascade order: %s", cssStr)
 	}
 
