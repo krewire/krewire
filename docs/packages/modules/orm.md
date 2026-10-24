@@ -8,7 +8,16 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
 
 ## Main API
 
-- **Dialects**:
+- **Adapter Abstraction**:
+  - `Adapter` interface (`Name() string`, `Type() AdapterType`, `Ping(ctx context.Context) error`, `Close() error`)
+  - `AdapterType`: `AdapterTypeSQL`, `AdapterTypeDocument`, `AdapterTypeSearch`
+- **Supported Drivers & Adapters**:
+  - **SQLite**: `NewSQLite(cfg SQLiteConfig) (*DB, error)`, `cfg.FormatDSN()`
+  - **PostgreSQL**: `NewPostgres(cfg PostgresConfig) (*DB, error)`, `cfg.FormatDSN()`
+  - **MySQL**: `NewMySQL(cfg MySQLConfig) (*DB, error)`, `cfg.FormatDSN()`
+  - **MongoDB**: `NewMongoDB(cfg MongoConfig) (*MongoAdapter, error)`, collections, document CRUD (`InsertOne`, `FindOne`, `Find`, `UpdateOne`, `DeleteOne`, `CountDocuments`)
+  - **Elasticsearch**: `NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error)`, index management, search query DSL (`Index`, `Get`, `Delete`, `Search`, `CreateIndex`, `DeleteIndex`)
+- **SQL Dialects**:
   - `Dialect` interface (`QuoteIdentifier`, `Placeholder`, `DataTypeOf`, `AutoIncrementPrimaryKeyClause`)
   - `SQLiteDialect`, `PostgresDialect`, `MySQLDialect`
   - `RegisterDialect(driverName string, dialect Dialect)`
