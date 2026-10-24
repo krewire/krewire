@@ -148,12 +148,14 @@ func (s *Site) BuildIncremental(outDir string, force bool) ([]string, error) {
 // manifest. It is shared by Build and BuildIncremental.
 func (s *Site) writeAssets(outDir string) []string {
 	var created []string
-	if css := s.collectedCSS(); css != "" {
-		rel := "assets/style.css"
-		out := filepath.Join(outDir, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(out), 0o755); err == nil {
-			if werr := os.WriteFile(out, []byte(css), 0o644); werr == nil {
-				created = append(created, rel)
+	if !s.auto.bundle {
+		if css := s.collectedCSS(); css != "" {
+			rel := "assets/style.css"
+			out := filepath.Join(outDir, filepath.FromSlash(rel))
+			if err := os.MkdirAll(filepath.Dir(out), 0o755); err == nil {
+				if werr := os.WriteFile(out, []byte(css), 0o644); werr == nil {
+					created = append(created, rel)
+				}
 			}
 		}
 	}
@@ -164,6 +166,14 @@ func (s *Site) writeAssets(outDir string) []string {
 	sort.Strings(names)
 	for _, name := range names {
 		rel := cleanAssetPath(name)
+		if s.auto.bundle {
+			ext := strings.ToLower(filepath.Ext(rel))
+			if strings.HasPrefix(rel, "assets/") && (ext == ".css" || ext == ".js") {
+				if rel != assets.DefaultCSSBundlePath && rel != assets.DefaultJSBundlePath {
+					continue
+				}
+			}
+		}
 		out := filepath.Join(outDir, filepath.FromSlash(rel))
 		if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
 			return created
@@ -216,6 +226,14 @@ func (s *Site) WriteBundleAssets(outDir string) []string {
 	}
 
 	created, _ := bundler.WriteToDir(res, outDir)
+
+	// Clean up intermediate or loose CSS/JS assets from outDir that have been bundled
+	for _, item := range append(cssItems, jsItems...) {
+		if item.Path != assets.DefaultCSSBundlePath && item.Path != assets.DefaultJSBundlePath {
+			_ = os.Remove(filepath.Join(outDir, filepath.FromSlash(item.Path)))
+		}
+	}
+
 	return created
 }
 

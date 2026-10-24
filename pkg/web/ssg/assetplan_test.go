@@ -329,7 +329,7 @@ func TestBundleAssets_InjectedPlanReturnsBundles(t *testing.T) {
 	}
 }
 
-func TestBundleAssets_BuildWritesBundledAndIndividualFiles(t *testing.T) {
+func TestBundleAssets_BuildWritesBundledFilesOnly(t *testing.T) {
 	outDir := t.TempDir()
 	s := New().
 		WithBundle(true).
@@ -349,19 +349,29 @@ func TestBundleAssets_BuildWritesBundledAndIndividualFiles(t *testing.T) {
 		t.Fatalf("Build failed: %v", err)
 	}
 
-	// Verify both bundled and individual files are created
+	// Verify bundled files are created
 	expectedFiles := []string{
 		"assets/krewire.css",
 		"assets/krewire.js",
+	}
+	for _, ef := range expectedFiles {
+		fullPath := filepath.Join(outDir, ef)
+		if _, err := os.Stat(fullPath); err != nil {
+			t.Errorf("expected bundle file %s to exist: %v", ef, err)
+		}
+	}
+
+	// Verify individual assets are omitted when bundling is enabled
+	omittedFiles := []string{
 		"assets/tailwind.css",
 		"assets/ui.css",
 		"assets/a.js",
 		"assets/b.js",
 	}
-	for _, ef := range expectedFiles {
-		fullPath := filepath.Join(outDir, ef)
-		if _, err := os.Stat(fullPath); err != nil {
-			t.Errorf("expected file %s to exist: %v", ef, err)
+	for _, of := range omittedFiles {
+		fullPath := filepath.Join(outDir, of)
+		if _, err := os.Stat(fullPath); !os.IsNotExist(err) {
+			t.Errorf("expected individual asset file %s to be omitted in bundle mode", of)
 		}
 	}
 
