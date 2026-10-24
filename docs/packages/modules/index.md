@@ -1,6 +1,6 @@
 # Krewire Packages — Module Catalog
 
-Documentation catalog for all 29 domain packages in `github.com/krewire/krewire`.
+Documentation catalog for all 31 domain packages in `github.com/krewire/krewire`.
 
 | Module | Documentation | Focus |
 |---|---|---|
@@ -10,6 +10,7 @@ Documentation catalog for all 29 domain packages in `github.com/krewire/krewire`
 | `auth` | [`auth.md`](./auth.md) | Basic Authentication, JWT, identity, claims, and HTTP errors |
 | `boost` | [`boost.md`](./boost.md) | Boost AI agent coordination & embedded template installer |
 | `cloud` | [`cloud.md`](./cloud.md) | Cloud execution plane: runners, microservices, workers, infra blueprints |
+| `commerce` | [`commerce.md`](./commerce.md) | Payment gateway integration (Midtrans), tokenization, and webhook verification |
 | `config` | [`config.md`](./config.md) | Declarative configuration loader (`krewire.yaml`), `.env`, environment overlays |
 | `env` | [`env.md`](./env.md) | Target environment resolution (`local`, `production`, `testing`) |
 | `errs` | [`errs.md`](./errs.md) | POSIX exit codes, diagnostic attributes, and stack traces |
@@ -23,6 +24,7 @@ Documentation catalog for all 29 domain packages in `github.com/krewire/krewire`
 | `log` | [`log.md`](./log.md) | Structured `slog` logging tailored to environments and source tagging |
 | `markdown` | [`markdown.md`](./markdown.md) | Markdown-to-HTML rendering and relative link prefixing |
 | `model` | [`model.md`](./model.md) | Pure data models, workload matrix, scopes, tiers, and opt-in rules |
+| `orm` | [`orm.md`](./orm.md) | Pure-Go multi-driver ORM & SQL Query Builder (SQLite, Postgres, MySQL) |
 | `resilience` | [`resilience.md`](./resilience.md) | Retry policies with exponential backoff and circuit breakers |
 | `runtime` | [`runtime.md`](./runtime.md) | Client WebAssembly VDOM engine, component mounting, reactive widgets |
 | `sec` | [`sec.md`](./sec.md) | Security middleware, policies, SSRF validation, and PII masking |
