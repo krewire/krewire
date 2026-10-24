@@ -3,7 +3,7 @@
 Agent guide for AI agents working inside the `krewire` repository
 (module = `github.com/krewire/krewire`).
 
-This repository contains the core monorepo: `packages/` (domain libraries),
+This repository contains the core monorepo: `pkg/` (domain libraries),
 `apps/` (services), `tools/kiw` (developer CLI), and `templates/` (Boost AI & starters).
 
 ## Language
@@ -15,11 +15,11 @@ This repository contains the core monorepo: `packages/` (domain libraries),
 
 Strict downward-only dependencies:
 ```
-templates/boost → tools/kiw → pkg/* → packages/model, packages/errs
+templates/boost → tools/kiw → pkg/* → pkg/model, pkg/errs
 ```
-- `packages/model` may depend only on standard library packages and `packages/errs`.
+- `pkg/model` may depend only on standard library packages and `pkg/errs`.
 - No package or library may **ever** import `kiw`.
-- `tools/kiw` imports packages from `pkg/*` directly (e.g. `packages/hub/resolver`). Never duplicate logic between `tools/kiw` and `packages/`.
+- `tools/kiw` imports packages from `pkg/*` directly (e.g. `pkg/hub/resolver`). Never duplicate logic between `tools/kiw` and `pkg/`.
 - Single Source of Truth (SSOT): no duplicate literals, tables, or constants.
 
 ## Task & Progress Tracking (GitHub Issues SSOT)
@@ -54,6 +54,8 @@ go build -o bin/kiw ./tools/kiw/cmd/kiw
 
 ## Commit Discipline
 
+- **Commit and push automatically.** Once the quality gates pass, stage, commit, and push the change without waiting to be asked.
 - **Conventional Commits**: `feat|fix|docs|test|refactor|perf|security|chore(scope): desc`.
 - Atomic commits (≤~300 LOC).
-- Run `git` inside `krewire/`.
+- Run `git` inside `krewire/`; push to `origin` when the tree is green.
+- Never force-push or rewrite published history unless explicitly asked.
