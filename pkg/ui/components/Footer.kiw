@@ -87,7 +87,7 @@
         <a href="/docs/workloads/worker" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">worker — Async Queues</a>
         <a href="/docs/workloads/service" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">service — Microservices</a>
         <a href="/docs/workloads/infra" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">infra — Cloud IaC</a>
-        <a href="/docs/workloads/runtime" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">runtime — Go WASM</a>
+        <a href="/docs/workloads/gateway" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">gateway — Reverse Proxy</a>
       </div>
 
       <!-- Docs col -->
@@ -97,7 +97,7 @@
         <a href="/docs/getting-started" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">2. Getting Started</a>
         <a href="/docs/workloads" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">3. Workloads in Depth</a>
         <a href="/docs/cli-reference" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">4. CLI Reference</a>
-        <a href="/docs/pkg" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">5. Packages & Libraries</a>
+        <a href="/docs/packages" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">5. Packages & Libraries</a>
         <a href="/docs/guides" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">6. Architecture & Guides</a>
       </div>
 

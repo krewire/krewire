@@ -18,7 +18,7 @@
           <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
         </div>
         <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">krewire</h3>
-        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.core_desc">Modular Go packages (pkg/*), devtool CLI (kiw), fullstack WASM runtimes, ORM, and Boost AI agents.</p>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.core_desc">Modular Go packages (pkg/*), devtool CLI (kiw), WebAssembly web runtime, ORM, and Boost AI agents.</p>
         <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
           <code>github.com/krewire/krewire</code>
         </div>

@@ -42,7 +42,7 @@
       <a href="/docs/workloads/worker" class="toc-sub">3.5 Background Worker (worker)</a>
       <a href="/docs/workloads/service" class="toc-sub">3.6 Microservice (service)</a>
       <a href="/docs/workloads/infra" class="toc-sub">3.7 Cloud Infrastructure (infra)</a>
-      <a href="/docs/workloads/runtime" class="toc-sub">3.8 WebAssembly Runtime (runtime)</a>
+      <a href="/docs/workloads/gateway" class="toc-sub">3.8 API Gateway (gateway)</a>
     </div>
   </div>
   <div class="toc-group open" data-group>
@@ -60,7 +60,7 @@
   </div>
   <div class="toc-group open" data-group>
     <div class="toc-parent-row">
-      <a href="/docs/pkg" class="toc-link">5. Packages & Libraries</a>
+      <a href="/docs/packages" class="toc-link">5. Packages & Libraries</a>
       <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
         <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
       </button>
