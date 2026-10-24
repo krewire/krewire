@@ -60,6 +60,8 @@ type autoAssets struct {
 	// bundle bundles all eligible CSS and JS into assets/krewire.css and
 	// assets/krewire.js.
 	bundle bool
+	// minify applies pure-Go CSS and JS minification to generated bundles.
+	minify bool
 }
 
 // skips reports whether an asset is excluded from site-wide injection.
@@ -112,6 +114,17 @@ func (s *Site) WithBundle(bundle bool) *Site {
 // Bundle reports whether asset bundling is enabled.
 func (s *Site) Bundle() bool {
 	return s.auto.bundle
+}
+
+// WithMinify configures whether generated asset bundles are minified.
+func (s *Site) WithMinify(minify bool) *Site {
+	s.auto.minify = minify
+	return s
+}
+
+// Minify reports whether asset bundle minification is enabled.
+func (s *Site) Minify() bool {
+	return s.auto.minify
 }
 
 // applyOrderOverrides applies configured layer/order pins onto recorded asset

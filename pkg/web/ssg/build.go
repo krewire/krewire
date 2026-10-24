@@ -207,7 +207,7 @@ func (s *Site) WriteBundleAssets(outDir string) []string {
 		}
 	}
 
-	bundler := assets.NewBundler()
+	bundler := assets.NewBundler(assets.WithMinify(s.auto.minify))
 	res := &assets.BundleResult{
 		CSSContent: bundler.BundleCSS(cssItems),
 		JSContent:  bundler.BundleJS(jsItems),

@@ -56,6 +56,7 @@ func RunBundle(fs *flag.FlagSet) errs.ExitCode {
 				}
 			}
 			site.WithBundle(true)
+			site.WithMinify(minify)
 			if _, berr := site.Build(outDir); berr != nil {
 				return fail(berr)
 			}

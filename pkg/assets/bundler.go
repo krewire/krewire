@@ -296,46 +296,6 @@ func (b *Bundler) WriteToDir(res *BundleResult, outDir string) ([]string, error)
 	return created, nil
 }
 
-// MinifyCSS applies safe lightweight minification to CSS.
-func MinifyCSS(css string) string {
-	// Strip multi-line comments /* ... */
-	reComment := regexp.MustCompile(`(?s)/\*.*?\*/`)
-	css = reComment.ReplaceAllString(css, "")
-
-	// Collapse multiple whitespaces
-	reSpace := regexp.MustCompile(`\s+`)
-	css = reSpace.ReplaceAllString(css, " ")
-
-	// Trim spaces around standard delimiters
-	for _, del := range []string{":", ";", "{", "}", ",", ">"} {
-		css = strings.ReplaceAll(css, " "+del, del)
-		css = strings.ReplaceAll(css, del+" ", del)
-	}
-	css = strings.ReplaceAll(css, ";}", "}")
-	return strings.TrimSpace(css)
-}
-
-// MinifyJS applies safe lightweight minification to JS.
-func MinifyJS(js string) string {
-	// Strip multi-line comments
-	reMulti := regexp.MustCompile(`(?s)/\*.*?\*/`)
-	js = reMulti.ReplaceAllString(js, "")
-
-	// Strip single-line comments that do not look like URLs (http:// or https://)
-	lines := strings.Split(js, "\n")
-	var out []string
-	for _, l := range lines {
-		trim := strings.TrimSpace(l)
-		if strings.HasPrefix(trim, "//") {
-			continue
-		}
-		if trim != "" {
-			out = append(out, trim)
-		}
-	}
-	return strings.Join(out, "\n")
-}
-
 func hash8(b []byte) string {
 	sum := sha256.Sum256(b)
 	return hex.EncodeToString(sum[:])[:8]

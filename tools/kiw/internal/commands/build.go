@@ -39,6 +39,7 @@ func RegisterBuild(fs *flag.FlagSet) {
 	fs.Bool("skip-deps", false, "skip executing build.depends_on commands")
 	fs.Bool("deps-only", false, "run only build.depends_on commands and skip Krewire build")
 	fs.Bool("bundle", true, "bundle all CSS and JS into assets/krewire.css and assets/krewire.js (default true)")
+	fs.Bool("minify", false, "minify CSS and JS single-bundle assets")
 	fs.Bool("plan", false, "infra: compile and show infrastructure plan without applying")
 	fs.String("env", "", "infra: target environment (local, production, testing)")
 }
@@ -323,6 +324,9 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (errs.E
 	}
 	if flagValue(fs, "bundle") != "false" {
 		site.WithBundle(true)
+	}
+	if flagValue(fs, "minify") == "true" {
+		site.WithMinify(true)
 	}
 	created, err := site.Build(outDir)
 	if err != nil {
