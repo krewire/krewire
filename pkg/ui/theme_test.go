@@ -63,11 +63,8 @@ func TestThemeCSS(t *testing.T) {
 	if !strings.Contains(css, "--ui-primary") {
 		t.Errorf("CSS missing --ui-primary")
 	}
-	if !strings.Contains(css, "--forge-primary") {
-		t.Errorf("CSS missing --forge-primary")
-	}
-	if !strings.Contains(css, ".forge-btn") {
-		t.Errorf("CSS missing .forge-btn")
+	if !strings.Contains(css, ".ui-btn") {
+		t.Errorf("CSS missing .ui-btn")
 	}
 }
 
@@ -75,7 +72,6 @@ func TestThemeCSSScrollbar(t *testing.T) {
 	css := string(DefaultTheme().CSS())
 	for _, want := range []string{
 		"--ui-scrollbar-thumb:",
-		"--forge-scrollbar-thumb:",
 		"scrollbar-color: var(--ui-scrollbar-thumb) var(--ui-scrollbar-track)",
 		"::-webkit-scrollbar",
 		"::-webkit-scrollbar-thumb",
@@ -112,8 +108,6 @@ func TestCSSDeclaresTokens(t *testing.T) {
 	for _, token := range []string{
 		"--ui-radius", "--ui-pop-border", "--ui-pop-shadow",
 		"--ui-pop-shadow-sm", "--ui-font-sans", "--ui-font-mono",
-		"--forge-radius", "--forge-pop-border", "--forge-pop-shadow",
-		"--forge-pop-shadow-sm", "--forge-font-sans", "--forge-font-mono",
 	} {
 		if got := countDecl(css, token); got != 1 {
 			t.Errorf("%s declared %d times, want 1", token, got)
@@ -126,10 +120,6 @@ func TestCSSDeclaresTokens(t *testing.T) {
 		"--ui-accent", "--ui-bg", "--ui-surface", "--ui-fg",
 		"--ui-muted", "--ui-border", "--ui-success", "--ui-warning",
 		"--ui-error",
-		"--forge-primary", "--forge-primary-content", "--forge-secondary",
-		"--forge-accent", "--forge-bg", "--forge-surface", "--forge-fg",
-		"--forge-muted", "--forge-border", "--forge-success", "--forge-warning",
-		"--forge-error",
 	} {
 		if got := countDecl(css, token); got != 2 {
 			t.Errorf("%s declared %d times, want 2 (light and dark)", token, got)
@@ -156,7 +146,7 @@ func TestCSSUsesPaletteFallbacks(t *testing.T) {
 // defaults instead of panicking, since App.RenderShell calls it directly.
 func TestCSSNilReceiver(t *testing.T) {
 	var nilTheme *Theme
-	if css := string(nilTheme.CSS()); !strings.Contains(css, "--forge-primary") {
+	if css := string(nilTheme.CSS()); !strings.Contains(css, "--ui-primary") {
 		t.Error("a nil Theme must render the default token block")
 	}
 }

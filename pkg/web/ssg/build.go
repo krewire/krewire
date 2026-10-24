@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/krewire/krewire/pkg/assets"
 )
 
 // Build renders every page and writes the site into outDir. It returns the
@@ -187,11 +189,10 @@ func (s *Site) writeAssets(outDir string) []string {
 }
 
 // writeBundleAssets concatenates all eligible CSS and JS assets in resolved plan order
-// into assets/krewire.css and assets/krewire.js.
+// into assets/krewire.css and assets/krewire.js using the assets.Bundler.
 func (s *Site) writeBundleAssets(outDir string) []string {
-	var created []string
-	var cssBundle strings.Builder
-	var jsBundle strings.Builder
+	var cssItems []assets.BundleItem
+	var jsItems []assets.BundleItem
 
 	for _, a := range s.rawInjectedPlan() {
 		content := s.assetContent(a.name, outDir)
@@ -200,38 +201,21 @@ func (s *Site) writeBundleAssets(outDir string) []string {
 		}
 		switch a.kind {
 		case AssetCSS:
-			if cssBundle.Len() > 0 {
-				cssBundle.WriteString("\n\n")
-			}
-			cssBundle.WriteString("/* " + a.name + " */\n")
-			cssBundle.WriteString(content)
+			cssItems = append(cssItems, assets.BundleItem{Path: a.name, Content: content})
 		case AssetJS:
-			if jsBundle.Len() > 0 {
-				jsBundle.WriteString("\n\n;\n")
-			}
-			jsBundle.WriteString("/* " + a.name + " */\n")
-			jsBundle.WriteString(content)
+			jsItems = append(jsItems, assets.BundleItem{Path: a.name, Content: content})
 		}
 	}
 
-	if cssBundle.Len() > 0 {
-		rel := "assets/krewire.css"
-		out := filepath.Join(outDir, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(out), 0o755); err == nil {
-			if werr := os.WriteFile(out, []byte(cssBundle.String()), 0o644); werr == nil {
-				created = append(created, rel)
-			}
-		}
+	bundler := assets.NewBundler()
+	res := &assets.BundleResult{
+		CSSContent: bundler.BundleCSS(cssItems),
+		JSContent:  bundler.BundleJS(jsItems),
+		CSSPath:    assets.DefaultCSSBundlePath,
+		JSPath:     assets.DefaultJSBundlePath,
 	}
-	if jsBundle.Len() > 0 {
-		rel := "assets/krewire.js"
-		out := filepath.Join(outDir, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(out), 0o755); err == nil {
-			if werr := os.WriteFile(out, []byte(jsBundle.String()), 0o644); werr == nil {
-				created = append(created, rel)
-			}
-		}
-	}
+
+	created, _ := bundler.WriteToDir(res, outDir)
 	return created
 }
 

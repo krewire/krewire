@@ -60,7 +60,7 @@ func ParseLayer(name string) (AssetLayer, error) {
 		return LayerScoped, nil
 	case "vendor", "plugin", "tailwind":
 		return LayerVendor, nil
-	case "component", "components", "forge", "ui":
+	case "component", "components", "ui":
 		return LayerComponent, nil
 	case "theme":
 		return LayerTheme, nil

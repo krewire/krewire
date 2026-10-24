@@ -49,15 +49,15 @@ func (p *Panel) WithFooter(footer widget.Widget) *Panel {
 // Render produces the panel markup.
 func (p *Panel) Render() template.HTML {
 	var b strings.Builder
-	b.WriteString(`<div class="forge-panel">`)
+	b.WriteString(`<div class="ui-panel">`)
 	if p.Title != "" || p.Actions != nil {
-		b.WriteString(`<div class="forge-panel-head">`)
+		b.WriteString(`<div class="ui-panel-head">`)
 		b.WriteString(`<div>`)
 		if p.Title != "" {
-			b.WriteString(`<h3 class="forge-panel-title">` + template.HTMLEscapeString(p.Title) + `</h3>`)
+			b.WriteString(`<h3 class="ui-panel-title">` + template.HTMLEscapeString(p.Title) + `</h3>`)
 		}
 		if p.Description != "" {
-			b.WriteString(`<p style="margin:0.25rem 0 0; font-size:0.8rem; color:var(--forge-muted)">` + template.HTMLEscapeString(p.Description) + `</p>`)
+			b.WriteString(`<p style="margin:0.25rem 0 0; font-size:0.8rem; color:var(--ui-muted)">` + template.HTMLEscapeString(p.Description) + `</p>`)
 		}
 		b.WriteString(`</div>`)
 		if p.Actions != nil {
@@ -67,11 +67,11 @@ func (p *Panel) Render() template.HTML {
 	}
 
 	if p.Body != nil {
-		b.WriteString(`<div class="forge-panel-body">` + string(p.Body.Render()) + `</div>`)
+		b.WriteString(`<div class="ui-panel-body">` + string(p.Body.Render()) + `</div>`)
 	}
 
 	if p.Footer != nil {
-		b.WriteString(`<div style="padding:0.75rem 1.25rem; border-top:1.5px solid var(--forge-border); background:var(--forge-surface)">` + string(p.Footer.Render()) + `</div>`)
+		b.WriteString(`<div style="padding:0.75rem 1.25rem; border-top:1.5px solid var(--ui-border); background:var(--ui-surface)">` + string(p.Footer.Render()) + `</div>`)
 	}
 
 	b.WriteString(`</div>`)
@@ -108,19 +108,19 @@ func (s *Stat) WithIcon(icon string) *Stat {
 // Render produces the stat card HTML.
 func (s *Stat) Render() template.HTML {
 	var b strings.Builder
-	b.WriteString(`<div class="forge-stat">`)
+	b.WriteString(`<div class="ui-stat">`)
 	b.WriteString(`<div style="display:flex; justify-content:space-between; align-items:center;">`)
-	b.WriteString(`<span class="forge-stat-label">` + template.HTMLEscapeString(s.Label) + `</span>`)
+	b.WriteString(`<span class="ui-stat-label">` + template.HTMLEscapeString(s.Label) + `</span>`)
 	if s.Icon != "" {
 		b.WriteString(`<span style="font-size:1.25rem">` + template.HTMLEscapeString(s.Icon) + `</span>`)
 	}
 	b.WriteString(`</div>`)
-	b.WriteString(`<div class="forge-stat-value">` + template.HTMLEscapeString(s.Value) + `</div>`)
+	b.WriteString(`<div class="ui-stat-value">` + template.HTMLEscapeString(s.Value) + `</div>`)
 	if s.Change != "" {
-		cls := "forge-stat-change down"
+		cls := "ui-stat-change down"
 		arrow := "↓"
 		if s.Up {
-			cls = "forge-stat-change up"
+			cls = "ui-stat-change up"
 			arrow = "↑"
 		}
 		b.WriteString(`<div class="` + cls + `">` + arrow + ` ` + template.HTMLEscapeString(s.Change) + `</div>`)
@@ -163,7 +163,7 @@ func (d *Dashboard) WithActions(actions widget.Widget) *Dashboard {
 // Render produces the full dashboard markup.
 func (d *Dashboard) Render() template.HTML {
 	var b strings.Builder
-	b.WriteString(`<div class="forge-dashboard" style="display:flex; flex-direction:column; gap:1.5rem;">`)
+	b.WriteString(`<div class="ui-dashboard" style="display:flex; flex-direction:column; gap:1.5rem;">`)
 
 	// Head
 	b.WriteString(`<div style="display:flex; justify-content:space-between; align-items:center;">`)
@@ -179,7 +179,7 @@ func (d *Dashboard) Render() template.HTML {
 		if cols > 4 {
 			cols = 4
 		}
-		b.WriteString(fmt.Sprintf(`<div class="forge-grid-%d">`, cols))
+		b.WriteString(fmt.Sprintf(`<div class="ui-grid-%d">`, cols))
 		for _, s := range d.Stats {
 			b.WriteString(string(s.Render()))
 		}

@@ -4,7 +4,7 @@
 /* Kbd renders a keycap. It is decoration around an already-readable label, so
    it is never announced on its own — callers put the shortcut in the text. */
 .kiw-kbd {
-  font-family: var(--ui-font-mono, var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
+  font-family: var(--ui-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
   font-weight: 700;
   line-height: 1;
   color: var(--fg, #0B1F3B);

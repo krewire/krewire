@@ -45,7 +45,7 @@
 .kiw-progress-error .kiw-progress-bar { background: var(--error, #FF3B2E); }
 
 .kiw-progress-value {
-  font-family: var(--ui-font-mono, var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
+  font-family: var(--ui-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--muted, #57677d);

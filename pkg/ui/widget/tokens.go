@@ -1,7 +1,7 @@
 package widget
 
 // Variant names shared by Button, Badge, and Alert. They are the CSS modifier
-// suffix on the forge-* class, so the value is both the Go-side vocabulary and
+// suffix on the ui-* class, so the value is both the Go-side vocabulary and
 // the stylesheet contract: changing one without the other silently unstyles the
 // component.
 const (
@@ -32,15 +32,15 @@ const (
 // stylesheet surface has one place to change. Exported so external packages
 // can compose class names consistently with the Krewire widget system.
 const (
-	ButtonClassPrefix  = "forge-btn"
-	BadgeClassPrefix   = "forge-badge"
-	AlertClassPrefix   = "forge-alert"
-	CardClassPrefix    = "forge-card"
-	TableClassPrefix   = "forge-table"
-	ModalClassPrefix   = "forge-modal"
-	StackClassPrefix   = "forge-stack"
-	GridClassPrefix    = "forge-grid"
-	HeadingClassPrefix = "forge-heading"
+	ButtonClassPrefix  = "ui-btn"
+	BadgeClassPrefix   = "ui-badge"
+	AlertClassPrefix   = "ui-alert"
+	CardClassPrefix    = "ui-card"
+	TableClassPrefix   = "ui-table"
+	ModalClassPrefix   = "ui-modal"
+	StackClassPrefix   = "ui-stack"
+	GridClassPrefix    = "ui-grid"
+	HeadingClassPrefix = "ui-heading"
 )
 
 // unexported aliases used inside the widget package — kept to avoid rewriting
@@ -68,7 +68,7 @@ const (
 )
 
 // modifier builds "<prefix>-<modifier>" and returns prefix alone for an empty
-// modifier, so a default variant never emits a dangling "forge-btn-".
+// modifier, so a default variant never emits a dangling "ui-btn-".
 func modifier(prefix, name string) string {
 	if name == "" {
 		return prefix

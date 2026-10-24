@@ -106,13 +106,13 @@ func (t Theme) TailwindConfigScript() template.HTML {
     theme: {
       extend: {
         colors: {
-          primary: 'var(--ui-primary, var(--forge-primary, #39D353))',
-          'primary-content': 'var(--ui-primary-content, var(--forge-primary-content, #0B1F3B))',
-          secondary: 'var(--ui-secondary, var(--forge-secondary, #00D1C1))',
-          'secondary-content': 'var(--ui-secondary-content, var(--forge-secondary-content, #0B1F3B))',
-          accent: 'var(--ui-accent, var(--forge-accent, #FF3B2E))',
-          surface: 'var(--ui-surface, var(--forge-surface, #f0ede5))',
-          muted: 'var(--ui-muted, var(--forge-muted, #475569))',
+          primary: 'var(--ui-primary, #39D353)',
+          'primary-content': 'var(--ui-primary-content, #0B1F3B)',
+          secondary: 'var(--ui-secondary, #00D1C1)',
+          'secondary-content': 'var(--ui-secondary-content, #0B1F3B)',
+          accent: 'var(--ui-accent, #FF3B2E)',
+          surface: 'var(--ui-surface, #f0ede5)',
+          muted: 'var(--ui-muted, #475569)',
         }
       }
     }

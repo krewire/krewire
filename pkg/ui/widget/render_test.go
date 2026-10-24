@@ -37,10 +37,10 @@ func TestButtonVariants(t *testing.T) {
 		build func() *Button
 		want  string
 	}{
-		{"default", func() *Button { return NewButton("t") }, "forge-btn-default"},
-		{"primary", func() *Button { return NewButton("t").Primary() }, "forge-btn-primary"},
-		{"secondary", func() *Button { return NewButton("t").Secondary() }, "forge-btn-secondary"},
-		{"error", func() *Button { return NewButton("t").Error() }, "forge-btn-error"},
+		{"default", func() *Button { return NewButton("t") }, "ui-btn-default"},
+		{"primary", func() *Button { return NewButton("t").Primary() }, "ui-btn-primary"},
+		{"secondary", func() *Button { return NewButton("t").Secondary() }, "ui-btn-secondary"},
+		{"error", func() *Button { return NewButton("t").Error() }, "ui-btn-error"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -52,9 +52,9 @@ func TestButtonVariants(t *testing.T) {
 // TestButtonSizes verifies the size modifiers, and that the medium
 // default emits no size class because the stylesheet's base rule covers it.
 func TestButtonSizes(t *testing.T) {
-	mustNotContain(t, string(NewButton("t").Render()), "forge-btn-md", "default size")
-	mustContain(t, string(NewButton("t").Small().Render()), "forge-btn-sm", "small")
-	mustContain(t, string(NewButton("t").Large().Render()), "forge-btn-lg", "large")
+	mustNotContain(t, string(NewButton("t").Render()), "ui-btn-md", "default size")
+	mustContain(t, string(NewButton("t").Small().Render()), "ui-btn-sm", "small")
+	mustContain(t, string(NewButton("t").Large().Render()), "ui-btn-lg", "large")
 }
 
 // TestButtonModifiersAreComposable verifies WithIcon, Submit, WithClass,
@@ -98,12 +98,12 @@ func TestBadgeVariants(t *testing.T) {
 		build func() *Badge
 		want  string
 	}{
-		{"default", func() *Badge { return NewBadge("t") }, "forge-badge-default"},
-		{"primary", func() *Badge { return NewBadge("t").Primary() }, "forge-badge-primary"},
-		{"secondary", func() *Badge { return NewBadge("t").Secondary() }, "forge-badge-secondary"},
-		{"success", func() *Badge { return NewBadge("t").Success() }, "forge-badge-success"},
-		{"warning", func() *Badge { return NewBadge("t").Warning() }, "forge-badge-warning"},
-		{"error", func() *Badge { return NewBadge("t").Error() }, "forge-badge-error"},
+		{"default", func() *Badge { return NewBadge("t") }, "ui-badge-default"},
+		{"primary", func() *Badge { return NewBadge("t").Primary() }, "ui-badge-primary"},
+		{"secondary", func() *Badge { return NewBadge("t").Secondary() }, "ui-badge-secondary"},
+		{"success", func() *Badge { return NewBadge("t").Success() }, "ui-badge-success"},
+		{"warning", func() *Badge { return NewBadge("t").Warning() }, "ui-badge-warning"},
+		{"error", func() *Badge { return NewBadge("t").Error() }, "ui-badge-error"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -122,10 +122,10 @@ func TestAlertVariantsCarryTheirIcon(t *testing.T) {
 		variant string
 		icon    string
 	}{
-		{"info default", func() *Alert { return NewAlert("m") }, "forge-alert-info", iconInfo},
-		{"success", func() *Alert { return NewAlert("m").Success() }, "forge-alert-success", iconSuccess},
-		{"warning", func() *Alert { return NewAlert("m").Warning() }, "forge-alert-warning", iconWarning},
-		{"error", func() *Alert { return NewAlert("m").Error() }, "forge-alert-error", iconError},
+		{"info default", func() *Alert { return NewAlert("m") }, "ui-alert-info", iconInfo},
+		{"success", func() *Alert { return NewAlert("m").Success() }, "ui-alert-success", iconSuccess},
+		{"warning", func() *Alert { return NewAlert("m").Warning() }, "ui-alert-warning", iconWarning},
+		{"error", func() *Alert { return NewAlert("m").Error() }, "ui-alert-error", iconError},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -147,9 +147,9 @@ func TestAlertEscapesMessage(t *testing.T) {
 // when populated, so an empty card does not emit empty wrapper divs.
 func TestCardSlotsAreOptional(t *testing.T) {
 	bare := string(NewCard("").Render())
-	mustNotContain(t, bare, "forge-card-header", "header without title")
-	mustNotContain(t, bare, "forge-card-body", "body without content")
-	mustNotContain(t, bare, "forge-card-footer", "footer without content")
+	mustNotContain(t, bare, "ui-card-header", "header without title")
+	mustNotContain(t, bare, "ui-card-body", "body without content")
+	mustNotContain(t, bare, "ui-card-footer", "footer without content")
 	mustContain(t, bare, cardClassPrefix, "the root element is always present")
 
 	full := string(NewCard("t").WithDesc("d").
@@ -157,7 +157,7 @@ func TestCardSlotsAreOptional(t *testing.T) {
 		WithFooter(NewText("f")).
 		WithActions(NewButton("a")).
 		Render())
-	for _, want := range []string{"forge-card-title", "forge-card-desc", "forge-card-body", "forge-card-footer"} {
+	for _, want := range []string{"ui-card-title", "ui-card-desc", "ui-card-body", "ui-card-footer"} {
 		mustContain(t, full, want, "populated card")
 	}
 }
@@ -172,8 +172,8 @@ func TestCardEscapesTitleAndDescription(t *testing.T) {
 // TestStackDirections verifies the direction drives the layout class
 // and that a custom gap reaches the style attribute.
 func TestStackDirections(t *testing.T) {
-	mustContain(t, string(VStack().Render()), "forge-stack-v", "vertical stack")
-	mustContain(t, string(HStack().Render()), "forge-stack-h", "horizontal stack")
+	mustContain(t, string(VStack().Render()), "ui-stack-v", "vertical stack")
+	mustContain(t, string(HStack().Render()), "ui-stack-h", "horizontal stack")
 	mustContain(t, string(VStack().WithGap("3rem").Render()), "gap:3rem", "custom gap")
 	mustNotContain(t, string((&Stack{Direction: DirectionVertical}).Render()), "style=", "no gap, no style attribute")
 }
@@ -189,11 +189,11 @@ func TestStackSkipsNilWidgets(t *testing.T) {
 // TestGridColumnBounds verifies the supported column range and that an
 // out-of-range value falls back rather than emitting an undefined class.
 func TestGridColumnBounds(t *testing.T) {
-	for columns, want := range map[int]string{2: "forge-grid-2", 3: "forge-grid-3", 4: "forge-grid-4"} {
+	for columns, want := range map[int]string{2: "ui-grid-2", 3: "ui-grid-3", 4: "ui-grid-4"} {
 		mustContain(t, string(NewGrid(columns, NewText("x")).Render()), want, "supported column count")
 	}
 	for _, columns := range []int{-1, 0, 1, 5, 99} {
-		mustContain(t, string(NewGrid(columns, NewText("x")).Render()), "forge-grid-2", "out-of-range columns fall back to 2")
+		mustContain(t, string(NewGrid(columns, NewText("x")).Render()), "ui-grid-2", "out-of-range columns fall back to 2")
 	}
 }
 
@@ -248,14 +248,14 @@ func TestModalRendersOptionalSections(t *testing.T) {
 	mustContain(t, bare, modalClassPrefix, "the dialog element")
 	mustContain(t, bare, "Title", "the title")
 	mustNotContain(t, bare, "padding:1.25rem", "no body wrapper without content")
-	mustNotContain(t, bare, "forge-surface", "no footer wrapper without a footer")
+	mustNotContain(t, bare, "ui-surface", "no footer wrapper without a footer")
 
 	full := string(NewModal("m", "Title").
 		WithContent(NewText("body")).
 		WithFooter(NewButton("ok")).
 		Render())
 	mustContain(t, full, "body", "content")
-	mustContain(t, full, "forge-surface", "footer surface")
+	mustContain(t, full, "ui-surface", "footer surface")
 }
 
 // TestModalEscapesIDAndTitle verifies the dialog id and title are
@@ -311,7 +311,7 @@ func TestTableEscapesHeaders(t *testing.T) {
 func TestTextModifiers(t *testing.T) {
 	mustContain(t, string(NewText("plain").Render()), "plain", "plain text")
 	mustContain(t, string(NewText("b").Strong().Render()), "<strong>b</strong>", "bold text")
-	mustContain(t, string(NewText("m").Subtle().Render()), "var(--forge-muted)", "muted text")
+	mustContain(t, string(NewText("m").Subtle().Render()), "var(--ui-muted)", "muted text")
 
 	both := string(NewText("both").Strong().Subtle().Render())
 	mustContainsCount(t, both, "<strong>", 1, "one strong wrapper")
@@ -348,10 +348,10 @@ func TestHTMLWidgetIsVerbatim(t *testing.T) {
 // TestModifierHelperHandlesEmptyName verifies the class builder never
 // emits a dangling prefix.
 func TestModifierHelperHandlesEmptyName(t *testing.T) {
-	if got, want := modifier("forge-x", ""), "forge-x"; got != want {
+	if got, want := modifier("ui-x", ""), "ui-x"; got != want {
 		t.Errorf("modifier with an empty name = %q, want %q", got, want)
 	}
-	if got, want := modifier("forge-x", "y"), "forge-x-y"; got != want {
+	if got, want := modifier("ui-x", "y"), "ui-x-y"; got != want {
 		t.Errorf("modifier = %q, want %q", got, want)
 	}
 }

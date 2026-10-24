@@ -4,7 +4,7 @@
 /* Inline code: a pop-brutalist inset chip. Padded without a margin so it sits
    inside running text without breaking the line rhythm. */
 .kiw-code {
-  font-family: var(--ui-font-mono, var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
+  font-family: var(--ui-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
   font-size: 0.875em;
   background: var(--bg-2, #f2ede4);
   color: var(--fg, #0B1F3B);

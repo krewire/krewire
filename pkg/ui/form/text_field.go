@@ -86,7 +86,7 @@ func (f *TextField) Render(value string, errors []string) template.HTML {
 	b.WriteString(` />`)
 
 	if f.Help != "" {
-		b.WriteString(`<span class="forge-field-help">` + template.HTMLEscapeString(f.Help) + `</span>`)
+		b.WriteString(`<span class="ui-field-help">` + template.HTMLEscapeString(f.Help) + `</span>`)
 	}
 	writeErrors(&b, errors)
 	closeFieldGroup(&b)

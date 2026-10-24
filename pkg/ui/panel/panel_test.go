@@ -21,7 +21,7 @@ func TestPanelRender(t *testing.T) {
 	if !strings.Contains(html, "Monthly transactional metrics") {
 		t.Errorf("missing panel desc in %s", html)
 	}
-	if !strings.Contains(html, "forge-btn-sm") {
+	if !strings.Contains(html, "ui-btn-sm") {
 		t.Errorf("missing action button in %s", html)
 	}
 	if !strings.Contains(html, "Detailed stats table") {
@@ -44,10 +44,10 @@ func TestStatAndDashboardRender(t *testing.T) {
 	if !strings.Contains(html, "$48,250") {
 		t.Errorf("missing stat revenue in %s", html)
 	}
-	if !strings.Contains(html, "forge-stat-change up") {
+	if !strings.Contains(html, "ui-stat-change up") {
 		t.Errorf("missing positive trend in %s", html)
 	}
-	if !strings.Contains(html, "forge-stat-change down") {
+	if !strings.Contains(html, "ui-stat-change down") {
 		t.Errorf("missing negative trend in %s", html)
 	}
 	if !strings.Contains(html, "Recent Events") {

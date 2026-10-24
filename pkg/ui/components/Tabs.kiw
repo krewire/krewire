@@ -5,7 +5,7 @@
 </div>
 
 <style>
-/* Tabs are styled here, but switching is the host's job: Forge renders no
+/* Tabs are styled here, but switching is the host's job: Krewire UI renders no
    JavaScript. The list is a tablist so an assistive technology announces the
    relationship; the host adds role="tab"/role="tabpanel" and the aria wiring
    when it drives the panel itself. */

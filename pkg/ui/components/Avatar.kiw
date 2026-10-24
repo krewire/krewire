@@ -24,7 +24,7 @@
   object-fit: cover;
   background: var(--primary, #39D353);
   color: var(--primary-content, #0B1F3B);
-  font-family: var(--ui-font-mono, var(--forge-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
+  font-family: var(--ui-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace));
   font-weight: 800;
   text-transform: uppercase;
   user-select: none;

@@ -53,7 +53,7 @@ func TestRequiredMarkerAndAttribute(t *testing.T) {
 func TestPlaceholderAndHelpReachMarkup(t *testing.T) {
 	bare := string(NewText("u", "User").Render("", nil))
 	mustNotContain(t, bare, "placeholder=", "no placeholder when unset")
-	mustNotContain(t, bare, "forge-field-help", "no help when unset")
+	mustNotContain(t, bare, "ui-field-help", "no help when unset")
 
 	full := string(NewText("u", "User").WithPlaceholder("you@example.com").WithHelp("We never share this").Render("", nil))
 	mustContain(t, full, `placeholder="you@example.com"`, "placeholder")

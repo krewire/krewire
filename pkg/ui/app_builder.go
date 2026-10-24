@@ -28,12 +28,12 @@ const (
 	// cssSuffix identifies a prebuilt stylesheet URL rather than a CDN script.
 	cssSuffix = ".css"
 	// bodyClass is applied to the root body element.
-	bodyClass = "ui-app forge-app"
+	bodyClass = "ui-app"
 	// headerOpenTag opens the top navigation bar. The break belongs after
 	// </header>, where RenderShell writes it, so the tag itself stays on one line.
-	headerOpenTag = `<header style="background:var(--ui-surface, var(--forge-surface)); border-bottom:var(--ui-pop-border, var(--forge-pop-border)); padding:0.85rem 1.5rem; display:flex; align-items:center; justify-content:space-between;">`
+	headerOpenTag = `<header style="background:var(--ui-surface); border-bottom:var(--ui-pop-border); padding:0.85rem 1.5rem; display:flex; align-items:center; justify-content:space-between;">`
 	// brandMarkTag is the app mark shown at the head of the navigation bar.
-	brandMarkTag = "<span style=\"background:var(--ui-primary, var(--forge-primary)); color:var(--ui-primary-content, var(--forge-primary-content)); width:28px; height:28px; display:inline-grid; place-items:center; border-radius:6px; font-weight:900; border:var(--ui-pop-border, var(--forge-pop-border)); box-shadow:var(--ui-pop-shadow-sm, var(--forge-pop-shadow-sm));\">◈</span>"
+	brandMarkTag = "<span style=\"background:var(--ui-primary); color:var(--ui-primary-content); width:28px; height:28px; display:inline-grid; place-items:center; border-radius:6px; font-weight:900; border:var(--ui-pop-border); box-shadow:var(--ui-pop-shadow-sm);\">◈</span>"
 	// navOpenTag opens the navigation link list.
 	navOpenTag = `<nav style="display:flex; align-items:center; gap:0.5rem;">`
 	// mainOpenTag opens the main content canvas.
@@ -50,13 +50,13 @@ var tailwindConfigScript = `  <script>
       theme: {
         extend: {
           colors: {
-            primary: 'var(--ui-primary, var(--forge-primary, ` + string(DefaultLightPalette.Primary) + `))',
-            'primary-content': 'var(--ui-primary-content, var(--forge-primary-content, ` + string(DefaultLightPalette.PrimaryContent) + `))',
-            secondary: 'var(--ui-secondary, var(--forge-secondary, ` + string(DefaultLightPalette.Secondary) + `))',
-            'secondary-content': 'var(--ui-secondary-content, var(--forge-secondary-content, ` + string(DefaultLightPalette.SecondaryContent) + `))',
-            accent: 'var(--ui-accent, var(--forge-accent, ` + string(DefaultLightPalette.Accent) + `))',
-            surface: 'var(--ui-surface, var(--forge-surface, ` + string(DefaultLightPalette.Base2) + `))',
-            muted: 'var(--ui-muted, var(--forge-muted, ` + string(DefaultLightPalette.NeutralContent) + `))',
+            primary: 'var(--ui-primary, ` + string(DefaultLightPalette.Primary) + `)',
+            'primary-content': 'var(--ui-primary-content, ` + string(DefaultLightPalette.PrimaryContent) + `)',
+            secondary: 'var(--ui-secondary, ` + string(DefaultLightPalette.Secondary) + `)',
+            'secondary-content': 'var(--ui-secondary-content, ` + string(DefaultLightPalette.SecondaryContent) + `)',
+            accent: 'var(--ui-accent, ` + string(DefaultLightPalette.Accent) + `)',
+            surface: 'var(--ui-surface, ` + string(DefaultLightPalette.Base2) + `)',
+            muted: 'var(--ui-muted, ` + string(DefaultLightPalette.NeutralContent) + `)',
           }
         }
       }
@@ -249,7 +249,7 @@ func (a *App) writeNav(b *strings.Builder) {
 	b.WriteString(navOpenTag)
 	for _, item := range a.Nav {
 		b.WriteString(`<a href="` + widget.SafeURL(item.URL) +
-			`" style="font-size:0.85rem; font-weight:700; padding:0.4rem 0.75rem; border-radius:6px; color:var(--ui-fg, var(--forge-fg)); text-decoration:none;">` +
+			`" style="font-size:0.85rem; font-weight:700; padding:0.4rem 0.75rem; border-radius:6px; color:var(--ui-fg); text-decoration:none;">` +
 			template.HTMLEscapeString(item.Label) + `</a>`)
 	}
 	b.WriteString(`</nav>`)

@@ -13,7 +13,7 @@ import (
 )
 
 func TestAppPageRouting(t *testing.T) {
-	app := New("Forge Admin").
+	app := New("Krewire Admin").
 		AddNav("Dashboard", "/").
 		AddNav("Settings", "/settings").
 		Page("/", "Dashboard", widget.NewCard("Welcome to Admin")).
@@ -28,7 +28,7 @@ func TestAppPageRouting(t *testing.T) {
 		t.Fatalf("expected 200 OK, got %d", rec.Code)
 	}
 	body := rec.Body.String()
-	if !strings.Contains(body, "Dashboard — Forge Admin") {
+	if !strings.Contains(body, "Dashboard — Krewire Admin") {
 		t.Errorf("expected title, got %s", body)
 	}
 	if !strings.Contains(body, "Welcome to Admin") {
@@ -73,7 +73,7 @@ func TestAppFormRouting(t *testing.T) {
 	// POST form valid
 	formData := url.Values{
 		"name":    {"Budi"},
-		"message": {"Hello Forge!"},
+		"message": {"Hello Krewire!"},
 	}
 	reqPost := httptest.NewRequest(http.MethodPost, "/contact", strings.NewReader(formData.Encode()))
 	reqPost.Header.Set("Content-Type", "application/x-www-form-urlencoded")

@@ -109,7 +109,6 @@ func TestParseLayer(t *testing.T) {
 		{"VENDOR", LayerVendor, true},
 		{"plugin", LayerVendor, true},
 		{"component", LayerComponent, true},
-		{"forge", LayerComponent, true},
 		{"ui", LayerComponent, true},
 		{"theme", LayerTheme, true},
 		{"book", LayerBook, true},

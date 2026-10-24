@@ -9,15 +9,15 @@ import (
 // label's `for` attribute and the control's `id` are derived from it, so a
 // mismatch silently breaks click-to-focus and screen-reader association.
 const (
-	fieldGroupClass  = "forge-field-group"
-	fieldLabelClass  = "forge-label"
-	fieldRequiredCls = "forge-required"
-	fieldInputClass  = "forge-input"
-	fieldTextareaCls = "forge-textarea"
-	fieldSelectClass = "forge-select"
-	fieldErrorClass  = "forge-field-error"
-	fieldFormClass   = "forge-form"
-	fieldActionsCls  = "forge-form-actions"
+	fieldGroupClass  = "ui-field-group"
+	fieldLabelClass  = "ui-label"
+	fieldRequiredCls = "ui-required"
+	fieldInputClass  = "ui-input"
+	fieldTextareaCls = "ui-textarea"
+	fieldSelectClass = "ui-select"
+	fieldErrorClass  = "ui-field-error"
+	fieldFormClass   = "ui-form"
+	fieldActionsCls  = "ui-form-actions"
 	// fieldIDPrefix is prepended to a field name to form the control id.
 	fieldIDPrefix = "field-"
 )

@@ -98,10 +98,24 @@ Builds the project according to its detected kind:
 - `--skip-deps`: Skips pre-build dependency commands declared in `build.depends_on`.
 - `--deps-only`: Runs only `build.depends_on` commands without building Krewire artifacts.
 - `--plan`: Generates an infrastructure execution plan (`infra` kind).
+- `--bundle`: Bundles all eligible CSS and JS assets into `assets/krewire.css` and `assets/krewire.js`.
 ```bash
 kiw build
 kiw build --skip-deps
 kiw build --plan
+kiw build --bundle
+```
+
+### `kiw bundle [flags]`
+Bundles static CSS and JS assets into unified `assets/krewire.css` and `assets/krewire.js` bundles, hoisting `@charset` and `@import` rules, and ensuring semicolon isolation.
+
+**Flags:**
+- `--output, -o <dir>`: Target output directory (default: `.krewire/build`).
+- `--minify, -m`: Enable safe minification for stylesheets and scripts.
+```bash
+kiw bundle
+kiw bundle --minify
+kiw bundle -o dist --minify
 ```
 
 ### `kiw serve [--port <port>]`

@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Widget represents any renderable Forge UI component.
+// Widget represents any renderable Krewire UI component.
 type Widget interface {
 	Render() template.HTML
 }

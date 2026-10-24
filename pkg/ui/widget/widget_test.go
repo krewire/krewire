@@ -8,7 +8,7 @@ import (
 func TestButtonRender(t *testing.T) {
 	btn := NewButton("Click Me").Primary().WithIcon("🚀")
 	html := string(btn.Render())
-	if !strings.Contains(html, "forge-btn-primary") {
+	if !strings.Contains(html, "ui-btn-primary") {
 		t.Errorf("expected primary class, got %s", html)
 	}
 	if !strings.Contains(html, "Click Me") {
@@ -23,7 +23,7 @@ func TestButtonRender(t *testing.T) {
 	if !strings.Contains(linkHTML, "<a href=\"https://example.com\"") {
 		t.Errorf("expected <a> tag, got %s", linkHTML)
 	}
-	if !strings.Contains(linkHTML, "forge-btn-error") {
+	if !strings.Contains(linkHTML, "ui-btn-error") {
 		t.Errorf("expected error class, got %s", linkHTML)
 	}
 }
@@ -31,7 +31,7 @@ func TestButtonRender(t *testing.T) {
 func TestBadgeRender(t *testing.T) {
 	badge := NewBadge("Active").Success()
 	html := string(badge.Render())
-	if !strings.Contains(html, "forge-badge-success") {
+	if !strings.Contains(html, "ui-badge-success") {
 		t.Errorf("expected success badge, got %s", html)
 	}
 	if !strings.Contains(html, "Active") {
@@ -55,7 +55,7 @@ func TestCardRender(t *testing.T) {
 	if !strings.Contains(html, "<strong>Content details</strong>") {
 		t.Errorf("expected strong body, got %s", html)
 	}
-	if !strings.Contains(html, "forge-btn-sm") {
+	if !strings.Contains(html, "ui-btn-sm") {
 		t.Errorf("expected footer button, got %s", html)
 	}
 }
@@ -63,7 +63,7 @@ func TestCardRender(t *testing.T) {
 func TestAlertRender(t *testing.T) {
 	alert := NewAlert("Operation succeeded").Success()
 	html := string(alert.Render())
-	if !strings.Contains(html, "forge-alert-success") {
+	if !strings.Contains(html, "ui-alert-success") {
 		t.Errorf("expected alert success, got %s", html)
 	}
 	if !strings.Contains(html, "Operation succeeded") {
@@ -85,13 +85,13 @@ func TestTableRender(t *testing.T) {
 func TestStackAndGridRender(t *testing.T) {
 	stack := VStack(NewText("First"), NewText("Second"))
 	stackHTML := string(stack.Render())
-	if !strings.Contains(stackHTML, "forge-stack-v") {
+	if !strings.Contains(stackHTML, "ui-stack-v") {
 		t.Errorf("expected vertical stack class, got %s", stackHTML)
 	}
 
 	grid := NewGrid(3, NewCard("A"), NewCard("B"))
 	gridHTML := string(grid.Render())
-	if !strings.Contains(gridHTML, "forge-grid-3") {
+	if !strings.Contains(gridHTML, "ui-grid-3") {
 		t.Errorf("expected grid-3 class, got %s", gridHTML)
 	}
 }

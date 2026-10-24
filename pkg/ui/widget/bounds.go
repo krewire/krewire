@@ -16,7 +16,7 @@ const (
 // Grid column bounds.
 const (
 	// minGridColumns and maxGridColumns bound Grid.Columns. The stylesheet ships
-	// forge-grid-2, forge-grid-3, and forge-grid-4 only, so 2 is the lower bound:
+	// ui-grid-2, ui-grid-3, and ui-grid-4 only, so 2 is the lower bound:
 	// a one-column layout is not a grid here.
 	minGridColumns, maxGridColumns = 2, 4
 	// defaultGridColumns is the fallback for an out-of-range request.

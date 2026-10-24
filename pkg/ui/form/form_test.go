@@ -37,7 +37,7 @@ func TestFormValidation(t *testing.T) {
 
 	// Render output
 	html := string(f.Render())
-	if !strings.Contains(html, `<form class="forge-form" action="/submit" method="POST">`) {
+	if !strings.Contains(html, `<form class="ui-form" action="/submit" method="POST">`) {
 		t.Errorf("form tag wrong: %s", html)
 	}
 	if !strings.Contains(html, "Save Account") {

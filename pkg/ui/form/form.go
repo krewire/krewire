@@ -104,7 +104,7 @@ func (f *Form) Errors() map[string][]string {
 // Render produces the complete form HTML.
 func (f *Form) Render() template.HTML {
 	var b strings.Builder
-	cls := "forge-form"
+	cls := "ui-form"
 	if f.Class != "" {
 		cls += " " + f.Class
 	}
@@ -114,8 +114,8 @@ func (f *Form) Render() template.HTML {
 		errs := f.ErrorsMap[field.Name()]
 		b.WriteString(string(field.Render(val, errs)))
 	}
-	b.WriteString(`<div class="forge-form-actions" style="margin-top:0.5rem;">`)
-	b.WriteString(`<button type="submit" class="forge-btn forge-btn-primary">` + template.HTMLEscapeString(f.SubmitLabel) + `</button>`)
+	b.WriteString(`<div class="ui-form-actions" style="margin-top:0.5rem;">`)
+	b.WriteString(`<button type="submit" class="ui-btn ui-btn-primary">` + template.HTMLEscapeString(f.SubmitLabel) + `</button>`)
 	b.WriteString(`</div>`)
 	b.WriteString(`</form>`)
 	return template.HTML(b.String())
