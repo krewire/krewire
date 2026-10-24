@@ -206,10 +206,19 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 		hybrid := hasPages || hasSSG
 
 		// I18n: build per-locale book output trees when i18n is configured.
-		// content/docs/<locale>/ → .krewire/build/<locale>/docs/
+		// content/<locale>/docs/ (or legacy content/docs/<locale>/) → .krewire/build/<locale>/docs/
 		if cfg.I18n != nil && len(cfg.I18n.Locales) > 0 {
 			for _, locale := range cfg.I18n.Locales {
-				localeInput := filepath.Join("content", "docs", locale)
+				localeInput := filepath.Join("content", locale, "docs")
+				if !hasDir(root, localeInput) {
+					localeInput = filepath.Join("content", "docs", locale)
+				}
+				if !hasDir(root, localeInput) && cfg.Input != "" {
+					localeInput = filepath.Join(cfg.Input, locale)
+					if !hasDir(root, localeInput) {
+						localeInput = filepath.Join(cfg.Input, locale, "docs")
+					}
+				}
 				if !hasDir(root, localeInput) {
 					slog.Warn("i18n: skipping locale, input dir missing", "locale", locale, "input", localeInput)
 					continue
