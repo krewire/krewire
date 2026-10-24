@@ -837,7 +837,8 @@ func TestRootIndexMarkdown(t *testing.T) {
 
 func TestLocalizedNavLinksAndLocale(t *testing.T) {
 	b := &Book{
-		base: "/id/docs/",
+		base:  "/id/docs/",
+		mount: "docs",
 		navLinks: []Link{
 			{Text: "Get Started", URL: "/docs/getting-started"},
 			{Text: "Workloads", URL: "/docs/workloads"},
@@ -872,7 +873,41 @@ func TestLocalizedNavLinksAndLocale(t *testing.T) {
 	if pd.Locale != "id" {
 		t.Errorf("expected pd.Locale 'id', got %q", pd.Locale)
 	}
-	if pd.HomeURL != "/id" {
-		t.Errorf("expected pd.HomeURL '/id', got %q", pd.HomeURL)
+	if pd.HomeURL != "/id/docs/" {
+		t.Errorf("expected pd.HomeURL '/id/docs/', got %q", pd.HomeURL)
 	}
+}
+
+func TestBuildEmitsConfiguredLang(t *testing.T) {
+	dir := writeContent(t, map[string]string{"01-a.md": "# A\n"})
+
+	t.Run("default", func(t *testing.T) {
+		out := filepath.Join(t.TempDir(), "site")
+		if _, err := Build(Config{Input: dir, Output: out, Title: "T"}); err != nil {
+			t.Fatal(err)
+		}
+		body, err := os.ReadFile(filepath.Join(out, "a.html"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(string(body), `<html lang="en">`) {
+			t.Errorf("page = %q, want default <html lang=\"en\">", body)
+		}
+	})
+
+	t.Run("explicit locale", func(t *testing.T) {
+		out := filepath.Join(t.TempDir(), "site")
+		if _, err := Build(Config{Input: dir, Output: out, Title: "T", Lang: "id"}); err != nil {
+			t.Fatal(err)
+		}
+		for _, name := range []string{"a.html", "index.html"} {
+			body, err := os.ReadFile(filepath.Join(out, name))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(body), `<html lang="id">`) {
+				t.Errorf("%s = %q, want <html lang=\"id\">", name, body)
+			}
+		}
+	})
 }

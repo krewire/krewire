@@ -10,6 +10,8 @@ import (
 const (
 	defaultInput  = "."
 	defaultOutput = ".krewire/build"
+	// defaultLang is emitted as <html lang> when Config.Lang is empty.
+	defaultLang = "en"
 )
 
 // Config configures a build.
@@ -72,6 +74,10 @@ type Config struct {
 	// ExtraJS are additional script URLs loaded at the end of <body> on every
 	// page, in the given order. Used verbatim like ExtraCSS.
 	ExtraJS []string
+	// Lang is the BCP-47 language tag emitted as <html lang> on every page
+	// (e.g. "en", "id"). Empty defaults to "en" so standalone books stay
+	// valid without declaring anything.
+	Lang string
 }
 
 // Build renders the content in cfg.Input into a static website in
@@ -107,6 +113,10 @@ func Build(cfg Config) ([]string, error) {
 	b.noRootTOC = cfg.NoRootTOC
 	b.extraCSS = append([]string(nil), cfg.ExtraCSS...)
 	b.extraJS = append([]string(nil), cfg.ExtraJS...)
+	b.lang = cfg.Lang
+	if b.lang == "" {
+		b.lang = defaultLang
+	}
 	b.version = cfg.Version
 	b.WithChrome(cfg.NavLinks, cfg.FooterText)
 	if cfg.Theme != nil {

@@ -142,7 +142,12 @@ func (b *Book) pageData(ch *Chapter, toc []tocEntry) pageData {
 	loc := b.locale()
 	if homeURL == "" || homeURL == "/" {
 		if loc != "" && loc != "en" {
-			homeURL = "/" + loc
+			// A non-default locale lives under /<locale>/, so its home must
+			// include the mount too — /<locale> alone is not an exported page.
+			homeURL = "/" + loc + "/"
+			if m := strings.Trim(b.mount, "/"); m != "" {
+				homeURL += m + "/"
+			}
 		} else if b.mount != "" {
 			homeURL = "/"
 		} else {

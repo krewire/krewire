@@ -47,6 +47,9 @@ type Book struct {
 	// extraJS holds additional script URLs loaded at the end of body on every
 	// page. Set from Config.ExtraJS.
 	extraJS []string
+	// lang is the BCP-47 language tag emitted as <html lang>. Set from
+	// Config.Lang; defaults to defaultLang.
+	lang string
 }
 
 // ExtraCSS returns the additional stylesheet URLs linked on
@@ -56,6 +59,10 @@ func (b *Book) ExtraCSS() []string { return b.extraCSS }
 // ExtraJS returns the additional script URLs loaded at the end of body on every
 // page. Templates read it through pageData.
 func (b *Book) ExtraJS() []string { return b.extraJS }
+
+// Lang returns the BCP-47 language tag for the generated pages, emitted as the
+// <html lang> attribute. Templates read it through pageData.
+func (b *Book) Lang() string { return b.lang }
 
 // Link is a named navigation target shown in the navbar.
 type Link struct {
