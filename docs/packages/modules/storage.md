@@ -10,9 +10,10 @@ Import: `github.com/krewire/krewire/packages/storage`
 
 - `Store` — `Put`, `Get`, `Delete`, and `Stat` operations.
 - `ContextStore` — context-aware extension of `Store` without changing the base interface.
-- `Local` — filesystem-backed implementation.
-- `NewLocal(root, filesystem)` — creates a local store.
-- `NewMemory()` — creates an in-memory local store for tests and ephemeral data.
+- **Drivers**:
+  - `Local` — local filesystem storage with path-traversal protection and atomic replacement.
+  - `MemoryStore` (`NewMemoryStore`) — thread-safe in-memory object store.
+  - `S3Store` (`NewS3Store`) — S3-compatible cloud storage driver (AWS S3, MinIO, Cloudflare R2, Wasabi) with pure-Go AWS SigV4 authorization.
 - `ObjectInfo` — key, size, and mode metadata.
 
 Object keys are resolved below the configured root. Path traversal attempts are rejected.

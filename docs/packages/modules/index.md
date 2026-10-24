@@ -1,6 +1,6 @@
 # Krewire Packages — Module Catalog
 
-Documentation catalog for all 31 domain packages in `github.com/krewire/krewire`.
+Documentation catalog for all 32 domain packages in `github.com/krewire/krewire`.
 
 | Module | Documentation | Focus |
 |---|---|---|
@@ -9,6 +9,7 @@ Documentation catalog for all 31 domain packages in `github.com/krewire/krewire`
 | `assets` | [`assets.md`](./assets.md) | Static asset pipeline, bundling, minification, and fingerprinting |
 | `auth` | [`auth.md`](./auth.md) | Basic Authentication, JWT, identity, claims, and HTTP errors |
 | `boost` | [`boost.md`](./boost.md) | Boost AI agent coordination & embedded template installer |
+| `cache` | [`cache.md`](./cache.md) | Multi-driver caching (Memory, File, Redis/Valkey, Memcached) with TTL eviction |
 | `cloud` | [`cloud.md`](./cloud.md) | Cloud execution plane: runners, microservices, workers, infra blueprints |
 | `commerce` | [`commerce.md`](./commerce.md) | Payment gateway integration (Midtrans), tokenization, and webhook verification |
 | `config` | [`config.md`](./config.md) | Declarative configuration loader (`krewire.yaml`), `.env`, environment overlays |
