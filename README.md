@@ -49,14 +49,17 @@ krewire/
     └── new/      # Fresh project scaffolding blueprints
 ```
 
-## Role in the 5-Repository Ecosystem
+## Role in the 8-Repository Ecosystem
 
-Krewire is one of 5 repositories in the ecosystem:
-1. **krewire** (this repository): Core monorepo containing packages, apps, CLI tooling, and templates.
-2. **mdbind**: Standalone Markdown book & docs builder powering the `book` workload.
-3. **internal**: Private docs, ADRs, roadmaps, and contributor guides.
-4. **krewire.com**: Product website source built with the `site` workload.
-5. **krewire.github.io**: Community portal and sponsorship hub.
+Krewire is the core monorepo in the ecosystem:
+1. **krewire** (this repository): Core monorepo containing packages, apps, CLI tooling (`kiw`), and starters.
+2. **krew**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
+3. **cloud**: Private enterprise hybrid PaaS engine and control plane.
+4. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform.
+5. **workspace**: Private SaaS AI-assisted virtual workspace.
+6. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
+7. **krewire.com**: Official product website and documentation portal.
+8. **krewire.github.io**: Community portal and guides hub.
 
 ## Prerequisites
 

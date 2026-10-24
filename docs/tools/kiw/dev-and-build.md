@@ -28,7 +28,7 @@ kiw build
   ├── Run Pre-Build Scripts
   └── Execute Kind Pipeline:
         ├── site:   SSG Builder -> Minification -> .krewire/build
-        ├── book:   mdbind compiler -> Navigation index -> .krewire/build
+        ├── book:   book compiler -> Navigation index -> .krewire/build
         ├── app:    WASM build (client/) -> Go binary (server) -> bin/
         └── cli:    Go build with embedded assets -> bin/
 ```

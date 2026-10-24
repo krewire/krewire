@@ -19,7 +19,7 @@ import (
 const DefaultOutput = ".krewire/build"
 
 // DefaultInput is the default content directory consumed by the book
-// (mdbind) build, mirroring the ssg content layout.
+// build, mirroring the ssg content layout.
 const DefaultInput = "content"
 
 // Config is the krewire.yaml schema consumed by the build command.
@@ -60,10 +60,10 @@ type Config struct {
 	Footer string `yaml:"footer"`
 	// Theme configures the light/dark theme switcher.
 	Theme *Theme `yaml:"theme"`
-	// Book holds book-specific settings for the manuscript/ (mdbind) shape.
+	// Book holds book-specific settings for the manuscript/ shape.
 	Book BookConfig `yaml:"book"`
 	// SSG holds the declarative SSG config. When non-nil, kiw build uses
-	// the web/ssg generator instead of mdbind. Top-level fields (Title,
+	// the web/ssg generator instead of the standalone book builder. Top-level fields (Title,
 	// Author, Base, Output, Theme) are injected into the SSG config.
 	SSG *SSGConfig `yaml:"ssg"`
 	// AutoAssets configures asset injection and bundling at top-level.
@@ -166,11 +166,11 @@ type BuildConfig struct {
 	// Output is the output directory relative to the project root.
 	Output string `yaml:"output"`
 	// Include holds glob patterns selecting which content files build
-	// (slash-separated, ** crosses segments). Unset (nil) uses the mdbind
+	// (slash-separated, ** crosses segments). Unset (nil) uses the book
 	// default "**/*.md"; an empty list disables the include filter.
 	Include []string `yaml:"include"`
 	// Exclude holds glob patterns removed after include filtering. Unset
-	// (nil) uses the mdbind defaults excluding README/readme developer
+	// (nil) uses the book defaults excluding README/readme developer
 	// notes; an empty list excludes nothing.
 	Exclude []string `yaml:"exclude"`
 	// DependsOn lists shell commands to run in order before building
@@ -424,7 +424,7 @@ func Load(dir string) (*Config, error) {
 	}
 	// A project declares its version either at the top level or next to the
 	// kind. Fold the latter into the single effective value so both pipelines
-	// (ssg page data and the mdbind asset cache-busting query) see the same
+	// (ssg page data and the book asset cache-busting query) see the same
 	// version instead of one silently losing it.
 	if c.Version == "" {
 		c.Version = c.Project.Version

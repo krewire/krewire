@@ -123,7 +123,7 @@ func RunServe(fs *flag.FlagSet) errs.ExitCode {
 	}
 }
 
-// serveBook previews the content directory with the mdbind handler. The
+// serveBook previews the content directory with the book handler. The
 // input resolves like every other setting: --input flag > krewire.yaml
 // `input:` > config.DefaultInput ("content"). Include/exclude globs follow
 // the same precedence as kiw build so preview matches the export.

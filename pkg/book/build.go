@@ -63,7 +63,7 @@ type Config struct {
 	Version string
 	// Theme, when non-nil, enables the light/dark theme switcher on every page.
 	Theme *Theme
-	// ExtraCSS are additional stylesheet URLs linked after mdbind.css on every
+	// ExtraCSS are additional stylesheet URLs linked on every
 	// page, in the given order. It lets a book rendered into a shared output
 	// adopt the parent site's stylesheets (e.g. tailwind.css, theme.css) so a
 	// hybrid site looks identical whether the visitor lands on a landing page
@@ -149,7 +149,7 @@ func exportAssets(outDir string, assets map[string]string) error {
 }
 
 // exportMountedAssets writes assets under outDir/mount when the book is
-// mounted at a sub-path so links like /docs/assets/mdbind.css resolve.
+// mounted at a sub-path so links like /docs/assets/krewire.css resolve.
 func exportMountedAssets(outDir, mount string, assets map[string]string) error {
 	if mount == "" {
 		return exportAssets(outDir, assets)

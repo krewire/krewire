@@ -375,11 +375,11 @@ func buildSSGFromConfig(root string, cfg *config.Config, fs *flag.FlagSet) (errs
 	return errs.ExitCodeSuccess, css, js
 }
 
-// buildManuscript renders the project's content/ directory with mdbind.
+// buildManuscript renders the project's content/ directory with the book engine.
 // Settings come from krewire.yaml in the project root, overridden by flags.
 // In a hybrid project (ssg pages present) the book suppresses its generated
 // root TOC so the ssg landing page owns "/". Include/exclude path globs
-// resolve flag > krewire.yaml `build:` > mdbind defaults (README skipped).
+// resolve flag > krewire.yaml `build:` > book defaults (README skipped).
 func buildManuscript(root string, cfg *config.Config, fs *flag.FlagSet, hybrid bool, planCSS, planJS []string) errs.ExitCode {
 	title := firstNonEmpty(flagValue(fs, "title"), cfg.Title, moduleName(root))
 	input := firstNonEmpty(flagValue(fs, "input"), cfg.Input)
@@ -491,7 +491,7 @@ func buildWASM(root string, cfg *config.Config, fs *flag.FlagSet) errs.ExitCode 
 }
 
 // globList resolves a repeatable/comma-separated glob flag over its
-// krewire.yaml fallback. Unset everywhere returns nil (mdbind defaults);
+// krewire.yaml fallback. Unset everywhere returns nil (book defaults);
 // an explicitly empty value disables that filter side.
 func globList(fs *flag.FlagSet, name string, fallback []string) []string {
 	raw := flagValue(fs, name)
@@ -532,10 +532,8 @@ func themeFrom(fs *flag.FlagSet, cfg *config.Theme) *ui.Theme {
 	return t
 }
 
-// bookThemeFrom resolves the mdbind theme from the same flag/config as
-// themeFrom but returns the book's local Theme type so mdbind can stay
-// framework-free. The two themes stay in sync so a project can depend on
-// both framework and mdbind and keep a single krewire.yaml.
+// bookThemeFrom resolves the book theme from the same flag/config as
+// themeFrom but returns the book's local Theme type.
 func bookThemeFrom(fs *flag.FlagSet, cfg *config.Theme) *book.Theme {
 	mode := strings.ToLower(strings.TrimSpace(flagValue(fs, "theme")))
 	if mode == "" && cfg != nil {

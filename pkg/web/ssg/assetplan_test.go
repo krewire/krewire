@@ -19,22 +19,22 @@ func names(urls []string) []string {
 
 // A fully populated site must resolve the canonical cascade order, not
 // alphabetical order. This is the regression guard for the original bug, where
-// mdbind.css loaded before tailwind.css and therefore could not override it.
+// book.css loaded before tailwind.css and therefore could not override it.
 func TestInjectedAssetsUsesCascadeOrderNotAlphabetical(t *testing.T) {
 	s := New().
-		Asset("assets/mdbind.css", "").
+		Asset("assets/book.css", "").
 		Asset("assets/tailwind.css", "").
 		Asset("assets/ui.css", "").
 		Asset("assets/theme.css", "").
 		Component(Component{Name: "c", Body: "x", Style: ".c{}"})
 	css, _ := s.InjectedAssets()
 	got := names(css)
-	want := []string{"style.css", "tailwind.css", "ui.css", "theme.css", "mdbind.css"}
+	want := []string{"style.css", "tailwind.css", "ui.css", "theme.css", "book.css"}
 	if strings.Join(got, ",") != strings.Join(want, ",") {
 		t.Errorf("css order = %v, want %v", got, want)
 	}
-	if len(got) > 0 && got[0] == "mdbind.css" {
-		t.Error("mdbind.css must not load first; it exists to override the site")
+	if len(got) > 0 && got[0] == "book.css" {
+		t.Error("book.css must not load first; it exists to override the site")
 	}
 }
 
@@ -257,7 +257,7 @@ func TestInjectedAndAssetLinksAgreeOnVersionQuery(t *testing.T) {
 // read the same plan, so they cannot drift.
 func TestAssetLinksMatchesInjectedOrder(t *testing.T) {
 	s := New().
-		Asset("assets/mdbind.css", "").
+		Asset("assets/book.css", "").
 		Asset("assets/tailwind.css", "").
 		Asset("assets/app.js", "")
 	cssURLs, jsURLs := s.InjectedAssets()

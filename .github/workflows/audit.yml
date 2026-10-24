@@ -16,12 +16,6 @@ jobs:
         with:
           path: krewire
 
-      - name: Checkout mdbind sibling
-        uses: actions/checkout@v4
-        with:
-          repository: krewire/mdbind
-          path: mdbind
-
       - name: Checkout krew sibling
         uses: actions/checkout@v4
         with:

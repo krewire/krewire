@@ -39,7 +39,7 @@ const (
 	// VariantStatic is a declarative static site configured solely through
 	// the `ssg:` key in krewire.yaml (KWF-PT8OD). No ssg.yaml is produced.
 	VariantStatic Variant = "static"
-	// VariantBook is a manuscript book assembled by mdbind (KWM-FX9H2).
+	// VariantBook is a manuscript book.
 	VariantBook Variant = "book"
 	// VariantCLI is a command-line application on framework/tui + libs/core,
 	// mirroring the kiw devtool layout.

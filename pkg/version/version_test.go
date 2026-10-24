@@ -122,16 +122,16 @@ func TestVersionLiterals(t *testing.T) {
 
 func TestCheckCompatibility(t *testing.T) {
 	actual := map[string]Version{
-		"core":   MustParseVersion("0.1.2"),
-		"mdbind": MustParseVersion("0.1.0"),
-		"kiw":    MustParseVersion("0.1.0"),
+		"core": MustParseVersion("0.1.2"),
+		"krew": MustParseVersion("0.1.0"),
+		"kiw":  MustParseVersion("0.1.0"),
 	}
 
 	// Case 1: All satisfied
 	reqsGood := map[string]map[string]Version{
 		"kiw": {
-			"core":   MustParseVersion("0.1.0"),
-			"mdbind": MustParseVersion("0.1.0"),
+			"core": MustParseVersion("0.1.0"),
+			"krew": MustParseVersion("0.1.0"),
 		},
 	}
 	if issues := CheckCompatibility(actual, reqsGood); len(issues) > 0 {

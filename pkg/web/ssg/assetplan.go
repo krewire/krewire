@@ -23,7 +23,7 @@ const (
 	LayerComponent
 	// LayerTheme holds theme variables and last-mile design overrides.
 	LayerTheme
-	// LayerBook holds content-pipeline styling (mdbind) that must win over the
+	// LayerBook holds content-pipeline styling (pkg/book) that must win over the
 	// site chrome when a book is mounted into the same output.
 	LayerBook
 	// LayerPage holds per-page overrides and is always last.
@@ -64,7 +64,7 @@ func ParseLayer(name string) (AssetLayer, error) {
 		return LayerComponent, nil
 	case "theme":
 		return LayerTheme, nil
-	case "book", "content", "mdbind":
+	case "book", "content":
 		return LayerBook, nil
 	case "page", "last", "lastmile", "override":
 		return LayerPage, nil
@@ -188,7 +188,7 @@ var builtinAssets = []builtinAsset{
 	{name: "assets/tailwind.css", kind: AssetCSS, layer: LayerVendor},
 	{name: "assets/ui.css", kind: AssetCSS, layer: LayerComponent},
 	{name: "assets/theme.css", kind: AssetCSS, layer: LayerTheme},
-	{name: "assets/mdbind.css", kind: AssetCSS, layer: LayerBook},
+	{name: "assets/book.css", kind: AssetCSS, layer: LayerBook},
 	{name: "assets/app.js", kind: AssetJS, layer: LayerVendor},
 	{name: "assets/docs.js", kind: AssetJS, layer: LayerVendor, order: 1},
 }

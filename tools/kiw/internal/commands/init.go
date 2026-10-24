@@ -19,7 +19,7 @@ func RegisterInit(fs *flag.FlagSet) {
 	fs.Bool("force", false, "force reset krewire.yaml without interactive confirmation")
 	fs.Bool("f", false, "short alias for --force")
 	fs.Bool("site", false, "equip a declarative static site (ssg: key in krewire.yaml)")
-	fs.Bool("book", false, "equip a manuscript book (mdbind)")
+	fs.Bool("book", false, "equip a manuscript book (pkg/book)")
 	fs.Bool("cli", false, "equip a command-line application (framework/tui)")
 	fs.Bool("app", false, "equip a fullstack monolith application")
 	fs.Bool("worker", false, "equip a background job queue worker (cloud/worker)")

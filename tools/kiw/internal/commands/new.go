@@ -15,7 +15,7 @@ func RegisterNew(fs *flag.FlagSet) {
 	fs.String("module", "", "module path for the new project (defaults to the project name)")
 	fs.String("dir", "", "directory to create the project in (defaults to the current directory)")
 	fs.Bool("site", false, "equip a static site (pages/, layouts/, components/)")
-	fs.Bool("book", false, "equip a manuscript book (mdbind)")
+	fs.Bool("book", false, "equip a manuscript book (pkg/book)")
 	fs.Bool("cli", false, "equip a command-line application (framework/tui)")
 	fs.Bool("app", false, "equip a fullstack monolith application")
 	fs.Bool("worker", false, "equip a background job queue worker (cloud/worker)")

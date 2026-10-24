@@ -90,27 +90,27 @@
     if(toggle) toggle.setAttribute('aria-expanded', open?'true':'false');
     if(sidebar) sidebar.setAttribute('aria-hidden', open?'false':'true');
   }
-  if(toggle && !toggle._mdbindBound){
-    toggle._mdbindBound = true;
+  if(toggle && !toggle._bookBound){
+    toggle._bookBound = true;
     toggle.addEventListener('click', function(e){ e.preventDefault(); setOpen(!document.documentElement.classList.contains('sidebar-open')); });
   }
-  if(close && !close._mdbindBound){
-    close._mdbindBound = true;
+  if(close && !close._bookBound){
+    close._bookBound = true;
     close.addEventListener('click', function(e){ e.preventDefault(); setOpen(false); });
   }
-  if(overlay && !overlay._mdbindBound){
-    overlay._mdbindBound = true;
+  if(overlay && !overlay._bookBound){
+    overlay._bookBound = true;
     overlay.addEventListener('click', function(e){ e.preventDefault(); setOpen(false); });
   }
-  if(!window._mdbindEscBound){
-    window._mdbindEscBound = true;
+  if(!window._bookEscBound){
+    window._bookEscBound = true;
     document.addEventListener('keydown', function(e){ if(e.key==='Escape') setOpen(false); });
   }
 
   // 0. Language toggle handler
   document.querySelectorAll('[data-lang-toggle], .lang-switch').forEach(function(btn){
-    if(btn._mdbindLangBound) return;
-    btn._mdbindLangBound = true;
+    if(btn._bookLangBound) return;
+    btn._bookLangBound = true;
     btn.addEventListener('click', function(e){
       e.preventDefault();
       var path = window.location.pathname;
@@ -129,8 +129,8 @@
 
   // 1. Collapsible toggle per group
   document.querySelectorAll('[data-group] .toc-toggle').forEach(function(btn){
-    if(btn._mdbindBound) return;
-    btn._mdbindBound = true;
+    if(btn._bookBound) return;
+    btn._bookBound = true;
     btn.addEventListener('click', function(e){
       e.preventDefault();
       e.stopPropagation();
@@ -169,8 +169,8 @@
 
   // 3. Expand / Collapse All
   var toggleAll=document.getElementById('toc-toggle-all');
-  if(toggleAll && !toggleAll._mdbindBound){
-    toggleAll._mdbindBound = true;
+  if(toggleAll && !toggleAll._bookBound){
+    toggleAll._bookBound = true;
     toggleAll.addEventListener('click', function(e){
       e.preventDefault();
       var groups=document.querySelectorAll('[data-group]');

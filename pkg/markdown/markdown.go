@@ -1,5 +1,5 @@
 // Package markdown provides the shared native zero-dependency Markdown renderer for
-// the Krewire ecosystem. Both mdbind (book) and framework/web/ssg + dsl use it
+// the Krewire ecosystem. Both pkg/book and framework/web/ssg + dsl use it
 // so a docs site can start as a lightweight manuscript and progressively
 // enhance to a full ssg site without re-parsing or duplicated dependencies.
 package markdown
@@ -18,7 +18,7 @@ var ErrSanitize = errors.New("markdown: sanitize")
 // Render converts Markdown src to HTML using native GFM + AutoHeadingID.
 //
 // SECURITY: raw HTML is preserved because the Krewire ecosystem relies on it
-// (`.kiw` components, framework/dsl, mdbind books). Render therefore trusts its
+// (`.kiw` components, framework/dsl, book pages). Render therefore trusts its
 // input and must only receive Markdown authored by the site owner. It still
 // strips script-bearing URLs, so a Markdown document from an untrusted author
 // cannot smuggle `javascript:` payloads through link syntax. To render

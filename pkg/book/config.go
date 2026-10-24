@@ -9,7 +9,7 @@ import (
 )
 
 // BookConfigFile represents the configuration file schema for standalone books
-// (book.yaml or mdbind.yaml), as well as compatible subset of krewire.yaml.
+// (book.yaml), as well as compatible subset of krewire.yaml.
 type BookConfigFile struct {
 	Title   string   `yaml:"title"`
 	Author  string   `yaml:"author"`
@@ -62,13 +62,11 @@ func LoadConfigFile(path string) (*Config, error) {
 }
 
 // FindConfigFile discovers a configuration file in dir, searching in order:
-// book.yaml, book.yml, mdbind.yaml, mdbind.yml, krewire.yaml.
+// book.yaml, book.yml, krewire.yaml.
 func FindConfigFile(dir string) string {
 	candidates := []string{
 		"book.yaml",
 		"book.yml",
-		"mdbind.yaml",
-		"mdbind.yml",
 		"krewire.yaml",
 	}
 	for _, c := range candidates {

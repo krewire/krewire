@@ -285,7 +285,7 @@ func TestBuildWithBasePath(t *testing.T) {
 }
 
 // The book's own stylesheet must carry the same cache-busting query the host
-// site uses. Without it, mdbind.css would be the only unversioned stylesheet
+// site uses. Without it, krewire.css would be the only unversioned stylesheet
 // on a page whose other assets all refresh on release.
 func TestBuildVersionsItsStylesheet(t *testing.T) {
 	dir := writeManuscript(t, map[string]string{"01-one.md": "# One\n"})

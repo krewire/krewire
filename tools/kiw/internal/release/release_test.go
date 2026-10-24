@@ -22,7 +22,7 @@ func TestBump(t *testing.T) {
 	}
 }
 
-func TestPlanReleasingKrewirePropagatesToMdbind(t *testing.T) {
+func TestPlanReleasingKrewire(t *testing.T) {
 	edits, err := Plan([]string{string(ModuleKrewire)}, BumpPatch)
 	if err != nil {
 		t.Fatal(err)

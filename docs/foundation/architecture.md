@@ -8,12 +8,15 @@ System architecture, layering rules, module hierarchy, and design decisions acro
 
 Krewire is an integrated, full-stack application and developer ecosystem built in Go (1.27.1+). It unifies eight distinct software workload kinds under a single declarative control plane, standard-library-aligned domain packages, a consolidated developer CLI, and an AI-native agent constitution.
 
-The ecosystem spans five repositories:
+The ecosystem spans eight repositories:
 1. **`krewire`** (Core Monorepo): Domain packages, kernel executor, developer CLI (`kiw`), first-party apps, and templates.
-2. **`mdbind`**: Standalone Markdown book & documentation engine powering the `book` workload.
-3. **`internal`**: Private documentation, ADRs, roadmaps, and project vision.
-4. **`krewire.com`**: Public marketing and documentation website built with the `site` workload.
-5. **`krewire.github.io`**: Community portal and distribution hub.
+2. **`krew`**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
+3. **`cloud`**: Private enterprise hybrid PaaS engine and control plane.
+4. **`auth`**: Private enterprise identity, SSO, MFA, and RBAC platform.
+5. **`workspace`**: Private SaaS AI-assisted virtual workspace.
+6. **`internal`**: Private documentation, ADRs, roadmaps, and project vision.
+7. **`krewire.com`**: Public marketing and documentation website built with the `site` workload.
+8. **`krewire.github.io`**: Community portal and distribution hub.
 
 ---
 
@@ -168,7 +171,7 @@ Every project in the ecosystem belongs to one of eight canonical kinds:
 - **`app`**: Full-stack dynamic web applications (HTTP router, DI container, SSR, client WASM).
 - **`cli`**: Standalone terminal commands and developer utilities.
 - **`site`**: Content and marketing sites with static site generation (SSG) and HMR.
-- **`book`**: Structured multi-chapter technical documentation books (integrated with `mdbind`).
+- **`book`**: Structured multi-chapter technical documentation books (powered by native `pkg/book`).
 - **`worker`**: Background processing queues, event consumers, and scheduled jobs.
 - **`service`**: Headless backend microservices and RPC/REST APIs.
 - **`infra`**: Declarative cloud infrastructure blueprints and state management.
@@ -216,7 +219,7 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 ### C. Developer Tooling — `kiw` (`tools/kiw`)
 - **Unified Entry Point:** A single binary (`kiw`) replacing fragmented shell scripts or separate CLI binaries.
 - **Pipeline Dispatch:** `kiw` inspects project markers and `krewire.yaml` to detect project kind (`shape`) and route commands:
-  - `build` / `serve`: Dispatches SSG pipeline for `site`, `mdbind` pipeline for `book`, or Go binary builds for `app`/`cli`.
+  - `build` / `serve`: Dispatches SSG pipeline for `site`, book pipeline for `book`, or Go binary builds for `app`/`cli`.
   - `run` / `dev`: Executes local apps, standalone scripts, or defined tasks with hot-reload.
   - `deploy`: Prepares and stages production artifacts into `dist/`.
   - `new` / `init`: Scaffolds projects from kernel blueprints and equips them with workload variants.

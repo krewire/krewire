@@ -12,7 +12,7 @@ Every project in the Krewire ecosystem declares a primary `kind` in its [`krewir
 |---|---|---|---|
 | [`kernel`](./kernel.md) | Minimal initial seed | `kern` | Standard Go build; foundation for progressive upgrading |
 | [`site`](./site.md) | Static websites & marketing | `web/ssg`, `markdown` | Static Site Generation (SSG) into `.krewire/build`, local preview with HMR |
-| [`book`](./book.md) | Technical books & documentation | `mdbind`, `markdown` | Compiles `manuscript/` chapters into HTML/EPUB/PDF outputs |
+| [`book`](./book.md) | Technical books & documentation | `book`, `markdown` | Compiles `manuscript/` chapters into HTML/EPUB/PDF outputs |
 | [`app`](./app.md) | Fullstack web applications | `web`, `app`, `ui`, `runtime` | Server-Side Rendering (SSR) + Client WebAssembly (WASM) islands |
 | [`cli`](./cli.md) | Standalone command-line tools | `tui`, `term`, `kern/errs` | Compiles single standalone CLI binary |
 | [`worker`](./worker.md) | Background workers & queues | `cloud/worker`, `kern/lifecycle` | Supervised long-running daemon consuming background queues |
@@ -44,7 +44,7 @@ kiw new my-project
 # Progressively equip with a workload kind
 cd my-project
 kiw init --site      # Equips SSG layout & pages
-kiw init --book      # Equips manuscript/ structure & mdbind configuration
+kiw init --book      # Equips manuscript/ structure & book configuration
 kiw init --cli       # Equips TUI app runner & flag parsing
 kiw init --template  # Installs custom starter template
 ```
@@ -57,7 +57,7 @@ The unified CLI (`kiw`) routes tasks based on the active kind:
 
 - **`kiw build`**:
   - `site` $\rightarrow$ Executes SSG build pipeline to output static assets.
-  - `book` $\rightarrow$ Invokes `mdbind` to render chapter manuscripts.
+  - `book` $\rightarrow$ Invokes native book builder to render chapter manuscripts.
   - `app` / `cli` / `service` / `worker` $\rightarrow$ Executes `go build` with embedded assets.
   - `infra` $\rightarrow$ Compiles and validates infrastructure execution plan.
 - **`kiw dev` / `kiw serve`**:

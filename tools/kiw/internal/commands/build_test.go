@@ -52,9 +52,9 @@ func TestWithoutAssetDropsMatchingEntry(t *testing.T) {
 	}
 }
 
-// TestBookStylesheetIsPartOfTheSitePlan pins the coupling between mdbind and
+// TestBookStylesheetIsPartOfTheSitePlan pins the coupling between pkg/book and
 // framework/web/ssg: the site's asset plan lists the book's stylesheet, and the
-// devtool filters it out because mdbind links it itself. If either side renames
+// devtool filters it out because the book links it itself. If either side renames
 // it, this test fails instead of the page loading the stylesheet twice.
 func TestBookStylesheetIsPartOfTheSitePlan(t *testing.T) {
 	s := ssg.New().
