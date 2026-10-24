@@ -13,11 +13,11 @@ import (
 
 // RegisterMake registers flags for the make command.
 func RegisterMake(fs *flag.FlagSet) {
-	fs.String("kind", "", "generator kind: component, page, handler, migration, model, middleware, service, job")
+	fs.String("kind", "", "generator kind: component, page, handler, migration, model, middleware, service, job, chapter, doc")
 	fs.String("name", "", "name for the generated artifact")
 }
 
-// RunMake scaffolds new components, pages, handlers, migrations, models, middleware, services, or jobs.
+// RunMake scaffolds new components, pages, handlers, migrations, models, middleware, services, jobs, or chapters.
 func RunMake(fs *flag.FlagSet) errs.ExitCode {
 	kind := flagValue(fs, "kind")
 	name := flagValue(fs, "name")
@@ -44,7 +44,7 @@ func RunMake(fs *flag.FlagSet) errs.ExitCode {
 
 	if kind == "" || name == "" {
 		fmt.Fprintln(os.Stderr, "kiw make: usage: kiw make <kind> <name>")
-		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration, model, middleware, service, job")
+		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration, model, middleware, service, job, chapter, doc")
 		return errs.ExitCodeUsage
 	}
 

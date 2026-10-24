@@ -245,3 +245,29 @@ func TestMake_Service(t *testing.T) {
 		t.Errorf("expected BillingService interface and constructor, got: %s", content)
 	}
 }
+
+func TestMake_Chapter(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"chapter", "intro"})
+
+	code := RunMake(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunMake chapter failed with code %v", code)
+	}
+
+	target := filepath.Join(root, "content", "01-intro.md")
+	b, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("expected content/01-intro.md to exist: %v", err)
+	}
+	content := string(b)
+	if !strings.Contains(content, "title: \"Intro\"") || !strings.Contains(content, "# Intro") {
+		t.Errorf("expected frontmatter and heading in chapter, got: %s", content)
+	}
+}

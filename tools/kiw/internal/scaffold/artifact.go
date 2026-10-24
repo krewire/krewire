@@ -33,9 +33,81 @@ func MakeArtifact(root, kind, name string) error {
 		return generateService(root, name)
 	case "job", "worker":
 		return generateJob(root, name)
+	case "chapter", "doc", "docs":
+		return generateChapter(root, name)
 	default:
-		return fmt.Errorf("%w %q — supported: component, page, handler, migration, model, middleware, service, job", ErrUnknownKind, kind)
+		return fmt.Errorf("%w %q — supported: component, page, handler, migration, model, middleware, service, job, chapter, doc", ErrUnknownKind, kind)
 	}
+}
+
+func generateChapter(root, name string) error {
+	name = strings.TrimSuffix(name, ".md")
+	title := toTitle(name)
+	slug := toSlug(name)
+
+	// Determine destination directory
+	destDir := "content"
+	if hasDir(root, "manuscript") {
+		destDir = "manuscript"
+	} else if hasDir(root, filepath.Join("content", "docs")) {
+		destDir = filepath.Join("content", "docs")
+	} else if hasDir(root, filepath.Join("content", "en", "docs")) {
+		destDir = filepath.Join("content", "en", "docs")
+	}
+
+	fullDir := filepath.Join(root, destDir)
+	if err := os.MkdirAll(fullDir, 0o755); err != nil {
+		return err
+	}
+
+	// Check if any existing file already has the same slug or name
+	entries, _ := os.ReadDir(fullDir)
+	mdCount := 0
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(strings.ToLower(e.Name()), ".md") {
+			mdCount++
+			base := strings.TrimSuffix(e.Name(), ".md")
+			parts := strings.SplitN(base, "-", 2)
+			if len(parts) == 2 && isNumeric(parts[0]) {
+				base = parts[1]
+			}
+			if toSlug(base) == slug {
+				return fmt.Errorf("chapter %q already exists at %s", name, filepath.Join(destDir, e.Name()))
+			}
+		}
+	}
+	nextOrder := mdCount + 1
+
+	// File name formatting: if user didn't include numbers, prefix with 01-, 02-, etc.
+	fileName := slug + ".md"
+	if len(slug) > 0 && !unicode.IsDigit(rune(slug[0])) {
+		fileName = fmt.Sprintf("%02d-%s.md", nextOrder, slug)
+	}
+
+	target := filepath.Join(fullDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		return fmt.Errorf("chapter %q already exists at %s", name, filepath.Join(destDir, fileName))
+	}
+
+	content := fmt.Sprintf(`---
+title: "%s"
+description: "Overview and guide for %s"
+order: %d
+tags:
+  - docs
+  - guide
+---
+
+# %s
+
+Write your chapter content here in Markdown.
+`, title, title, nextOrder, title)
+
+	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+		return err
+	}
+	fmt.Printf("created %s\n", filepath.ToSlash(filepath.Join(destDir, fileName)))
+	return nil
 }
 
 func generateComponent(root, name string) error {
@@ -384,6 +456,15 @@ func (j *%sJob) Run(ctx context.Context) error {
 func hasDir(root, path string) bool {
 	info, err := os.Stat(filepath.Join(root, path))
 	return err == nil && info.IsDir()
+}
+
+func isNumeric(s string) bool {
+	for _, r := range s {
+		if !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return len(s) > 0
 }
 
 func toPascal(s string) string {
