@@ -27,6 +27,12 @@ jobs:
           repository: krewire/mdbind
           path: mdbind
 
+      - name: Checkout krew sibling
+        uses: actions/checkout@v4
+        with:
+          repository: krewire/krew
+          path: krew
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -58,7 +64,7 @@ jobs:
       - name: Verify Layer 0 Invariants
         working-directory: krewire
         run: |
-          go test -v -run "TestKWL_L0_" ./packages/model/... ./packages/errs/... ./packages/version/... ./tools/kiw/internal/buildinfo/... ./tools/kiw/internal/gomod/...
+          go test -v -run "TestKWL_L0_" ./pkg/model/... ./pkg/errs/... ./pkg/version/... ./tools/kiw/internal/buildinfo/... ./tools/kiw/internal/gomod/...
 
       - name: Build kiw CLI Binary (Deterministic & Reproducible)
         working-directory: krewire
@@ -80,6 +86,12 @@ jobs:
         with:
           repository: krewire/mdbind
           path: mdbind
+
+      - name: Checkout krew sibling
+        uses: actions/checkout@v4
+        with:
+          repository: krewire/krew
+          path: krew
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -111,4 +123,4 @@ jobs:
           GOOS: js
           GOARCH: wasm
         run: |
-          go build ./packages/runtime/...
+          go build ./pkg/runtime/...

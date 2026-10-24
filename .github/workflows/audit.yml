@@ -22,6 +22,12 @@ jobs:
           repository: krewire/mdbind
           path: mdbind
 
+      - name: Checkout krew sibling
+        uses: actions/checkout@v4
+        with:
+          repository: krewire/krew
+          path: krew
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
