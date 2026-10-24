@@ -3,6 +3,7 @@ project:
   kind: book
   version: 0.1.0
 
-book:
-  content_dir: content
-  output_dir: .krewire/build
+title: {{.Name}}
+author: ""
+base: /
+input: content

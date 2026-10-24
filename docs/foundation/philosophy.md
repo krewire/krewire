@@ -52,10 +52,10 @@ Duplication breeds drift. Across the entire ecosystem:
 ### 6. Zero-Cost Abstractions & Opt-In Batteries
 Importing a base model or kernel must never inflict transitive bloat.
 - Core types are zero-value usable without complex factory ceremonies.
-- **Opt-In Rules (`OptInRule`):** Batteries (such as cloud storage or worker queues) belong to their owning workload kind and are blocked from unintended kinds unless explicitly opted in. A lightweight CLI tool or kernel project remains ultra-fast and lightweight.
+- **Opt-In Rules (`OptInRule`):** Batteries (such as cloud storage or worker queues) belong to their owning workload kind and are blocked from unintended kinds unless explicitly opted in. A lightweight CLI tool or static site remains ultra-fast and lightweight.
 
 ### 7. Progressive Support & Pipeline Scaling
-Projects evolve. A Krewire project starts from a clean `kernel` blueprint and progressively equips new workload capabilities (`site`, `book`, `app`, `worker`, `service`, `infra`) via `kiw init`. At each stage, the project's configuration and toolchain adapt seamlessly without requiring a rewrite or migration to different frameworks.
+Projects evolve. A Krewire project starts from a clean pre-init bootstrap layout and progressively equips new workload capabilities (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) via `kiw init`. At each stage, the project's configuration and toolchain adapt seamlessly without requiring a rewrite or migration to different frameworks.
 
 ### 8. Local-First & Dogfooding Discipline
 Developers must be able to develop, preview, test, and audit their entire stack locally, offline, and rapidly:

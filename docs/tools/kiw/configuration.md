@@ -28,7 +28,7 @@ version: "0.1.0"          # Top-level product version (injected into builds)
 # Project metadata & workload invariants
 project:
   name: my-service          # Required: kebab-case ^[a-z][a-z0-9-]*$
-  kind: service             # app | cli | site | book | worker | service | infra | kernel
+  kind: service             # app | cli | site | book | worker | service | gateway | infra
   version: "v0.1.0"         # Alternative version location (folds into top-level version)
   dirs:
     cmd: "cmd/app"          # Custom entrypoint directory
@@ -46,6 +46,21 @@ author: "Krewire Contributors"
 base: "/"                   # URL base prefix
 input: "content"            # Content directory (default: content)
 output: ".krewire/build"    # Output directory (default: .krewire/build)
+
+# Light/dark theme switcher (shared by site and book)
+theme:
+  default: "auto"           # auto | light | dark
+  light:
+    primary: "#7c3aed"
+  dark:
+    primary: "#a78bfa"
+
+# Automatic CSS/JS injection and bundling (top-level; ssg.auto_assets wins when both are set)
+auto_assets:
+  enabled: true
+  exclude: ["*.min.css"]
+  js_placement: "head"      # head | body
+  bundle: true
 
 # Build pipeline & foreign dependency orchestration (KWN-BLD5Y)
 build:
@@ -114,21 +129,13 @@ i18n:
 # SSG static site settings (kind: site)
 ssg:
   description: "Product documentation"
-  theme:
-    default: "auto"         # auto | light | dark
   layouts: []               # {name, body, style} or {name, ui}
   components: []            # {name, body, style}
   pages: []                 # Declarative output pages
-  collections: []           # Markdown + frontmatter collections
   assets: {}                # Output path -> file contents
-  pipeline: []              # Fingerprint/minify/image transforms
-  auto_assets:
+  auto_assets:              # Optional override of the top-level block
     enabled: true
-    exclude: ["*.min.css"]
-    js_placement: "head"    # head | body
     bundle: true
-  include_drafts: false
-  include_future: false
 
 # Technical book settings (kind: book)
 # Title, author, input, output, base, version, nav, footer, and theme are
@@ -165,6 +172,8 @@ scripts:
   lint: "golangci-lint run"
   test-e2e: "go test -tags=e2e ./..."
 ```
+
+> The `ssg:` block carries only the keys `tools/kiw/internal/config` parses: `description`, `layouts`, `components`, `pages`, `assets`, and `auto_assets`. Content collections, asset pipelines, and draft/future toggles exist on `pkg/web/ssg.Config` for programmatic callers; `kiw` does not read them from `krewire.yaml`. A file-based site (`pages/`, `layouts/`, `components/`, `public/`) needs no `ssg:` block at all.
 
 ---
 

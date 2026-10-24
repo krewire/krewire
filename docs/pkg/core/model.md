@@ -22,8 +22,8 @@ const (
 	KindBook    Kind = "book"
 	KindWorker  Kind = "worker"
 	KindService Kind = "service"
+	KindGateway Kind = "gateway"
 	KindInfra   Kind = "infra"
-	KindKernel  Kind = "kernel"
 )
 ```
 

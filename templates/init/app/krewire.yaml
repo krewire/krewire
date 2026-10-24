@@ -3,5 +3,5 @@ project:
   kind: app
   version: 0.1.0
 
-app:
+dev:
   port: 8080

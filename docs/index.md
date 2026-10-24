@@ -20,8 +20,8 @@ Dedicated guides for all eight unified software workload targets:
 - [Technical Book & Docs (`book`)](./workloads/book.md)
 - [Background Worker (`worker`)](./workloads/worker.md)
 - [Microservice (`service`)](./workloads/service.md)
+- [API Gateway (`gateway`)](./workloads/gateway.md)
 - [Declarative Infrastructure (`infra`)](./workloads/infra.md)
-- [Minimal Kernel Seed (`kernel`)](./workloads/kernel.md)
 
 ---
 

@@ -13,27 +13,28 @@ The runtime implementation lives in [`tools/kiw/internal/scaffold`](../../tools/
 Minimal layer:
 
 - `go.mod`: module path `<name>` (or `--module`), Go 1.27.1+.
-- `krewire.yaml`: `project.name` and `version` only.
+- `krewire.yaml`: `project.name` only.
 - `main.go`: stdlib-only program printing `hello, krewire` (replaced or removed by the variant).
 - `.gitignore`: the project binary, `.env` files, `site/`, `.krewire/`, and editor/OS noise.
 - `.git`: initialized when absent.
 
-That minimal layer alone is the `kernel` kind: shape detection reports `kernel` only while `go.mod`, `krewire.yaml`, `.gitignore`, and the starter `main.go` are present and no `pages/`, `content/`, `cmd/`, `internal/`, or `components/` directory exists. `kiw new` normally leaves this state immediately by equipping the chosen variant.
+That minimal layer alone is the pre-init bootstrap state, not a workload kind: shape detection reports kind `none` with marker `pre-init` only while `go.mod`, `krewire.yaml`, and the starter `main.go` (still printing `hello, krewire`) are present and no `pages/`, `content/`, `cmd/`, `internal/`, or `components/` directory exists. Workload commands refuse to run until `kiw init` equips a variant; `kiw new` normally leaves this state immediately by equipping the chosen variant.
 
 ---
 
 ## 2. In-Place Variants (`kiw init`)
 
-`kiw init` initializes the current directory and, when a variant flag is given, equips it. It never clobbers existing files outside the kernel set (`go.mod`, `krewire.yaml`, `.gitignore`, `main.go`).
+`kiw init` initializes the current directory and, when a variant flag is given, equips it. It never clobbers existing files outside the bootstrap set (`go.mod`, `krewire.yaml`, `.gitignore`, `main.go`).
 
 - **No variant**: `git init`, `.gitignore`, and a default `krewire.yaml` only — no `go.mod`, no `main.go`.
 - **`--app`**: `go.mod`, `krewire.yaml`, `main.go`, `internal/app`, `internal/config`, `internal/http`, `web/layouts`, `web/pages`, `web/components`, `web/theme`, `assets/`, `README.md`, `.gitignore`, `.env`, `.env.example`.
-- **`--site`**: `krewire.yaml`, `pages/index.kiw`, `layouts/Base.kiw`, `components/Hero.kiw`, `public/favicon.svg`, `README.md`; removes the kernel placeholder `main.go`.
-- **`--book`**: `krewire.yaml`, `content/docs/01-introduction.md`, `content/docs/02-getting-started.md`; removes the kernel placeholder `main.go`.
+- **`--site`**: `krewire.yaml`, `pages/index.kiw`, `layouts/Base.kiw`, `components/Hero.kiw`, `public/favicon.svg`, `README.md`; removes the bootstrap placeholder `main.go`.
+- **`--book`**: `krewire.yaml`, `content/docs/01-introduction.md`, `content/docs/02-getting-started.md`; removes the bootstrap placeholder `main.go`.
 - **`--cli`**: `go.mod`, `krewire.yaml`, `main.go`, `internal/commands`, `internal/config`, `README.md`, `.gitignore`.
 - **`--worker`**: `go.mod`, `krewire.yaml` (`worker:` block), `main.go`, `internal/jobs`, `README.md`, `.gitignore`.
 - **`--service`**: `go.mod`, `krewire.yaml` (`service:` block), `main.go`, `internal/handler`, `README.md`, `.gitignore`.
-- **`--infra`**: `krewire.yaml` (`infra:` block), `infra/blueprint.go`, `README.md`, `.gitignore`; removes the kernel placeholder `main.go`.
+- **`--gateway`**: `go.mod`, `krewire.yaml` (`gateway:` block), `main.go`, `internal/config`, `README.md`, `.gitignore`.
+- **`--infra`**: `krewire.yaml` (`infra:` block), `infra/blueprint.go`, `README.md`, `.gitignore`; removes the bootstrap placeholder `main.go`.
 
 ---
 

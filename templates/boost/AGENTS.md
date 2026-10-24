@@ -83,8 +83,8 @@ shapes. Detect the kind before executing workflows:
 | `book` | `project.kind: book` or `content/` dir | `kiw build`, `kiw serve` | no |
 | `worker` | `project.kind: worker`, `worker:` key | `kiw run`, `kiw worker`, `kiw dev` | yes |
 | `service` | `project.kind: service`, `service:` key | `kiw run`, `kiw dev` | yes |
+| `gateway` | `project.kind: gateway`, `gateway:` key | `kiw run`, `kiw gateway`, `kiw dev` | yes |
 | `infra` | `project.kind: infra`, `infra:` key | `kiw deploy`, `kiw build --plan` | no |
-| `kernel` | only `go.mod` + `krewire.yaml` + `main.go` + `.gitignore` | `kiw init` | — |
 
 Validate with `kiw info`. Never guess kind: read `krewire.yaml` or inspect file markers.
 
@@ -95,7 +95,7 @@ The `kiw` CLI is the unified entry point:
 | Command | Purpose | Target Kinds |
 |---|---|---|
 | `kiw new <name>` | Scaffold a new project (fullstack `app` by default) | any |
-| `kiw init [--site\|--book\|--cli]` | Equip a kernel project with layout | kernel |
+| `kiw init [--site\|--book\|--cli\|--gateway]` | Equip a pre-init bootstrap project with layout | any |
 | `kiw build` | Compile binary or build static output (`.krewire/build`) | all |
 | `kiw serve` | Start local server or preview output | all |
 | `kiw run [args...]` | Build and run application binary | app, cli, worker, service |

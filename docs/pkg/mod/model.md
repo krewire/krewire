@@ -9,7 +9,7 @@ The `pkg/model` package defines pure data models, the workload matrix, scope hie
 
 ## Key Capabilities
 
-- **Workload Kinds (`model.Kind`)**: `app`, `cli`, `site`, `book`, `worker`, `service`, `infra`, `kernel`.
+- **Workload Kinds (`model.Kind`)**: `app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`.
 - **Scope Hierarchy (`model.Scope`)**: `ScopeWorkspace`, `ScopeModule`, `ScopeDomain`, `ScopeService`, `ScopeUnit` (ordered coarse → fine). `model.AllScopes` exposes the ladder; `ParseScope` and `(*Scope).Less`/`Level` resolve it.
 - **Tiers (`model.Tier`)**: `TierFree`, `TierPro`, `TierTeam`, `TierEnterprise` (`model.AllTiers`).
 - **Workload Matrix (`model.Matrix[P]`)**: Generic kind-to-package workload mapping. `model.NewMatrix(cells...)`, `(*Matrix).For(kind)`, `(*Matrix).Packages()`, `(*Matrix).All()`.

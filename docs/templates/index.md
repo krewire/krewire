@@ -19,7 +19,7 @@ Scaffolding has two layers:
 ```text
 templates/
 ├── init/                 # Reference blueprints (app, book, cli, static)
-├── new/                  # Reference kernel blueprint
+├── new/                  # Reference bootstrap blueprint
 └── boost/                # Autonomous AI agent team, commands & skills (.agents/)
 ```
 

@@ -74,7 +74,7 @@ krewire/
 └── templates/            # Starter templates and scaffolding blueprints
     ├── boost/            # AI-agent workflow template and constitution (.agents/)
     ├── init/             # In-place project initialization templates (app, book, cli, static)
-    └── new/              # Fresh project scaffolding blueprints (kernel)
+    └── new/              # Fresh project scaffolding blueprints (bootstrap)
 ```
 
 ---
@@ -136,7 +136,7 @@ flowchart TD
 | **Layer 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Layers 0, 1, 2, 3, 4 | External project application code |
 | **Layer 4** | Developer Tooling | `tools/kiw` | Layers 0, 1, 2, 3 | Layer 5, Consumer application binaries |
 | **Layer 3** | Domain Libraries | `pkg/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`tools/kiw` or `templates/*`) |
-| **Layer 2** | Execution & Supervision | `pkg/lifecycle`, `pkg/env`, `pkg/log` | Layers 0, 1 | Layers 3, 4, 5 (Zero domain package imports) |
+| **Layer 2** | Execution & Supervision | `pkg/lifecycle`, `pkg/env`, `pkg/log` | Layers 0, 1, and `pkg/env` for `pkg/log` | Layers 3, 4, 5 (Zero domain package imports) |
 | **Layer 1** | Declarative Core & Base Primitives | `pkg/errs`, `pkg/model`, `pkg/version` | Layer 0 (stdlib only; `model` and `version` may import `errs`) | Layers 2, 3, 4, 5, Third-party packages |
 | **Layer 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
 
@@ -149,17 +149,17 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 #### Invariant 1: Downward-Only Directionality
 - **Rule:** For any package import edge $A \rightarrow B$, the architectural layer of $A$ must be strictly greater than $B$ ($Layer(A) > Layer(B)$), or within Layer 3 where $A$ and $B$ form a strictly acyclic dependency.
 - **Rationale:** Prevents circular dependencies, simplifies mental models, and ensures leaf packages can be compiled, benchmarked, and audited in total isolation.
-- **Enforcement:** Verified via AST analysis in [`layering_test.go`](../../layering_test.go) (`TestDownwardImportsOnly`).
+- **Enforcement:** Verified via AST analysis in [`layering_test.go`](../../layering_test.go): `TestFoundationLayering` checks every foundation import edge against the ranked ladder, and `TestUIDoesNotImportWeb` pins the one sibling direction the architecture states explicitly.
 
 #### Invariant 2: Base Floor Invariant
 - **Rule:** `pkg/errs` is the floor of the ecosystem dependency graph: it imports the standard library only. `pkg/model` and `pkg/version` sit directly above it and may import `pkg/errs` and nothing else from the ecosystem. No base package may import a domain package.
 - **Rationale:** If base packages depended on a domain package (such as `web` or `config`), every package in the ecosystem would transitively drag those dependencies along, destroying modularity.
-- **Enforcement:** [`pkg/errs/dependency_test.go`](../../pkg/errs/dependency_test.go) (`TestImportBoundary`) and [`pkg/model/dependency_test.go`](../../pkg/model/dependency_test.go) (`TestModel_StdlibBoundary`) assert the per-package boundaries; [`layering_test.go`](../../layering_test.go) derives module depth from `go.work` and each `go.mod`.
+- **Enforcement:** [`pkg/errs/dependency_test.go`](../../pkg/errs/dependency_test.go) (`TestImportBoundary`) and [`pkg/model/dependency_test.go`](../../pkg/model/dependency_test.go) (`TestModel_StdlibBoundary`) assert the per-package boundaries; [`layering_test.go`](../../layering_test.go) (`TestFoundationLayering`) keeps the rest of the foundation ladder ranked and acyclic.
 
 #### Invariant 3: Zero-Ecosystem Coupling in Base Foundation
 - **Rule:** Base foundation packages must contain **zero** references, string literals, or constants naming higher-layer modules or packages (`github.com/krewire/*`).
-- **Rationale:** True scalability requires that adding a new package to `pkg/` never requires a corresponding code edit in base packages. The ecosystem roster is derived dynamically at runtime from `go.work` and module descriptors.
-- **Enforcement:** Verified via AST literal inspection in [`layering_test.go`](../../layering_test.go) (`TestNoEcosystemNames`).
+- **Rationale:** True scalability requires that adding a new package to `pkg/` never requires a corresponding code edit in a foundation package. The guard walks the foundation packages and flags any string literal that names a package ranked at or above it, so a new domain package can be added without touching them.
+- **Enforcement:** Verified via AST literal inspection in [`layering_test.go`](../../layering_test.go) (`TestFoundationNamesNoHigherPackage`).
 
 #### Invariant 4: Hermetic Core Boundary
 - **Rule:** `pkg/model` may import **only** the Go standard library and its internal `errs` sibling. It must never import external third-party dependencies or other Krewire packages.
@@ -169,11 +169,11 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 #### Invariant 5: Complete Tooling Isolation (No `kiw` Imports)
 - **Rule:** No package under `pkg/` or `templates/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
 - **Rationale:** Developer tooling consumes domain libraries; libraries never consume developer tooling. Logic needed by both must reside in a domain package (e.g. `pkg/hub/resolver`, `pkg/tui`), never inside CLI commands.
-- **Enforcement:** Enforced at compile time and validated during package build pipelines.
+- **Enforcement:** Verified via AST analysis in [`layering_test.go`](../../layering_test.go) (`TestPackagesNeverImportKiw`).
 
 #### Invariant 6: Opt-In Battery Boundaries (`OptInRule`)
 - **Rule:** Packages classified as specialized batteries for a specific workload kind (e.g. `cloud/worker`, `web/ssg`) are blocked from uninvited cross-import by non-owning kinds unless explicitly opted in.
-- **Rationale:** Guarantees that lightweight workloads (such as `cli` or `kernel`) incur zero binary weight or initialization cost from features they do not use.
+- **Rationale:** Guarantees that lightweight workloads (such as `cli` or `site`) incur zero binary weight or initialization cost from features they do not use.
 - **Enforcement:** Enforced via declarative opt-in policies in [`pkg/model/project.go`](../../pkg/model/project.go#L105) (`ViolatesOptIn`).
 
 ---
@@ -188,8 +188,10 @@ Every project in the ecosystem belongs to one of eight canonical kinds:
 - **`book`**: Structured multi-chapter technical documentation books (powered by native `pkg/book`).
 - **`worker`**: Background processing queues, event consumers, and scheduled jobs.
 - **`service`**: Headless backend microservices and RPC/REST APIs.
+- **`gateway`**: API gateways that proxy requests along a declarative route table and discover upstreams.
 - **`infra`**: Declarative cloud infrastructure blueprints and state management.
-- **`kernel`**: Minimal initial seed project (`go.mod` + `krewire.yaml` + `main.go`).
+
+A pre-scaffold bootstrap project (only `go.mod`, `krewire.yaml`, and the starter `main.go`) is **not** a kind: detection reports `none` with the marker `pre-init`, and workload commands require `kiw init` first.
 
 ### Scope Hierarchy as Code (`model.Scope`)
 System boundaries are codified through five explicit scope levels:
@@ -210,7 +212,7 @@ Scope levels structure architecture and testing across the workspace.
 - Module path is validated against directory traversal risks (`CWE-22`).
 
 ### Opt-In Batteries (`OptInRule`)
-Batteries are opt-in per workload kind. A project of kind `For` cannot import packages owned by kind `Owner` unless explicitly opted in. This guarantees zero bloat and zero-cost abstraction for lightweight kinds (such as `cli` or `kernel`).
+Batteries are opt-in per workload kind. A project of kind `For` cannot import packages owned by kind `Owner` unless explicitly opted in. This guarantees zero bloat and zero-cost abstraction for lightweight kinds (such as `cli` or `site`).
 
 ---
 
@@ -236,7 +238,7 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
   - `build` / `serve`: Dispatches SSG pipeline for `site`, book pipeline for `book`, or Go binary builds for `app`/`cli`.
   - `run` / `dev`: Executes local apps, standalone scripts, or defined tasks with hot-reload.
   - `deploy`: Prepares and stages production artifacts into `.krewire/dist/`.
-  - `new` / `init`: Scaffolds projects from kernel blueprints and equips them with workload variants.
+  - `new` / `init`: Scaffolds projects from bootstrap blueprints and equips them with workload variants.
 - **Dogfooding:** Built entirely on `pkg/tui` for interactive terminal UI, `pkg/errs` for status and error codes, and `pkg/version` for versioning.
 
 ### D. AI-Native Boost Engine (`pkg/boost` & `templates/boost`)

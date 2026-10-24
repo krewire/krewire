@@ -3,6 +3,9 @@ project:
   kind: site
   version: 0.1.0
 
-ssg:
-  content_dir: pages
-  output_dir: .krewire/build
+build:
+  output: .krewire/build
+  base: /
+
+dev:
+  port: 8080
