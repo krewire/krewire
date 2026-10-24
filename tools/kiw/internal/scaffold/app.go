@@ -15,7 +15,7 @@ import (
 
 // equipApp shapes the kernel into a fullstack monolith. The root main.go
 // becomes the entry point (canonical layout KWF-CCI0N) and go.mod is
-// upgraded in place with pinned framework and libs requires.
+// upgraded in place with the pinned ecosystem module require.
 func equipApp(opts EquipOptions) ([]string, error) {
 	if opts.Module == "" {
 		return nil, fmt.Errorf("equip app: module path is required (read from go.mod)")
@@ -23,20 +23,16 @@ func equipApp(opts EquipOptions) ([]string, error) {
 	if opts.Name == "" {
 		return nil, fmt.Errorf("equip app: project name is required")
 	}
-	frameworkVersion := opts.FrameworkVersion
-	if frameworkVersion == "" {
-		frameworkVersion = "latest"
-	}
-	libsVersion := opts.LibsVersion
-	if libsVersion == "" {
-		libsVersion = "v0.1.0"
+	version := opts.Version
+	if version == "" {
+		version = "latest"
 	}
 
 	cwd, _ := os.Getwd()
-	frameworkPath, libsPath := detectLocalPaths(cwd)
+	localPath := detectLocalModulePath(cwd)
 
 	files := []file{
-		{goModFile, goModTemplate(opts.Module, frameworkVersion, libsVersion, frameworkPath, libsPath)},
+		{goModFile, goModTemplate(opts.Module, version, localPath)},
 		{krewireYaml, krewireYamlTemplate(opts.Name)},
 		{mainGo, cmdMainTemplate(opts.Module)},
 		{"internal/app/app.go", internalAppTemplate(opts.Module)},

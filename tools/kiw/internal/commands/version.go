@@ -61,7 +61,7 @@ func qualifiedVersion(path string) string {
 	return human
 }
 
-func resolveVersions() (framework, libs string) {
+func resolveVersion() string {
 	v, _ := buildinfo.ResolveVersion(buildinfo.ModKrewire)
-	return v, v
+	return v
 }

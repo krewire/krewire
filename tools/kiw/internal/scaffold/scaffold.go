@@ -41,7 +41,7 @@ const (
 	VariantStatic Variant = "static"
 	// VariantBook is a book variant backed by pkg/book.
 	VariantBook Variant = "book"
-	// VariantCLI is a command-line application on framework/tui + libs/core,
+	// VariantCLI is a command-line application on pkg/tui + the foundation packages,
 	// mirroring the kiw devtool layout.
 	VariantCLI Variant = "cli"
 	// VariantWorker is a background job queue worker application (cloud/worker).
@@ -235,7 +235,7 @@ func New(opts Options) ([]string, error) {
 // GoVersion is the Go language version emitted into scaffolded go.mod files.
 // It is the single source of truth for the Krewire Go baseline: a generated
 // project must declare a version at least as new as the go directive of the
-// framework and libs modules it requires, or `go build` rejects the module.
+// ecosystem module it requires, or `go build` rejects the module.
 //
 // Keep in sync with the `go` directive in the workspace go.work and in every
 // module go.mod (see internal/docs/version.md §Go Baseline).
@@ -266,10 +266,8 @@ type EquipOptions struct {
 	Module string
 	// Title is used by the static and book variants as the site title.
 	Title string
-	// FrameworkVersion pins the framework require. Defaults to latest.
-	FrameworkVersion string
-	// LibsVersion pins the libs require. Defaults to v0.1.0.
-	LibsVersion string
+	// Version pins the github.com/krewire/krewire require. Defaults to latest.
+	Version string
 	// TemplateURL is the git URL cloned by the template variant.
 	TemplateURL string
 }

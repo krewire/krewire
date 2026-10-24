@@ -422,8 +422,8 @@ func gitInitCommit(dir string) error {
 }
 
 // requiredGoBaseline is the `go` directive declared by the kiw module itself,
-// read from ../../go.mod. A generated project depends on the framework/libs
-// modules, so the scaffolded directive must be at least this new. Reading the
+// read from ../../go.mod. A generated project depends on the pkg/* packages,
+// so the scaffolded directive must be at least this new. Reading the
 // real file means raising the baseline elsewhere cannot silently desync.
 func requiredGoBaseline(t *testing.T) string {
 	t.Helper()

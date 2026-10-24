@@ -14,20 +14,16 @@ func equipService(opts EquipOptions) ([]string, error) {
 	if opts.Name == "" {
 		return nil, fmt.Errorf("equip service: project name is required")
 	}
-	frameworkVersion := opts.FrameworkVersion
-	if frameworkVersion == "" {
-		frameworkVersion = "latest"
-	}
-	libsVersion := opts.LibsVersion
-	if libsVersion == "" {
-		libsVersion = "v0.1.0"
+	version := opts.Version
+	if version == "" {
+		version = "latest"
 	}
 
 	cwd, _ := os.Getwd()
-	frameworkPath, libsPath := detectLocalPaths(cwd)
+	localPath := detectLocalModulePath(cwd)
 
 	files := []file{
-		{goModFile, goModTemplate(opts.Module, frameworkVersion, libsVersion, frameworkPath, libsPath)},
+		{goModFile, goModTemplate(opts.Module, version, localPath)},
 		{krewireYaml, serviceKrewireYamlTemplate(opts.Name)},
 		{mainGo, serviceMainTemplate(opts.Module, opts.Name)},
 		{"internal/handler/handler.go", serviceHandlerTemplate()},

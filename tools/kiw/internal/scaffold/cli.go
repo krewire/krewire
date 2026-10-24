@@ -1,5 +1,5 @@
 // Package-level file for the command-line application (VariantCLI): kiw
-// init --cli scaffolds a CLI built on framework/tui + libs/core, mirroring
+// init --cli scaffolds a CLI built on pkg/tui + the foundation packages, mirroring
 // the kiw devtool's own layout (root main.go + internal/commands).
 package scaffold
 
@@ -18,20 +18,16 @@ func equipCLI(opts EquipOptions) ([]string, error) {
 	if opts.Name == "" {
 		return nil, fmt.Errorf("equip cli: project name is required")
 	}
-	frameworkVersion := opts.FrameworkVersion
-	if frameworkVersion == "" {
-		frameworkVersion = "latest"
-	}
-	libsVersion := opts.LibsVersion
-	if libsVersion == "" {
-		libsVersion = "v0.1.0"
+	version := opts.Version
+	if version == "" {
+		version = "latest"
 	}
 
 	cwd, _ := os.Getwd()
-	frameworkPath, libsPath := detectLocalPaths(cwd)
+	localPath := detectLocalModulePath(cwd)
 
 	files := []file{
-		{goModFile, goModTemplate(opts.Module, frameworkVersion, libsVersion, frameworkPath, libsPath)},
+		{goModFile, goModTemplate(opts.Module, version, localPath)},
 		{krewireYaml, cliKrewireYamlTemplate(opts.Name)},
 		{mainGo, cliMainTemplate(opts.Module, opts.Name)},
 		{"internal/commands/commands.go", cliCommandsTemplate(opts.Name)},

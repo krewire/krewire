@@ -9,13 +9,13 @@ import (
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 )
 
-func detectLocalPaths(startDir string) (string, string) {
+func detectLocalModulePath(startDir string) string {
 	dir := startDir
 	for {
 		modPath := filepath.Join(dir, "go.mod")
 		if data, err := os.ReadFile(modPath); err == nil {
 			if strings.Contains(string(data), "module "+buildinfo.ModKrewire) {
-				return dir, ""
+				return dir
 			}
 		}
 		parent := filepath.Dir(dir)
@@ -24,14 +24,14 @@ func detectLocalPaths(startDir string) (string, string) {
 		}
 		dir = parent
 	}
-	return "", ""
+	return ""
 }
 
-func goModTemplate(module, frameworkVersion, libsVersion, frameworkPath, libsPath string) string {
+func goModTemplate(module, version, localPath string) string {
 	mod := fmt.Sprintf("module %s\n\ngo %s\n\nrequire (\n\t%s %s\n)",
-		module, GoVersion, buildinfo.ModKrewire, pinnedVersion(frameworkVersion))
-	if frameworkPath != "" {
-		mod += fmt.Sprintf("\n\nreplace %s => %s", buildinfo.ModKrewire, frameworkPath)
+		module, GoVersion, buildinfo.ModKrewire, pinnedVersion(version))
+	if localPath != "" {
+		mod += fmt.Sprintf("\n\nreplace %s => %s", buildinfo.ModKrewire, localPath)
 	}
 	return mod + "\n"
 }

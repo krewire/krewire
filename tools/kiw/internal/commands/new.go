@@ -16,7 +16,7 @@ func RegisterNew(fs *flag.FlagSet) {
 	fs.String("dir", "", "directory to create the project in (defaults to the current directory)")
 	fs.Bool("site", false, "equip a static site (pages/, layouts/, components/)")
 	fs.Bool("book", false, "equip a content book (pkg/book)")
-	fs.Bool("cli", false, "equip a command-line application (framework/tui)")
+	fs.Bool("cli", false, "equip a command-line application (pkg/tui)")
 	fs.Bool("app", false, "equip a fullstack monolith application")
 	fs.Bool("worker", false, "equip a background job queue worker (cloud/worker)")
 	fs.Bool("service", false, "equip a standalone microservice (cloud/service)")
@@ -97,23 +97,17 @@ func RunNew(fs *flag.FlagSet) errs.ExitCode {
 		opts.Variant = scaffold.VariantCLI
 		opts.Module = modulePath
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	case worker:
 		opts.Variant = scaffold.VariantWorker
 		opts.Module = modulePath
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	case service:
 		opts.Variant = scaffold.VariantService
 		opts.Module = modulePath
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	case infra:
 		opts.Variant = scaffold.VariantInfra
 		opts.Name = name
@@ -123,9 +117,7 @@ func RunNew(fs *flag.FlagSet) errs.ExitCode {
 		opts.Variant = scaffold.VariantApp
 		opts.Module = modulePath
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	}
 
 	eqCreated, err := scaffold.Equip(opts)

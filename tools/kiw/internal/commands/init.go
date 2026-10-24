@@ -20,7 +20,7 @@ func RegisterInit(fs *flag.FlagSet) {
 	fs.Bool("f", false, "short alias for --force")
 	fs.Bool("site", false, "equip a declarative static site (ssg: key in krewire.yaml)")
 	fs.Bool("book", false, "equip a content book (pkg/book)")
-	fs.Bool("cli", false, "equip a command-line application (framework/tui)")
+	fs.Bool("cli", false, "equip a command-line application (pkg/tui)")
 	fs.Bool("app", false, "equip a fullstack monolith application")
 	fs.Bool("worker", false, "equip a background job queue worker (cloud/worker)")
 	fs.Bool("service", false, "equip a standalone microservice (cloud/service)")
@@ -114,9 +114,7 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 			opts.Module = name
 		}
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	case worker:
 		opts.Variant = scaffold.VariantWorker
 		mod, _ := gomod.Find(dir)
@@ -126,9 +124,7 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 			opts.Module = name
 		}
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	case service:
 		opts.Variant = scaffold.VariantService
 		mod, _ := gomod.Find(dir)
@@ -138,9 +134,7 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 			opts.Module = name
 		}
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	case infra:
 		opts.Variant = scaffold.VariantInfra
 		opts.Name = name
@@ -155,9 +149,7 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 			opts.Module = name
 		}
 		opts.Name = name
-		fw, libs := resolveVersions()
-		opts.FrameworkVersion = fw
-		opts.LibsVersion = libs
+		opts.Version = resolveVersion()
 	}
 
 	created, err := scaffold.Equip(opts)
