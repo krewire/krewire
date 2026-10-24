@@ -84,6 +84,14 @@ Audits version compatibility across all imported packages and ecosystem modules.
 kiw compat
 ```
 
+### `kiw tier`
+Inspects the current project's open-core tier (`free` $\rightarrow$ `pro` $\rightarrow$ `team` $\rightarrow$ `enterprise`) and validates open-core boundary invariants (single source of truth: `internal/docs/open-core.md`).
+```bash
+kiw tier
+kiw tier --check free  # Assert project does not exceed specified tier
+kiw tier --json        # Machine-readable output for CI/CD gates
+```
+
 ---
 
 ## 3. Build & Serve Commands
