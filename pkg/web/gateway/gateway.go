@@ -6,7 +6,9 @@
 package gateway
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -19,6 +21,10 @@ import (
 )
 
 // Route maps a path/method pair to a target service (FRK-SVC-020).
+//
+// ServeHTTP enforces Middleware, RateLimit, and Timeout. RetryCount and Auth
+// are declarative hints for callers that wrap the gateway; ServeHTTP itself
+// does not retry or authenticate.
 type Route struct {
 	Path        string        `json:"path"`
 	Method      string        `json:"method,omitempty"`
@@ -40,6 +46,7 @@ type Gateway struct {
 	registry   registry.Registry
 	mws        map[string]Middleware
 	lbCounters map[string]*uint64
+	limiters   map[string]*routeLimiter
 }
 
 // Middleware is a function that wraps an http.Handler (FRK-SVC-021).
@@ -63,6 +70,7 @@ func New(opts ...Option) *Gateway {
 	g := &Gateway{
 		mws:        map[string]Middleware{},
 		lbCounters: map[string]*uint64{},
+		limiters:   map[string]*routeLimiter{},
 	}
 	for _, o := range opts {
 		o(g)
@@ -125,6 +133,23 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Clone request so modifications like StripPrefix don't leak upstream
 	req := r.Clone(r.Context())
+
+	// Per-route rate limiting. The Route field is the single source of truth:
+	// a route that declares rate_limit is limited even without middleware.
+	if matched.RateLimit > 0 && !g.allow(matched, time.Now()) {
+		w.Header().Set("Retry-After", "1")
+		writeProblem(w, http.StatusTooManyRequests, "rate limit exceeded")
+		return
+	}
+
+	// Per-route timeout, applied to the proxied request context so a slow
+	// upstream cannot hold the connection open past the declared budget.
+	if matched.Timeout > 0 {
+		ctx, cancel := context.WithTimeout(req.Context(), matched.Timeout)
+		defer cancel()
+		req = req.WithContext(ctx)
+	}
+
 	if matched.Prefix && matched.StripPrefix {
 		trimmed := strings.TrimPrefix(req.URL.Path, matched.Path)
 		if !strings.HasPrefix(trimmed, "/") {
@@ -176,9 +201,7 @@ func (g *Gateway) proxyDirect(w http.ResponseWriter, r *http.Request, targetURL 
 		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(u)
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		writeProblem(w, http.StatusBadGateway, "upstream error: "+err.Error())
-	}
+	proxy.ErrorHandler = upstreamErrorHandler
 	proxy.ServeHTTP(w, r)
 }
 
@@ -203,10 +226,18 @@ func (g *Gateway) proxyTo(w http.ResponseWriter, r *http.Request, serviceName st
 		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(u)
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		writeProblem(w, http.StatusBadGateway, "upstream error: "+err.Error())
-	}
+	proxy.ErrorHandler = upstreamErrorHandler
 	proxy.ServeHTTP(w, r)
+}
+
+// upstreamErrorHandler maps a reverse-proxy failure onto a Problem response,
+// reporting a per-route deadline as 504 instead of a generic 502.
+func upstreamErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
+	if errors.Is(err, context.DeadlineExceeded) {
+		writeProblem(w, http.StatusGatewayTimeout, "upstream timeout")
+		return
+	}
+	writeProblem(w, http.StatusBadGateway, "upstream error: "+err.Error())
 }
 
 // Problem is a RFC 7807 Problem Details response (FRK-SVC-023).

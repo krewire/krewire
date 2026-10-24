@@ -221,3 +221,64 @@ func TestWriteProblem_ContentType(t *testing.T) {
 		t.Fatalf("expected problem+json, got %q", ct)
 	}
 }
+
+func TestGateway_RouteRateLimitEnforced(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	g := New()
+	g.AddRoute(Route{Path: "/limited", TargetURL: backend.URL, RateLimit: 1})
+
+	first := httptest.NewRecorder()
+	g.ServeHTTP(first, httptest.NewRequest("GET", "/limited", nil))
+	if first.Code != http.StatusOK {
+		t.Fatalf("first request: expected 200, got %d", first.Code)
+	}
+
+	second := httptest.NewRecorder()
+	g.ServeHTTP(second, httptest.NewRequest("GET", "/limited", nil))
+	if second.Code != http.StatusTooManyRequests {
+		t.Fatalf("second request: expected 429, got %d", second.Code)
+	}
+	if second.Header().Get("Retry-After") == "" {
+		t.Error("expected Retry-After header on a limited response")
+	}
+}
+
+func TestGateway_RouteTimeoutEnforced(t *testing.T) {
+	slow := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case <-time.After(300 * time.Millisecond):
+			w.WriteHeader(http.StatusOK)
+		case <-r.Context().Done():
+		}
+	}))
+	defer slow.Close()
+
+	g := New()
+	g.AddRoute(Route{Path: "/slow", TargetURL: slow.URL, Timeout: 20 * time.Millisecond})
+
+	w := httptest.NewRecorder()
+	g.ServeHTTP(w, httptest.NewRequest("GET", "/slow", nil))
+	if w.Code != http.StatusGatewayTimeout {
+		t.Fatalf("expected 504, got %d", w.Code)
+	}
+}
+
+func TestRouteLimiter_AdoptsReloadedInterval(t *testing.T) {
+	var l routeLimiter
+	now := time.Now()
+
+	if !l.allow(now, time.Second) {
+		t.Fatal("first call must be allowed")
+	}
+	if l.allow(now.Add(500*time.Millisecond), time.Second) {
+		t.Fatal("call inside the interval must be rejected")
+	}
+	// A Reload that raises the rate shrinks the interval immediately.
+	if !l.allow(now.Add(600*time.Millisecond), 100*time.Millisecond) {
+		t.Fatal("new interval must apply without recreating the limiter")
+	}
+}
