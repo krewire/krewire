@@ -10,6 +10,13 @@ Comprehensive command-line reference for the unified developer devtool (`kiw`).
 USAGE
   kiw <command> [options]
   kiw help [command]
+
+GROUPS
+  project   new · init · add · remove · make
+  inspect   version · info · compat · tier · doctor
+  build     build · bundle · serve
+  develop   run · dev · test · vet · fmt · worker · dashboard · gateway · mcp · krew
+  ship      deploy · ws · boost · release
 ```
 
 ---
@@ -43,14 +50,18 @@ Initializes Krewire in the current directory in place: `git init`, `.gitignore`,
 kiw init --site
 ```
 
-### `kiw add <package@version>`
-Adds or updates a domain package or plugin in the project.
+### `kiw add <package[@version]>`
+Installs a Go module or activates an opt-in ecosystem plugin (such as Tailwind CSS).
+- **Zero JS by Default**: Krewire projects default to pure Go with native CSS design tokens and zero external toolchains.
+- **Opt-In Technology**: Adding `twcss` configures the Tailwind plugin and auto-detects runners (standalone binary in `bin/tailwindcss`, Bun, PNPM, or npm/npx).
 ```bash
 kiw add twcss@latest
+kiw add tailwindcss
+kiw add github.com/krewire/krewire@v0.1.0
 ```
 
 ### `kiw remove <package>`
-Removes a package or plugin from the project.
+Uninstalls an external package or deactivates an opt-in plugin.
 ```bash
 kiw remove twcss
 ```
@@ -90,6 +101,13 @@ Inspects and reports complete environment and project metadata:
 - **Multi-Runtime Build Suggestions**: Detects foreign build scripts (e.g. `npm run build`, `composer install`) and advises on `build.depends_on` orchestration.
 ```bash
 kiw info
+```
+
+### `kiw doctor [--json]`
+Diagnoses the developer environment: toolchain prerequisites, workspace layout, and the checks needed before a project can build.
+```bash
+kiw doctor
+kiw doctor --json   # Machine-readable report for CI
 ```
 
 ### `kiw compat`
@@ -313,24 +331,4 @@ Bumps semver versions and coordinates multi-module releases. Module names come f
 ```bash
 kiw release krewire --bump minor --apply
 kiw release --all --bump patch
-```
-
----
-
-## 6. Package & Plugin Commands (Opt-In)
-
-### `kiw add <package[@version]>`
-Installs a Go module or activates an opt-in ecosystem plugin (such as Tailwind CSS).
-- **Zero JS by Default**: Krewire projects default to pure Go with native CSS design tokens and zero external toolchains.
-- **Opt-In Technology**: Adding `twcss` configures the Tailwind plugin and auto-detects runners (standalone binary in `bin/tailwindcss`, Bun, PNPM, or npm/npx).
-```bash
-kiw add twcss@latest
-kiw add tailwindcss
-kiw add github.com/krewire/krewire@v0.1.0
-```
-
-### `kiw remove <package>`
-Uninstalls an external package or deactivates an opt-in plugin.
-```bash
-kiw remove twcss
 ```
