@@ -2,7 +2,7 @@
 
 This guide covers *how* to contribute: the workflow, conventions, and quality
 gates every change must pass. It assumes you've completed
-[internal/docs/getting-started.md](./internal/docs/getting-started.md) and have a working local workspace.
+[internal/docs/getting-started.md](../internal/docs/getting-started.md) and have a working local workspace.
 
 > All chat, code, commit messages, specs, and repository docs are in **English**.
 > If you write in Indonesian or another language, reply in that language in chat,
@@ -106,4 +106,4 @@ ecosystem.
 ## Need help?
 
 Ask in the project's discussion channels or open an issue. Start from
-[internal/docs/getting-started.md](./internal/docs/getting-started.md) if your environment isn't set up yet.
+[internal/docs/getting-started.md](../internal/docs/getting-started.md) if your environment isn't set up yet.

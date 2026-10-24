@@ -8,14 +8,14 @@ The monorepo contains four main structural areas:
 
 ```text
 krewire/
-├── docs/         # Ecosystem documentation (packages, boost, devtool)
-├── packages/     # Domain libraries and control plane (29 modular packages)
-│   ├── errs/     # POSIX-compatible exit codes, diagnostic attributes, and stack traces
+├── docs/         # Ecosystem documentation (foundation, pkg, tools, templates, guides)
+├── pkg/          # Domain libraries and control plane (37 modular packages)
 │   ├── model/    # Declarative domain models, workload matrix, scopes, tiers, opt-in rules
+│   ├── lifecycle/# Workload execution dispatch, registry resolution, and supervisor
+│   ├── errs/     # POSIX-compatible exit codes, diagnostic attributes, and stack traces
 │   ├── env/      # Target environment resolution (local, production, testing)
 │   ├── version/  # Semantic versioning, compatibility checks, and build watermark signature
 │   ├── log/      # Structured slog logging tailored to environments and source tagging
-│   ├── lifecycle/# Workload execution dispatch, registry resolution, and supervisor
 │   ├── web/      # HTTP router, middleware, SSR, SSG, gateway, HMR
 │   ├── app/      # Dependency injection container & application assembly
 │   ├── ui/       # UI components, layout, styling tokens, CSS theme palettes
@@ -27,19 +27,26 @@ krewire/
 │   ├── assets/   # Asset management, pipeline, bundling, and hash busting
 │   ├── cloud/    # Runner, service, worker, storage, infra, deploy targets
 │   ├── config/   # Declarative configuration loader (krewire.yaml)
-│   ├── file/     # Atomic file operations and safe replacement
+│   ├── validation/ # Schema and struct validation
+│   ├── storage/  # Persistent object storage abstractions (disk, memory, cloud)
 │   ├── fs/       # Testable filesystem abstraction boundary
+│   ├── file/     # Atomic file operations and safe replacement
 │   ├── functional/ # Generic collection and functional utilities (Map, Filter, Reduce)
 │   ├── hub/      # Plugin registry and package resolver
 │   ├── i18n/     # Internationalization, message bundles, pluralization, middleware
 │   ├── kiw/      # .kiw DSL compiler, parser, AST desugaring, component engine
 │   ├── markdown/ # Markdown parsing & rendering with link prefixing
+│   ├── book/     # Markdown content compiler (chapters, TOC, search, book sites)
 │   ├── resilience/ # Retry policies with exponential backoff & circuit breakers
-│   ├── storage/  # Persistent object storage abstractions (disk, memory, cloud)
 │   ├── term/     # Terminal detection, ANSI colors, and output formatting
 │   ├── testing/  # Test harnesses and browser automation utilities
-│   ├── validation/ # Schema and struct validation
-│   └── boost/    # Boost coordination package & embedded AI agent template
+│   ├── boost/    # Boost coordination package & embedded AI agent template
+│   ├── cache/    # Multi-driver cache (memory, file, Redis, Memcached)
+│   ├── redis/    # Pure-Go Redis client (RESP protocol)
+│   ├── orm/      # Pure-Go multi-driver ORM & SQL query builder
+│   ├── mail/     # Multi-driver email delivery (SMTP, Resend, SendGrid, Postmark)
+│   ├── commerce/ # Payment gateway integration (Midtrans)
+│   └── collab/   # Team roles and per-environment collaboration policies
 ├── apps/         # Deployable services and applications
 ├── tools/        # Developer tooling
 │   └── kiw/      # Unified developer CLI for project scaffolding, build, and deploy
