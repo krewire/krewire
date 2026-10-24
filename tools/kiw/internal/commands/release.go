@@ -35,7 +35,7 @@ var (
 
 // RegisterRelease declares the flags for the release command.
 func RegisterRelease(fs *flag.FlagSet) {
-	fs.Var(&releaseModules, "module", "module to release; repeatable (krewire, kiw, boost); use with --all for every module")
+	fs.Var(&releaseModules, "module", "module to release; repeatable ("+releaseModuleNames()+"); use with --all for every module")
 	fs.BoolVar(&releaseAll, "all", false, "release every Krewire module (maintainer mode, run inside the workspace)")
 	fs.StringVar(&releaseBump, "bump", "patch", "version component to increment: patch|minor|major")
 	fs.BoolVar(&releaseApply, "apply", false, "write the changes (default is a dry run)")
@@ -235,6 +235,16 @@ func validReleaseModule(n string) bool {
 		}
 	}
 	return false
+}
+
+// releaseModuleNames lists the releasable module names from the release
+// manifest, so the flag help can never drift from release.Modules.
+func releaseModuleNames() string {
+	names := make([]string, 0, len(release.Modules))
+	for _, m := range release.Modules {
+		names = append(names, m.Name)
+	}
+	return strings.Join(names, ", ")
 }
 
 // findReleaseWorkspaceRoot walks up from the working directory to locate go.work.
