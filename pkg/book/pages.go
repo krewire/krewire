@@ -271,6 +271,8 @@ func (b *Book) createdPaths(outDir string) []string {
 	if len(b.extraCSS) == 0 {
 		paths = append(paths, filepath.Join(baseOut, StylesheetName))
 	}
+	paths = append(paths, filepath.Join(baseOut, "search-index.json"))
+	paths = append(paths, filepath.Join(baseOut, "nav.json"))
 	for _, ch := range b.flattened() {
 		rel := strings.TrimPrefix(ch.Path(), "/")
 		paths = append(paths, filepath.Join(baseOut, filepath.FromSlash(rel)+".html"))

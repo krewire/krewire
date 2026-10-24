@@ -124,6 +124,11 @@ func Build(cfg Config) ([]string, error) {
 			return nil, err
 		}
 	}
+	searchIdx := b.BuildSearchIndex()
+	navManifest := b.BuildNavManifest()
+	if err := exportManifests(cfg.Output, b.mount, searchIdx, navManifest); err != nil {
+		return nil, err
+	}
 	return b.createdPaths(cfg.Output), nil
 }
 
