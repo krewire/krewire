@@ -17,6 +17,6 @@ kiw boost install
 
 ## 2. Boost System Sections
 
-- **[Autonomous Agent Roster](./agents.md)**: 20 specialized agents covering planning, architecture, coding, testing, refactoring, and security auditing.
+- **[Autonomous Agent Roster](./agents.md)**: 21 specialized agents covering planning, architecture, coding, testing, refactoring, and security auditing.
 - **[Agentic SDLC & Workflows](./workflow.md)**: Phase-by-phase execution, quality gates, and checkpoint coordination.
 - **[Agent Conventions & Rules](./conventions.md)**: Authoring standards, conventional commits, and safety boundaries.

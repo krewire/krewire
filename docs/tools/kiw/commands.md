@@ -16,18 +16,29 @@ USAGE
 
 ## 1. Project Commands
 
-### `kiw new <project-name>`
-Scaffolds a minimal Krewire kernel project with `go.mod`, `krewire.yaml`, and `main.go`.
+### `kiw new <project-name> [flags]`
+Creates the project directory and scaffolds it in one step. The default variant is a fullstack `app`; choose another kind with a variant flag (at most one).
+- `--module <path>`: Go module path (defaults to the project name).
+- `--dir <dir>`: Parent directory (defaults to the current directory).
+- `--site` / `--book` / `--cli` / `--app` / `--worker` / `--service` / `--infra`: Variant to scaffold.
+- `--template <git-url>`: Clone a remote starter instead of generating files.
+- `--title <title>`: Title for the `--site` and `--book` variants.
 ```bash
 kiw new my-service
+kiw new my-site --site --title "My Site"
 ```
 
 ### `kiw init [flags]`
-Equips the current project with a specific workload kind in-place.
+Initializes Krewire in the current directory in place: `git init`, `.gitignore`, and a default `krewire.yaml`. Without a variant flag it stops there; with one it also equips the project for that kind.
 - `--site`: Equips Static Site Generation (SSG) layout.
-- `--book`: Equips manuscript directory for technical books.
+- `--book`: Equips a `content/` directory for technical books.
 - `--cli`: Equips Terminal UI command scaffolding.
-- `--template <name>`: Scaffolds from a starter template.
+- `--app`: Equips a fullstack monolith application.
+- `--worker`: Equips a background job-queue worker.
+- `--service`: Equips a standalone microservice.
+- `--infra`: Equips a cloud infrastructure blueprint.
+- `--template <git-url>`: Scaffolds from a remote git template.
+- `--force` / `-f`: Reset an existing `krewire.yaml` without prompting.
 ```bash
 kiw init --site
 ```
@@ -45,7 +56,7 @@ kiw remove twcss
 ```
 
 ### `kiw make <kind> <name>`
-Scaffolds code boilerplate (components, pages, handlers, migrations, models, middleware, services).
+Scaffolds code boilerplate (components, pages, handlers, migrations, models, middleware, services, jobs, chapters, docs).
 ```bash
 kiw make component Card
 kiw make page about
@@ -54,6 +65,9 @@ kiw make migration create_users_table
 kiw make model Account
 kiw make middleware Auth
 kiw make service Billing
+kiw make job SendInvoice
+kiw make chapter introduction
+kiw make doc architecture
 ```
 
 ---
@@ -126,10 +140,10 @@ kiw bundle --minify
 kiw bundle -o dist --minify
 ```
 
-### `kiw serve [--port <port>]`
-Serves static site preview over HTTP with WebSocket-driven live-reload (HMR), or starts local server for web apps.
+### `kiw serve [--addr <addr>]`
+Serves a site or book preview over HTTP with WebSocket-driven live-reload (HMR), or starts the local server for web apps.
 ```bash
-kiw serve --port 3000
+kiw serve --addr :3000
 ```
 
 ---
@@ -187,8 +201,6 @@ kiw dashboard --port 4000 --host 127.0.0.1
 **Options:**
 - `--port`: HTTP listen port (default: `4000`).
 - `--host`: Bind host address (default: `127.0.0.1`).
-- `--env`: Override runtime environment (`local`, `production`, `testing`).
-- `--kind`: Force project kind detection (`app`, `site`, `service`, `worker`, etc.).
 
 **Built-in Telemetry APIs:**
 - `GET /`: Dark-themed Web Dashboard UI with live stats and SSE event feed.
@@ -215,7 +227,7 @@ kiw gateway --routes "/api/auth=auth-service,/api/pay=https://payment.internal"
 **Gateway Features:**
 - Reads route rules and timeouts directly from `gateway:` in `krewire.yaml`.
 - Propagates W3C `traceparent` headers and correlation IDs across upstream services.
-- Integrates with `packages/cloud/service/registry` for dynamic service resolution.
+- Integrates with `pkg/cloud/service/registry` for dynamic service resolution.
 
 ### `kiw mcp`
 Starts a native Model Context Protocol (MCP) server for AI coding agents (Antigravity, Cursor, Claude Desktop, OpenCode). Exposes project metadata, routes, runtime metrics, health probes, and scaffolding tools directly to agents over stdio or HTTP/SSE.
@@ -275,17 +287,17 @@ kiw krew mcp
 
 ## 5. Ship Commands
 
-### `kiw deploy [--preview]`
-Stages production artifacts into `dist/` and runs cloud deployment runners.
+### `kiw deploy [--dry-run]`
+Stages production artifacts into `.krewire/dist/` and runs deployment targets (`--target binary|systemd|gh-pages|infra`).
 ```bash
-kiw deploy --preview
+kiw deploy --dry-run
 kiw deploy
 ```
 
 ### `kiw ws <subcommand>`
 Manages multi-module workspaces, monorepos, and microservice topologies.
 ```bash
-kiw ws status
+kiw ws info
 ```
 
 ### `kiw boost <install|status>`
@@ -296,10 +308,11 @@ kiw boost status             # Inspect installation completeness and managed ass
 kiw boost install --force    # Overwrite/repair existing assets without prompt
 ```
 
-### `kiw release <module> --bump <patch|minor|major> --apply`
-Bumps semver versions and coordinates multi-module releases.
+### `kiw release <module> --bump <patch|minor|major> [--apply]`
+Bumps semver versions and coordinates multi-module releases. Module names come from the release manifest (`tools/kiw/internal/release`); `--all` releases every module. Without `--apply` the command is a dry run.
 ```bash
-kiw release framework --bump minor --apply
+kiw release krewire --bump minor --apply
+kiw release --all --bump patch
 ```
 
 ---

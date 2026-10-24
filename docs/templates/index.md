@@ -1,19 +1,16 @@
 # Templates & Scaffolding Blueprints
 
-Krewire provides extensible starter templates and an autonomous multi-agent AI engineering constitution under `templates/`.
+Krewire ships generated project scaffolds, reference blueprints, and an autonomous multi-agent AI engineering constitution under `templates/`.
 
 ---
 
 ## 1. Overview
 
-Templates in Krewire are divided into three functional categories:
+Scaffolding has two layers:
 
-1. **In-Place Initializers (`templates/init/`)**:
-   Equips existing projects with specific workload layouts via `kiw init`.
-2. **Fresh Project Blueprints (`templates/new/`)**:
-   Provides seeds for brand-new repositories via `kiw new`.
-3. **AI-Agent Boost Workflows (`templates/boost/`)**:
-   An embedded AI team and development constitution installed via `kiw boost install`.
+1. **Runtime scaffolds (`tools/kiw/internal/scaffold`)** — the code that `kiw new` and `kiw init` actually execute. Variants: `app`, `static`, `book`, `cli`, `worker`, `service`, `infra`, and remote `template` (git clone).
+2. **Reference blueprints (`templates/init/`, `templates/new/`)** — in-tree examples of the generated layout. They document the shape of each variant but are not read by the CLI at runtime.
+3. **AI-Agent Boost Workflows (`templates/boost/`)** — an embedded AI team and development constitution installed via `kiw boost install`.
 
 ---
 
@@ -21,8 +18,8 @@ Templates in Krewire are divided into three functional categories:
 
 ```text
 templates/
-├── init/                 # In-place initializers (app, book, cli, static)
-├── new/                  # Fresh project scaffolding (kernel)
+├── init/                 # Reference blueprints (app, book, cli, static)
+├── new/                  # Reference kernel blueprint
 └── boost/                # Autonomous AI agent team, commands & skills (.agents/)
 ```
 
@@ -30,5 +27,5 @@ templates/
 
 ## 3. Sections
 
-- **[Project Blueprints](./blueprints.md)**: Guide to starter templates and custom blueprint creation.
+- **[Project Blueprints](./blueprints.md)**: Generated file layout per variant and custom template creation.
 - **[Krewire Boost AI System](./boost/index.md)**: Multi-agent coordination, agent roles, SDLC phases, and conventions.

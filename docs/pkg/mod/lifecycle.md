@@ -1,6 +1,6 @@
-# Execution & Lifecycle Supervision (`packages/lifecycle`)
+# Execution & Lifecycle Supervision (`pkg/lifecycle`)
 
-The `packages/lifecycle` package manages module registration, topological ordering, execution dispatch, and supervised graceful startup and shutdown.
+The `pkg/lifecycle` package manages module registration, topological ordering, execution dispatch, and supervised graceful startup and shutdown.
 
 ## Components
 

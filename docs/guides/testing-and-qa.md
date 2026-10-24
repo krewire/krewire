@@ -6,7 +6,7 @@ Standards for writing unit and integration tests, running quality gates, and ver
 
 ## 1. Writing Tests
 
-Krewire tests follow standard Go testing conventions using the standard `testing` package and `packages/testing` test helpers:
+Krewire tests follow standard Go testing conventions using the standard `testing` package and `pkg/testing` test helpers:
 - Place unit tests in `*_test.go` files adjacent to the code they verify.
 - Test suites must be deterministic, isolated, and parallel-safe where appropriate.
 

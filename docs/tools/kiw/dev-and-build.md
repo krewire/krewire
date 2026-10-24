@@ -24,20 +24,20 @@ Serves static content from `.krewire/build` and injects a lightweight WebSocket 
 ```text
 kiw build
   ├── Detect Kind
-  ├── Validate Invariants (packages/kern/model)
+  ├── Validate Invariants (pkg/model)
   ├── Run Pre-Build Scripts
   └── Execute Kind Pipeline:
         ├── site:   SSG Builder -> Minification -> .krewire/build
         ├── book:   book compiler -> Navigation index -> .krewire/build
-        ├── app:    WASM build (client/) -> Go binary (server) -> bin/
-        └── cli:    Go build with embedded assets -> bin/
+        ├── app:    WASM build (wasm:) -> Go binary -> .krewire/build/bin/<name>
+        └── cli:    Go build with embedded assets -> .krewire/build/bin/<name>
 ```
 
 ---
 
 ## 3. Staging & Deployment (`kiw deploy`)
 
-Prepares clean deployable bundles inside `dist/`:
-- Validates quality gates (`gofmt`, `vet`, `test`).
-- Embeds production assets.
-- Generates container deployment specifications or cloud runner blueprints.
+Stages deployable artifacts inside `.krewire/dist/`:
+- Builds the binary (`binary` target) or exports the site into `.krewire/dist/site`.
+- Publishes the pages branch for `gh-pages`, emits a systemd unit for `systemd`, or writes `plan.json` for `infra`.
+- `--dry-run` stages artifacts and skips publishing; `--target` selects the deployment target.

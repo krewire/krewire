@@ -1,7 +1,7 @@
 # Web Framework — `web` Package Reference
 
 ## Description
-The `packages/web` library provides high-performance HTTP routing, observability middleware, distributed tracing propagation, Static Site Generation (SSG), Server-Side Rendering (SSR), and WebSocket-driven Hot Module Replacement (HMR).
+The `pkg/web` library provides high-performance HTTP routing, observability middleware, distributed tracing propagation, Static Site Generation (SSG), Server-Side Rendering (SSR), and WebSocket-driven Hot Module Replacement (HMR).
 
 ---
 
@@ -16,7 +16,7 @@ The `packages/web` library provides high-performance HTTP routing, observability
 
 ## Observability & Distributed Tracing
 
-`packages/web` includes production-grade observability middleware out-of-the-box:
+`pkg/web` includes production-grade observability middleware out-of-the-box:
 
 ```go
 package main
@@ -65,7 +65,7 @@ func main() {
 ## Static Site Generation (`web/ssg`)
 
 Used by the `site` workload kind:
-- Parses `.kiw` component files and Markdown manuscripts.
+- Parses `.kiw` component files and Markdown content files.
 - Automatically compiles Scoped CSS (`<style>`), extracts client scripts (`<script>`), and minifies HTML.
 - In development (`kiw serve`), connects to `web/ssg/hmr` via WebSocket for live-reload without page refresh.
 
@@ -75,4 +75,4 @@ Used by the `site` workload kind:
 
 - [Multi-Runtime Coexistence Guide](../../guides/multi-runtime-coexistence.md) — Node.js and Laravel trace propagation.
 - [`krewire.yaml` Configuration Reference](../../tools/kiw/configuration.md) — HTTP server and SSG options.
-- [Kernel & Control Plane Reference](../core/kern.md) — Process lifecycle and logging.
+- [Kernel & Control Plane Reference](../core/model.md) — Process lifecycle and logging.

@@ -4,7 +4,7 @@ Import: `github.com/krewire/krewire/pkg/orm`
 
 ## Purpose
 
-A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder library with unified multi-driver support. Designed for SQLite, PostgreSQL, and MySQL, `packages/orm` eliminates external CGO dependencies and abstracts dialect differences (quoting, parameter placeholders `$1` vs `?`, data types, DDL statements, and auto-increment conventions) behind a single fluent API.
+A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder library with unified multi-driver support. Designed for SQLite, PostgreSQL, and MySQL, `pkg/orm` eliminates external CGO dependencies and abstracts dialect differences (quoting, parameter placeholders `$1` vs `?`, data types, DDL statements, and auto-increment conventions) behind a single fluent API.
 
 ## Main API
 
@@ -120,4 +120,4 @@ func main() {
 
 - **Parameterized Queries**: All dynamic criteria pass through dialect-specific placeholders (`$1, $2` for PostgreSQL; `?` for SQLite/MySQL) preventing SQL injection vulnerabilities.
 - **Pure-Go Architecture**: No CGO dependencies required. Fully cross-compilable across Linux, macOS, and Windows.
-- **Downward Dependency Pyramid**: Depends only on Level 1 (`packages/errs`, `packages/model`) and standard library `database/sql`.
+- **Downward Dependency Pyramid**: Depends only on Level 1 (`pkg/errs`, `pkg/model`) and standard library `database/sql`.

@@ -62,4 +62,4 @@ func main() {
 
 - **MIME & Injection Protection**: Rejects CRLF injection attempts in subject and header lines.
 - **Pure Go**: Standard library `net/smtp` and `net/http` only; zero external CGO dependencies.
-- **Downward Dependency Pyramid**: Depends only on Level 1 (`packages/errs`, `packages/model`).
+- **Downward Dependency Pyramid**: Depends only on Level 1 (`pkg/errs`, `pkg/model`).

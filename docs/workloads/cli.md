@@ -6,21 +6,24 @@ The `cli` workload targets standalone developer utilities, administrative comman
 
 ## 1. Key Features
 
-- **`packages/tui`**: Declarative command tree structure, subcommands, flag binding, and interactive prompts.
-- **`packages/term`**: ANSI color styling, cursor control, spinners, tables, and box drawing.
-- **`packages/errs`**: Standard exit code mapping (`0` for success, `1` for general error, `2` for usage error, `78` for config error).
+- **`pkg/tui`**: Declarative command tree structure, subcommands, flag binding, and interactive prompts.
+- **`pkg/term`**: ANSI color styling, cursor control, spinners, tables, and box drawing.
+- **`pkg/errs`**: Standard exit code mapping (`0` success, `1` failure, `2` usage).
 
 ---
 
 ## 2. Project Layout
 
+The `kiw init --cli` scaffold writes:
+
 ```text
 my-cli/
-├── krewire.yaml          # Project configuration (kind: cli)
-├── main.go               # Command setup & application execution
-└── cmd/                  # Subcommand definitions
-    ├── root.go
-    └── run.go
+├── krewire.yaml
+├── main.go
+├── internal/
+│   ├── commands/         # Command definitions
+│   └── config/           # Typed configuration
+└── README.md
 ```
 
 ---
@@ -31,16 +34,20 @@ my-cli/
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
+
+	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/pkg/tui"
 )
 
 func main() {
 	app := tui.NewApp("my-cli", "v1.0.0").
 		WithDescription("A high-performance Krewire CLI utility").
-		Command(tui.NewCommand("hello", "Say hello", nil, func(ctx *tui.Context) int {
-			ctx.Println("Hello from Krewire CLI!")
-			return 0
+		Command(tui.NewCommand("hello", "Say hello", nil, func(fs *flag.FlagSet) errs.ExitCode {
+			fmt.Println("Hello from Krewire CLI!")
+			return errs.ExitCodeSuccess
 		}))
 
 	os.Exit(int(app.Run(os.Args[1:])))
@@ -55,7 +62,7 @@ func main() {
 # Test the CLI locally
 kiw run hello
 
-# Build standalone binary
+# Build standalone binary into .krewire/build/bin/<name>
 kiw build
 
 # Run linting and vet

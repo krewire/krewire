@@ -30,4 +30,4 @@ if err := validation.Struct(User{Email: "user@example.com", Role: "viewer"}); er
 
 ## Design boundary
 
-The package validates local struct constraints. Cross-field business invariants and workload rules belong to [`core`](./core.md). Malformed or unknown rules return errors; they do not panic.
+The package validates local struct constraints. Cross-field business invariants and workload rules belong to [`core`](../core/model.md). Malformed or unknown rules return errors; they do not panic.

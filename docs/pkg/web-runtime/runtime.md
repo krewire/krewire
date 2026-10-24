@@ -1,6 +1,6 @@
 # Package: `runtime` (Client-Side WebAssembly Engine)
 
-The `packages/runtime` package delivers an interactive client-side WebAssembly runtime (`GOOS=js GOARCH=wasm`) that renders reactive UI components without requiring Node.js or JavaScript build tools.
+The `pkg/runtime` package delivers an interactive client-side WebAssembly runtime (`GOOS=js GOARCH=wasm`) that renders reactive UI components without requiring Node.js or JavaScript build tools.
 
 ---
 

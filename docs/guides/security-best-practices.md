@@ -6,7 +6,7 @@ Comprehensive security standards and defensive practices enforced across the Kre
 
 ## 1. Defensive HTTP Defaults
 
-Every application built using `packages/web` should activate the security middleware suite (`packages/sec`):
+Every application built using `pkg/web` should activate the security middleware suite (`pkg/sec`):
 
 - **OWASP Recommended Headers**: Set `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and restrictive `Content-Security-Policy`.
 - **Strict Transport Security (HSTS)**: Ensure TLS enforcement in production.
@@ -26,7 +26,7 @@ When performing outbound HTTP requests to user-supplied URLs:
 ## 3. PII Masking & Secrets Sanitization
 
 - Never log unencrypted passwords, API tokens, JWTs, or session cookies.
-- Use `kern/log` structured loggers configured with automatic PII masking.
+- Use `pkg/log` structured loggers configured with automatic PII masking.
 - Run static security audits before deployment:
   ```bash
   kiw vet --sec

@@ -6,16 +6,16 @@ The Krewire framework unifies eight software workload kinds under a single decla
 
 ## 1. The Eight Canonical Kinds
 
-Every project in the Krewire ecosystem declares a primary `kind` in its [`krewire.yaml`](../../packages/model/project.go) file or relies on deterministic filesystem markers:
+Every project in the Krewire ecosystem declares a primary `kind` in its [`krewire.yaml`](../../pkg/model/project.go) file or relies on deterministic filesystem markers:
 
 | Kind | Target | Primary Packages | Build / Run Behavior |
 |---|---|---|---|
-| [`kernel`](./kernel.md) | Minimal initial seed | `kern` | Standard Go build; foundation for progressive upgrading |
+| [`kernel`](./kernel.md) | Minimal initial seed | `pkg/model`, `pkg/lifecycle` | Standard Go build; foundation for progressive upgrading |
 | [`site`](./site.md) | Static websites & marketing | `web/ssg`, `markdown` | Static Site Generation (SSG) into `.krewire/build`, local preview with HMR |
-| [`book`](./book.md) | Technical books & documentation | `book`, `markdown` | Compiles `manuscript/` chapters into HTML/EPUB/PDF outputs |
+| [`book`](./book.md) | Technical books & documentation | `book`, `markdown` | Compiles `content/` chapters into a static HTML site with TOC and search |
 | [`app`](./app.md) | Fullstack web applications | `web`, `app`, `ui`, `runtime` | Server-Side Rendering (SSR) + Client WebAssembly (WASM) islands |
-| [`cli`](./cli.md) | Standalone command-line tools | `tui`, `term`, `kern/errs` | Compiles single standalone CLI binary |
-| [`worker`](./worker.md) | Background workers & queues | `cloud/worker`, `kern/lifecycle` | Supervised long-running daemon consuming background queues |
+| [`cli`](./cli.md) | Standalone command-line tools | `tui`, `term`, `pkg/errs` | Compiles single standalone CLI binary |
+| [`worker`](./worker.md) | Background workers & queues | `cloud/worker`, `pkg/lifecycle` | Supervised long-running daemon consuming background queues |
 | [`service`](./service.md) | Backend microservices & APIs | `web/gateway`, `cloud/service` | High-throughput headless HTTP/REST/RPC microservice |
 | [`infra`](./infra.md) | Declarative cloud blueprints | `cloud/infra`, `cloud/deploy` | Evaluates declarative blueprints, outputs plan, provisions cloud state |
 
@@ -23,30 +23,34 @@ Every project in the Krewire ecosystem declares a primary `kind` in its [`krewir
 
 ## 2. Kind Detection (`shape`)
 
-When executing commands like `kiw info` or `kiw build`, the CLI uses the `shape` detector to infer the kind:
-1. **Explicit Config (`krewire.yaml`):** The `project.kind` field holds highest precedence.
-2. **Filesystem Markers (Fallback):**
-   - If `manuscript/` exists $\rightarrow$ `book`.
-   - If `infra/` exists $\rightarrow$ `infra`.
-   - If `pages/` or `static/` exists $\rightarrow$ `site`.
-   - If `main.go` exists $\rightarrow$ `app` or `cli`.
+When executing commands like `kiw info` or `kiw build`, the CLI uses the `shape` detector ([`shape.Detect`](../../tools/kiw/internal/shape/shape.go)) in this order:
+1. **Explicit Config (`krewire.yaml`):** the `project.kind` field holds highest precedence.
+2. **Declarative battery keys:** `worker:`, `service:`, or `infra:` in `krewire.yaml` selects that kind.
+3. **Pre-init kernel:** `go.mod` + `krewire.yaml` + the starter `main.go` (containing `hello, krewire`) and none of `pages/`, `content/`, `cmd/`, `internal/`, `components/`.
+4. **Application entry point:** `main.go`, or a `cmd/*` package declaring `func main` $\rightarrow$ `app`.
+5. **Declarative site:** `pages/`, the `ssg:` key, or a legacy `ssg.yaml` $\rightarrow$ `site`.
+6. **Content directory:** `content/` $\rightarrow$ `book`.
+
+`cli` is not inferred from the filesystem; it is declared explicitly through `project.kind` (for example by `kiw init --cli`).
 
 ---
 
 ## 3. Progressive Kind Evolution (`kiw init`)
 
-A project begins at the minimal [`kernel`](./kernel.md) kind. As requirements expand, developers equip the project with workload capabilities without rewrites:
+A project starts from the minimal [`kernel`](./kernel.md) layout and gains workload capabilities without rewrites. `kiw new` writes that layout and equips a variant in one step (fullstack `app` by default); `kiw init` equips an existing directory.
 
 ```bash
-# Start with minimal kernel
-kiw new my-project
+# New project: choose the variant up front (default is app)
+kiw new my-site --site
+kiw new my-app
 
-# Progressively equip with a workload kind
+# Existing directory: initialize, then equip a kind
 cd my-project
-kiw init --site      # Equips SSG layout & pages
-kiw init --book      # Equips manuscript/ structure & book configuration
-kiw init --cli       # Equips TUI app runner & flag parsing
-kiw init --template  # Installs custom starter template
+kiw init              # git, .gitignore, krewire.yaml only
+kiw init --site       # Equips SSG layout & pages
+kiw init --book       # Equips content/ structure & book configuration
+kiw init --cli        # Equips TUI app runner & flag parsing
+kiw init --template https://github.com/example/starter.git  # Installs a custom starter template
 ```
 
 ---
@@ -56,11 +60,20 @@ kiw init --template  # Installs custom starter template
 The unified CLI (`kiw`) routes tasks based on the active kind:
 
 - **`kiw build`**:
-  - `site` $\rightarrow$ Executes SSG build pipeline to output static assets.
-  - `book` $\rightarrow$ Invokes native book builder to render chapter manuscripts.
-  - `app` / `cli` / `service` / `worker` $\rightarrow$ Executes `go build` with embedded assets.
-  - `infra` $\rightarrow$ Compiles and validates infrastructure execution plan.
-- **`kiw dev` / `kiw serve`**:
-  - `site` $\rightarrow$ Serves HTTP preview with WebSocket-driven live-reload (HMR).
-  - `app` $\rightarrow$ Boots local web server with automatic reload on code change.
-  - `cli` / `worker` / `service` $\rightarrow$ Runs in watch mode with supervision.
+  - `site` $\rightarrow$ Executes the SSG build pipeline into `.krewire/build`.
+  - `book` $\rightarrow$ Invokes the native book builder to render content chapters.
+  - `app` / `cli` / `service` / `worker` $\rightarrow$ Compiles the Go binary into `.krewire/build/bin/<name>`.
+  - `infra` $\rightarrow$ Compiles and validates the infrastructure execution plan.
+- **`kiw dev`**:
+  - `site` / `book` $\rightarrow$ Serves a preview and rebuilds on change.
+  - `app` / `cli` / `worker` / `service` $\rightarrow$ Rebuilds and restarts the supervised process on change.
+  - `infra` is not a dev target; use `kiw build --plan` or `kiw deploy`.
+- **`kiw serve`**:
+  - `app` $\rightarrow$ Boots the local web server.
+  - `cli` $\rightarrow$ Executes the command tree.
+  - `site` / `book` $\rightarrow$ Serves the rendered output over HTTP.
+  - `worker` / `service` / `infra` are not servable; use `kiw run` or `kiw dev`.
+- **`kiw run`**:
+  - `app` / `worker` / `service` $\rightarrow$ Builds to a temp binary and runs it.
+  - `cli` $\rightarrow$ Runs the command tree with the remaining arguments.
+  - `site` / `book` / `infra` / `kernel` are rejected with a hint to `kiw build` + `kiw serve`, `kiw deploy`, or `kiw init`.

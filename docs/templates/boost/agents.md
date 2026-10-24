@@ -1,6 +1,6 @@
 # Boost AI Agent Roles & Specializations
 
-A comprehensive directory of the 20 specialized subagents defined under `.agents/agents/`.
+A comprehensive directory of the 21 specialized subagents defined under `.agents/agents/`.
 
 ---
 
@@ -15,6 +15,7 @@ A comprehensive directory of the 20 specialized subagents defined under `.agents
 | `builder` | Implementation | Writes production code, adds features, and fixes bugs |
 | `decomposer` | SRP Refactoring | Decomposes god classes, long functions, and improves cohesion |
 | `tester` | Quality Assurance | Writes unit, integration, and e2e tests; verifies coverage |
+| `tracker` | GitHub Issue Tracking | Opens, closes, lists, and views issues; enforces traceability |
 | `auditor` | Security & Compliance | Audits against OWASP, CWE, PII redaction, and security policies |
 | `automator` | Tooling & Scripting | Creates devtools, batch scripts, generators, and CI automations |
 | `customizer` | Agent Store Tailoring | Scaffolds and standardizes agents, skills, commands, rules, and triads |

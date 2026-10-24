@@ -1,6 +1,6 @@
-# Structured Logging (`packages/log`)
+# Structured Logging (`pkg/log`)
 
-The `packages/log` package configures structured `slog` logging tailored to target environments (`env.Env`) with source tagging and diagnostic error integration.
+The `pkg/log` package configures structured `slog` logging tailored to target environments (`env.Env`) with source tagging and diagnostic error integration.
 
 ## Usage
 

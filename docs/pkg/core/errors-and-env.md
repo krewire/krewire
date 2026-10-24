@@ -1,10 +1,10 @@
-# Package: `packages/errs` & `packages/env` (Errors, Exit Codes & Logging)
+# Package: `pkg/errs` & `pkg/env` (Errors, Exit Codes & Logging)
 
 This library pair manages structured error categorization, diagnostic stack traces, process exit codes, and environment-aware logging (`KWL-W0J2X`, `KWL-P8W2N`, `KWL-K4T7W`).
 
 ---
 
-## 1. Exit Codes & Error Types (`packages/errs`)
+## 1. Exit Codes & Error Types (`pkg/errs`)
 
 Krewire maps errors deterministically to standard POSIX process exit codes:
 
@@ -28,7 +28,7 @@ return errs.ConfigError("krewire.yaml: 'port' must be positive integer")
 
 ---
 
-## 2. Environment & Logging (`packages/env`, `kern/log`)
+## 2. Environment & Logging (`pkg/env`, `pkg/log`)
 
 - **Environment Detection**: Detects `development`, `staging`, `production`, and `test` environments.
 - **Structured Slog Integration**: Employs Go's `log/slog` with automatic PII masking (passwords, JWT tokens, credit card patterns) and context tracing.

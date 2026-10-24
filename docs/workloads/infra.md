@@ -6,21 +6,22 @@ The `infra` workload manages cloud infrastructure, provisioning blueprints, depl
 
 ## 1. Key Capabilities
 
-- **Declarative Blueprints (`packages/cloud/infra/schema`)**: Typed Go schemas describing cloud resources (compute, containers, object buckets, networking).
-- **State & Provider Management (`packages/cloud/infra/state`)**: Track infrastructure changes, detect drift, and generate deterministic deployment plans.
-- **Unified Deployment (`packages/cloud/deploy`)**: Zero-downtime rolling deploys, canary stages, and artifact distribution into cloud runners.
+- **Declarative Blueprints (`pkg/cloud/infra/schema`)**: Typed Go schemas describing cloud resources (compute, containers, object buckets, networking).
+- **State & Provider Management (`pkg/cloud/infra/state`, `pkg/cloud/infra/provider`)**: Track infrastructure changes, detect drift, and generate deterministic deployment plans.
+- **Unified Deployment (`pkg/cloud/deploy`)**: Rolling deploys and artifact distribution into cloud runners.
 
 ---
 
 ## 2. Directory Layout
 
+The `kiw init --infra` scaffold writes:
+
 ```text
 my-infra/
-├── krewire.yaml          # Project configuration (kind: infra)
-├── infra/                # Infrastructure definitions
-│   ├── production.go
-│   └── staging.go
-└── state/                # Environment state lock files
+├── krewire.yaml
+├── infra/
+│   └── blueprint.go      # Declarative resource definitions
+└── README.md
 ```
 
 ---
@@ -36,6 +37,12 @@ project:
 infra:
   provider: "krewire-cloud"
   region: "asia-southeast1"
+  state: ".krewire/infra/state.json"
+  resources:
+    - kind: "service"
+      id: "api"
+      properties:
+        image: "krewire/api:latest"
 ```
 
 ---
@@ -43,10 +50,10 @@ infra:
 ## 4. Commands
 
 ```bash
-# Evaluate infrastructure blueprint and output plan
+# Evaluate infrastructure blueprint and output a plan
 kiw build --plan
 
 # Deploy or stage infrastructure
-kiw deploy --preview
+kiw deploy --plan
 kiw deploy
 ```

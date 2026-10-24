@@ -1,10 +1,10 @@
 # Package: `sec` & `auth` (Security & Authentication Primitives)
 
-The `packages/sec` and `packages/auth` libraries deliver hardened security defaults, defensive middleware, authentication tokens, and identity management.
+The `pkg/sec` and `pkg/auth` libraries deliver hardened security defaults, defensive middleware, authentication tokens, and identity management.
 
 ---
 
-## 1. Security Defaults (`packages/sec`)
+## 1. Security Defaults (`pkg/sec`)
 
 - **Security Headers Middleware**: Enforces OWASP-recommended HTTP response headers (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Content-Security-Policy`, `Referrer-Policy`, `HSTS`).
 - **CSRF Defense**: Double-submit cookie pattern and encrypted CSRF token verification.
@@ -14,7 +14,7 @@ The `packages/sec` and `packages/auth` libraries deliver hardened security defau
 
 ---
 
-## 2. Authentication Primitives (`packages/auth`)
+## 2. Authentication Primitives (`pkg/auth`)
 
 - **JWT Claims & Verification**: Type-safe HMAC-SHA256 and RSA signature verification.
 - **Identity & Context Binding**: Attaches verified identity claims to `context.Context`.

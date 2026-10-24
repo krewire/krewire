@@ -12,7 +12,7 @@ Rather than juggling fragmented bash scripts, npm build runners, and separate CL
 kiw <command> [flags]
 ```
 
-`kiw` dogfoods the monorepo's own Terminal UI toolkit ([`packages/tui`](../packages/web-runtime/ui-tui.md)) and kernel execution standards ([`packages/kern`](../packages/core/kern.md)).
+`kiw` dogfoods the monorepo's own Terminal UI toolkit ([`pkg/tui`](../../pkg/web-runtime/ui-tui.md)) and kernel execution standards ([`pkg/model`](../../pkg/core/model.md) and [`pkg/lifecycle`](../../pkg/mod/lifecycle.md)).
 
 ---
 

@@ -6,23 +6,27 @@ The `book` workload powers multi-chapter technical documentation, books, and ref
 
 ## 1. Key Capabilities
 
-- **Manuscript Hierarchy**: Automatically reads multi-chapter markdown books organized under `manuscript/`.
-- **Book Navigation & Search**: Automatically generates table of contents, breadcrumbs, previous/next chapter navigation, and offline client search indexes.
-- **Multi-Format Compilation**: Supports building single-page reading views, multi-page HTML documentation hubs, EPUB, and PDF distributions.
+- **Content Hierarchy**: Reads ordered Markdown chapters from `content/` (default), including nested subchapters.
+- **Book Navigation & Search**: Generates a table of contents, sidebar, breadcrumbs, previous/next links, and an offline client search index.
+- **Single-Output HTML**: Produces a static, book-shaped HTML site; EPUB and PDF export are not implemented.
+- **Hybrid Placement**: `book.mount` and `book.toc` let a book share `.krewire/build` with an `ssg` site.
 
 ---
 
 ## 2. Directory Layout
 
+The `kiw init --book` scaffold writes:
+
 ```text
 my-book/
-├── krewire.yaml          # Project configuration (kind: book)
-└── manuscript/           # Chapter markdown files
-    ├── 00-intro.md
-    ├── 01-getting-started.md
-    ├── 02-architecture.md
-    └── images/
+├── krewire.yaml
+└── content/
+    └── docs/
+        ├── 01-introduction.md
+        └── 02-getting-started.md
 ```
+
+Kind detection recognizes a `content/` directory. A different source directory can be selected with the top-level `input:` key.
 
 ---
 
@@ -34,12 +38,16 @@ project:
   name: my-book
   kind: book
 
+title: "Krewire Handbook"
+author: "Krewire Contributors"
+input: "content"
+output: ".krewire/build"
+theme:
+  default: "auto"      # auto | light | dark
+
 book:
-  source_dir: "manuscript"
-  output_dir: ".krewire/build"
-  title: "Krewire Handbook"
-  author: "Krewire Contributors"
-  theme: "default"
+  mount: "/docs"       # optional sub-path in the output
+  toc: true            # generated root table of contents
 ```
 
 ---
@@ -50,9 +58,9 @@ book:
 # Preview book locally with live reload
 kiw serve
 
-# Build book into output directory
+# Build book into the output directory
 kiw build
 
-# Deploy staged book
+# Stage deployable artifacts
 kiw deploy
 ```

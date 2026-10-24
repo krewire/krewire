@@ -25,12 +25,12 @@ Dedicated guides for all eight unified software workload targets:
 
 ---
 
-## 3. [Domain Packages Reference](./packages/index.md)
+## 3. [Domain Packages Reference](./pkg/index.md)
 Comprehensive technical documentation for all modular libraries:
-- **[Core & Control Plane](./packages/core/kern.md)**: Kernel supervision, declarative models, exit codes, and logging.
-- **[Web & Client Runtime](./packages/web-runtime/web.md)**: HTTP router, SSG/SSR pipelines, client WASM engine, and UI/TUI toolkits.
-- **[System, Security & Storage](./packages/system/security-and-auth.md)**: Security defaults, authentication, configuration, validation, and object storage.
-- **[Platform & Support Utilities](./packages/platform/cloud.md)**: Cloud runners, test harnesses, plugin hub, resilience, and markdown rendering.
+- **[Core & Control Plane](./pkg/core/model.md)**: Kernel supervision, declarative models, exit codes, and logging.
+- **[Web & Client Runtime](./pkg/web-runtime/web.md)**: HTTP router, SSG/SSR pipelines, client WASM engine, and UI/TUI toolkits.
+- **[System, Security & Storage](./pkg/system/security-and-auth.md)**: Security defaults, authentication, configuration, validation, and object storage.
+- **[Platform & Support Utilities](./pkg/platform/cloud.md)**: Cloud runners, test harnesses, plugin hub, resilience, and markdown rendering.
 
 ---
 
@@ -47,7 +47,7 @@ The unified developer CLI for scaffolding, building, running, and shipping:
 Scaffolding blueprints and autonomous multi-agent engineering workflows:
 - [Blueprints & Initializers](./templates/blueprints.md)
 - [Krewire Boost AI Overview](./templates/boost/index.md)
-- [20 Autonomous Agent Roles](./templates/boost/agents.md)
+- [21 Autonomous Agent Roles](./templates/boost/agents.md)
 - [Agentic SDLC & Workflows](./templates/boost/workflow.md)
 - [Agent Conventions & Safety Rules](./templates/boost/conventions.md)
 

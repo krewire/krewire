@@ -27,4 +27,4 @@ if err := config.Override(&cfg, os.LookupEnv, config.WithPrefix("APP_")); err !=
 
 ## Design boundary
 
-`config` handles decoding and overlays. Domain validation belongs to [`core`](./core.md) and struct-tag validation belongs to [`validation`](./validation.md).
+`config` handles decoding and overlays. Domain validation belongs to [`core`](../core/model.md) and struct-tag validation belongs to [`validation`](./validation.md).

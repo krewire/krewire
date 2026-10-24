@@ -1,6 +1,6 @@
 # Package: `cloud` (Cloud Runtime & Infra Blueprint Engine)
 
-The `packages/cloud` suite provides the cloud execution plane, task runners, service discovery, background queues, and infrastructure state management.
+The `pkg/cloud` suite provides the cloud execution plane, task runners, service discovery, background queues, and infrastructure state management.
 
 ---
 

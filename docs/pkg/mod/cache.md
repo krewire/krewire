@@ -62,4 +62,4 @@ func main() {
 ## Security & Architecture Boundaries
 
 - **Pure Go**: No CGO dependencies. Redis and Memcached drivers use standard TCP and native protocols (RESP and text protocol).
-- **Downward Dependency Pyramid**: Depends only on Level 1 (`packages/errs`, `packages/model`) and the Go standard library.
+- **Downward Dependency Pyramid**: Depends only on Level 1 (`pkg/errs`, `pkg/model`) and the Go standard library.

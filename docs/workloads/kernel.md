@@ -1,14 +1,16 @@
 # Workload: Kernel (`kernel`)
 
-The `kernel` kind represents the minimal viable Krewire project seed. Every new project created via `kiw new` starts as a kernel before being progressively enhanced to a specialized workload.
+The `kernel` kind is the minimal, pre-scaffold Krewire layout. It is the state
+that `scaffold.New` writes before a variant is equipped, and the state every
+`kiw init` / `kiw new` variant upgrades in place.
 
 ---
 
 ## 1. Key Characteristics
 
-- **Zero Bloat**: Contains only standard Go tooling and the declarative `krewire.yaml` file.
-- **Immediate Compilation**: Builds instantly with `go build` without external dependencies.
-- **Seamless Progression**: Upgrades to any of the other seven workload kinds in-place using `kiw init`.
+- **Zero Bloat**: standard Go tooling plus the declarative `krewire.yaml`; no Krewire imports.
+- **Immediate Compilation**: `go build` succeeds with no external dependencies.
+- **Seamless Progression**: every other kind is reached by equipping a variant, not by rewriting the project.
 
 ---
 
@@ -17,17 +19,38 @@ The `kernel` kind represents the minimal viable Krewire project seed. Every new 
 ```text
 my-kernel/
 ├── go.mod                # Go module descriptor
-├── krewire.yaml          # Project configuration (kind: kernel)
-├── main.go               # Minimal runnable Go program
+├── krewire.yaml          # project name and version
+├── main.go               # stdlib-only starter printing "hello, krewire"
 └── .gitignore            # Git exclusion rules
 ```
 
 ---
 
-## 3. Configuration (`krewire.yaml`)
+## 3. Detection
+
+`shape.Detect` reports `kernel` when all of the following hold:
+
+- `go.mod`, `krewire.yaml`, `.gitignore`, and `main.go` exist;
+- `main.go` still contains `hello, krewire`;
+- none of `pages/`, `content/`, `cmd/`, `internal/`, or `components/` exists.
+
+An explicit `project.kind: kernel` always wins over this inference.
+
+---
+
+## 4. Configuration (`krewire.yaml`)
+
+The scaffold writes only the project name and version:
 
 ```yaml
-version: "0.1.0"
+project:
+  name: my-kernel
+  version: 0.1.0
+```
+
+Declaring the kind explicitly is valid but unnecessary:
+
+```yaml
 project:
   name: my-kernel
   kind: kernel
@@ -35,20 +58,18 @@ project:
 
 ---
 
-## 4. Progressive Upgrades
+## 5. Progressive Upgrades
 
-From a clean kernel, equip the project with the desired workload:
+`kiw new <name>` writes this layout and then equips the fullstack `app` variant
+by default; `kiw init` without a variant stops after the config files. To move a
+kernel to another kind, equip it explicitly:
 
 ```bash
-# Upgrade to static website
-kiw init --site
-
-# Upgrade to documentation book
-kiw init --book
-
-# Upgrade to CLI utility
-kiw init --cli
-
-# Install AI-Agent Boost template
-kiw boost install
+kiw init --site      # static website
+kiw init --book      # documentation book
+kiw init --cli       # command-line tool
+kiw init --worker    # background worker
+kiw init --service   # microservice
+kiw init --infra     # infrastructure blueprint
+kiw boost install    # AI-agent Boost template
 ```

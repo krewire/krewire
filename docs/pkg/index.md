@@ -1,6 +1,6 @@
 # Krewire Packages — Technical Reference
 
-Comprehensive catalog and dependency guide for domain libraries in `github.com/krewire/krewire`.
+Comprehensive catalog and dependency guide for the 37 domain libraries in `github.com/krewire/krewire`.
 
 ---
 
@@ -8,30 +8,31 @@ Comprehensive catalog and dependency guide for domain libraries in `github.com/k
 
 All domain packages strictly conform to the downward-only dependency hierarchy described in [Architecture & Layering](../foundation/architecture.md):
 ```text
-tools/kiw ──► pkg/* ──► packages/model, packages/errs ──► Go Standard Library
+tools/kiw ──► pkg/* ──► pkg/model, pkg/errs ──► Go Standard Library
 ```
 
 ---
 
 ## Package Domains
 
-### 1. [Core & Control Plane](./core/kern.md)
+### 1. [Core & Control Plane](./core/model.md)
 The bedrock runtime executor, domain models, application assembly, and error management:
-- [Execution & Lifecycle Supervision (`lifecycle`)](./modules/lifecycle.md)
-- [Declarative Models & Workload Matrix (`model`)](./modules/model.md)
-- [Errors & Diagnostic Exit Codes (`errs`)](./modules/errs.md)
-- [Environment Resolution & Structured Logging (`env`, `log`)](./modules/log.md)
-- [Ecosystem Versioning & Signature (`version`)](./modules/version.md)
-- [Application Assembly & Container (`app`)](./modules/app.md)
+- [Execution & Lifecycle Supervision (`lifecycle`)](./mod/lifecycle.md)
+- [Declarative Models & Workload Matrix (`model`)](./mod/model.md)
+- [Errors & Diagnostic Exit Codes (`errs`)](./mod/errs.md)
+- [Environment Resolution & Structured Logging (`env`, `log`)](./mod/log.md)
+- [Ecosystem Versioning & Signature (`version`)](./mod/version.md)
+- [Application Assembly & Container (`app`)](./mod/app.md)
 
 ### 2. [Web & Client Runtime](./web-runtime/web.md)
 Fullstack web routing, component templates, static site generation, and interactive client WebAssembly:
 - [HTTP Router, SSG, SSR & Gateway (`web`)](./web-runtime/web.md)
-- [The `.kiw` DSL Engine & Templates (`kiw`)](./modules/kiw.md)
+- [The `.kiw` DSL Engine & Templates (`kiw`)](./mod/kiw.md)
 - [WebAssembly VDOM Engine (`runtime`)](./web-runtime/runtime.md)
 - [Web Components & Design Tokens (`ui`)](./web-runtime/ui-tui.md)
 - [Terminal UI Toolkit (`tui`)](./web-runtime/ui-tui.md)
-- [Asset Management & Bundling Pipeline (`assets`)](./modules/assets.md)
+- [Asset Management & Bundling Pipeline (`assets`)](./mod/assets.md)
+- [Markdown Content & Book Compiler (`book`)](./mod/book.md)
 
 ### 3. [System, Security & Storage](./system/security-and-auth.md)
 Defensive security, configuration parsing, and persistence abstractions:
@@ -41,12 +42,15 @@ Defensive security, configuration parsing, and persistence abstractions:
 
 ### 4. [Platform, AI & Utilities](./platform/cloud.md)
 Cloud orchestration, AI capabilities, testing infrastructure, and modular utilities:
-- [Native AI SDK (`ai`)](./modules/ai.md)
+- [Native AI SDK (`ai`)](./mod/ai.md)
 - [Cloud Orchestration & Infra Blueprints (`cloud`)](./platform/cloud.md)
 - [Test Harness & Browser Automation (`testing`)](./platform/testing.md)
+- [Caching, Redis & ORM (`cache`, `redis`, `orm`)](./platform/utilities.md)
+- [Mail Delivery & Commerce (`mail`, `commerce`)](./platform/utilities.md)
+- [Team Collaboration & Policies (`collab`)](./mod/collab.md)
 - [Hub, Resilience, Markdown, Functional, i18n, Term, Boost (`utilities`)](./platform/utilities.md)
 
 ---
 
 ## Granular Module Reference
-For individual package APIs and implementation notes, see the [Module Index](./modules/index.md).
+For individual package APIs and implementation notes, see the [Module Index](./mod/index.md).

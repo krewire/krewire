@@ -22,17 +22,43 @@ package main
 
 import (
 	"context"
+	"log"
+
 	"github.com/krewire/krewire/pkg/cloud/worker"
 )
 
+type GreetJob struct{}
+
+func (GreetJob) Run(ctx context.Context) error {
+	log.Println("hello from a Krewire worker job")
+	return nil
+}
+
 func main() {
-	w := worker.New(worker.Config{
-		Concurrency: 4,
-		Queues:      []string{"default", "critical"},
-	})
-	_ = w.Start(context.Background())
+	ctx := context.Background()
+
+	q := worker.NewInMemoryQueue()
+	if _, err := q.Enqueue(ctx, GreetJob{}, worker.Options{Priority: 1}); err != nil {
+		log.Fatal(err)
+	}
+
+	task, err := q.Dequeue(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := task.Job.Run(ctx); err != nil {
+		task.LastErr = err
+		_ = q.Nack(ctx, task)
+		log.Fatal(err)
+	}
+	if err := q.Ack(ctx, task); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("dead letters:", len(q.DLQ()))
 }
 ```
+
+For long-running consumption, wrap the same `Queue` in `worker.NewRunner(q, worker.WithConcurrency(n))` and call `Run(ctx)`; it dequeues with bounded concurrency, acks successes, and nacks failures so the queue applies retries and dead-lettering.
 
 ## Design boundary
 

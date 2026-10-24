@@ -6,21 +6,23 @@ The `worker` workload powers autonomous background processes, asynchronous queue
 
 ## 1. Key Capabilities
 
-- **Supervised Lifecycle (`packages/lifecycle`)**: Integrates with the kernel supervisor for automatic restart, health heartbeats, and graceful cancellation upon SIGTERM/SIGINT.
-- **Queue & Consumer Primitives (`packages/cloud/worker`)**: Pluggable queue abstractions (Redis, SQS, RabbitMQ, and in-memory).
-- **Concurrency & Resilience (`packages/resilience`)**: Configurable worker pool concurrency, exponential backoff retries, and circuit breakers.
+- **Supervised Lifecycle (`pkg/lifecycle`)**: Integrates with the kernel supervisor for automatic restart, health heartbeats, and graceful cancellation upon SIGTERM/SIGINT.
+- **Queue & Consumer Primitives (`pkg/cloud/worker`)**: Pluggable queue abstractions (Redis, SQS, RabbitMQ, and in-memory).
+- **Concurrency & Resilience (`pkg/resilience`)**: Configurable worker pool concurrency, exponential backoff retries, and circuit breakers.
 
 ---
 
 ## 2. Directory Layout
 
+The `kiw init --worker` scaffold writes:
+
 ```text
 my-worker/
-├── krewire.yaml          # Project configuration (kind: worker)
-├── main.go               # Worker boot & supervisor integration
-└── jobs/                 # Queue task handlers & jobs
-    ├── email_job.go
-    └── cleanup_job.go
+├── krewire.yaml
+├── main.go
+├── internal/
+│   └── jobs/             # Queue task handlers
+└── README.md
 ```
 
 ---
@@ -36,10 +38,8 @@ project:
 worker:
   concurrency: 8
   queues:
-    - name: "high-priority"
-      rate_limit: 100
-    - name: "default"
-      rate_limit: 50
+    - high-priority
+    - default
 ```
 
 ---
@@ -50,7 +50,7 @@ worker:
 # Run worker in local development mode
 kiw worker
 
-# Build binary
+# Build binary into .krewire/build/bin/<name>
 kiw build
 
 # Run test suite

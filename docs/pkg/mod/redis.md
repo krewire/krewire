@@ -64,4 +64,4 @@ func main() {
 ## Security & Architecture Boundaries
 
 - **Pure Go**: No CGO dependencies.
-- **Downward Dependency Pyramid**: Depends only on Level 1 (`packages/errs`, `packages/model`) and standard library `net`.
+- **Downward Dependency Pyramid**: Depends only on Level 1 (`pkg/errs`, `pkg/model`) and standard library `net`.

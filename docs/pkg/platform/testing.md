@@ -1,6 +1,6 @@
 # Package: `testing` (Test Harness & Browser Automation)
 
-The `packages/testing` library delivers testing utilities, assertions, HTTP test servers, and headless browser test runners (`KWL-TEST-P8M4L`).
+The `pkg/testing` library delivers testing utilities, assertions, HTTP test servers, and headless browser test runners (`KWL-TEST-P8M4L`).
 
 ---
 

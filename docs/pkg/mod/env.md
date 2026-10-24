@@ -1,6 +1,6 @@
-# Environment Resolution (`packages/env`)
+# Environment Resolution (`pkg/env`)
 
-The `packages/env` package defines canonical target execution environments across the ecosystem.
+The `pkg/env` package defines canonical target execution environments across the ecosystem.
 
 ## Environments
 

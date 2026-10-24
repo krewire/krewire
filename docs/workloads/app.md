@@ -7,38 +7,50 @@ The `app` workload targets fullstack, dynamic web applications that combine serv
 ## 1. Architecture
 
 An `app` project leverages:
-- **`packages/web`**: Fast HTTP router with middleware pipeline (CORS, CSRF, security headers, compression).
-- **`packages/app`**: Dependency injection container for assembling database connections, services, and handlers.
-- **`packages/ui`**: Shared UI component library written in Go.
-- **`packages/runtime`**: Client-side WebAssembly runtime (`GOOS=js GOARCH=wasm`) providing Virtual DOM (VDOM) and interactive widget islands.
+- **`pkg/web`**: Fast HTTP router with middleware pipeline (CORS, CSRF, security headers, compression).
+- **`pkg/app`**: Dependency injection container for assembling database connections, services, and handlers.
+- **`pkg/ui`**: Shared UI component library written in Go.
+- **`pkg/runtime`**: Client-side WebAssembly runtime (`GOOS=js GOARCH=wasm`) providing Virtual DOM (VDOM) and interactive widget islands.
 
 ```text
 Browser Client
   ├── HTML / SSR from server
-  └── WebAssembly Island (packages/runtime: VDOM + reactive widgets)
+  └── WebAssembly Island (pkg/runtime: VDOM + reactive widgets)
        ▲
        │ HTTP / JSON API / WebSocket
        ▼
 Server (Go Binary)
-  ├── packages/web (Router, Middleware, Gateway)
-  ├── packages/app (DI Container, Service Assembly)
-  ├── packages/sec (Security headers, CSRF, PII redaction)
-  └── packages/storage (Database, Object Storage)
+  ├── pkg/web (Router, Middleware, Gateway)
+  ├── pkg/app (DI Container, Service Assembly)
+  ├── pkg/sec (Security headers, CSRF, PII redaction)
+  └── pkg/storage (Database, Object Storage)
 ```
 
 ---
 
 ## 2. Project Layout
 
+The `kiw init --app` scaffold writes:
+
 ```text
 my-app/
-├── krewire.yaml          # Declarative configuration
-├── main.go               # Application entrypoint & DI assembly
-├── handlers/             # HTTP route handlers
-├── services/             # Business logic layer
-├── views/                # HTML templates & server components
-├── client/               # WebAssembly interactive widgets (compiled to wasm)
-└── static/               # CSS, images, and public assets
+├── krewire.yaml
+├── main.go
+├── internal/
+│   ├── app/              # Application assembly & lifecycle
+│   ├── config/           # Typed configuration
+│   └── http/             # HTTP server & routing
+├── web/
+│   ├── layouts/          # Page shells
+│   ├── pages/            # Page components
+│   ├── components/       # Reusable components
+│   └── theme/            # Theme and palette
+├── assets/
+│   ├── embed.go          # Embedded asset bundle
+│   └── public/           # CSS and JS assets
+├── .env
+├── .env.example
+└── README.md
 ```
 
 ---
@@ -55,12 +67,10 @@ server:
   host: "0.0.0.0"
   port: 8080
 
-web:
-  ssr: true
-  wasm:
-    enabled: true
-    source: "./client"
-    output: "./static/app.wasm"
+# Optional client WASM build (KWF-T4X9P)
+wasm:
+  entry: "./wasm"     # main package path
+  name: "runtime"     # output module name
 ```
 
 ---
@@ -74,9 +84,9 @@ kiw dev
 # Run test suite
 kiw test
 
-# Compile deployable binary with embedded assets
+# Compile the binary into .krewire/build/bin/<name>
 kiw build
 
-# Run production binary
-./bin/my-app
+# Run the built binary
+./.krewire/build/bin/my-app
 ```

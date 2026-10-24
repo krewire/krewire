@@ -1,6 +1,6 @@
-# Error & Diagnostic Primitives (`packages/errs`)
+# Error & Diagnostic Primitives (`pkg/errs`)
 
-The `packages/errs` package provides POSIX-compatible exit codes, structured diagnostic attributes, and stack traces with standard-library-only dependencies.
+The `pkg/errs` package provides POSIX-compatible exit codes, structured diagnostic attributes, and stack traces with standard-library-only dependencies.
 
 ## Key Types & Functions
 

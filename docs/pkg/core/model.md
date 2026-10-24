@@ -1,12 +1,12 @@
-# Package: `packages/model` (Declarative Domain Models)
+# Package: `pkg/model` (Declarative Domain Models)
 
-The `packages/model` library declares pure data structures, validation invariants, workload matrices, and scope hierarchies for the Krewire ecosystem (`KWF-M8K2Q`, `KWL-K1N2Q`).
+The `pkg/model` library declares pure data structures, validation invariants, workload matrices, and scope hierarchies for the Krewire ecosystem (`KWF-M8K2Q`, `KWL-K1N2Q`).
 
 ---
 
 ## 1. Zero-Dependency Invariant
 
-`packages/model` is strictly standard-library-only. It defines business rules without coupling to any execution runtime, network driver, or database.
+`pkg/model` is strictly standard-library-only. It defines business rules without coupling to any execution runtime, network driver, or database.
 
 ---
 

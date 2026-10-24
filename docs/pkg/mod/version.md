@@ -1,6 +1,6 @@
-# Ecosystem Versioning & Signature (`packages/version`)
+# Ecosystem Versioning & Signature (`pkg/version`)
 
-The `packages/version` package implements semantic versioning contracts, ecosystem compatibility matrix checks, and binary signature watermarking.
+The `pkg/version` package implements semantic versioning contracts, ecosystem compatibility matrix checks, and binary signature watermarking.
 
 ## Features
 

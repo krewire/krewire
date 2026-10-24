@@ -1,10 +1,10 @@
 # Package: `ui` & `tui` (Web Components & Terminal UI)
 
-The `packages/ui` and `packages/tui` libraries provide composable UI primitives for the browser and the terminal respectively.
+The `pkg/ui` and `pkg/tui` libraries provide composable UI primitives for the browser and the terminal respectively.
 
 ---
 
-## 1. Web UI Toolkit (`packages/ui`)
+## 1. Web UI Toolkit (`pkg/ui`)
 
 Shared components and design tokens usable in both SSR templates and WASM components:
 - **`ui/components`**: Button, Alert, Badge, Card, Avatar, Breadcrumb.
@@ -13,12 +13,12 @@ Shared components and design tokens usable in both SSR templates and WASM compon
 
 ---
 
-## 2. Terminal UI Toolkit (`packages/tui`)
+## 2. Terminal UI Toolkit (`pkg/tui`)
 
 Powers the `kiw` CLI application:
 - **Command Routing**: Declarative subcommand trees with group categorizations and examples (`tui.NewApp`, `tui.NewCommand`).
 - **Interactive Prompts**: Text input, password masking, single select menus, multi-select checkboxes.
-- **Terminal Formatting (`packages/term`)**: Colorized text output, ASCII art, status spinners, and progress meters.
+- **Terminal Formatting (`pkg/term`)**: Colorized text output, ASCII art, status spinners, and progress meters.
 
 ```go
 app := tui.NewApp("my-tool", "v1.0.0").

@@ -1,7 +1,7 @@
 # Configuration Reference — `krewire.yaml` Specification
 
 ## Description
-The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects.
+The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects. The schema is owned by [`tools/kiw/internal/config/config.go`](../../../tools/kiw/internal/config/config.go).
 
 ---
 
@@ -23,43 +23,67 @@ project:
 A complete `krewire.yaml` schema with all supported options and multi-runtime controls:
 
 ```yaml
-version: "0.1.0"
+version: "0.1.0"          # Top-level product version (injected into builds)
 
 # Project metadata & workload invariants
 project:
   name: my-service          # Required: kebab-case ^[a-z][a-z0-9-]*$
-  kind: service             # Required: app | cli | site | book | worker | service | infra | kernel
-  description: "Core API Service"
-  author: "Krewire Contributors"
+  kind: service             # app | cli | site | book | worker | service | infra | kernel
+  version: "v0.1.0"         # Alternative version location (folds into top-level version)
   dirs:
     cmd: "cmd/app"          # Custom entrypoint directory
     internal: "internal"    # Internal package directory
     web: "web"              # Web templates & components directory
     public: "public"        # Static public assets directory
 
-# Multi-runtime coordination & environment binding (KWN-MRCN, KWN-Q7X4M)
-runtime:
-  namespace: "api"          # Prefix for environment variables: KREWIRE_API_<KEY>
-  env_file: ".env.local"    # Custom dotenv file path (defaults to .env)
+# Environment & diagnostics
+env: local                  # local | production | testing
+debug: false
+
+# Shared site/book metadata
+title: "My Service"
+author: "Krewire Contributors"
+base: "/"                   # URL base prefix
+input: "content"            # Content directory (default: content)
+output: ".krewire/build"    # Output directory (default: .krewire/build)
 
 # Build pipeline & foreign dependency orchestration (KWN-BLD5Y)
 build:
-  depends_on:               # Ordered list of pre-build shell commands
-    - "npm run build"       # e.g., compile frontend before building Go binary
+  base: "/"
+  output: ".krewire/build"
+  include: ["**/*.md"]      # Content globs; unset uses book defaults
+  exclude: ["**/README.md"] # Removed after include filtering
+  depends_on:               # Ordered pre-build shell commands
+    - "npm run build"
     - "go generate ./..."
+  outputs:                  # Runtime name -> output directory
+    nodejs: "dist"
+
+# Development server
+dev:
+  port: 8080
 
 # Primary HTTP server settings (for app, service, site)
 server:
   host: "0.0.0.0"
   port: 8080                # Default port (must be between 1 and 65535)
-  read_timeout: "15s"
-  write_timeout: "15s"
+
+# Multi-runtime coordination & environment binding (KWN-MRCN, KWN-Q7X4M)
+runtime:
+  namespace: "api"          # Prefix for environment variables: KREWIRE_API_<KEY>
+  env_file: ".env.local"    # Custom dotenv file path (defaults to .env)
+  port: 8080                # Default runtime port
+
+# Single microservice descriptor (kind: service)
+service:
+  name: "auth"
+  port: 8081
 
 # Co-located microservices with distinct port allocations (FRK-CONF-032)
 services:
-  auth:
+  - name: "auth"
     port: 8081
-  billing:
+  - name: "billing"
     port: 8082
 
 # API gateway reverse proxy configuration (KWF-L5H2F)
@@ -72,40 +96,69 @@ gateway:
       timeout: "5s"
     - path: "/api/billing"
       service: "billing"
-      timeout: "10s"
+      strip_prefix: true
+      rate_limit: 100
     - path: "/api/external"
       target_url: "https://api.external.com"
+      method: "GET"
+      prefix: true
+      middleware: ["cors"]
 
 # Internationalization settings (kind: site, book)
 i18n:
   default_locale: "en"
   fallback_locale: "en"
+  base_path: "lang"
   locales: ["en", "id"]
 
 # SSG static site settings (kind: site)
 ssg:
-  content_dir: "content"
-  templates_dir: "templates"
-  output_dir: ".krewire/build"
-  clean_urls: true
-  minify: true
+  description: "Product documentation"
+  theme:
+    default: "auto"         # auto | light | dark
+  layouts: []               # {name, body, style} or {name, ui}
+  components: []            # {name, body, style}
+  pages: []                 # Declarative output pages
+  collections: []           # Markdown + frontmatter collections
+  assets: {}                # Output path -> file contents
+  pipeline: []              # Fingerprint/minify/image transforms
+  auto_assets:
+    enabled: true
+    exclude: ["*.min.css"]
+    js_placement: "head"    # head | body
+    bundle: true
+  include_drafts: false
+  include_future: false
 
 # Technical book settings (kind: book)
+# Title, author, input, output, base, version, nav, footer, and theme are
+# shared top-level keys. The book block only controls placement and TOC.
 book:
-  source_dir: "manuscript"
-  output_dir: ".krewire/build"
-  title: "Engineering Handbook"
+  mount: "/docs"            # Export the book under a sub-path
+  toc: true                 # Force the generated root table of contents
 
 # Background worker settings (kind: worker)
 worker:
   concurrency: 4
-  queues:
-    - name: "default"
-      rate_limit: 100
-    - name: "critical"
-      rate_limit: 500
+  queues: ["default", "critical"]
 
-# Custom project tasks executable via `kiw run <script>`
+# WASM client build (KWF-T4X9P)
+wasm:
+  entry: "./wasm"           # Main package path (default: ./wasm)
+  name: "runtime"           # Output module name (default: runtime)
+
+# Cloud infrastructure blueprint (kind: infra, KWF-B7N3D)
+infra:
+  provider: "aws"
+  region: "ap-southeast-1"
+  state: ".krewire/infra/state.json"
+  resources:
+    - kind: "service"
+      id: "api"
+      properties:
+        image: "krewire/api:latest"
+
+# Custom project tasks executable via `kiw run <task>`
 scripts:
   migrate: "go run ./cmd/migrate"
   seed: "go run ./cmd/seed"
@@ -122,7 +175,7 @@ Krewire coordinates cleanly with other runtimes (Node.js, Laravel/PHP) in the sa
 ### 1. Dotenv Loading & Precedence
 - `kiw` loads `.env` files automatically on boot (`kiw run`, `kiw dev`, `kiw build`).
 - If `runtime.env_file` is specified, that file is loaded with higher precedence over `.env`.
-- If `.env` is missing but `.env.example` exists, `kiw` logs a warning and creates a template `.env` during scaffolding (`KWL-CFGV-005`).
+- If the target env file is missing but `.env.example` exists, `kiw` logs a warning and scaffolds a template `.env` (`KWL-CFGV-005`).
 
 ### 2. Namespace Prefixing & Synchronization
 When `runtime.namespace` is declared (e.g. `namespace: "api"`):
@@ -132,7 +185,7 @@ When `runtime.namespace` is declared (e.g. `namespace: "api"`):
 
 ### 3. Port Allocation & Conflict Detection
 - `kiw info` and runtime boot (`kiw dev`, `kiw run`) automatically detect ports declared across:
-  - `krewire.yaml` (`server.port`, `services.<name>.port`)
+  - `krewire.yaml` (`runtime.port`, `dev.port`, `server.port`, `services[].port`)
   - Node.js `package.json` (scripts containing `--port`, `PORT=`)
   - Laravel/PHP `composer.json` or `artisan serve` defaults (:8000)
   - Active `.env` files (`PORT=`, `APP_PORT=`, `SERVER_PORT=`)

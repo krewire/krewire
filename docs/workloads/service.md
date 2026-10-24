@@ -6,21 +6,24 @@ The `service` workload targets headless backend microservices, RPC nodes, and RE
 
 ## 1. Key Capabilities
 
-- **Lightweight API Gateway (`packages/web/gateway`)**: Fast HTTP path routing, rate limiting, and JWT/token verification.
-- **Service Discovery & Registry (`packages/cloud/service/registry`)**: Built-in service registration and health checks (`/healthz`, `/readyz`).
-- **Distributed Tracing & Metrics (`packages/cloud/service/tracing`)**: Context-propagated request tracing and OpenTelemetry-aligned metrics.
+- **Lightweight API Gateway (`pkg/web/gateway`)**: Fast HTTP path routing, rate limiting, and token verification.
+- **Service Discovery & Registry (`pkg/cloud/service/registry`)**: Built-in service registration and health checks (`/healthz`, `/readyz`).
+- **Distributed Tracing & Metrics (`pkg/cloud/service/tracing`)**: Context-propagated request tracing and metrics.
+- **Resilience (`pkg/cloud/service/resilience`)**: Retries, circuit breakers, and timeout policies for service-to-service calls.
 
 ---
 
 ## 2. Directory Layout
 
+The `kiw init --service` scaffold writes:
+
 ```text
 my-service/
-├── krewire.yaml          # Project configuration (kind: service)
-├── main.go               # Server initialization
-├── api/                  # Route handlers & DTO definitions
-│   └── v1/
-└── internal/             # Domain logic & data layer
+├── krewire.yaml
+├── main.go
+├── internal/
+│   └── handler/          # HTTP handlers
+└── README.md
 ```
 
 ---
@@ -38,8 +41,8 @@ server:
   port: 9000
 
 service:
-  mesh: false
-  health_check_path: "/healthz"
+  name: "my-service"
+  port: 9000
 ```
 
 ---
@@ -50,7 +53,7 @@ service:
 # Run service in development mode
 kiw dev
 
-# Build binary
+# Build binary into .krewire/build/bin/<name>
 kiw build
 
 # Run security audit & test

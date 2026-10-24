@@ -4,7 +4,7 @@ This package trio abstracts persistent object storage, testable filesystem opera
 
 ---
 
-## 1. Object Storage (`packages/storage`)
+## 1. Object Storage (`pkg/storage`)
 
 A provider-agnostic interface for storing and retrieving binary objects (media, build artifacts, backups):
 
@@ -20,12 +20,12 @@ Supported backends: Local disk filesystem, S3-compatible cloud storage, and in-m
 
 ---
 
-## 2. Testable Filesystem (`packages/fs`)
+## 2. Testable Filesystem (`pkg/fs`)
 
 Wraps `io/fs` and `os` behind testable interfaces (`fs.FS`), enabling fast in-memory mock testing without writing temporary files to the host disk.
 
 ---
 
-## 3. Atomic File Writes (`packages/file`)
+## 3. Atomic File Writes (`pkg/file`)
 
 Ensures zero-downtime, safe file replacements: writes content to a temporary sibling file and performs an atomic rename (`os.Rename`), preventing file corruption during power cuts or process interruptions.

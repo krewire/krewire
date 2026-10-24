@@ -24,12 +24,19 @@ The ecosystem spans eight repositories:
 
 ```text
 krewire/
-├── docs/                 # Ecosystem documentation (Foundation, Packages, Boost, Devtool)
-│   ├── foundation/       # Unified Architecture & Philosophy specifications
-│   ├── packages/         # Domain packages and module specifications
-│   └── tools/kiw/        # Developer CLI documentation
-├── packages/             # Domain libraries and control plane (25 modular packages)
-│   ├── kern/             # Bedrock control plane: model, lifecycle, errs, log, env, version
+├── docs/                 # Ecosystem documentation (foundation, pkg, tools, templates, guides)
+│   ├── foundation/       # Unified architecture & philosophy specifications
+│   ├── pkg/              # Domain package reference (core, mod, web-runtime, system, platform)
+│   ├── tools/kiw/        # Developer CLI documentation
+│   ├── templates/        # Starter template and Boost documentation
+│   └── guides/           # Operational and quality playbooks
+├── pkg/                  # Domain libraries and control plane (37 modular packages)
+│   ├── model/            # Declarative domain models, workload matrix, scopes, tiers, opt-in rules
+│   ├── lifecycle/        # Workload execution dispatch, registry, executor, supervisor
+│   ├── errs/             # POSIX-compatible exit codes, diagnostics, stack traces
+│   ├── env/              # Target environment resolution (local, production, testing)
+│   ├── version/          # Semantic versioning, compatibility checks, build watermark
+│   ├── log/              # Structured slog logging tailored to environments
 │   ├── web/              # HTTP router, middleware, SSR, SSG, gateway, HMR
 │   ├── app/              # Dependency injection container & application assembly
 │   ├── ui/               # UI components, layout, styling tokens, CSS theme palettes
@@ -41,20 +48,27 @@ krewire/
 │   ├── assets/           # Asset management, pipeline, bundling, and hash busting
 │   ├── cloud/            # Runner, service, worker, storage, infra, deploy targets
 │   ├── config/           # Declarative configuration loader (krewire.yaml)
-│   ├── file/             # Atomic file operations and safe replacement
+│   ├── validation/       # Schema and struct validation
+│   ├── storage/          # Persistent object storage abstractions (disk, memory, cloud)
 │   ├── fs/               # Testable filesystem abstraction boundary
+│   ├── file/             # Atomic file operations and safe replacement
 │   ├── functional/       # Generic collection and functional utilities (Map, Filter, Reduce)
 │   ├── hub/              # Plugin registry and package resolver
 │   ├── i18n/             # Internationalization, message bundles, pluralization, middleware
 │   ├── kiw/              # .kiw DSL compiler, parser, AST desugaring, component engine
 │   ├── markdown/         # Markdown parsing & rendering with link prefixing
+│   ├── book/             # Markdown content compiler (chapters, TOC, search)
 │   ├── resilience/       # Retry policies with exponential backoff & circuit breakers
-│   ├── storage/          # Persistent object storage abstractions (disk, memory, cloud)
 │   ├── term/             # Terminal detection, ANSI colors, and output formatting
 │   ├── testing/          # Test harnesses and browser automation utilities
-│   ├── validation/       # Schema and struct validation
-│   └── boost/            # Boost coordination package & embedded agentic template
-├── apps/                 # Deployable services and applications
+│   ├── boost/            # Boost coordination package & embedded agentic template
+│   ├── cache/            # Multi-driver cache (memory, file, Redis, Memcached)
+│   ├── redis/            # Pure-Go Redis client (RESP protocol)
+│   ├── orm/              # Pure-Go multi-driver ORM & SQL query builder
+│   ├── mail/             # Multi-driver email delivery (SMTP, Resend, SendGrid, Postmark)
+│   ├── commerce/         # Payment gateway integration (Midtrans)
+│   └── collab/           # Team roles and per-environment collaboration policies
+├── apps/                 # Deployable first-party services and applications
 ├── tools/                # Developer tooling
 │   └── kiw/              # Unified developer CLI for scaffolding, build, and deploy
 └── templates/            # Starter templates and scaffolding blueprints
@@ -90,11 +104,11 @@ flowchart TD
     end
 
     subgraph L2 ["Layer 2: Execution & Supervision"]
-        KernLifecycle["packages/lifecycle, packages/env, packages/log"]
+        KernLifecycle["pkg/lifecycle, pkg/env, pkg/log"]
     end
 
     subgraph L1 ["Layer 1: Declarative Core & Base Primitives"]
-        KernModel["packages/model, packages/errs, packages/version"]
+        KernModel["pkg/model, pkg/errs, pkg/version"]
     end
 
     subgraph L0 ["Layer 0: Platform Foundation"]
@@ -122,8 +136,8 @@ flowchart TD
 | **Layer 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Layers 0, 1, 2, 3, 4 | External project application code |
 | **Layer 4** | Developer Tooling | `tools/kiw` | Layers 0, 1, 2, 3 | Layer 5, Consumer application binaries |
 | **Layer 3** | Domain Libraries | `pkg/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`tools/kiw` or `templates/*`) |
-| **Layer 2** | Execution & Supervision | `packages/lifecycle`, `packages/env`, `packages/log` | Layers 0, 1 | Layers 3, 4, 5 (Zero domain package imports) |
-| **Layer 1** | Declarative Core & Base Primitives | `packages/model`, `packages/errs`, `packages/version` | Layer 0 (Stdlib only; `model` may import `errs`) | Layers 2, 3, 4, 5, Third-party packages |
+| **Layer 2** | Execution & Supervision | `pkg/lifecycle`, `pkg/env`, `pkg/log` | Layers 0, 1 | Layers 3, 4, 5 (Zero domain package imports) |
+| **Layer 1** | Declarative Core & Base Primitives | `pkg/errs`, `pkg/model`, `pkg/version` | Layer 0 (stdlib only; `model` and `version` may import `errs`) | Layers 2, 3, 4, 5, Third-party packages |
 | **Layer 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
 
 ---
@@ -138,29 +152,29 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 - **Enforcement:** Verified via AST analysis in [`layering_test.go`](../../layering_test.go) (`TestDownwardImportsOnly`).
 
 #### Invariant 2: Base Floor Invariant
-- **Rule:** Base foundation packages (`packages/errs`, `packages/model`, `packages/version`) sit at the floor of the ecosystem dependency graph ($Depth(\text{base}) = 0$ above stdlib). They require no other ecosystem module.
+- **Rule:** `pkg/errs` is the floor of the ecosystem dependency graph: it imports the standard library only. `pkg/model` and `pkg/version` sit directly above it and may import `pkg/errs` and nothing else from the ecosystem. No base package may import a domain package.
 - **Rationale:** If base packages depended on a domain package (such as `web` or `config`), every package in the ecosystem would transitively drag those dependencies along, destroying modularity.
-- **Enforcement:** Verified in [`layering_test.go`](../../layering_test.go).
+- **Enforcement:** [`pkg/errs/dependency_test.go`](../../pkg/errs/dependency_test.go) (`TestImportBoundary`) and [`pkg/model/dependency_test.go`](../../pkg/model/dependency_test.go) (`TestModel_StdlibBoundary`) assert the per-package boundaries; [`layering_test.go`](../../layering_test.go) derives module depth from `go.work` and each `go.mod`.
 
 #### Invariant 3: Zero-Ecosystem Coupling in Base Foundation
 - **Rule:** Base foundation packages must contain **zero** references, string literals, or constants naming higher-layer modules or packages (`github.com/krewire/*`).
-- **Rationale:** True scalability requires that adding a new package to `packages/` never requires a corresponding code edit in base packages. The ecosystem roster is derived dynamically at runtime from `go.work` and module descriptors.
+- **Rationale:** True scalability requires that adding a new package to `pkg/` never requires a corresponding code edit in base packages. The ecosystem roster is derived dynamically at runtime from `go.work` and module descriptors.
 - **Enforcement:** Verified via AST literal inspection in [`layering_test.go`](../../layering_test.go) (`TestNoEcosystemNames`).
 
 #### Invariant 4: Hermetic Core Boundary
-- **Rule:** `packages/model` may import **only** the Go standard library and its internal `errs` sibling. It must never import external third-party dependencies or other Krewire packages.
+- **Rule:** `pkg/model` may import **only** the Go standard library and its internal `errs` sibling. It must never import external third-party dependencies or other Krewire packages.
 - **Rationale:** Ensures that business models, workload definitions, and scope hierarchies are 100% portable, pure, and immune to third-party vulnerability churn.
-- **Enforcement:** Verified in [`packages/model/dependency_test.go`](../../packages/model/dependency_test.go) (`TestModel_StdlibBoundary`) and [`packages/errs/dependency_test.go`](../../packages/errs/dependency_test.go) (`TestImportBoundary`).
+- **Enforcement:** Verified in [`pkg/model/dependency_test.go`](../../pkg/model/dependency_test.go) (`TestModel_StdlibBoundary`) and [`pkg/errs/dependency_test.go`](../../pkg/errs/dependency_test.go) (`TestImportBoundary`).
 
 #### Invariant 5: Complete Tooling Isolation (No `kiw` Imports)
-- **Rule:** No package under `packages/` or `templates/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
-- **Rationale:** Developer tooling consumes domain libraries; libraries never consume developer tooling. Logic needed by both must reside in a domain package (e.g. `packages/hub/resolver`, `packages/tui`), never inside CLI commands.
+- **Rule:** No package under `pkg/` or `templates/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
+- **Rationale:** Developer tooling consumes domain libraries; libraries never consume developer tooling. Logic needed by both must reside in a domain package (e.g. `pkg/hub/resolver`, `pkg/tui`), never inside CLI commands.
 - **Enforcement:** Enforced at compile time and validated during package build pipelines.
 
 #### Invariant 6: Opt-In Battery Boundaries (`OptInRule`)
 - **Rule:** Packages classified as specialized batteries for a specific workload kind (e.g. `cloud/worker`, `web/ssg`) are blocked from uninvited cross-import by non-owning kinds unless explicitly opted in.
 - **Rationale:** Guarantees that lightweight workloads (such as `cli` or `kernel`) incur zero binary weight or initialization cost from features they do not use.
-- **Enforcement:** Enforced via declarative opt-in policies in [`packages/model/project.go`](../../packages/model/project.go#L82) (`ViolatesOptIn`).
+- **Enforcement:** Enforced via declarative opt-in policies in [`pkg/model/project.go`](../../pkg/model/project.go#L105) (`ViolatesOptIn`).
 
 ---
 
@@ -202,32 +216,32 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 
 ## 5. Subsystem Architecture
 
-### A. Core Control Plane & Base Primitives (`packages/model`, `packages/lifecycle`, `packages/errs`)
-- **Lifecycle & Module Registry (`packages/lifecycle`):** Provides structured lifecycle phases (`Init`, `Start`, `Stop`) with supervisor capabilities, graceful shutdown, and context propagation.
-- **Error Handling & Exit Codes (`packages/errs`):** Structured error categorization (`UsageError`, `FailureError`), stack trace capture, and deterministic process exit codes (`0`, `1`, `2`).
-- **Environment & Logging (`packages/env`, `packages/log`):** Standard-library-based structured logging (`log/slog`) with environment-aware formatting (JSON in production, styled text in local development) and automatic PII redaction.
-- **Declarative Models & Workload Matrix (`packages/model`):** Canonical workload kinds, scope hierarchy, licensing tiers, and opt-in import constraints.
-- **Versioning & Watermark (`packages/version`):** Semantic version contracts, compatibility validation, and build signature watermarking.
+### A. Core Control Plane & Base Primitives (`pkg/model`, `pkg/lifecycle`, `pkg/errs`)
+- **Lifecycle & Module Registry (`pkg/lifecycle`):** Provides structured lifecycle phases (`Init`, `Start`, `Stop`) with supervisor capabilities, graceful shutdown, and context propagation.
+- **Error Handling & Exit Codes (`pkg/errs`):** Structured error categorization (`UsageError`, `FailureError`), stack trace capture, and deterministic process exit codes (`0`, `1`, `2`).
+- **Environment & Logging (`pkg/env`, `pkg/log`):** Standard-library-based structured logging (`log/slog`) with environment-aware formatting (JSON in production, styled text in local development) and automatic PII redaction.
+- **Declarative Models & Workload Matrix (`pkg/model`):** Canonical workload kinds, scope hierarchy, licensing tiers, and opt-in import constraints.
+- **Versioning & Watermark (`pkg/version`):** Semantic version contracts, compatibility validation, and build signature watermarking.
 
 ### B. Domain Libraries (`pkg/*`)
-- **Web (`packages/web`):** High-throughput HTTP routing, pipeline middleware, SSR templating, SSG asset pipeline, WebSocket-driven HMR, and API gateway routing.
-- **Runtime (`packages/runtime`):** WebAssembly client engine compiled with `GOOS=js`, providing a lightweight Virtual DOM (VDOM), declarative component mounting, and reactive widget islands.
-- **Security (`packages/sec`):** Secure defaults out-of-the-box: OWASP-compliant security headers, CSRF token generation/validation, CORS configuration, URL SSRF defense, and structured log sanitization.
-- **Storage & Cloud (`packages/storage`, `packages/cloud`):** Pluggable object storage abstractions (local filesystem and cloud object stores) with deployment runners, service discovery, and worker queues.
-- **Config & Validation (`packages/config`, `packages/validation`):** Type-safe YAML unmarshaling with struct tag validation (`validate:"required"`).
+- **Web (`pkg/web`):** High-throughput HTTP routing, pipeline middleware, SSR templating, SSG asset pipeline, WebSocket-driven HMR, and API gateway routing.
+- **Runtime (`pkg/runtime`):** WebAssembly client engine compiled with `GOOS=js`, providing a lightweight Virtual DOM (VDOM), declarative component mounting, and reactive widget islands.
+- **Security (`pkg/sec`):** Secure defaults out-of-the-box: OWASP-compliant security headers, CSRF token generation/validation, CORS configuration, URL SSRF defense, and structured log sanitization.
+- **Storage & Cloud (`pkg/storage`, `pkg/cloud`):** Pluggable object storage abstractions (local filesystem and cloud object stores) with deployment runners, service discovery, and worker queues.
+- **Config & Validation (`pkg/config`, `pkg/validation`):** Type-safe YAML unmarshaling with struct tag validation (`validate:"required"`).
 
 ### C. Developer Tooling — `kiw` (`tools/kiw`)
 - **Unified Entry Point:** A single binary (`kiw`) replacing fragmented shell scripts or separate CLI binaries.
 - **Pipeline Dispatch:** `kiw` inspects project markers and `krewire.yaml` to detect project kind (`shape`) and route commands:
   - `build` / `serve`: Dispatches SSG pipeline for `site`, book pipeline for `book`, or Go binary builds for `app`/`cli`.
   - `run` / `dev`: Executes local apps, standalone scripts, or defined tasks with hot-reload.
-  - `deploy`: Prepares and stages production artifacts into `dist/`.
+  - `deploy`: Prepares and stages production artifacts into `.krewire/dist/`.
   - `new` / `init`: Scaffolds projects from kernel blueprints and equips them with workload variants.
-- **Dogfooding:** Built entirely on `packages/tui` for interactive terminal UI, `packages/errs` for status and error codes, and `packages/version` for versioning.
+- **Dogfooding:** Built entirely on `pkg/tui` for interactive terminal UI, `pkg/errs` for status and error codes, and `pkg/version` for versioning.
 
-### D. AI-Native Boost Engine (`packages/boost` & `templates/boost`)
-- **Embedded Agent Constitution:** Embedded via `//go:embed` into `packages/boost`, providing a pre-configured multi-agent orchestration team (`.agents/`).
-- **20 Specialized Agents & Workflows:** Covers planning, architecture, implementation, refactoring, security auditing, and continuous learning.
+### D. AI-Native Boost Engine (`pkg/boost` & `templates/boost`)
+- **Embedded Agent Constitution:** Embedded via `//go:embed` into `pkg/boost`, providing a pre-configured multi-agent orchestration team (`.agents/`).
+- **21 Specialized Agents & Workflows:** Covers planning, architecture, implementation, refactoring, security auditing, and continuous learning.
 - **Project Governance:** Standardized rules and templates installed via `kiw boost install` into any new or existing repository.
 
 ---

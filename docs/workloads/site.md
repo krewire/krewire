@@ -6,25 +6,32 @@ The `site` workload powers static websites, documentation hubs, blogs, and landi
 
 ## 1. Key Capabilities
 
-- **Asset Pipeline (`packages/web/ssg`)**: Generates optimized static HTML, CSS, JavaScript, and WebP images.
-- **Live Preview (`packages/web/ssg/hmr`)**: WebSocket-driven instant browser refresh on file changes during `kiw serve`.
-- **Markdown & Frontmatter (`packages/markdown`)**: Parses markdown files with YAML frontmatter into structured content collections.
+- **Asset Pipeline (`pkg/web/ssg`)**: Generates optimized static HTML, CSS, and JavaScript with optional minification and fingerprinting.
+- **Live Preview (`pkg/web/ssg/hmr`)**: WebSocket-driven browser refresh on file changes during `kiw serve`.
+- **Markdown & Frontmatter (`pkg/markdown`)**: Parses Markdown files with YAML frontmatter into structured content collections.
+- **`.kiw` DSL (`pkg/kiw`)**: Pages, layouts, and components authored as `.kiw` files with scoped styles and component tags.
 
 ---
 
 ## 2. Directory Layout
 
+The `kiw init --site` scaffold writes:
+
 ```text
 my-site/
-├── krewire.yaml          # Project configuration (kind: site)
-├── content/              # Markdown articles and pages
-│   ├── index.md
-│   └── about.md
-├── templates/            # HTML layout templates (Go html/template)
-│   ├── base.html
-│   └── post.html
-└── static/               # Static assets (images, css, js)
+├── krewire.yaml
+├── pages/
+│   └── index.kiw
+├── layouts/
+│   └── Base.kiw
+├── components/
+│   └── Hero.kiw
+├── public/
+│   └── favicon.svg
+└── README.md
 ```
+
+Markdown collections can be added under a content directory and declared with `ssg.collections`.
 
 ---
 
@@ -36,12 +43,20 @@ project:
   name: my-site
   kind: site
 
+output: ".krewire/build"
+base: "/"
+
 ssg:
-  content_dir: "content"
-  templates_dir: "templates"
-  output_dir: ".krewire/build"
-  clean_urls: true
-  minify: true
+  description: "My static site"
+  theme:
+    default: "auto"        # auto | light | dark
+  components: []           # {name, body, style}
+  layouts: []              # {name, body, style} or {name, ui}
+  pages: []                # declarative output pages
+  collections: []          # Markdown + frontmatter collections
+  auto_assets:
+    enabled: true
+    bundle: true
 ```
 
 ---
@@ -49,8 +64,8 @@ ssg:
 ## 4. Development Workflow
 
 ```bash
-# Preview website with live reload (default port 3000)
-kiw serve --port 3000
+# Preview website with live reload (default :8080)
+kiw serve --addr :3000
 
 # Build static output into .krewire/build
 kiw build
