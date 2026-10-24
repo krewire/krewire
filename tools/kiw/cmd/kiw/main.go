@@ -21,6 +21,7 @@ func main() {
 		Command(tui.NewCommand("info", "print environment and project information", nil, commands.RunInfo).WithGroup("inspect").WithExample("kiw info")).
 		Command(tui.NewCommand("compat", "check version compatibility across all modules", nil, commands.RunCompat).WithGroup("inspect").WithExample("kiw compat")).
 		Command(tui.NewCommand("tier", "inspect open-core tier posture and validate boundary rules", commands.RegisterTier, commands.RunTier).WithGroup("inspect").WithExample("kiw tier --check free")).
+		Command(tui.NewCommand("doctor", "diagnose developer environment, toolchain prerequisites, and workspace", commands.RegisterDoctor, commands.RunDoctor).WithGroup("inspect").WithExample("kiw doctor")).
 		Command(tui.NewCommand("new", "scaffold a minimal Krewire project kernel", commands.RegisterNew, commands.RunNew).WithGroup("project").WithExample("kiw new my-site")).
 		Command(tui.NewCommand("init", "equip the project with a variant: monolith, --site, --book, --cli, --worker, --service, --infra, or --template", commands.RegisterInit, commands.RunInit).WithGroup("project").WithExample("kiw init --site")).
 		Command(tui.NewCommand("build", "build the project for production (site, book, app, cli, worker, service, infra)", commands.RegisterBuild, commands.RunBuild).WithGroup("build").WithExample("kiw build")).
