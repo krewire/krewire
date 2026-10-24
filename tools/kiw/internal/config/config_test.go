@@ -23,7 +23,7 @@ func TestLoadParsesConfig(t *testing.T) {
 	body := `title: Krewire Documentation
 author: Krewire Contributors
 base: /docs/
-input: manuscript
+input: docs
 output: site
 footer: Krewire Documentation — MIT License
 nav:

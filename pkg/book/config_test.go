@@ -31,7 +31,7 @@ func TestLoadConfigFile(t *testing.T) {
 	content := `
 title: "The Distributed Systems Manual"
 author: "Alice Gopher"
-input: "manuscript"
+input: "docs"
 output: "dist"
 base: "/book/"
 theme: "dark"
@@ -55,8 +55,8 @@ footer: "Copyright 2026 Alice"
 	if cfg.Author != "Alice Gopher" {
 		t.Errorf("expected author 'Alice Gopher', got %q", cfg.Author)
 	}
-	if cfg.Input != "manuscript" {
-		t.Errorf("expected input 'manuscript', got %q", cfg.Input)
+	if cfg.Input != "docs" {
+		t.Errorf("expected input 'docs', got %q", cfg.Input)
 	}
 	if cfg.Output != "dist" {
 		t.Errorf("expected output 'dist', got %q", cfg.Output)

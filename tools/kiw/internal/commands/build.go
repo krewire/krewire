@@ -48,7 +48,7 @@ func RegisterBuild(fs *flag.FlagSet) {
 // detected project workload kind (site, book, app, cli, worker, service, infra)
 // or explicit --target flag (KWN-BUILD-001).
 //
-// Progressive enhancement is preserved: when web pages or manuscript docs coexist
+// Progressive enhancement is preserved: when web pages or content docs coexist
 // in an app, worker, or service project, both the Go binary and web assets are built
 // into the shared output (.krewire/build).
 func RunBuild(fs *flag.FlagSet) errs.ExitCode {
@@ -127,9 +127,9 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
 		return errs.ExitCodeSuccess
 	case "book":
-		hasBook := hasDir(root, "content") || hasDir(root, "manuscript")
+		hasBook := hasDir(root, "content")
 		if !hasBook {
-			fmt.Fprintln(os.Stderr, "kiw build: no content/ or manuscript/ directory found for book")
+			fmt.Fprintln(os.Stderr, "kiw build: no content/ directory found for book")
 			return errs.ExitCodeUsage
 		}
 		if code := buildManuscript(root, cfg, fs, false, nil, nil); code != errs.ExitCodeSuccess {
@@ -158,7 +158,7 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 
 	hasPages := hasDir(root, "pages")
 	hasSSG := cfg.IsSSG()
-	hasBook := hasDir(root, "content") || hasDir(root, "manuscript")
+	hasBook := hasDir(root, "content")
 
 	built := false
 	var firstErr errs.ExitCode = errs.ExitCodeSuccess
@@ -389,9 +389,6 @@ func buildManuscript(root string, cfg *config.Config, fs *flag.FlagSet, hybrid b
 	input := firstNonEmpty(flagValue(fs, "input"), cfg.Input)
 	if input == "" {
 		input = config.DefaultInput
-		if !hasDir(root, input) && hasDir(root, "manuscript") {
-			input = "manuscript"
-		}
 	}
 	include := globList(fs, "include", cfg.Build.Include)
 	exclude := globList(fs, "exclude", cfg.Build.Exclude)

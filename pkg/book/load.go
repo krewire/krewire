@@ -38,7 +38,7 @@ func (fm frontmatterMeta) resolvePrev() string {
 	return fm.Back
 }
 
-// Source is a loaded manuscript file.
+// Source is a loaded content file.
 type source struct {
 	file     string
 	title    string
@@ -49,7 +49,7 @@ type source struct {
 	next     string
 }
 
-// item is one top-level manuscript unit: a chapter file or a directory that
+// item is one top-level content unit: a chapter file or a directory that
 // becomes a chapter with subchapters.
 type item struct {
 	// name is the entry name used for ordering and slugging.
@@ -64,7 +64,7 @@ type item struct {
 	hasOrder bool
 }
 
-// Load reads a manuscript directory into a Book in reading order, served from
+// Load reads a content directory into a Book in reading order, served from
 // the site root. Default include/exclude rules apply (README notes skipped).
 func Load(input, title, author string) (*Book, error) {
 	return LoadWithBase(input, title, author, "/")
@@ -78,7 +78,7 @@ func LoadWithRules(input, title, author, base string, include, exclude []string)
 	return loadWithRules(input, title, author, base, include, exclude)
 }
 
-// LoadWithBase reads a manuscript directory into a Book in reading order. Top
+// LoadWithBase reads a content directory into a Book in reading order. Top
 // level Markdown files become chapters; a directory becomes a chapter whose
 // subchapters are the Markdown files inside it, ordered by numeric prefix. An
 // index.md or _index.md inside a directory becomes the chapter page body;
@@ -96,7 +96,7 @@ func loadWithRules(input, title, author, base string, include, exclude []string)
 	}
 	entries, err := os.ReadDir(input)
 	if err != nil {
-		return nil, fmt.Errorf("book: read manuscript %s: %w", input, err)
+		return nil, fmt.Errorf("book: read content %s: %w", input, err)
 	}
 
 	var items []item

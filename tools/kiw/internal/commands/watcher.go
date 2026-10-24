@@ -59,7 +59,6 @@ func defaultWatchDirs() []string {
 		"components",
 		"pages",
 		"content",
-		"manuscript",
 		"ui",
 		"frontend",
 		"static",

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// splitOrder splits a manuscript filename into a numeric ordering prefix and a
+// splitOrder splits a content filename into a numeric ordering prefix and a
 // name. Files without a numeric prefix sort after all numbered files.
 func splitOrder(name string) (int, string) {
 	stem := strings.TrimSuffix(name, filepath.Ext(name))
@@ -20,7 +20,7 @@ func splitOrder(name string) (int, string) {
 	return int(^uint(0) >> 1), stem
 }
 
-// slugFor derives a URL-safe slug from a manuscript filename.
+// slugFor derives a URL-safe slug from a content filename.
 func slugFor(name string) string {
 	_, stem := splitOrder(name)
 	var b strings.Builder

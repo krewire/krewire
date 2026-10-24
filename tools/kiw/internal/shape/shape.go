@@ -89,11 +89,9 @@ func Detect(dir, explicitKind string) (Result, error) {
 		return Result{Kind: KindSite, Marker: marker}, nil
 	}
 
-	// 5. Manuscript / Content documentation (book)
-	for _, marker := range []string{"content", "manuscript"} {
-		if isDir(dir, marker) {
-			return Result{Kind: KindBook, Marker: marker + "/"}, nil
-		}
+	// 5. Content documentation (book)
+	if isDir(dir, "content") {
+		return Result{Kind: KindBook, Marker: "content/"}, nil
 	}
 
 	return Result{Kind: KindNone}, nil
@@ -111,7 +109,7 @@ func isKernel(dir string) bool {
 	if !strings.Contains(string(data), "hello, krewire") {
 		return false
 	}
-	for _, sub := range []string{"pages", "content", "manuscript", "cmd", "internal", "components"} {
+	for _, sub := range []string{"pages", "content", "cmd", "internal", "components"} {
 		if isDir(dir, sub) {
 			return false
 		}

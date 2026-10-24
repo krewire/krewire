@@ -142,7 +142,7 @@ func LiveHandler(cfg Config) http.Handler {
 		}
 		b, err := loadWithRules(input, cfg.Title, cfg.Author, base, cfg.Include, cfg.Exclude)
 		if err != nil {
-			http.Error(w, "500 — error loading manuscript: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "500 — error loading content: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		b.mount = mountPrefix

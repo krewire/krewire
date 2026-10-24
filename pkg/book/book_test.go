@@ -10,10 +10,10 @@ import (
 	"testing"
 )
 
-// writeManuscript creates a temporary manuscript directory with the given
+// writeContent creates a temporary content directory with the given
 // filename-to-body mapping and returns its path. Nested names create
 // subdirectories.
-func writeManuscript(t *testing.T, files map[string]string) string {
+func writeContent(t *testing.T, files map[string]string) string {
 	t.Helper()
 	dir := t.TempDir()
 	for name, body := range files {
@@ -29,7 +29,7 @@ func writeManuscript(t *testing.T, files map[string]string) string {
 }
 
 func TestLoadSubchapters(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-intro.md":              "# Intro\n",
 		"02-tutorials/_index.md":   "# Tutorials\n",
 		"02-tutorials/02-setup.md": "# Setup\n",
@@ -66,7 +66,7 @@ func TestLoadSubchapters(t *testing.T) {
 }
 
 func TestSubchapterAutoListAndSidebar(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-guide/01-a.md":  "# A\n",
 		"01-guide/02-b.md":  "# B\n",
 		"02-part/_index.md": "# Part\n",
@@ -104,7 +104,7 @@ func TestSubchapterAutoListAndSidebar(t *testing.T) {
 }
 
 func TestLoadOrdersChapters(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"02-second.md": "# Second\n\nBody B.\n",
 		"01-first.md":  "# First\n\nBody A.\n",
 		"NOTES.md":     "# Not a chapter heading source, but a plain chapter\n",
@@ -134,7 +134,7 @@ func TestLoadOrdersChapters(t *testing.T) {
 }
 
 func TestLoadTitleFallbackToSlug(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"intro.md": "no heading here\n"})
+	dir := writeContent(t, map[string]string{"intro.md": "no heading here\n"})
 	b, err := Load(dir, "T", "")
 	if err != nil {
 		t.Fatal(err)
@@ -148,7 +148,7 @@ func TestLoadTitleFallbackToSlug(t *testing.T) {
 }
 
 func TestBuildExportsDeterministicSite(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-chapter-one.md": "# Chapter One\n\nHello **world**.\n",
 	})
 	if _, err := Build(Config{Input: dir, Output: filepath.Join(dir, "..", "out"), Title: "Book", Author: "Reas"}); err != nil {
@@ -157,7 +157,7 @@ func TestBuildExportsDeterministicSite(t *testing.T) {
 }
 
 func TestBuildSetsAffordDefaults(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"index.md": "# Home\n"})
+	dir := writeContent(t, map[string]string{"index.md": "# Home\n"})
 	created, err := Build(Config{Input: dir, Title: "B", Author: "A"})
 	if err != nil {
 		t.Fatal(err)
@@ -189,7 +189,7 @@ func TestBuildSetsAffordDefaults(t *testing.T) {
 }
 
 func TestBuildDeterministic(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-a.md": "# A\n"})
+	dir := writeContent(t, map[string]string{"01-a.md": "# A\n"})
 	mk := func() string {
 		out := filepath.Join(t.TempDir(), "site")
 		if _, err := Build(Config{Input: dir, Output: out, Title: "T", Author: "A"}); err != nil {
@@ -216,7 +216,7 @@ func TestBuildDeterministic(t *testing.T) {
 }
 
 func TestHandlerServesBookAndAssets(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-hello.md": "# Hello\n"})
+	dir := writeContent(t, map[string]string{"01-hello.md": "# Hello\n"})
 	b, err := Load(dir, "T", "")
 	if err != nil {
 		t.Fatal(err)
@@ -244,7 +244,7 @@ func TestHandlerServesBookAndAssets(t *testing.T) {
 }
 
 func TestBuildWithBasePath(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-one.md": "# One\n\nSee the [next](/two) chapter.\n",
 		"02-two.md": "# Two\n\nBack to [home](/).\n",
 	})
@@ -288,7 +288,7 @@ func TestBuildWithBasePath(t *testing.T) {
 // site uses. Without it, krewire.css would be the only unversioned stylesheet
 // on a page whose other assets all refresh on release.
 func TestBuildVersionsItsStylesheet(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-one.md": "# One\n"})
+	dir := writeContent(t, map[string]string{"01-one.md": "# One\n"})
 	out := filepath.Join(t.TempDir(), "site")
 	if _, err := Build(Config{Input: dir, Output: out, Title: "B", Version: "0.1.0"}); err != nil {
 		t.Fatal(err)
@@ -314,7 +314,7 @@ func TestBuildVersionsItsStylesheet(t *testing.T) {
 // A declared version may already carry the "v" prefix; the query must not
 // double it, and the rendered credit line must show one "v".
 func TestBuildStylesheetVersionToleratesVPrefix(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-one.md": "# One\n"})
+	dir := writeContent(t, map[string]string{"01-one.md": "# One\n"})
 	out := filepath.Join(t.TempDir(), "site")
 	if _, err := Build(Config{Input: dir, Output: out, Title: "B", Version: "v1.2.3"}); err != nil {
 		t.Fatal(err)
@@ -335,7 +335,7 @@ func TestBuildStylesheetVersionToleratesVPrefix(t *testing.T) {
 
 // A book rendered without a version must not invent a cache-busting query.
 func TestBuildWithoutVersionLeavesStylesheetUnversioned(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-one.md": "# One\n"})
+	dir := writeContent(t, map[string]string{"01-one.md": "# One\n"})
 	out := filepath.Join(t.TempDir(), "site")
 	if _, err := Build(Config{Input: dir, Output: out, Title: "B"}); err != nil {
 		t.Fatal(err)
@@ -354,7 +354,7 @@ func TestBuildWithoutVersionLeavesStylesheetUnversioned(t *testing.T) {
 }
 
 func TestBuildWithMountPath(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-one.md": "# One\n\nSee the [next](/two) chapter.\n",
 		"02-two.md": "# Two\n",
 	})
@@ -404,7 +404,7 @@ func TestBuildWithMountPath(t *testing.T) {
 }
 
 func TestHandlerServesMountedBook(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-hello.md": "# Hello\n"})
+	dir := writeContent(t, map[string]string{"01-hello.md": "# Hello\n"})
 	b, err := LoadWithBase(dir, "T", "", "/docs/")
 	if err != nil {
 		t.Fatal(err)
@@ -482,7 +482,7 @@ func TestPageLink(t *testing.T) {
 }
 
 func TestChrome(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-one.md": "# One\n",
 		"02-two.md": "# Two\n",
 	})
@@ -547,7 +547,7 @@ func TestChrome(t *testing.T) {
 }
 
 func TestThemeSwitcher(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-one.md": "# One\n"})
+	dir := writeContent(t, map[string]string{"01-one.md": "# One\n"})
 	out := filepath.Join(t.TempDir(), "site")
 	_, err := Build(Config{
 		Input:    dir,
@@ -579,7 +579,7 @@ func TestThemeSwitcher(t *testing.T) {
 }
 
 func TestThemeDisabledByDefault(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-one.md": "# One\n"})
+	dir := writeContent(t, map[string]string{"01-one.md": "# One\n"})
 	out := filepath.Join(t.TempDir(), "site")
 	if _, err := Build(Config{Input: dir, Output: out, Title: "B"}); err != nil {
 		t.Fatal(err)
@@ -594,7 +594,7 @@ func TestThemeDisabledByDefault(t *testing.T) {
 }
 
 func TestLoadStripsFrontmatter(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-intro.md": "---\ntitle: \"Ignored\"\ndate: \"2026-08-25\"\n---\n\n# Real Title\n\nBody.\n",
 	})
 	b, err := Load(dir, "B", "")
@@ -613,7 +613,7 @@ func TestLoadStripsFrontmatter(t *testing.T) {
 }
 
 func TestNoRootTOCSuppressesIndexPage(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{"01-a.md": "# A\n"})
+	dir := writeContent(t, map[string]string{"01-a.md": "# A\n"})
 	out := filepath.Join(t.TempDir(), "build")
 	created, err := Build(Config{Input: dir, Output: out, Title: "T", NoRootTOC: true})
 	if err != nil {
@@ -633,7 +633,7 @@ func TestNoRootTOCSuppressesIndexPage(t *testing.T) {
 }
 
 func TestDefaultExcludesReadmeNotes(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-a.md":            "# A\n",
 		"README.md":          "# Root notes\n",
 		"docs/README.md":     "# Nested notes\n",
@@ -661,7 +661,7 @@ func TestDefaultExcludesReadmeNotes(t *testing.T) {
 }
 
 func TestIncludeExcludeRules(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"guide/01-a.md":  "# A\n",
 		"guide/02-b.md":  "# B\n",
 		"api/01-rest.md": "# Rest\n",
@@ -747,7 +747,7 @@ func TestTitleFor(t *testing.T) {
 }
 
 func TestFrontmatterOrderAndNavigation(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"beta/index.md":   "---\ntitle: Beta Chapter\norder: 2\nprev: /alpha\nnext: none\n---\n# Beta Chapter\nBeta body",
 		"alpha/index.md":  "---\ntitle: Alpha Chapter\norder: 1\nnext: /beta\n---\n# Alpha Chapter\nAlpha body",
 		"alpha/second.md": "---\ntitle: Second Section\norder: 2\n---\n# Second Section\nSecond body",
@@ -794,7 +794,7 @@ func TestFrontmatterOrderAndNavigation(t *testing.T) {
 }
 
 func TestRootIndexMarkdown(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"00-index.md":          "---\ntitle: Documentation Overview\n---\n# Documentation Overview\nWelcome to docs",
 		"01-guide/00-index.md": "---\ntitle: Guide Index\n---\n# Guide Index\nGuide body",
 		"01-guide/01-first.md": "---\ntitle: First Guide\n---\n# First Guide\nFirst guide body",

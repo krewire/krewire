@@ -134,7 +134,7 @@ func RunDeploy(fs *flag.FlagSet) errs.ExitCode {
 		}
 	}
 	siteStaged := ""
-	if cfg.IsSSG() || hasDir(root, "content") || hasDir(root, "manuscript") || target == "gh-pages" {
+	if cfg.IsSSG() || hasDir(root, "content") || target == "gh-pages" {
 		if code := exportSiteAssets(root, fs); code != errs.ExitCodeSuccess {
 			return code
 		}

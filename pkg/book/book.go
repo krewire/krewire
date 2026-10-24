@@ -1,17 +1,17 @@
-// Package book assembles Markdown manuscripts into book-shaped websites.
-// A manuscript is a directory of ordered Markdown files and subdirectories;
-// the builder renders it into pages and assets that can be exported to disk
-// or served over HTTP. It is intentionally lightweight and depends only on
-// libs/markdown and stdlib — not on framework/web or framework/ssg — so it
-// can be depended on alongside framework progressively.
+// Package book assembles a Markdown content tree into book-shaped websites.
+// The content directory is an ordered tree of Markdown files and
+// subdirectories; the builder renders it into pages and assets that can be
+// exported to disk or served over HTTP. It is intentionally lightweight and
+// depends only on pkg/markdown and stdlib — not on pkg/web or pkg/web/ssg — so
+// it can be depended on alongside those packages progressively.
 //
-// File responsibilities: chapter.go (chapter model), load.go (manuscript
+// File responsibilities: chapter.go (chapter model), load.go (content
 // loading), naming.go (ordering/slugs/titles), links.go (base-path links),
 // pages.go (page-tree rendering), build.go (export orchestration),
 // serve.go (HTTP serving), theme.go (local light/dark theming).
 package book
 
-// Book is a manuscript, loaded into an ordered set of chapters.
+// Book is loaded content, organized into an ordered set of chapters.
 type Book struct {
 	// Title is the book title.
 	Title string
@@ -39,7 +39,7 @@ type Book struct {
 	// Config.NoRootTOC.
 	noRootTOC bool
 	// indexChapter holds the root index page content when index.md is present
-	// at the root of the manuscript directory.
+	// at the root of the content directory.
 	indexChapter *Chapter
 	// extraCSS holds additional stylesheet URLs linked on
 	// every page. Set from Config.ExtraCSS.

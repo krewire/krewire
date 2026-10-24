@@ -47,9 +47,7 @@ func generateChapter(root, name string) error {
 
 	// Determine destination directory
 	destDir := "content"
-	if hasDir(root, "manuscript") {
-		destDir = "manuscript"
-	} else if hasDir(root, filepath.Join("content", "docs")) {
+	if hasDir(root, filepath.Join("content", "docs")) {
 		destDir = filepath.Join("content", "docs")
 	} else if hasDir(root, filepath.Join("content", "en", "docs")) {
 		destDir = filepath.Join("content", "en", "docs")

@@ -407,33 +407,32 @@ func discoverRoutes(root string) []ProjectRoute {
 	}
 
 	// 2. Content directory (.md, .kiw)
-	for _, dirName := range []string{"content", "manuscript"} {
-		dir := filepath.Join(root, dirName)
-		if info, err := os.Stat(dir); err == nil && info.IsDir() {
-			_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-				if err != nil || d.IsDir() {
-					return nil
-				}
-				ext := filepath.Ext(path)
-				if ext != ".md" && ext != ".kiw" {
-					return nil
-				}
-				rel, err := filepath.Rel(dir, path)
-				if err != nil {
-					return nil
-				}
-				routePath := "/" + filepath.ToSlash(rel)
-				routePath = strings.TrimSuffix(routePath, ext)
-				if strings.HasSuffix(routePath, "/index") {
-					routePath = strings.TrimSuffix(routePath, "index")
-				}
-				if routePath == "" {
-					routePath = "/"
-				}
-				addRoute(routePath, "content", filepath.Join(dirName, rel))
+	contentDir := "content"
+	dir := filepath.Join(root, contentDir)
+	if info, err := os.Stat(dir); err == nil && info.IsDir() {
+		_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
 				return nil
-			})
-		}
+			}
+			ext := filepath.Ext(path)
+			if ext != ".md" && ext != ".kiw" {
+				return nil
+			}
+			rel, err := filepath.Rel(dir, path)
+			if err != nil {
+				return nil
+			}
+			routePath := "/" + filepath.ToSlash(rel)
+			routePath = strings.TrimSuffix(routePath, ext)
+			if strings.HasSuffix(routePath, "/index") {
+				routePath = strings.TrimSuffix(routePath, "index")
+			}
+			if routePath == "" {
+				routePath = "/"
+			}
+			addRoute(routePath, "content", filepath.Join(contentDir, rel))
+			return nil
+		})
 	}
 
 	// 3. Handlers directory (.go)

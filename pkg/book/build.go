@@ -24,7 +24,7 @@ type Config struct {
 	Title string
 	// Author is the book author.
 	Author string
-	// Input is the manuscript directory.
+	// Input is the content directory.
 	Input string
 	// Output is the destination directory for the exported site.
 	Output string
@@ -74,7 +74,7 @@ type Config struct {
 	ExtraJS []string
 }
 
-// Build renders the manuscript in cfg.Input into a static website in
+// Build renders the content in cfg.Input into a static website in
 // cfg.Output and returns the list of created paths, sorted for determinism.
 func Build(cfg Config) ([]string, error) {
 	if cfg.Input == "" {

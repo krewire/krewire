@@ -111,7 +111,7 @@ name: test-progressive
 		t.Fatal(err)
 	}
 
-	bookDir := filepath.Join(dir, "manuscript")
+	bookDir := filepath.Join(dir, "content")
 	if err := os.MkdirAll(bookDir, 0o755); err != nil {
 		t.Fatal(err)
 	}

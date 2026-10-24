@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// Chapter is one manuscript unit, named by its slug and rendered from Markdown.
+// Chapter is one content unit, named by its slug and rendered from Markdown.
 // A chapter with subchapters mirrors a part of a physical book: the chapter
 // page leads, and its Subs follow as "N.M" subchapters.
 type Chapter struct {
@@ -35,7 +35,7 @@ type Chapter struct {
 }
 
 // Path returns the chapter page URL: /{slug} for top-level chapters and
-// /{parent}/{slug} for subchapters, mirroring the manuscript tree. URLs stay
+// /{parent}/{slug} for subchapters, mirroring the content tree. URLs stay
 // extensionless — each page is emitted as a sibling .html file served at that
 // address — and are prefixed with the book's base path by Book.link.
 func (c Chapter) Path() string {

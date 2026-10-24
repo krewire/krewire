@@ -1,6 +1,6 @@
 // Package config reads project configuration from krewire.yaml so that `kiw`
 // commands can drive any project kind without a project-specific cmd.
-// A krewire.yaml with an `ssg:` key triggers SSG mode; one with a manuscript/
+// A krewire.yaml with an `ssg:` key triggers SSG mode; one with a content/
 // directory triggers book mode. All top-level fields are shared across modes.
 package config
 
@@ -60,7 +60,7 @@ type Config struct {
 	Footer string `yaml:"footer"`
 	// Theme configures the light/dark theme switcher.
 	Theme *Theme `yaml:"theme"`
-	// Book holds book-specific settings for the manuscript/ shape.
+	// Book holds book-specific settings for the content/ shape.
 	Book BookConfig `yaml:"book"`
 	// SSG holds the declarative SSG config. When non-nil, kiw build uses
 	// the web/ssg generator instead of the standalone book builder. Top-level fields (Title,
@@ -183,7 +183,7 @@ type BuildConfig struct {
 // BookConfig holds book-specific settings under the `book:` key.
 type BookConfig struct {
 	// Mount places the whole book under a sub-path of the output and URL
-	// space, e.g. "/docs/" — letting a manuscript co-exist with an ssg site
+	// space, e.g. "/docs/" — letting a book co-exist with an ssg site
 	// in one .krewire/build (progressive enhancement). Empty mounts at root.
 	Mount string `yaml:"mount"`
 	// TOC controls the generated root table-of-contents page. In a hybrid

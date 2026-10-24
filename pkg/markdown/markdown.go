@@ -1,6 +1,6 @@
 // Package markdown provides the shared native zero-dependency Markdown renderer for
 // the Krewire ecosystem. Both pkg/book and framework/web/ssg + dsl use it
-// so a docs site can start as a lightweight manuscript and progressively
+// so a docs site can start as lightweight content and progressively
 // enhance to a full ssg site without re-parsing or duplicated dependencies.
 package markdown
 

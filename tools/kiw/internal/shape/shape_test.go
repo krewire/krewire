@@ -113,7 +113,7 @@ func main() {}
 
 func TestDetectBook(t *testing.T) {
 	dir := t.TempDir()
-	writeFile(t, dir, "manuscript/index.md", "# Hi\n")
+	writeFile(t, dir, "content/index.md", "# Hi\n")
 	got, err := Detect(dir, "")
 	if err != nil {
 		t.Fatal(err)

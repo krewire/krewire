@@ -100,7 +100,7 @@ func RunRun(fs *flag.FlagSet) errs.ExitCode {
 // runApp builds the app to a temp binary and runs it, streaming output and
 // forwarding signals.
 func runApp(rt *runtimeEnv, fs *flag.FlagSet) errs.ExitCode {
-	if rt.cfg.IsSSG() || hasDir(rt.root, "manuscript") {
+	if rt.cfg.IsSSG() || hasDir(rt.root, "content") {
 		if code := exportSiteAssets(rt.root, fs); code != errs.ExitCodeSuccess {
 			return code
 		}
@@ -222,7 +222,7 @@ func exportSiteAssets(root string, fs *flag.FlagSet) errs.ExitCode {
 	}
 	hasPages := hasDir(root, "pages")
 	hasSSG := cfg.IsSSG()
-	hasBook := hasDir(root, "content") || hasDir(root, "manuscript")
+	hasBook := hasDir(root, "content")
 	if !hasPages && !hasSSG && !hasBook {
 		return errs.ExitCodeSuccess
 	}

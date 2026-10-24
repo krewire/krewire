@@ -93,7 +93,7 @@ func RunServe(fs *flag.FlagSet) errs.ExitCode {
 	}
 
 	hasSSGShape := hasDir(rt.root, "pages") || rt.cfg.IsSSG()
-	hasBookShape := hasDir(rt.root, "content") || hasDir(rt.root, "manuscript")
+	hasBookShape := hasDir(rt.root, "content")
 
 	switch res.Kind {
 	case shape.KindApp:

@@ -8,7 +8,7 @@ import (
 )
 
 func TestBuildSearchIndex(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"01-intro.md": "# Introduction\n\nWelcome to Krewire. This guide teaches you how to build fast apps.\n\n## Getting Started\n\nFirst install the Go toolchain.\n",
 		"02-guide.md": "# Architecture Guide\n\nDetailed breakdown of components and services.\n\n### Web Layer\n\nHTTP and WebSocket routing protocols.\n",
 	})
@@ -101,7 +101,7 @@ func TestBuildSearchIndex(t *testing.T) {
 }
 
 func TestBuildSearchIndexMounted(t *testing.T) {
-	dir := writeManuscript(t, map[string]string{
+	dir := writeContent(t, map[string]string{
 		"index.md": "# Overview\n\nDocs overview.\n",
 	})
 	out := filepath.Join(t.TempDir(), "out")

@@ -1,5 +1,5 @@
-// Package-level file for the manuscript book (VariantBook): kiw init
-// --book scaffolds a manuscript/ directory assembled by the book compiler.
+// Package-level file for the book variant (VariantBook): kiw init
+// --book scaffolds a content/ directory assembled by the book compiler.
 package scaffold
 
 import (
