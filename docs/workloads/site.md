@@ -46,14 +46,14 @@ project:
 output: ".krewire/build"
 base: "/"
 
+theme:
+  default: "auto"          # auto | light | dark
+
 ssg:
   description: "My static site"
-  theme:
-    default: "auto"        # auto | light | dark
   components: []           # {name, body, style}
   layouts: []              # {name, body, style} or {name, ui}
   pages: []                # declarative output pages
-  collections: []          # Markdown + frontmatter collections
   auto_assets:
     enabled: true
     bundle: true

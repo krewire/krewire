@@ -8,9 +8,9 @@ import (
 	"github.com/krewire/krewire/pkg/ui"
 )
 
-// Config describes a static site declaratively. Decode it from ssg.yaml (or an
-// equivalent document) and build it with BuildFromConfig, so projects ship a
-// config file instead of a bespoke build command.
+// Config describes a static site declaratively. Decode it from the `ssg:` block
+// of krewire.yaml and build it with BuildFromConfig, so projects ship a config
+// file instead of a bespoke build command.
 type Config struct {
 	// Title is the site title, injected into every page's data as .Title.
 	Title string `yaml:"title"`

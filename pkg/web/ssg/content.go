@@ -26,7 +26,8 @@ type ContentConfig struct {
 	Extra map[string]any `yaml:",inline"`
 }
 
-// CollectionConfig defines a content collection in ssg.yaml.
+// CollectionConfig defines a Markdown content collection consumed by
+// BuildFromConfig.
 type CollectionConfig struct {
 	Name    string            `yaml:"name"`
 	Dir     string            `yaml:"dir"`

@@ -131,7 +131,7 @@ func (w *watcher) watched(path string) bool {
 		return true
 	}
 	base := filepath.Base(rel)
-	if base == "krewire.yaml" || base == "ssg.yaml" ||
+	if base == "krewire.yaml" ||
 		base == "package.json" ||
 		strings.HasPrefix(base, "tailwind.config.") ||
 		strings.HasPrefix(base, "postcss.config.") {
