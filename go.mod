@@ -5,6 +5,7 @@ go 1.27.1
 require (
 	github.com/chai2010/webp v1.4.0
 	github.com/disintegration/imaging v1.6.2
+	github.com/krewire/krew v0.1.0
 	github.com/krewire/mdbind v0.1.0
 	github.com/tdewolff/minify/v2 v2.24.19
 	golang.org/x/net v0.59.0
@@ -16,4 +17,5 @@ require (
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 )
 
+replace github.com/krewire/krew => ../krew
 replace github.com/krewire/mdbind => ../mdbind

@@ -226,6 +226,43 @@ kiw mcp --port 4000 --host 127.0.0.1 # Run standalone over HTTP/SSE
 - **Tools**: `kiw_inspect_project`, `kiw_list_routes`, `kiw_make_scaffold`, `kiw_get_metrics`, `kiw_run_tests`.
 - **Dashboard Integration**: `kiw dashboard` also mounts MCP at `http://127.0.0.1:4000/mcp/sse` and `http://127.0.0.1:4000/mcp/message`.
 
+### `kiw krew`
+The Krewire in-CLI autonomous AI coding companion (analogous to `gh copilot`). Embeds the platform-agnostic Krew agent engine directly into your terminal workflow.
+```bash
+# Suggest terminal commands or code snippets (like 'gh copilot suggest')
+kiw krew suggest "how to build site with minified bundle"
+
+# Explain commands, error messages, or code structures (like 'gh copilot explain')
+kiw krew explain "kiw bundle --minify"
+
+# Interactive terminal chat session
+kiw krew chat
+
+# Quick prompt execution / headless automation
+kiw krew "inspect the workspace and add unit tests for pkg/assets"
+kiw krew run "refactor pkg/model to add status enum" --persona=coding
+
+# Background HTTP/SSE server or MCP stdio daemon
+kiw krew serve --port 8080
+kiw krew mcp
+```
+
+**Subcommands & Modes:**
+- `suggest <task>`: Suggests exact commands or code snippets with clear explanations.
+- `explain <cmd|code>`: Explains syntax, flags, potential side effects, and Krewire ecosystem context.
+- `chat`: Starts an interactive coding assistant REPL in the terminal.
+- `run <prompt>`: Executes multi-turn autonomous coding loops with tool sandboxing.
+- `serve`: Launches background HTTP/REST and Server-Sent Events (SSE) daemon.
+- `mcp`: Launches standard Model Context Protocol (stdio) server.
+
+**Options:**
+- `--persona`: Agent role definition (`coding`, `devops`, `worker`, `general`) (default: `coding`).
+- `--model`: LLM model name override (e.g. `gemini-2.5-flash`, `gpt-4o`, `claude-3-7-sonnet`).
+- `--max-steps`: Maximum reasoning-action loop iterations (default: `25`).
+- `--dir`: Workspace directory root (default: `.`).
+- `--port`: Listen port for HTTP daemon mode (default: `8080`).
+- `--host`: Listen host for HTTP daemon mode (default: `0.0.0.0`).
+
 ---
 
 ## 5. Ship Commands
