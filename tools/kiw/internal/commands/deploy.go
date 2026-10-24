@@ -43,7 +43,7 @@ func RegisterDeploy(fs *flag.FlagSet) {
 // dist/: the compiled app binary (binary target) and/or the exported site.
 // The gh-pages target additionally publishes the built site to the project's
 // pages branch on the configured remote (--dry-run skips both tests and
-// publishing). The infra target uses framework/infra for plan/apply (KWF-B7N3D).
+// publishing). The infra target uses pkg/cloud/infra for plan/apply (KWF-B7N3D).
 func RunDeploy(fs *flag.FlagSet) errs.ExitCode {
 	target := flagValue(fs, "target")
 	switch target {

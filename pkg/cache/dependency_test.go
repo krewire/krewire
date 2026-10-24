@@ -10,9 +10,9 @@ import (
 	"testing"
 )
 
-// TestCacheDependencies asserts that packages/cache adheres strictly to the
+// TestCacheDependencies asserts that pkg/cache adheres strictly to the
 // downward-only dependency pyramid rule. It may only depend on standard library
-// packages and Level 1 packages (packages/errs, packages/model).
+// packages and Level 1 packages (pkg/errs, pkg/model).
 func TestCacheDependencies(t *testing.T) {
 	dir, err := os.Getwd()
 	if err != nil {

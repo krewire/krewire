@@ -161,7 +161,7 @@ func ReadJSON(r *http.Request, dst any) error {
 }
 
 // DecodeAndValidate decodes a JSON body and validates dst through
-// libs/validation in one call.
+// pkg/validation in one call.
 func DecodeAndValidate(r *http.Request, dst any) error {
 	if err := ReadJSON(r, dst); err != nil {
 		return err

@@ -277,7 +277,7 @@ func (b *Browser) HTML() string {
 	return b.html
 }
 
-// HTMLAssert bridges to framework/test.HTML (KWF-TST-N8R-003).
+// HTMLAssert bridges to pkg/testing.HTML (KWF-TST-N8R-003).
 func (b *Browser) HTMLAssert() *ftest.HTMLAssert {
 	b.t.Helper()
 	return ftest.HTML(b.t, b.html)

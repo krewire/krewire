@@ -25,7 +25,7 @@ type Runner struct {
 	stop chan struct{}
 }
 
-// AsRunner adapts Runner into a framework/runner.Runner contract for use with app.Application.Run.
+// AsRunner adapts Runner into a pkg/cloud/runner.Runner contract for use with app.Application.Run.
 func (r *Runner) AsRunner() runner.Runner {
 	return runner.Func(func(ctx context.Context, _ service.Registry) error {
 		err := r.Run(ctx)

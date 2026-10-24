@@ -1,7 +1,7 @@
 // Package kiw parses the `.kiw` module format: YAML frontmatter, <style> and
 // <script> blocks, <markdown>, and JSX-like component tags.
 //
-// It lives in libs because the parser is a leaf concern: framework/web/ssg needs
+// It lives in libs because the parser is a leaf concern: pkg/web/ssg needs
 // it to load a file-based site, and it must never be forced to reach upward into
 // the devtool for it (see the strict downward layering rules). Holding the parser here keeps the dependency arrow pointing down and
 // lets every layer above — framework, kiw, ui — parse a .kiw file without a

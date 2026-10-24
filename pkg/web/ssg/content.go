@@ -85,7 +85,7 @@ func ParseContent(filePath string, baseDir string) (*ParsedContent, error) {
 		}
 	}
 
-	// Render markdown to HTML via shared libs/markdown (Goldmark GFM).
+	// Render markdown to HTML via shared pkg/markdown (Goldmark GFM).
 	md := []byte(strings.TrimSpace(parts[2]))
 	htmlStr, err := markdown.Render(md)
 	if err != nil {

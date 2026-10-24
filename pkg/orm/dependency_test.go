@@ -10,9 +10,9 @@ import (
 	"testing"
 )
 
-// TestOrmDependencies asserts that packages/orm adheres strictly to the
+// TestOrmDependencies asserts that pkg/orm adheres strictly to the
 // downward-only dependency pyramid rule. It may only depend on standard library
-// packages and foundational Level 1 packages (packages/errs, packages/model).
+// packages and foundational Level 1 packages (pkg/errs, pkg/model).
 func TestOrmDependencies(t *testing.T) {
 	dir, err := os.Getwd()
 	if err != nil {

@@ -1,6 +1,6 @@
 // Package schema provides typed resource schemas and validation for common
 // infrastructure primitives (KWF-B7N3D FRK-INFRA-010/011/012). Schemas map Go
-// structs with validation tags to JSON schema via libs/validation.
+// structs with validation tags to JSON schema via pkg/validation.
 package schema
 
 import (

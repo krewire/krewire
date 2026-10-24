@@ -2,8 +2,8 @@
 //
 // Krewire UI ships its components as .kiw modules, so they are only ever exercised
 // by the real pipeline: parse as a DSL module, then render through a site.
-// This lives in framework/web/ssg because that is the loader that consumes
-// ui.ComponentsFS; ui cannot import libs/kiw itself without violating
+// This lives in pkg/web/ssg because that is the loader that consumes
+// ui.ComponentsFS; ui cannot import pkg/kiw itself without violating
 // the layering (KWL-LAYER-001).
 package ssg
 

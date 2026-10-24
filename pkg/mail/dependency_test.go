@@ -10,9 +10,9 @@ import (
 	"testing"
 )
 
-// TestMailDependencies asserts that packages/mail adheres strictly to the
+// TestMailDependencies asserts that pkg/mail adheres strictly to the
 // downward-only dependency pyramid rule. It may only depend on standard library
-// packages and Level 1 packages (packages/errs, packages/model).
+// packages and Level 1 packages (pkg/errs, pkg/model).
 func TestMailDependencies(t *testing.T) {
 	dir, err := os.Getwd()
 	if err != nil {

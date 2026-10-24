@@ -294,7 +294,7 @@ type SSGLayoutConfig struct {
 	Name  string `yaml:"name"`
 	Body  string `yaml:"body"`
 	Style string `yaml:"style"`
-	// UI, when set, builds the layout from a reusable framework/ui shell
+	// UI, when set, builds the layout from a reusable pkg/ui shell
 	// instead of Body/Style.
 	UI *ui.LayoutConfig `yaml:"ui"`
 }

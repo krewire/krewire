@@ -22,7 +22,7 @@ func (a *Alert) Warning() *Alert { a.Variant = VariantWarning; a.Icon = iconWarn
 
 // Error sets variant to error — the canonical name for the destructive
 // status. `danger` was removed; `error` matches the `--error` theme token and
-// the vocabulary framework/ui already uses.
+// the vocabulary pkg/ui already uses.
 func (a *Alert) Error() *Alert { a.Variant = VariantError; a.Icon = iconError; return a }
 
 // Render produces the alert HTML.

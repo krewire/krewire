@@ -439,7 +439,7 @@ func warnAutoAssetErrors(site *ssg.Site) {
 
 // versionedAssetURLs appends the product version as a cache-busting query,
 // matching what the ssg half injects so both halves refresh together. The rule
-// itself lives in framework/web/ssg (VersionedURLs) — this only forwards to it,
+// itself lives in pkg/web/ssg (VersionedURLs) — this only forwards to it,
 // so the devtool and the generator cannot disagree on the query format.
 func versionedAssetURLs(urls []string, version string) []string {
 	return ssg.VersionedURLs(urls, version)

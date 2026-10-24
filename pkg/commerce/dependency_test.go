@@ -10,9 +10,9 @@ import (
 	"testing"
 )
 
-// TestCommerceDependencies asserts that packages/commerce adheres strictly to
+// TestCommerceDependencies asserts that pkg/commerce adheres strictly to
 // the pyramid rule: it may only depend on standard library packages and Level 1
-// foundational packages (packages/errs, packages/model).
+// foundational packages (pkg/errs, pkg/model).
 func TestCommerceDependencies(t *testing.T) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -38,7 +38,7 @@ func TestCommerceDependencies(t *testing.T) {
 
 				if strings.HasPrefix(path, "github.com/krewire/krewire/") {
 					sub := strings.TrimPrefix(path, "github.com/krewire/krewire/")
-					// Allowed: packages/errs, packages/model
+					// Allowed: pkg/errs, pkg/model
 					if sub != "pkg/errs" && sub != "pkg/model" {
 						t.Errorf("%s (%s): illegal upward dependency on %s (commerce may only depend on errs and model)",
 							filepath.Base(filename), pkgName, path)

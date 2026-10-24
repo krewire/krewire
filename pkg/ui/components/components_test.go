@@ -12,8 +12,8 @@ import (
 //
 // A blank or unreadable .kiw registers as an empty component and renders
 // nothing, with no error from the loader. Parsing is asserted in
-// framework/web/ssg (ui_atoms_test.go), which runs the real DSL pipeline —
-// ui cannot import libs/kiw here without a layering violation
+// pkg/web/ssg (ui_atoms_test.go), which runs the real DSL pipeline —
+// ui cannot import pkg/kiw here without a layering violation
 // (KWL-LAYER-001).
 //
 // This deliberately does not assert a class-name or style-block convention:
@@ -47,7 +47,7 @@ func TestEveryEmbeddedComponentIsReadable(t *testing.T) {
 }
 
 // FRK-FA-030: the status vocabulary is info / success / warning / error,
-// matching the --error theme token and the names framework/ui already uses.
+// matching the --error theme token and the names pkg/ui already uses.
 // `danger` and `warn` were removed rather than aliased, so nothing should
 // reintroduce them. This is a source-level guard because that is where the
 // drift happens — a variant name only becomes user-visible after a build.

@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// packages/model must strictly depend only on standard library packages
+// pkg/model must strictly depend only on standard library packages
 // and its internal errs sibling. It must never import any other
 // Krewire packages or external third-party dependencies.
 func TestModel_StdlibBoundary(t *testing.T) {
@@ -37,7 +37,7 @@ func TestModel_StdlibBoundary(t *testing.T) {
 				continue
 			}
 			if !isStdlibImport(path) {
-				t.Errorf("%s imports non-stdlib package %q: packages/model may depend only on standard library and packages/errs (REQ-L0-004)", name, path)
+				t.Errorf("%s imports non-stdlib package %q: pkg/model may depend only on standard library and pkg/errs (REQ-L0-004)", name, path)
 			}
 		}
 		checked++

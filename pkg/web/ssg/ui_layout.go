@@ -10,7 +10,7 @@ import (
 // LayoutFromUI converts a reusable ui.Layout shell into an ssg Layout
 // template. The ui layout's Title is substituted with {{ .Title }} and its
 // Main region with {{ .Content }}, so pages render their root component into
-// the shell. This lets Go programs compose page shells from framework/ui
+// the shell. This lets Go programs compose page shells from pkg/ui
 // components instead of inlining layout HTML into a config.
 func LayoutFromUI(name string, l ui.Layout) (Layout, error) {
 	l.Title = "{{ .Title }}"

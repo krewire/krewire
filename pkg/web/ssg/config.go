@@ -81,7 +81,7 @@ type ComponentConfig struct {
 }
 
 // LayoutConfig is a layout in a declarative Config. Either Body/Style define
-// a template layout, or UI references a reusable framework/ui shell.
+// a template layout, or UI references a reusable pkg/ui shell.
 type LayoutConfig struct {
 	Name  string `yaml:"name"`
 	Body  string `yaml:"body"`

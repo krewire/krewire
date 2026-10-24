@@ -115,7 +115,7 @@ func (r *Request) IsForm() bool {
 // MethodIs reports whether the request method equals m.
 func (r *Request) MethodIs(m string) bool { return r.Method == m }
 
-// Bind decodes the JSON body into dst and validates it (via libs/validation).
+// Bind decodes the JSON body into dst and validates it (via pkg/validation).
 // See DecodeAndValidate for limits (1MiB, DisallowUnknownFields).
 func (r *Request) Bind(dst any) error {
 	return DecodeAndValidate(r.Request, dst)
@@ -204,7 +204,7 @@ func (r *Request) BindMap(dst any) error {
 	return r.BindForm(dst)
 }
 
-// Validate validates dst using libs/validation (validate tags). It is the
+// Validate validates dst using pkg/validation (validate tags). It is the
 // primitive used by Bind* and is exposed for FormRequest validators.
 func (r *Request) Validate(dst any) error {
 	if err := validation.Struct(dst); err != nil {

@@ -10,9 +10,9 @@ import (
 	"testing"
 )
 
-// TestRedisDependencies asserts that packages/redis adheres strictly to the
+// TestRedisDependencies asserts that pkg/redis adheres strictly to the
 // downward-only dependency pyramid rule. It may only depend on standard library
-// packages and Level 1 packages (packages/errs, packages/model).
+// packages and Level 1 packages (pkg/errs, pkg/model).
 func TestRedisDependencies(t *testing.T) {
 	dir, err := os.Getwd()
 	if err != nil {

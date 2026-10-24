@@ -17,7 +17,7 @@ import (
 // it becomes its own Module/Project.
 // Service is a Krewire runtime deployable, implemented in Go as a main package
 // (e.g. cmd/<service>/ or service/<name>/); Unit is the smallest code unit inside
-// a Service — a Go package, file, type, or function (e.g. framework/ui, ui.Button).
+// a Service — a Go package, file, type, or function (e.g. pkg/ui, ui.Button).
 type Scope string
 
 const (

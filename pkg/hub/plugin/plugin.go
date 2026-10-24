@@ -16,7 +16,7 @@ import (
 // The Add/Remove extension makes the plugin system scalable: kiw add/remove
 // dispatch through the same registry, so new plugins require zero changes to
 // the devtool. Non-plugin packages (npm, Go) are handled by the generic
-// resolvers in packages/hub/resolver.
+// resolvers in pkg/hub/resolver.
 type Plugin interface {
 	Name() string
 	// Aliases are alternative names for kiw add (e.g., "twcss" for tailwind).

@@ -1,6 +1,6 @@
 // Tests for the .kiw module parser.
-// Scope: Unit libs/kiw.
-// Moved here from kiw/dsl: the parser is a leaf concern, and framework/web/ssg
+// Scope: Unit pkg/kiw.
+// Moved here from kiw/dsl: the parser is a leaf concern, and pkg/web/ssg
 // must be able to parse a .kiw file without importing the devtool.
 package kiw
 

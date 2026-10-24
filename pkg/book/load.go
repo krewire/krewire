@@ -85,7 +85,7 @@ func LoadWithRules(input, title, author, base string, include, exclude []string)
 // without one, the chapter page lists its subchapters automatically. The base
 // is the URL prefix the site will be served under, e.g. "/guide/".
 // YAML frontmatter (leading --- block) is tolerated and stripped so content
-// files stay compatible with framework/web/ssg collections.
+// files stay compatible with pkg/web/ssg collections.
 func LoadWithBase(input, title, author, base string) (*Book, error) {
 	return loadWithRules(input, title, author, base, nil, nil)
 }
@@ -322,7 +322,7 @@ func parseFrontmatterAndBody(raw []byte) (meta frontmatterMeta, body []byte) {
 }
 
 // stripFrontmatter removes a leading UTF-8 BOM and YAML frontmatter block
-// (--- ... ---) so content files shared with framework/web/ssg collections
+// (--- ... ---) so content files shared with pkg/web/ssg collections
 // render clean.
 func stripFrontmatter(body []byte) []byte {
 	_, clean := parseFrontmatterAndBody(body)

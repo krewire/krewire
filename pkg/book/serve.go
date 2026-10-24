@@ -35,7 +35,7 @@ func newServer(addr string, h http.Handler) *http.Server {
 
 // Handler returns an http.Handler that serves the book's pages and assets
 // through a stdlib ServeMux. It is intentionally not dependent on
-// framework/web so the book can be served without pulling the framework.
+// pkg/web so the book can be served without pulling the framework.
 func (b *Book) Handler() (http.Handler, error) {
 	pages, err := b.Pages()
 	if err != nil {

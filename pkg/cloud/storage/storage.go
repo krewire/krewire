@@ -23,10 +23,10 @@ import (
 // ErrNotFound is re-exported from the foundational storage package for backward compatibility.
 var ErrNotFound = foundation.ErrNotFound
 
-// KV is the canonical key-value storage contract defined in packages/storage.
+// KV is the canonical key-value storage contract defined in pkg/storage.
 type KV = foundation.KV
 
-// MemoryKV is a goroutine-safe in-memory backend re-exported from packages/storage.
+// MemoryKV is a goroutine-safe in-memory backend re-exported from pkg/storage.
 type MemoryKV = foundation.MemoryKV
 
 // NewMemory returns an empty in-memory store.

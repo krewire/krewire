@@ -89,7 +89,7 @@ func TestSecurityHeadersCustom(t *testing.T) {
 }
 
 func TestDependencyHygiene(t *testing.T) {
-	// 1. Verify packages/auth imports only standard library packages.
+	// 1. Verify pkg/auth imports only standard library packages.
 	authDir := filepath.Join("..", "auth")
 	fset := token.NewFileSet()
 	pkgs, err := parser.ParseDir(fset, authDir, func(fi os.FileInfo) bool {
@@ -104,13 +104,13 @@ func TestDependencyHygiene(t *testing.T) {
 				path := strings.Trim(imp.Path.Value, `"`)
 				firstPart := strings.Split(path, "/")[0]
 				if strings.Contains(firstPart, ".") {
-					t.Errorf("packages/auth imports non-stdlib package %q in %v", path, file.Name)
+					t.Errorf("pkg/auth imports non-stdlib package %q in %v", path, file.Name)
 				}
 			}
 		}
 	}
 
-	// 2. Verify packages/sec third-party imports are restricted to pinned golang.org/x/net/html.
+	// 2. Verify pkg/sec third-party imports are restricted to pinned golang.org/x/net/html.
 	secDir := "."
 	pkgsSec, err := parser.ParseDir(fset, secDir, func(fi os.FileInfo) bool {
 		return !strings.HasSuffix(fi.Name(), "_test.go")
@@ -125,7 +125,7 @@ func TestDependencyHygiene(t *testing.T) {
 				firstPart := strings.Split(path, "/")[0]
 				if strings.Contains(firstPart, ".") {
 					if path != "github.com/krewire/krewire/pkg/auth" && !strings.HasPrefix(path, "golang.org/x/net/html") {
-						t.Errorf("packages/sec imports unauthorized third-party package %q in %v", path, file.Name)
+						t.Errorf("pkg/sec imports unauthorized third-party package %q in %v", path, file.Name)
 					}
 				}
 			}

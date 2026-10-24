@@ -59,7 +59,7 @@ Examples:
 
 Workspace types:
   monorepo  — single go.mod, no go.work (e.g., single service)
-  multi-repo — go.work with use directives (hub with framework/libs/kiw)
+  multi-repo — go.work with use directives (hub with pkg/kiw)
   multi-project — go.work members have different kinds (app, service, worker)
   microservices — multiple kind=service members
 `)

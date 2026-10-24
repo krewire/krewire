@@ -3,7 +3,7 @@
 // The parser now lives in github.com/krewire/krewire/pkg/kiw. It had to move: the
 // SSG loader needs to parse a .kiw file, and libraries must never import the devtool
 // that sits above them in the layering (boost → kiw → pkg/* → kern). Keeping the
-// parser in packages/kiw points the dependency arrow down and lets ui and web parse
+// parser in pkg/kiw points the dependency arrow down and lets ui and web parse
 // .kiw files without a cycle.
 //
 // This package forwards to the canonical home so existing imports keep working. New
