@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/hub/plugin"
-	"github.com/krewire/krewire/packages/hub/resolver"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/hub/plugin"
+	"github.com/krewire/krewire/pkg/hub/resolver"
 )
 
 func TestRunAdd_EmptyArgsReturnsUsage(t *testing.T) {

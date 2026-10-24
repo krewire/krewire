@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/hub/resolver"
-	"github.com/krewire/krewire/packages/version"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/hub/resolver"
+	"github.com/krewire/krewire/pkg/version"
 )
 
 func RegisterRemove(fs *flag.FlagSet) {}

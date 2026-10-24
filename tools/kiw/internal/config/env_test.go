@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/env"
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/env"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 func writeConfig(t *testing.T, body string) *Config {

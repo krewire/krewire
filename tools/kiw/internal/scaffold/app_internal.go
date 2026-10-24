@@ -11,8 +11,8 @@ package app
 import (
 	"io/fs"
 
-	rvapp "github.com/krewire/krewire/packages/app"
-	rvweb "github.com/krewire/krewire/packages/web"
+	rvapp "github.com/krewire/krewire/pkg/app"
+	rvweb "github.com/krewire/krewire/pkg/web"
 	"%s"
 	"%s"
 	"%s"
@@ -90,8 +90,8 @@ func internalConfigTemplate() string {
 		"import (\n" +
 		"\t\"fmt\"\n" +
 		"\t\"os\"\n\n" +
-		"\trconfig \"github.com/krewire/krewire/packages/config\"\n" +
-		"\tvalidation \"github.com/krewire/krewire/packages/validation\"\n" +
+		"\trconfig \"github.com/krewire/krewire/pkg/config\"\n" +
+		"\tvalidation \"github.com/krewire/krewire/pkg/validation\"\n" +
 		")\n\n" +
 		"// Metadata mirrors krewire.yaml.\n" +
 		"type Metadata struct {\n" +
@@ -148,9 +148,9 @@ func internalHttpTemplate() string {
 		"package http\n\n" +
 		"import (\n" +
 		"\t\"net/http\"\n\n" +
-		"\trvapp \"github.com/krewire/krewire/packages/app\"\n" +
-		"\trvweb \"github.com/krewire/krewire/packages/web\"\n" +
-		"\tvalidation \"github.com/krewire/krewire/packages/validation\"\n" +
+		"\trvapp \"github.com/krewire/krewire/pkg/app\"\n" +
+		"\trvweb \"github.com/krewire/krewire/pkg/web\"\n" +
+		"\tvalidation \"github.com/krewire/krewire/pkg/validation\"\n" +
 		")\n\n" +
 		"// Handler serves the JSON API endpoints.\n" +
 		"type Handler struct{}\n\n" +

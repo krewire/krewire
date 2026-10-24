@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 func TestLoadScriptsFromKrewireYaml(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 func newBoostFlagSet(args ...string) *flag.FlagSet {

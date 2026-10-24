@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )
 
@@ -15,7 +15,7 @@ func TestIsPackageFilter_Valid(t *testing.T) {
 		want bool
 	}{
 		{"./web", true},
-		{"github.com/krewire/krewire/packages/web", true},
+		{"github.com/krewire/krewire/pkg/web", true},
 		{"web_test.go", true},
 		{"TestKWF", false},
 		{"M4P", false},

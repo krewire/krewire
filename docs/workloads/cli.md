@@ -32,7 +32,7 @@ package main
 
 import (
 	"os"
-	"github.com/krewire/krewire/packages/tui"
+	"github.com/krewire/krewire/pkg/tui"
 )
 
 func main() {

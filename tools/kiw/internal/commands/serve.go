@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 	"github.com/krewire/mdbind/book"

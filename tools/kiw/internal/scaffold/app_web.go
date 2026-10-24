@@ -5,7 +5,7 @@ import "strings"
 func webLayoutsShellTemplate() string {
 	return "// Package layouts defines the application page shells (FRK-STR-006).\n" +
 		"package layouts\n\n" +
-		"import \"github.com/krewire/krewire/packages/web/ssg\"\n\n" +
+		"import \"github.com/krewire/krewire/pkg/web/ssg\"\n\n" +
 		"const shellBody = \"<!DOCTYPE html>\\n\" +\n" +
 		"\"<html lang=\\\"en\\\">\\n\" +\n" +
 		"\"<head>\\n\" +\n" +
@@ -43,7 +43,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/krewire/krewire/packages/web"
+	"github.com/krewire/krewire/pkg/web"
 )
 
 // Register wires all application pages into the web app.
@@ -90,7 +90,7 @@ func webThemeTemplate() string {
 // default.
 package theme
 
-import "github.com/krewire/krewire/packages/ui"
+import "github.com/krewire/krewire/pkg/ui"
 
 // New returns the application theme with the default Krewire palette.
 func New() *ui.Theme {
@@ -107,7 +107,7 @@ func webComponentsTemplate() string {
 // Pages reference these by name via PageSpec.Root.
 package components
 
-import "github.com/krewire/krewire/packages/web/ssg"
+import "github.com/krewire/krewire/pkg/web/ssg"
 
 // heroBody is the default landing component. It expects a map with the keys
 // badge, title, subtitle, and an optional cta_left map of label/href.

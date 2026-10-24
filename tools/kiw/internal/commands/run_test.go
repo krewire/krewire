@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 func TestRunRun_RejectsNonRunnableWorkloads(t *testing.T) {

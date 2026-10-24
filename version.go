@@ -1,8 +1,8 @@
 package krewire
 
 import (
-	"github.com/krewire/krewire/packages/model"
-	"github.com/krewire/krewire/packages/version"
+	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/pkg/version"
 )
 
 // Version is the master version of the Krewire monorepo and its constituent packages.

@@ -1,0 +1,518 @@
+// Package kiw parses the `.kiw` module format: YAML frontmatter, <style> and
+// <script> blocks, <markdown>, and JSX-like component tags.
+//
+// It lives in libs because the parser is a leaf concern: framework/web/ssg needs
+// it to load a file-based site, and it must never be forced to reach upward into
+// the devtool for it (see the strict layering boost → kiw → framework → mdbind →
+// libs). Holding the parser here keeps the dependency arrow pointing down and
+// lets every layer above — framework, kiw, ui — parse a .kiw file without a
+// cycle. kiw/dsl remains as a thin alias of this package.
+package kiw
+
+import (
+	"fmt"
+	"os"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
+
+	"github.com/krewire/krewire/pkg/markdown"
+	"gopkg.in/yaml.v3"
+)
+
+var (
+	styleRe           = regexp.MustCompile(`(?is)<style([^>]*)>(.*?)</style>`)
+	scriptRe          = regexp.MustCompile(`(?is)<script([^>]*)>(.*?)</script>`)
+	markdownRe        = regexp.MustCompile(`(?is)<markdown[^>]*>(.*?)</markdown>`)
+	attrRe            = regexp.MustCompile("([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|([^\\s\"'=<>`]+)))?")
+	selfClosingCompRe = regexp.MustCompile(`(?s)<([A-Z][a-zA-Z0-9_]*)([^>]*?)\s*/>`)
+	openCompTagRe     = regexp.MustCompile(`<([A-Z][a-zA-Z0-9_]*)([^>]*)>`)
+	mustacheCompRe    = regexp.MustCompile(`{{\s*component\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
+	mustacheMountRe   = regexp.MustCompile(`{{\s*mount\s+"([^"]+)"\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
+	compAttrRe        = regexp.MustCompile("([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|\\{([^}]*)\\}|([^\\s\"'=<>`]+)))?")
+)
+
+// StyleBlock holds a scoped style block with its attributes.
+type StyleBlock struct {
+	Lang    string `json:"lang"`
+	Scoped  bool   `json:"scoped"`
+	Content string `json:"content"`
+}
+
+// ScriptBlock holds a script block with tier attributes (FRK-DSL-030/031).
+// Lang is js|ts|go|rust, Hydrate is load|idle|visible, Server/Compute flags.
+type ScriptBlock struct {
+	Lang    string `json:"lang"`
+	Hydrate string `json:"hydrate"`
+	Server  bool   `json:"server"`
+	Compute bool   `json:"compute"`
+	Content string `json:"content"`
+}
+
+// ComponentCall records a parsed component invocation in a .kiw template,
+// whether written as {{component "Name" ...}}, {{mount "Name" "mode" ...}},
+// or <Name ... /> with optional hydration directives.
+type ComponentCall struct {
+	Name    string            `json:"name"`
+	Hydrate string            `json:"hydrate,omitempty"`
+	Props   map[string]string `json:"props,omitempty"`
+	Raw     string            `json:"raw"`
+}
+
+// KiwModule is the parsed result of a .kiw file.
+// It is JSON-serializable and intentionally mirrors the JS parser output
+// so the same .kiw file can be consumed from Go (html/template) and from
+// JS/TS (string templates) without a custom toolchain.
+type KiwModule struct {
+	Frontmatter    map[string]any  `yaml:",inline" json:"frontmatter"`
+	Body           string          `json:"body"`
+	Styles         []string        `json:"styles"`
+	Scripts        []string        `json:"scripts"`
+	StyleBlocks    []StyleBlock    `json:"styleBlocks"`
+	ScriptBlocks   []ScriptBlock   `json:"scriptBlocks"`
+	Markdown       []string        `json:"markdown"`
+	Components     []ComponentCall `json:"components,omitempty"`
+	ComponentNames []string        `json:"componentNames,omitempty"`
+	Raw            string          `json:"-"`
+}
+
+func parseAttrs(tag string) map[string]string {
+	m := map[string]string{}
+	for _, sm := range attrRe.FindAllStringSubmatch(tag, -1) {
+		if len(sm) < 2 {
+			continue
+		}
+		key := strings.ToLower(sm[1])
+		val := ""
+		if len(sm) > 2 && sm[2] != "" {
+			val = sm[2]
+		} else if len(sm) > 3 && sm[3] != "" {
+			val = sm[3]
+		} else if len(sm) > 4 && sm[4] != "" {
+			val = sm[4]
+		}
+		m[key] = val
+	}
+	return m
+}
+
+func isNumeric(s string) bool {
+	if _, err := strconv.Atoi(s); err == nil {
+		return true
+	}
+	if _, err := strconv.ParseFloat(s, 64); err == nil {
+		return true
+	}
+	return false
+}
+
+func desugarComponent(name, attrStr, bodyContent, raw string) (string, ComponentCall) {
+	call := ComponentCall{
+		Name:  name,
+		Props: make(map[string]string),
+		Raw:   raw,
+	}
+
+	trimmedAttr := strings.TrimSpace(attrStr)
+	trimmedBody := strings.TrimSpace(bodyContent)
+
+	if trimmedAttr == "" && trimmedBody == "" {
+		return fmt.Sprintf(`{{component %q}}`, name), call
+	}
+
+	if trimmedAttr == "." && trimmedBody == "" {
+		call.Props["."] = "."
+		return fmt.Sprintf(`{{component %q .}}`, name), call
+	}
+
+	if strings.HasPrefix(trimmedAttr, "(dict") && trimmedBody == "" {
+		return fmt.Sprintf(`{{component %q %s}}`, name, trimmedAttr), call
+	}
+
+	var dictPairs []string
+	cleanAttr := attrStr
+	var hydrateMode string
+	if trimmedAttr != "" {
+		punned := punnedPropRe.FindAllStringSubmatch(attrStr, -1)
+		for _, pm := range punned {
+			propName := pm[1]
+			if propName == "true" || propName == "false" || propName == "nil" {
+				continue
+			}
+			call.Props[propName] = "." + propName
+			dictPairs = append(dictPairs, fmt.Sprintf("%q .%s", propName, propName))
+		}
+		cleanAttr = punnedPropRe.ReplaceAllStringFunc(cleanAttr, func(m string) string {
+			sub := punnedPropRe.FindStringSubmatch(m)
+			if len(sub) > 1 && (sub[1] == "true" || sub[1] == "false" || sub[1] == "nil") {
+				return m
+			}
+			return " "
+		})
+	}
+
+	if strings.TrimSpace(cleanAttr) != "" {
+		matches := compAttrRe.FindAllStringSubmatch(cleanAttr, -1)
+		for _, sm := range matches {
+			if len(sm) < 2 || strings.TrimSpace(sm[1]) == "" {
+				continue
+			}
+			key := sm[1]
+
+			// Check for hydration directives (e.g. client:load, client:idle, client:visible, client:hydrate="load", hydrate="load")
+			switch key {
+			case "client:load":
+				hydrateMode = "load"
+				continue
+			case "client:idle":
+				hydrateMode = "idle"
+				continue
+			case "client:visible":
+				hydrateMode = "visible"
+				continue
+			case "client:hydrate", "hydrate":
+				v := ""
+				if len(sm) > 2 && sm[2] != "" {
+					v = sm[2]
+				} else if len(sm) > 3 && sm[3] != "" {
+					v = sm[3]
+				} else if len(sm) > 5 && sm[5] != "" {
+					v = sm[5]
+				}
+				if v == "" {
+					v = "load"
+				}
+				hydrateMode = v
+				continue
+			}
+
+			// boolean flag without explicit value (e.g. <Navbar ShowSidebarToggle />)
+			if (len(sm) < 3 || (sm[2] == "" && sm[3] == "" && sm[4] == "" && sm[5] == "")) && !strings.Contains(sm[0], "=") {
+				call.Props[key] = "true"
+				dictPairs = append(dictPairs, fmt.Sprintf("%q true", key))
+				continue
+			}
+
+			val := ""
+			isExpr := false
+			if len(sm) > 2 && sm[2] != "" {
+				val = sm[2]
+				if strings.HasPrefix(val, "{{") && strings.HasSuffix(val, "}}") {
+					val = strings.TrimSpace(val[2 : len(val)-2])
+					isExpr = true
+				} else if strings.HasPrefix(val, "{") && strings.HasSuffix(val, "}") {
+					val = strings.TrimSpace(val[1 : len(val)-1])
+					isExpr = true
+					if identPathRe.MatchString(val) && !strings.HasPrefix(val, ".") && !strings.HasPrefix(val, "$") && val != "true" && val != "false" {
+						val = toGoField(val, nil)
+					}
+				}
+			} else if len(sm) > 3 && sm[3] != "" {
+				val = sm[3]
+			} else if len(sm) > 4 && sm[4] != "" {
+				val = strings.TrimSpace(sm[4])
+				isExpr = true
+				if identPathRe.MatchString(val) && !strings.HasPrefix(val, ".") && !strings.HasPrefix(val, "$") && val != "true" && val != "false" {
+					val = toGoField(val, nil)
+				}
+			} else if len(sm) > 5 && sm[5] != "" {
+				val = sm[5]
+				if val == "true" || val == "false" || isNumeric(val) || strings.HasPrefix(val, ".") || strings.HasPrefix(val, "$") {
+					isExpr = true
+				}
+			}
+
+			call.Props[key] = val
+			if isExpr {
+				dictPairs = append(dictPairs, fmt.Sprintf("%q %s", key, val))
+			} else if val == "true" || val == "false" || isNumeric(val) {
+				dictPairs = append(dictPairs, fmt.Sprintf("%q %s", key, val))
+			} else {
+				dictPairs = append(dictPairs, fmt.Sprintf("%q %q", key, val))
+			}
+		}
+	}
+
+	if trimmedBody != "" {
+		// A component may contain other components (<Breadcrumb><BreadcrumbItem/></Breadcrumb>).
+		// The body is embedded below as a quoted string literal, so a child tag
+		// left un-desugared would reach the browser as literal text instead of a
+		// component call. Desugar the children first.
+		if desugared, _ := DesugarTemplate(trimmedBody); desugared != "" {
+			trimmedBody = desugared
+		}
+		call.Props["Body"] = trimmedBody
+		dictPairs = append(dictPairs, fmt.Sprintf("%q %q", "Body", trimmedBody))
+	}
+
+	if hydrateMode != "" {
+		call.Hydrate = hydrateMode
+		if len(dictPairs) == 0 {
+			return fmt.Sprintf(`{{mount %q %q (dict)}}`, name, hydrateMode), call
+		}
+		return fmt.Sprintf(`{{mount %q %q (dict %s)}}`, name, hydrateMode, strings.Join(dictPairs, " ")), call
+	}
+
+	if len(dictPairs) == 0 {
+		return fmt.Sprintf(`{{component %q}}`, name), call
+	}
+	return fmt.Sprintf(`{{component %q (dict %s)}}`, name, strings.Join(dictPairs, " ")), call
+}
+
+// DesugarTemplate translates modern Svelte-style .kiw 2.0 syntax
+// (interpolation, conditionals, loops, class directives, and JSX-like component tags)
+// into Go template invocations.
+func DesugarTemplate(src string) (string, error) {
+	return DesugarTemplateWithScope(src, nil)
+}
+
+// DesugarTemplateWithScope translates .kiw 2.0 syntax within a given variable scope.
+func DesugarTemplateWithScope(src string, loopVars map[string]bool) (string, error) {
+	// 1. Desugar class directives on HTML tags: class:active={isActive}
+	res := desugarClassDirectives(src)
+
+	// 2. Desugar loops: {#each items as item}...{/each}
+	res = desugarLoops(res)
+
+	// 3. Desugar conditionals: {#if ...}, {:else if ...}, {:else}, {/if}
+	res = desugarConditionals(res, loopVars)
+
+	// 4. Desugar self-closing components: <Navbar ... />
+	res = selfClosingCompRe.ReplaceAllStringFunc(res, func(match string) string {
+		sm := selfClosingCompRe.FindStringSubmatch(match)
+		if len(sm) < 3 {
+			return match
+		}
+		name := sm[1]
+		attrStr := sm[2]
+		replacement, _ := desugarComponent(name, attrStr, "", match)
+		return replacement
+	})
+
+	// 5. Desugar paired components: <Card ...>...</Card>
+	res = desugarPairedComponents(res)
+
+	// 6. Desugar clean expression interpolation: {var} -> {{.Var}}
+	res = desugarInterpolation(res, loopVars)
+
+	return res, nil
+}
+
+func desugarPairedComponents(src string) string {
+	res := src
+	for {
+		m := openCompTagRe.FindStringSubmatchIndex(res)
+		if m == nil {
+			break
+		}
+		tagName := res[m[2]:m[3]]
+		attrStr := res[m[4]:m[5]]
+
+		// Check if it's actually self-closing with slash at end of attrs: <Tag .../>
+		trimmedAttr := strings.TrimSpace(attrStr)
+		if strings.HasSuffix(trimmedAttr, "/") {
+			realAttr := strings.TrimSuffix(trimmedAttr, "/")
+			fullTag := res[m[0]:m[1]]
+			replacement, _ := desugarComponent(tagName, realAttr, "", fullTag)
+			res = res[:m[0]] + replacement + res[m[1]:]
+			continue
+		}
+
+		closeTag := "</" + tagName + ">"
+		closeIdx := strings.Index(res[m[1]:], closeTag)
+		if closeIdx == -1 {
+			// No matching closing tag, treat as self-closing
+			fullTag := res[m[0]:m[1]]
+			replacement, _ := desugarComponent(tagName, attrStr, "", fullTag)
+			res = res[:m[0]] + replacement + res[m[1]:]
+			continue
+		}
+		closeIdx += m[1]
+		bodyContent := res[m[1]:closeIdx]
+		fullTag := res[m[0] : closeIdx+len(closeTag)]
+		replacement, _ := desugarComponent(tagName, attrStr, bodyContent, fullTag)
+		res = res[:m[0]] + replacement + res[closeIdx+len(closeTag):]
+	}
+	return res
+}
+
+// ParseKiw parses a .kiw file content into a KiwModule.
+//
+// Format (Astro-like, but YAML frontmatter for Go/JS native):
+//
+//	---
+//	title: Landing
+//	layout: Base
+//	---
+//	<h1>{{.Title}}</h1>
+//	<Navbar />
+//	<style>h1{color:red}</style>
+//	<script>console.log(1)</script>
+//
+// Frontmatter is optional YAML between leading ---\n ... ---\n.
+// Body is html/template source with zero or more top-level <style> and <script>
+// blocks extracted as scoped CSS / client JS.
+// Both {{component "Name"}} and <ComponentName /> are recognized and desugared
+// to uniform component calls.
+func ParseKiw(src string) (*KiwModule, error) {
+	m := &KiwModule{
+		Frontmatter: map[string]any{},
+		Raw:         src,
+	}
+	body := src
+
+	if strings.HasPrefix(strings.TrimSpace(src), "---") {
+		trimmed := strings.TrimLeft(src, "\r\n\t ")
+		if strings.HasPrefix(trimmed, "---") {
+			rest := trimmed[3:]
+			// find closing ---\n
+			idx := strings.Index(rest, "\n---")
+			if idx >= 0 {
+				fmRaw := rest[:idx]
+				body = rest[idx+4:]
+				// strip leading newline after closing ---
+				body = strings.TrimLeft(body, "\r\n")
+				var fm map[string]any
+				if err := yaml.Unmarshal([]byte(fmRaw), &fm); err == nil && fm != nil {
+					m.Frontmatter = fm
+				}
+			}
+		}
+	}
+
+	styles := styleRe.FindAllStringSubmatch(body, -1)
+	for _, sm := range styles {
+		if len(sm) < 3 {
+			continue
+		}
+		attrs := parseAttrs(sm[1])
+		content := strings.TrimSpace(sm[2])
+		m.Styles = append(m.Styles, content)
+		lang := attrs["lang"]
+		if lang == "" {
+			lang = "css"
+		}
+		m.StyleBlocks = append(m.StyleBlocks, StyleBlock{
+			Lang:    strings.ToLower(lang),
+			Scoped:  false,
+			Content: content,
+		})
+		if _, ok := attrs["scoped"]; ok {
+			m.StyleBlocks[len(m.StyleBlocks)-1].Scoped = true
+		}
+	}
+	body = styleRe.ReplaceAllString(body, "")
+
+	scripts := scriptRe.FindAllStringSubmatch(body, -1)
+	for _, sm := range scripts {
+		if len(sm) < 3 {
+			continue
+		}
+		attrs := parseAttrs(sm[1])
+		content := strings.TrimSpace(sm[2])
+		// External HTML script tags (e.g. <script src="/assets/app.js"></script>)
+		// without inline content should remain in the template markup.
+		if attrs["src"] != "" && content == "" {
+			continue
+		}
+		m.Scripts = append(m.Scripts, content)
+		lang := strings.ToLower(attrs["lang"])
+		hydrate := strings.ToLower(attrs["hydrate"])
+		_, hasServer := attrs["server"]
+		_, hasCompute := attrs["compute"]
+		if lang == "" {
+			lang = "js"
+		}
+		if lang == "js" || lang == "ts" || lang == "go" {
+			if !hasServer && !hasCompute && hydrate == "" {
+				hydrate = "load"
+			}
+		}
+		m.ScriptBlocks = append(m.ScriptBlocks, ScriptBlock{
+			Lang:    lang,
+			Hydrate: hydrate,
+			Server:  hasServer,
+			Compute: hasCompute,
+			Content: content,
+		})
+	}
+	body = scriptRe.ReplaceAllStringFunc(body, func(match string) string {
+		sm := scriptRe.FindStringSubmatch(match)
+		if len(sm) >= 3 {
+			attrs := parseAttrs(sm[1])
+			content := strings.TrimSpace(sm[2])
+			if attrs["src"] != "" && content == "" {
+				return match
+			}
+		}
+		return ""
+	})
+
+	markdowns := markdownRe.FindAllStringSubmatch(body, -1)
+	for _, mm := range markdowns {
+		if len(mm) > 1 {
+			m.Markdown = append(m.Markdown, strings.TrimSpace(mm[1]))
+		}
+	}
+	body = markdownRe.ReplaceAllStringFunc(body, func(match string) string {
+		sub := markdownRe.FindStringSubmatch(match)
+		if len(sub) < 2 {
+			return ""
+		}
+		inner := strings.TrimSpace(sub[1])
+		if inner == "" {
+			return ""
+		}
+		rendered, _ := markdown.Render([]byte(inner))
+		return "\n" + strings.TrimSpace(rendered) + "\n"
+	})
+
+	// Desugar JSX-like component tags (<ComponentName ... />) to {{component "ComponentName" ...}}
+	desugared, _ := DesugarTemplate(body)
+	body = desugared
+
+	// Extract all component invocations (both original {{component ...}}, {{mount ...}}, and desugared <Tag />)
+	nameSet := make(map[string]bool)
+	for _, match := range mustacheCompRe.FindAllStringSubmatch(body, -1) {
+		if len(match) < 2 {
+			continue
+		}
+		compName := match[1]
+		m.Components = append(m.Components, ComponentCall{
+			Name: compName,
+			Raw:  match[0],
+		})
+		nameSet[compName] = true
+	}
+	for _, match := range mustacheMountRe.FindAllStringSubmatch(body, -1) {
+		if len(match) < 3 {
+			continue
+		}
+		compName := match[1]
+		hydrate := match[2]
+		m.Components = append(m.Components, ComponentCall{
+			Name:    compName,
+			Hydrate: hydrate,
+			Raw:     match[0],
+		})
+		nameSet[compName] = true
+	}
+
+	for name := range nameSet {
+		m.ComponentNames = append(m.ComponentNames, name)
+	}
+	sort.Strings(m.ComponentNames)
+
+	m.Body = strings.TrimSpace(body)
+	return m, nil
+}
+
+// ParseKiwFile reads and parses a .kiw file at path.
+func ParseKiwFile(path string) (*KiwModule, error) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return ParseKiw(string(b))
+}

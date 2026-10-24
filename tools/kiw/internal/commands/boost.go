@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/packages/boost"
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/boost"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 // RegisterBoost registers flags for the boost command group.

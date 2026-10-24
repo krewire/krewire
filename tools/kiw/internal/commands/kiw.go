@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"math/rand/v2"
 
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/term"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/term"
 )
 
 // ClientCatcalls contains humorous client-to-developer catcalling quotes.

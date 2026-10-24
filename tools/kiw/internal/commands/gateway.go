@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/cloud/service/registry"
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/web/gateway"
+	"github.com/krewire/krewire/pkg/cloud/service/registry"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/web/gateway"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 )
 

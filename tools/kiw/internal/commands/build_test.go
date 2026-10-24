@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/web/ssg"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/web/ssg"
 	"github.com/krewire/mdbind/book"
 )
 

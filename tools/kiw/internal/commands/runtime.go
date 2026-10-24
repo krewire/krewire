@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/krewire/krewire/packages/env"
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/log"
+	"github.com/krewire/krewire/pkg/env"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/log"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 )
 

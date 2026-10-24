@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/hub/resolver"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/hub/resolver"
 )
 
 func RegisterAdd(fs *flag.FlagSet) {

@@ -9,11 +9,22 @@ import (
 	"testing"
 )
 
+func repoDir(t *testing.T) string {
+	t.Helper()
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "krewire", "go.mod")); err == nil {
+		return filepath.Join(dir, "krewire")
+	}
+	return dir
+}
+
 // Verify pure Go execution without CGO dependencies.
 func TestPlatform_PureGo(t *testing.T) {
-	root := workspaceRoot(t)
-	cmd := exec.Command("go", "vet", "./packages/...")
-	cmd.Dir = root
+	cmd := exec.Command("go", "vet", "./pkg/...")
+	cmd.Dir = repoDir(t)
 	cmd.Env = append(cmd.Environ(), "CGO_ENABLED=0")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("go vet with CGO_ENABLED=0 failed: %v\nOutput: %s", err, string(out))
@@ -25,7 +36,6 @@ func TestPlatform_CrossCompileKiw(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping cross-compilation in short mode")
 	}
-	root := workspaceRoot(t)
 	targets := []struct {
 		goos   string
 		goarch string
@@ -38,7 +48,7 @@ func TestPlatform_CrossCompileKiw(t *testing.T) {
 		t.Run(tgt.goos+"_"+tgt.goarch, func(t *testing.T) {
 			outBin := filepath.Join(t.TempDir(), "kiw-"+tgt.goos+"-"+tgt.goarch)
 			cmd := exec.Command("go", "build", "-o", outBin, "./tools/kiw/cmd/kiw")
-			cmd.Dir = root
+			cmd.Dir = repoDir(t)
 			cmd.Env = append(cmd.Environ(), "CGO_ENABLED=0", "GOOS="+tgt.goos, "GOARCH="+tgt.goarch)
 			if out, err := cmd.CombinedOutput(); err != nil {
 				t.Fatalf("cross-compile kiw for %s/%s failed: %v\nOutput: %s", tgt.goos, tgt.goarch, err, string(out))
@@ -47,11 +57,10 @@ func TestPlatform_CrossCompileKiw(t *testing.T) {
 	}
 }
 
-// Automated compilation verification of packages/runtime/... for WebAssembly.
+// Automated compilation verification of pkg/runtime/... for WebAssembly.
 func TestPlatform_WasmCompile(t *testing.T) {
-	root := workspaceRoot(t)
-	cmd := exec.Command("go", "build", "./packages/runtime/...")
-	cmd.Dir = root
+	cmd := exec.Command("go", "build", "./pkg/runtime/...")
+	cmd.Dir = repoDir(t)
 	cmd.Env = append(cmd.Environ(), "CGO_ENABLED=0", "GOOS=js", "GOARCH=wasm")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("compilation for js/wasm failed: %v\nOutput: %s", err, string(out))
@@ -63,14 +72,13 @@ func TestPlatform_BitwiseReproducibility(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping bitwise reproducibility test in short mode")
 	}
-	root := workspaceRoot(t)
 	tmpDir := t.TempDir()
 	bin1 := filepath.Join(tmpDir, "kiw-1")
 	bin2 := filepath.Join(tmpDir, "kiw-2")
 
 	build := func(out string) []byte {
 		cmd := exec.Command("go", "build", "-trimpath", "-ldflags=-s -w", "-o", out, "./tools/kiw/cmd/kiw")
-		cmd.Dir = root
+		cmd.Dir = repoDir(t)
 		cmd.Env = append(cmd.Environ(), "CGO_ENABLED=0")
 		if outLog, err := cmd.CombinedOutput(); err != nil {
 			t.Fatalf("build failed: %v\nOutput: %s", err, string(outLog))
@@ -86,6 +94,6 @@ func TestPlatform_BitwiseReproducibility(t *testing.T) {
 	h1 := build(bin1)
 	h2 := build(bin2)
 	if !bytes.Equal(h1, h2) {
-		t.Fatalf("build is not bitwise reproducible: hash1=%x, hash2=%x", h1, h2)
+		t.Fatalf("builds are not bitwise reproducible: hash 1 = %x, hash 2 = %x", h1, h2)
 	}
 }

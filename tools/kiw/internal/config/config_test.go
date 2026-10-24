@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/ui"
+	"github.com/krewire/krewire/pkg/ui"
 )
 
 func TestLoadMissingFile(t *testing.T) {

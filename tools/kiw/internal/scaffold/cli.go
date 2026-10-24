@@ -54,7 +54,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/krewire/krewire/packages/tui"
+	"github.com/krewire/krewire/pkg/tui"
 	"%s/internal/commands"
 	"%s/internal/config"
 )
@@ -84,7 +84,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 // Hello prints a friendly greeting.
@@ -123,8 +123,8 @@ func cliConfigTemplate() string {
 		"import (\n" +
 		"\t\"fmt\"\n" +
 		"\t\"os\"\n\n" +
-		"\trconfig \"github.com/krewire/krewire/packages/config\"\n" +
-		"\tvalidation \"github.com/krewire/krewire/packages/validation\"\n" +
+		"\trconfig \"github.com/krewire/krewire/pkg/config\"\n" +
+		"\tvalidation \"github.com/krewire/krewire/pkg/validation\"\n" +
 		")\n\n" +
 		"// Metadata mirrors krewire.yaml.\n" +
 		"type Metadata struct {\n" +

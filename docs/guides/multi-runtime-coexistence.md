@@ -157,7 +157,7 @@ When Go microservice logs and host logs are aggregated into shared log collector
 - Use `log.SourceTag("go")` to emit standardized human-readable prefixes like `[go]` alongside `[js]` or `[laravel]`.
 
 ```go
-import "github.com/krewire/krewire/packages/log"
+import "github.com/krewire/krewire/pkg/log"
 
 logger := log.WithSource(slog.Default(), "go")
 logger.Info("processing order", "order_id", 1234)

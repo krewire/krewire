@@ -11,8 +11,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/krewire/krewire/packages/config"
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/config"
+	"github.com/krewire/krewire/pkg/errs"
 	kiwconfig "github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 )

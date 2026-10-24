@@ -5,8 +5,8 @@ package main
 import (
 	"os"
 
-	"github.com/krewire/krewire/packages/tui"
-	"github.com/krewire/krewire/packages/version"
+	"github.com/krewire/krewire/pkg/tui"
+	"github.com/krewire/krewire/pkg/version"
 	"github.com/krewire/krewire/tools/kiw/internal/commands"
 	kiwver "github.com/krewire/krewire/tools/kiw/internal/version"
 )

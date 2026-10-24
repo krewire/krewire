@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/packages/config"
-	"github.com/krewire/krewire/packages/env"
+	"github.com/krewire/krewire/pkg/config"
+	"github.com/krewire/krewire/pkg/env"
 )
 
 // ResolveEnv resolves the effective environment with strict precedence:

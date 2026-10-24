@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/env"
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/env"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 // chdir moves into dir for the duration of the test, restoring afterwards

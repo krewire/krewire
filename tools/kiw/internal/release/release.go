@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	krewire "github.com/krewire/krewire"
-	"github.com/krewire/krewire/packages/model"
-	"github.com/krewire/krewire/packages/version"
+	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/pkg/version"
 	"github.com/krewire/mdbind"
 )
 

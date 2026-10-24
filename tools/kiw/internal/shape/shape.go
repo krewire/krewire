@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/packages/model"
+	"github.com/krewire/krewire/pkg/model"
 )
 
 // Kind identifies a Krewire project kind. Re-exported from model for SSOT.

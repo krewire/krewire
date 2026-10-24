@@ -63,7 +63,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/krewire/krewire/packages/cloud/worker"
+	"github.com/krewire/krewire/pkg/cloud/worker"
 	"%s/internal/jobs"
 )
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	krewire "github.com/krewire/krewire"
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/version"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/version"
 	kiwver "github.com/krewire/krewire/tools/kiw/internal/version"
 	"github.com/krewire/mdbind"
 )

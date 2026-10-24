@@ -11,10 +11,10 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/krewire/krewire/packages/cloud/storage"
-	"github.com/krewire/krewire/packages/cloud/worker"
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/model"
+	"github.com/krewire/krewire/pkg/cloud/storage"
+	"github.com/krewire/krewire/pkg/cloud/worker"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/model"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 )
 

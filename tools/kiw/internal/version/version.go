@@ -3,7 +3,7 @@ package version
 
 import (
 	krewire "github.com/krewire/krewire"
-	"github.com/krewire/krewire/packages/version"
+	"github.com/krewire/krewire/pkg/version"
 )
 
 // Version is the semantic version of the Krewire monorepo.

@@ -91,10 +91,10 @@ func TestNewCreatesKernel(t *testing.T) {
 	if lessThan(GoVersion, requiredGoBaseline(t)) {
 		t.Errorf("GoVersion = %q is older than the kiw module baseline %q", GoVersion, requiredGoBaseline(t))
 	}
-	assertFileNotContains(t, filepath.Join(parent, "demo", "go.mod"), "github.com/krewire/krewire/packages/kern")
+	assertFileNotContains(t, filepath.Join(parent, "demo", "go.mod"), "github.com/krewire/krewire/pkg/kern")
 	assertFileContains(t, filepath.Join(parent, "demo", "krewire.yaml"), "name: demo")
 	assertFileContains(t, filepath.Join(parent, "demo", "main.go"), "package main")
-	assertFileNotContains(t, filepath.Join(parent, "demo", "main.go"), "github.com/krewire/krewire/packages/kern")
+	assertFileNotContains(t, filepath.Join(parent, "demo", "main.go"), "github.com/krewire/krewire/pkg/kern")
 	assertFileContains(t, filepath.Join(parent, "demo", ".gitignore"), "/demo")
 }
 

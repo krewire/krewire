@@ -5,8 +5,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/krewire/krewire/packages/env"
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/env"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 func TestChildEnviron_ExportsRVEnvAndDebug(t *testing.T) {

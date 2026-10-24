@@ -118,7 +118,7 @@ flowchart TD
 |---|---|---|---|---|
 | **Layer 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Layers 0, 1, 2, 3, 4 | External project application code |
 | **Layer 4** | Developer Tooling | `tools/kiw` | Layers 0, 1, 2, 3 | Layer 5, Consumer application binaries |
-| **Layer 3** | Domain Libraries | `packages/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`tools/kiw` or `templates/*`) |
+| **Layer 3** | Domain Libraries | `pkg/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`tools/kiw` or `templates/*`) |
 | **Layer 2** | Execution & Supervision | `packages/lifecycle`, `packages/env`, `packages/log` | Layers 0, 1 | Layers 3, 4, 5 (Zero domain package imports) |
 | **Layer 1** | Declarative Core & Base Primitives | `packages/model`, `packages/errs`, `packages/version` | Layer 0 (Stdlib only; `model` may import `errs`) | Layers 2, 3, 4, 5, Third-party packages |
 | **Layer 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
@@ -206,7 +206,7 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 - **Declarative Models & Workload Matrix (`packages/model`):** Canonical workload kinds, scope hierarchy, licensing tiers, and opt-in import constraints.
 - **Versioning & Watermark (`packages/version`):** Semantic version contracts, compatibility validation, and build signature watermarking.
 
-### B. Domain Libraries (`packages/*`)
+### B. Domain Libraries (`pkg/*`)
 - **Web (`packages/web`):** High-throughput HTTP routing, pipeline middleware, SSR templating, SSG asset pipeline, WebSocket-driven HMR, and API gateway routing.
 - **Runtime (`packages/runtime`):** WebAssembly client engine compiled with `GOOS=js`, providing a lightweight Virtual DOM (VDOM), declarative component mounting, and reactive widget islands.
 - **Security (`packages/sec`):** Secure defaults out-of-the-box: OWASP-compliant security headers, CSRF token generation/validation, CORS configuration, URL SSRF defense, and structured log sanitization.

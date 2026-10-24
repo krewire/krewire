@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/krewire/krewire/packages/env"
+	"github.com/krewire/krewire/pkg/env"
 )
 
 var currentChild *exec.Cmd

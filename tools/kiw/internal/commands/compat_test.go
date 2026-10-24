@@ -4,7 +4,7 @@ import (
 	"flag"
 	"testing"
 
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 func TestRunCompat(t *testing.T) {

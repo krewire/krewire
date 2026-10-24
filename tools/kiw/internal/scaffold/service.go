@@ -63,7 +63,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/packages/cloud/service/registry"
+	"github.com/krewire/krewire/pkg/cloud/service/registry"
 	"%s/internal/handler"
 )
 

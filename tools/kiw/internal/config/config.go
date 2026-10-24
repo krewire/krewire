@@ -10,9 +10,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/krewire/krewire/packages/cloud/infra/provider"
-	"github.com/krewire/krewire/packages/ui"
-	"github.com/krewire/krewire/packages/web/ssg"
+	"github.com/krewire/krewire/pkg/cloud/infra/provider"
+	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/krewire/pkg/web/ssg"
 	"gopkg.in/yaml.v3"
 )
 

@@ -2,9 +2,9 @@ package dsl
 
 import "testing"
 
-// The parser moved to github.com/krewire/krewire/packages/kiw so that packages can parse a
+// The parser moved to github.com/krewire/krewire/pkg/kiw so that packages can parse a
 // .kiw file without importing the devtool (the layering is strictly downward:
-// boost → kiw → packages/* → kern). This package survives as a
+// boost → kiw → pkg/* → kern). This package survives as a
 // compatibility alias, so its forwarding is the contract: a type alias, not a
 // copy, means a caller cannot observe the difference.
 func TestAliasForwardsToCanonicalParser(t *testing.T) {

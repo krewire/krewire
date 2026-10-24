@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/packages/model"
+	"github.com/krewire/krewire/pkg/model"
 )
 
 func writeFile(t *testing.T, dir, name, body string) {

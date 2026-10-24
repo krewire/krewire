@@ -9,9 +9,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/krewire/krewire/packages/errs"
-	"github.com/krewire/krewire/packages/term"
-	"github.com/krewire/krewire/packages/version"
+	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/term"
+	"github.com/krewire/krewire/pkg/version"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/release"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"

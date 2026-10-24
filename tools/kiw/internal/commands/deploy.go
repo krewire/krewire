@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/packages/cloud/deploy"
-	"github.com/krewire/krewire/packages/errs"
+	"github.com/krewire/krewire/pkg/cloud/deploy"
+	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"

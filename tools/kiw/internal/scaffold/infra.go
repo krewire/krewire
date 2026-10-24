@@ -50,8 +50,8 @@ func infraBlueprintTemplate(name string) string {
 package infra
 
 import (
-	"github.com/krewire/krewire/packages/cloud/infra/provider"
-	"github.com/krewire/krewire/packages/cloud/infra/schema"
+	"github.com/krewire/krewire/pkg/cloud/infra/provider"
+	"github.com/krewire/krewire/pkg/cloud/infra/schema"
 )
 
 // DesiredResources returns the declared infrastructure resources.
