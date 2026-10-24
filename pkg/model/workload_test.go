@@ -15,7 +15,7 @@ func TestParseKind(t *testing.T) {
 		{"worker", KindWorker, true},
 		{"service", KindService, true},
 		{"infra", KindInfra, true},
-		{"kernel", KindKernel, true},
+		{"gateway", KindGateway, true},
 		{"unknown", "", false},
 		{"", "", false},
 	}

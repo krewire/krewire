@@ -20,6 +20,7 @@ func RegisterNew(fs *flag.FlagSet) {
 	fs.Bool("app", false, "equip a fullstack monolith application")
 	fs.Bool("worker", false, "equip a background job queue worker (cloud/worker)")
 	fs.Bool("service", false, "equip a standalone microservice (cloud/service)")
+	fs.Bool("gateway", false, "equip an API gateway (pkg/web/gateway)")
 	fs.Bool("infra", false, "equip a cloud infrastructure blueprint (cloud/infra)")
 	fs.String("template", "", "bootstrap from a remote git template (git URL)")
 	fs.String("title", "", "site title for the site and book variants")
@@ -29,7 +30,7 @@ func RegisterNew(fs *flag.FlagSet) {
 func RunNew(fs *flag.FlagSet) errs.ExitCode {
 	name := fs.Arg(0)
 	if name == "" {
-		fmt.Fprintln(os.Stderr, "usage: kiw new <project> [--site|--book|--cli|--app|--worker|--service|--infra|--template <git-url>]")
+		fmt.Fprintln(os.Stderr, "usage: kiw new <project> [--site|--book|--cli|--app|--worker|--service|--gateway|--infra|--template <git-url>]")
 		return errs.ExitCodeUsage
 	}
 
@@ -39,11 +40,12 @@ func RunNew(fs *flag.FlagSet) errs.ExitCode {
 	app := flagBool(fs, "app")
 	worker := flagBool(fs, "worker")
 	service := flagBool(fs, "service")
+	gateway := flagBool(fs, "gateway")
 	infra := flagBool(fs, "infra")
 	templateURL := flagValue(fs, "template")
 
-	if count := boolCount(site, book, cli, app, worker, service, infra, templateURL != ""); count > 1 {
-		fmt.Fprintln(os.Stderr, "kiw new: choose at most one variant: --site, --book, --cli, --app, --worker, --service, --infra, or --template")
+	if count := boolCount(site, book, cli, app, worker, service, gateway, infra, templateURL != ""); count > 1 {
+		fmt.Fprintln(os.Stderr, "kiw new: choose at most one variant: --site, --book, --cli, --app, --worker, --service, --gateway, --infra, or --template")
 		return errs.ExitCodeUsage
 	}
 
@@ -105,6 +107,11 @@ func RunNew(fs *flag.FlagSet) errs.ExitCode {
 		opts.Version = resolveVersion()
 	case service:
 		opts.Variant = scaffold.VariantService
+		opts.Module = modulePath
+		opts.Name = name
+		opts.Version = resolveVersion()
+	case gateway:
+		opts.Variant = scaffold.VariantGateway
 		opts.Module = modulePath
 		opts.Name = name
 		opts.Version = resolveVersion()

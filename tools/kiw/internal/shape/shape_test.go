@@ -167,7 +167,7 @@ func TestDetectInfraByYamlKey(t *testing.T) {
 	}
 }
 
-func TestDetectKernelPreInit(t *testing.T) {
+func TestDetectPreInitBootstrap(t *testing.T) {
 	dir := t.TempDir()
 	writeFile(t, dir, "go.mod", "module example.com/starter\n\ngo 1.27.1\n")
 	writeFile(t, dir, "krewire.yaml", "project:\n  name: starter\n")
@@ -184,8 +184,20 @@ func main() {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Kind != KindKernel || got.Marker != "kernel" {
-		t.Errorf("got %v (%s), want kernel (kernel)", got.Kind, got.Marker)
+	if got.Kind != KindNone || got.Marker != MarkerPreInit {
+		t.Errorf("got %v (%s), want none (pre-init)", got.Kind, got.Marker)
+	}
+}
+
+func TestDetectGatewayKey(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "krewire.yaml", "gateway:\n  port: 8080\n")
+	got, err := Detect(dir, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Kind != KindGateway || got.Marker != "krewire.yaml#gateway" {
+		t.Errorf("got %v (%s), want gateway (krewire.yaml#gateway)", got.Kind, got.Marker)
 	}
 }
 

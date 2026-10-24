@@ -73,13 +73,13 @@ func TestInitExistingProjectResetWithForce(t *testing.T) {
 	assertFileNotContains(t, yamlPath, "custom: true")
 }
 
-func TestNewCreatesKernel(t *testing.T) {
+func TestNewCreatesBootstrap(t *testing.T) {
 	parent := t.TempDir()
 	created, err := New(Options{Name: "demo", Dir: parent})
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Kernel creates 5 entries: .git, .gitignore, krewire.yaml, go.mod, main.go.
+	// Bootstrap creates 5 entries: .git, .gitignore, krewire.yaml, go.mod, main.go.
 	if len(created) < 4 {
 		t.Fatalf("created %d files, want at least 4: %v", len(created), created)
 	}
@@ -158,8 +158,8 @@ func TestNewInvalidName(t *testing.T) {
 	}
 }
 
-// newKernel creates a kernel named "demo" inside parent and returns its path.
-func newKernel(t *testing.T, parent string) string {
+// newBootstrap creates a bootstrap project named "demo" inside parent and returns its path.
+func newBootstrap(t *testing.T, parent string) string {
 	t.Helper()
 	if _, err := New(Options{Name: "demo", Dir: parent, Module: "example.com/demo"}); err != nil {
 		t.Fatal(err)
@@ -168,7 +168,7 @@ func newKernel(t *testing.T, parent string) string {
 }
 
 func TestEquipApp(t *testing.T) {
-	dir := newKernel(t, t.TempDir())
+	dir := newBootstrap(t, t.TempDir())
 	created, err := Equip(EquipOptions{
 		Dir:     dir,
 		Variant: VariantApp,
@@ -214,8 +214,8 @@ func TestEquipApp(t *testing.T) {
 	assertFileContains(t, filepath.Join(dir, "internal/config/config.go"), "func Env(key, fallback string) string")
 }
 
-func TestEquipAppRefusesNonKernelOverwrite(t *testing.T) {
-	dir := newKernel(t, t.TempDir())
+func TestEquipAppRefusesNonBootstrapOverwrite(t *testing.T) {
+	dir := newBootstrap(t, t.TempDir())
 	if err := os.MkdirAll(filepath.Join(dir, "internal/app"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -236,7 +236,7 @@ func TestEquipAppMissingModule(t *testing.T) {
 }
 
 func TestEquipCLI(t *testing.T) {
-	dir := newKernel(t, t.TempDir())
+	dir := newBootstrap(t, t.TempDir())
 	created, err := Equip(EquipOptions{
 		Dir:     dir,
 		Variant: VariantCLI,
@@ -278,7 +278,7 @@ func TestEquipCLIMissingModule(t *testing.T) {
 }
 
 func TestEquipStatic(t *testing.T) {
-	dir := newKernel(t, t.TempDir())
+	dir := newBootstrap(t, t.TempDir())
 	created, err := Equip(EquipOptions{Dir: dir, Variant: VariantStatic, Name: "demo", Title: "My Site"})
 	if err != nil {
 		t.Fatal(err)
@@ -294,9 +294,9 @@ func TestEquipStatic(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(dir, "ssg.yaml")); !os.IsNotExist(err) {
 		t.Error("ssg.yaml should not exist")
 	}
-	// The kernel main.go is removed so shape is pinned by project.kind.
+	// The bootstrap main.go is removed so shape is pinned by project.kind.
 	if _, err := os.Stat(filepath.Join(dir, "main.go")); !os.IsNotExist(err) {
-		t.Error("kernel main.go should be removed for a static project")
+		t.Error("bootstrap main.go should be removed for a static project")
 	}
 	if len(created) != 6 {
 		t.Fatalf("equip static created %d files, want 6: %v", len(created), created)
@@ -304,7 +304,7 @@ func TestEquipStatic(t *testing.T) {
 }
 
 func TestEquipBook(t *testing.T) {
-	dir := newKernel(t, t.TempDir())
+	dir := newBootstrap(t, t.TempDir())
 	created, err := Equip(EquipOptions{Dir: dir, Variant: VariantBook, Name: "demo", Title: "My Book"})
 	if err != nil {
 		t.Fatal(err)
@@ -313,7 +313,7 @@ func TestEquipBook(t *testing.T) {
 	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "title: My Book")
 	assertFileContains(t, filepath.Join(dir, "content/docs/01-introduction.md"), "# Introduction")
 	if _, err := os.Stat(filepath.Join(dir, "main.go")); !os.IsNotExist(err) {
-		t.Error("kernel main.go should be removed for a book project")
+		t.Error("bootstrap main.go should be removed for a book project")
 	}
 	if len(created) == 0 {
 		t.Fatal("equip book created no files")
@@ -555,7 +555,7 @@ func TestEquip_Worker(t *testing.T) {
 	dir := t.TempDir()
 	for name, content := range map[string]string{
 		"go.mod":       "module testworker\n\ngo 1.22\n",
-		"main.go":      kernelBody,
+		"main.go":      bootstrapBody,
 		"krewire.yaml": "project:\n  name: testworker\n",
 	} {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
@@ -585,7 +585,7 @@ func TestEquip_Service(t *testing.T) {
 	dir := t.TempDir()
 	for name, content := range map[string]string{
 		"go.mod":       "module testsvc\n\ngo 1.22\n",
-		"main.go":      kernelBody,
+		"main.go":      bootstrapBody,
 		"krewire.yaml": "project:\n  name: testsvc\n",
 	} {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
@@ -611,11 +611,43 @@ func TestEquip_Service(t *testing.T) {
 	assertFileContains(t, filepath.Join(dir, "internal", "handler", "handler.go"), "func Health")
 }
 
+func TestEquip_Gateway(t *testing.T) {
+	dir := t.TempDir()
+	for name, content := range map[string]string{
+		"go.mod":       "module testgw\n\ngo 1.22\n",
+		"main.go":      bootstrapBody,
+		"krewire.yaml": "project:\n  name: testgw\n",
+	} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	created, err := Equip(EquipOptions{
+		Dir:     dir,
+		Name:    "testgw",
+		Module:  "testgw",
+		Variant: VariantGateway,
+	})
+	if err != nil {
+		t.Fatalf("Equip(VariantGateway) failed: %v", err)
+	}
+	if len(created) == 0 {
+		t.Fatal("expected files created")
+	}
+
+	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "kind: gateway")
+	assertFileContains(t, filepath.Join(dir, "krewire.yaml"), "gateway:")
+	assertFileContains(t, filepath.Join(dir, "main.go"), "pkg/web/gateway")
+	assertFileContains(t, filepath.Join(dir, "main.go"), "registry.NewMemoryRegistry()")
+	assertFileContains(t, filepath.Join(dir, "internal", "config", "config.go"), "func (c *Config) Routes()")
+}
+
 func TestEquip_Infra(t *testing.T) {
 	dir := t.TempDir()
 	for name, content := range map[string]string{
 		"krewire.yaml": "project:\n  name: testinfra\n",
-		"main.go":      kernelBody,
+		"main.go":      bootstrapBody,
 	} {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644); err != nil {
 			t.Fatal(err)

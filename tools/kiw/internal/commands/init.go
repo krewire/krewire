@@ -24,6 +24,7 @@ func RegisterInit(fs *flag.FlagSet) {
 	fs.Bool("app", false, "equip a fullstack monolith application")
 	fs.Bool("worker", false, "equip a background job queue worker (cloud/worker)")
 	fs.Bool("service", false, "equip a standalone microservice (cloud/service)")
+	fs.Bool("gateway", false, "equip an API gateway (pkg/web/gateway)")
 	fs.Bool("infra", false, "equip a cloud infrastructure blueprint (cloud/infra)")
 	fs.String("template", "", "bootstrap from a remote git template (git URL)")
 	fs.String("title", "", "site title for the site and book variants")
@@ -74,9 +75,10 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 	app := flagBool(fs, "app")
 	worker := flagBool(fs, "worker")
 	service := flagBool(fs, "service")
+	gateway := flagBool(fs, "gateway")
 	infra := flagBool(fs, "infra")
 
-	hasVariant := site || book || cli || app || worker || service || infra || templateURL != ""
+	hasVariant := site || book || cli || app || worker || service || gateway || infra || templateURL != ""
 	if !hasVariant {
 		slog.Info("initialized minimal Krewire project", "dir", dir, "files", len(initCreated))
 		for _, path := range initCreated {
@@ -86,8 +88,8 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 		return errs.ExitCodeSuccess
 	}
 
-	if count := boolCount(site, book, cli, app, worker, service, infra, templateURL != ""); count > 1 {
-		fmt.Fprintln(os.Stderr, "kiw init: choose at most one variant: --site, --book, --cli, --app, --worker, --service, --infra, or --template")
+	if count := boolCount(site, book, cli, app, worker, service, gateway, infra, templateURL != ""); count > 1 {
+		fmt.Fprintln(os.Stderr, "kiw init: choose at most one variant: --site, --book, --cli, --app, --worker, --service, --gateway, --infra, or --template")
 		return errs.ExitCodeUsage
 	}
 
@@ -127,6 +129,16 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 		opts.Version = resolveVersion()
 	case service:
 		opts.Variant = scaffold.VariantService
+		mod, _ := gomod.Find(dir)
+		if mod != nil {
+			opts.Module = mod.Path
+		} else {
+			opts.Module = name
+		}
+		opts.Name = name
+		opts.Version = resolveVersion()
+	case gateway:
+		opts.Variant = scaffold.VariantGateway
 		mod, _ := gomod.Find(dir)
 		if mod != nil {
 			opts.Module = mod.Path

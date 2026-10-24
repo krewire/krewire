@@ -24,10 +24,15 @@ const (
 	KindBook         = model.KindBook
 	KindWorker       = model.KindWorker
 	KindService      = model.KindService
+	KindGateway      = model.KindGateway
 	KindInfra        = model.KindInfra
-	KindKernel       = model.KindKernel
 	KindNone    Kind = ""
 )
+
+// MarkerPreInit is the marker reported for a project that only has the
+// pre-scaffold bootstrap layout. It is not a kind: the project must be equipped
+// with a variant before any workload command can run.
+const MarkerPreInit = "pre-init"
 
 // Result is the outcome of a detection.
 type Result struct {
@@ -36,6 +41,12 @@ type Result struct {
 	// Marker names the file or config key that determined the kind, e.g.
 	// "main.go" or "krewire.yaml#ssg".
 	Marker string
+}
+
+// IsPreInit reports whether the project is a pre-scaffold bootstrap that must
+// be equipped with a variant before any workload command can run.
+func (r Result) IsPreInit() bool {
+	return r.Kind == KindNone && r.Marker == MarkerPreInit
 }
 
 // String implements fmt.Stringer.
@@ -64,13 +75,17 @@ func Detect(dir, explicitKind string) (Result, error) {
 	if hasYamlKey(dir, "service") {
 		return Result{Kind: KindService, Marker: "krewire.yaml#service"}, nil
 	}
+	if hasYamlKey(dir, "gateway") {
+		return Result{Kind: KindGateway, Marker: "krewire.yaml#gateway"}, nil
+	}
 	if hasYamlKey(dir, "infra") {
 		return Result{Kind: KindInfra, Marker: "krewire.yaml#infra"}, nil
 	}
 
-	// 2. Pre-init minimal kernel (go.mod + krewire.yaml + starter main.go + .gitignore)
-	if isKernel(dir) {
-		return Result{Kind: KindKernel, Marker: "kernel"}, nil
+	// 2. Pre-scaffold bootstrap (go.mod + krewire.yaml + starter main.go).
+	// This is not a workload kind: the project must be equipped first.
+	if isPreInit(dir) {
+		return Result{Kind: KindNone, Marker: MarkerPreInit}, nil
 	}
 
 	// 3. Application entry point
@@ -78,12 +93,10 @@ func Detect(dir, explicitKind string) (Result, error) {
 		return Result{Kind: KindApp, Marker: appMarker(dir)}, nil
 	}
 
-	// 4. Declarative SSG site (ssg.yaml, ssg: key, or pages/ directory)
-	if hasFile(dir, "ssg.yaml") || hasYamlKey(dir, "ssg") || isDir(dir, "pages") {
+	// 4. Declarative SSG site (ssg: key in krewire.yaml, or pages/ directory)
+	if hasYamlKey(dir, "ssg") || isDir(dir, "pages") {
 		marker := "pages/"
-		if hasFile(dir, "ssg.yaml") {
-			marker = "ssg.yaml"
-		} else if hasYamlKey(dir, "ssg") {
+		if hasYamlKey(dir, "ssg") {
 			marker = "krewire.yaml#ssg"
 		}
 		return Result{Kind: KindSite, Marker: marker}, nil
@@ -97,8 +110,8 @@ func Detect(dir, explicitKind string) (Result, error) {
 	return Result{Kind: KindNone}, nil
 }
 
-// isKernel reports whether dir is a fresh, pre-init kernel project.
-func isKernel(dir string) bool {
+// isPreInit reports whether dir is a fresh, pre-scaffold bootstrap project.
+func isPreInit(dir string) bool {
 	if !hasFile(dir, "main.go") || !hasFile(dir, "krewire.yaml") || !hasFile(dir, "go.mod") {
 		return false
 	}

@@ -36,23 +36,23 @@ func TestRunRun_RejectsNonRunnableWorkloads(t *testing.T) {
 	}
 }
 
-func TestRunDev_RejectsInfraAndKernel(t *testing.T) {
+func TestRunDev_RejectsInfraAndPreInit(t *testing.T) {
 	cases := []struct {
 		name    string
 		content string
 	}{
 		{"infra", "project:\n  kind: infra\n"},
-		{"kernel", "title: Kernel\n"},
+		{"pre-init", "title: PreInit\n"},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := t.TempDir()
-			if tc.name == "kernel" {
+			if tc.name == "pre-init" {
 				for name, body := range map[string]string{
 					"go.mod":       "module testkern\n\ngo 1.22\n",
 					"main.go":      "package main\nimport \"fmt\"\nfunc main() { fmt.Println(\"hello, krewire\") }\n",
-					"krewire.yaml": "title: Kernel\n",
+					"krewire.yaml": "title: PreInit\n",
 					".gitignore":   ".krewire/\n",
 				} {
 					if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644); err != nil {

@@ -13,7 +13,7 @@ import (
 	"os/exec"
 )
 
-// equipApp shapes the kernel into a fullstack monolith. The root main.go
+// equipApp shapes the bootstrap project into a fullstack monolith. The root main.go
 // becomes the entry point (canonical layout KWF-CCI0N) and go.mod is
 // upgraded in place with the pinned ecosystem module require.
 func equipApp(opts EquipOptions) ([]string, error) {

@@ -23,7 +23,7 @@ var (
 	// --template clone target.
 	ErrNotEmpty = errors.New("refusing to clone: target directory is not empty")
 	// ErrConflict is returned when equipping a variant would overwrite a
-	// file outside the kernel set (go.mod, krewire.yaml, .gitignore, main.go).
+	// file outside the bootstrap set (go.mod, krewire.yaml, .gitignore, main.go).
 	ErrConflict = errors.New("refusing to equip: file already exists")
 )
 
@@ -48,13 +48,16 @@ const (
 	VariantWorker Variant = "worker"
 	// VariantService is a standalone microservice application (cloud/service).
 	VariantService Variant = "service"
+	// VariantGateway is an API gateway application proxying to upstream
+	// services through the service registry (pkg/web/gateway).
+	VariantGateway Variant = "gateway"
 	// VariantInfra is a declarative cloud infrastructure blueprint project (cloud/infra).
 	VariantInfra Variant = "infra"
 	// VariantTemplate clones a remote starter repository into the target.
 	VariantTemplate Variant = "template"
 )
 
-// Options configures kernel generation.
+// Options configures bootstrap generation.
 type Options struct {
 	// Name is the project name and directory name. Required.
 	Name string
@@ -71,10 +74,10 @@ type file struct {
 	body string
 }
 
-// kernelBody is the stdlib-only main.go written by `kiw new`. init
+// bootstrapBody is the stdlib-only main.go written by `kiw new`. init
 // upgrades it in place for the app variant and removes it for site/book
 // variants.
-const kernelBody = `package main
+const bootstrapBody = `package main
 
 import "fmt"
 
@@ -160,7 +163,7 @@ func Init(opts InitOptions) ([]string, error) {
 	return created, nil
 }
 
-// New generates a new minimal Krewire project kernel and returns the created paths relative to Dir.
+// New generates a new minimal Krewire bootstrap project and returns the created paths relative to Dir.
 func New(opts Options) ([]string, error) {
 	if opts.Name == "" {
 		return nil, fmt.Errorf("project name is required")
@@ -224,7 +227,7 @@ func New(opts Options) ([]string, error) {
 	}
 	mainPath := filepath.Join(target, mainGo)
 	if _, err := os.Stat(mainPath); os.IsNotExist(err) {
-		if err := writeFile(mainPath, []byte(kernelBody)); err == nil {
+		if err := writeFile(mainPath, []byte(bootstrapBody)); err == nil {
 			created = append(created, filepath.Join(opts.Name, mainGo))
 		}
 	}
@@ -240,16 +243,6 @@ func New(opts Options) ([]string, error) {
 // Keep in sync with the `go` directive in the workspace go.work and in every
 // module go.mod (see internal/docs/version.md §Go Baseline).
 const GoVersion = "1.27.1"
-
-// kernel returns the minimal kernel file set.
-func kernel(name, module string) []file {
-	return []file{
-		{goModFile, fmt.Sprintf("module %s\n\ngo %s\n", module, GoVersion)},
-		{krewireYaml, fmt.Sprintf("project:\n  name: %s\n", name)},
-		{mainGo, kernelBody},
-		{gitignoreFile, gitignoreTemplate(name)},
-	}
-}
 
 // EquipOptions configures Equip. Dir is the project root to shape in place.
 type EquipOptions struct {
@@ -273,7 +266,7 @@ type EquipOptions struct {
 }
 
 // Equip shapes an existing project root into the requested variant and
-// returns the created paths, relative to Dir. The kernel files (go.mod,
+// returns the created paths, relative to Dir. The bootstrap files (go.mod,
 // krewire.yaml, .gitignore, main.go) may be upgraded in place; any other
 // pre-existing file is refused.
 func Equip(opts EquipOptions) ([]string, error) {
@@ -293,6 +286,8 @@ func Equip(opts EquipOptions) ([]string, error) {
 		return equipWorker(opts)
 	case VariantService:
 		return equipService(opts)
+	case VariantGateway:
+		return equipGateway(opts)
 	case VariantInfra:
 		return equipInfra(opts)
 	case VariantTemplate:
@@ -309,8 +304,8 @@ const (
 	mainGo        = "main.go"
 )
 
-// kernelUpgrade names the files init may overwrite in place.
-var kernelUpgrade = map[string]bool{
+// bootstrapUpgrade names the files init may overwrite in place.
+var bootstrapUpgrade = map[string]bool{
 	goModFile:     true,
 	krewireYaml:   true,
 	gitignoreFile: true,
@@ -318,12 +313,12 @@ var kernelUpgrade = map[string]bool{
 }
 
 // writeVariant writes files into Dir, refusing to overwrite anything outside
-// the kernel set, and returns the created paths relative to Dir.
+// the bootstrap set, and returns the created paths relative to Dir.
 func writeVariant(dir string, files []file) ([]string, error) {
 	var created []string
 	for _, f := range files {
 		path := filepath.Join(dir, f.name)
-		if _, err := os.Stat(path); err == nil && !kernelUpgrade[f.name] {
+		if _, err := os.Stat(path); err == nil && !bootstrapUpgrade[f.name] {
 			return nil, fmt.Errorf("%w: %s", ErrConflict, f.name)
 		}
 		if err := writeFile(path, []byte(f.body)); err != nil {
@@ -334,11 +329,11 @@ func writeVariant(dir string, files []file) ([]string, error) {
 	return created, nil
 }
 
-// removeKernelMain removes the kernel's placeholder main.go (written by
+// removeBootstrapMain removes the bootstrap's placeholder main.go (written by
 // `kiw new`) when equipping a site or book variant, so shape detection is
 // pinned by project.kind rather than a stray app marker. It is a no-op when
 // the file is absent or was modified by the user.
-func removeKernelMain(dir string) error {
+func removeBootstrapMain(dir string) error {
 	path := filepath.Join(dir, mainGo)
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -347,7 +342,7 @@ func removeKernelMain(dir string) error {
 		}
 		return err
 	}
-	if strings.TrimSpace(string(data)) == strings.TrimSpace(kernelBody) {
+	if strings.TrimSpace(string(data)) == strings.TrimSpace(bootstrapBody) {
 		return os.Remove(path)
 	}
 	return nil

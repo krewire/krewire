@@ -78,7 +78,7 @@ func RunRun(fs *flag.FlagSet) errs.ExitCode {
 	}
 
 	switch res.Kind {
-	case shape.KindApp, shape.KindWorker, shape.KindService:
+	case shape.KindApp, shape.KindWorker, shape.KindService, shape.KindGateway:
 		return runApp(rt, fs)
 	case shape.KindCLI:
 		return runCLI(rt, fs)
@@ -88,10 +88,11 @@ func RunRun(fs *flag.FlagSet) errs.ExitCode {
 	case shape.KindInfra:
 		fmt.Fprintln(os.Stderr, "kiw run: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
 		return errs.ExitCodeUsage
-	case shape.KindKernel:
-		fmt.Fprintln(os.Stderr, "kiw run: kernel project must be initialized first — run 'kiw init' to choose a starter")
-		return errs.ExitCodeUsage
 	default:
+		if res.IsPreInit() {
+			fmt.Fprintln(os.Stderr, "kiw run: project is not equipped yet — run 'kiw init' to choose a starter")
+			return errs.ExitCodeUsage
+		}
 		fmt.Fprintln(os.Stderr, "kiw run: no app found — add a main.go building a web.App, or run 'kiw new <project>' first")
 		return errs.ExitCodeUsage
 	}

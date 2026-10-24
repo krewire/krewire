@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// equipInfra shapes the kernel into a declarative cloud infrastructure blueprint project.
+// equipInfra shapes the bootstrap project into a declarative cloud infrastructure blueprint project.
 func equipInfra(opts EquipOptions) ([]string, error) {
 	if opts.Name == "" {
 		return nil, fmt.Errorf("equip infra: project name is required")
@@ -24,7 +24,7 @@ func equipInfra(opts EquipOptions) ([]string, error) {
 	}
 
 	// Infra workload doesn't need root main.go
-	if err := removeKernelMain(opts.Dir); err != nil {
+	if err := removeBootstrapMain(opts.Dir); err != nil {
 		return nil, err
 	}
 	return created, nil

@@ -7,7 +7,8 @@ import (
 	"fmt"
 )
 
-// equipStatic shapes the kernel into a modern file-based static site. The kernel's
+// equipStatic shapes the bootstrap project into a modern file-based static site. The
+// bootstrap's
 // placeholder main.go is removed, and standard directories are populated.
 func equipStatic(opts EquipOptions) ([]string, error) {
 	if opts.Name == "" {
@@ -29,7 +30,7 @@ func equipStatic(opts EquipOptions) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := removeKernelMain(opts.Dir); err != nil {
+	if err := removeBootstrapMain(opts.Dir); err != nil {
 		return nil, err
 	}
 	return report, nil

@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-// equipCLI shapes the kernel into a command-line application. The root
+// equipCLI shapes the bootstrap project into a command-line application. The root
 // main.go becomes the tui.App harness, commands live under
 // internal/commands, and go.mod is upgraded in place with pinned requires.
 func equipCLI(opts EquipOptions) ([]string, error) {

@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-// equipBook shapes the kernel into a markdown content book. The sample
-// chapters live under content/ (shared with the ssg layout) and the kernel
+// equipBook shapes the bootstrap project into a markdown content book. The sample
+// chapters live under content/ (shared with the ssg layout) and the bootstrap
 // main.go is removed, matching the book build path.
 func equipBook(opts EquipOptions) ([]string, error) {
 	if opts.Name == "" {
@@ -22,7 +22,7 @@ func equipBook(opts EquipOptions) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := removeKernelMain(opts.Dir); err != nil {
+	if err := removeBootstrapMain(opts.Dir); err != nil {
 		return nil, err
 	}
 	return report, nil
@@ -32,11 +32,12 @@ func bookKrewireYamlTemplate(name, title string) string {
 	return fmt.Sprintf(`project:
   name: %s
   kind: book
-  title: %s
-  author: ""
-  base: /
-  input: content
   version: 0.1.0
+
+title: %s
+author: ""
+base: /
+input: content
 `, name, title)
 }
 

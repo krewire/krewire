@@ -16,15 +16,15 @@ var Signature = version.DefaultSignature
 
 func main() {
 	app := tui.NewApp("kiw", kiwver.VersionString()).
-		WithDescription("One CLI for every workload — site, book, app, worker, service, infra").
+		WithDescription("One CLI for every workload — site, book, app, worker, service, gateway, infra").
 		Command(tui.NewCommand("version", "print CLI and framework versions", nil, commands.RunVersion).WithGroup("inspect").WithExample("kiw version")).
 		Command(tui.NewCommand("info", "print environment and project information", nil, commands.RunInfo).WithGroup("inspect").WithExample("kiw info")).
 		Command(tui.NewCommand("compat", "check version compatibility across all modules", nil, commands.RunCompat).WithGroup("inspect").WithExample("kiw compat")).
 		Command(tui.NewCommand("tier", "inspect open-core tier posture and validate boundary rules", commands.RegisterTier, commands.RunTier).WithGroup("inspect").WithExample("kiw tier --check free")).
 		Command(tui.NewCommand("doctor", "diagnose developer environment, toolchain prerequisites, and workspace", commands.RegisterDoctor, commands.RunDoctor).WithGroup("inspect").WithExample("kiw doctor")).
-		Command(tui.NewCommand("new", "scaffold a minimal Krewire project kernel", commands.RegisterNew, commands.RunNew).WithGroup("project").WithExample("kiw new my-site")).
-		Command(tui.NewCommand("init", "equip the project with a variant: monolith, --site, --book, --cli, --worker, --service, --infra, or --template", commands.RegisterInit, commands.RunInit).WithGroup("project").WithExample("kiw init --site")).
-		Command(tui.NewCommand("build", "build the project for production (site, book, app, cli, worker, service, infra)", commands.RegisterBuild, commands.RunBuild).WithGroup("build").WithExample("kiw build")).
+		Command(tui.NewCommand("new", "scaffold a minimal Krewire bootstrap project", commands.RegisterNew, commands.RunNew).WithGroup("project").WithExample("kiw new my-site")).
+		Command(tui.NewCommand("init", "equip the project with a variant: monolith, --site, --book, --cli, --worker, --service, --gateway, --infra, or --template", commands.RegisterInit, commands.RunInit).WithGroup("project").WithExample("kiw init --site")).
+		Command(tui.NewCommand("build", "build the project for production (site, book, app, cli, worker, service, gateway, infra)", commands.RegisterBuild, commands.RunBuild).WithGroup("build").WithExample("kiw build")).
 		Command(tui.NewCommand("bundle", "bundle static CSS and JS into assets/krewire.css and assets/krewire.js", commands.RegisterBundle, commands.RunBundle).WithGroup("build").WithExample("kiw bundle --minify")).
 		Command(tui.NewCommand("serve", "preview the current project's website over HTTP", commands.RegisterServe, commands.RunServe).WithGroup("build").WithExample("kiw serve --port 3000")).
 		Command(tui.NewCommand("run", "build and run the current app, a Go file, or a task from krewire.yaml\n\nModes:\n  kiw run [args...]         build and run project app/cli binary\n  kiw run <file.go> [args]  execute standalone Go file with project environment\n  kiw run <task>            run a named task defined under scripts in krewire.yaml", commands.RegisterRun, commands.RunRun).WithGroup("develop").WithExample("kiw run [task|path/to/file.go] [-- args]")).

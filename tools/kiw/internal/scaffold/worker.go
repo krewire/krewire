@@ -4,9 +4,10 @@ package scaffold
 import (
 	"fmt"
 	"os"
+	"os/exec"
 )
 
-// equipWorker shapes the kernel into a background job queue worker application.
+// equipWorker shapes the bootstrap project into a background job queue worker application.
 func equipWorker(opts EquipOptions) ([]string, error) {
 	if opts.Module == "" {
 		return nil, fmt.Errorf("equip worker: module path is required (read from go.mod)")
@@ -30,7 +31,14 @@ func equipWorker(opts EquipOptions) ([]string, error) {
 		{"README.md", workerReadmeTemplate(opts.Name)},
 		{gitignoreFile, gitignoreTemplate(opts.Name)},
 	}
-	return writeVariant(opts.Dir, files)
+	report, err := writeVariant(opts.Dir, files)
+	if err != nil {
+		return nil, err
+	}
+	cmd := exec.Command("go", "mod", "tidy")
+	cmd.Dir = opts.Dir
+	_ = cmd.Run()
+	return report, nil
 }
 
 func workerKrewireYamlTemplate(name string) string {
@@ -53,6 +61,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -66,12 +75,10 @@ import (
 func main() {
 	slog.Info("starting %s worker daemon")
 
-	q := worker.NewMemoryQueue()
+	q := worker.NewInMemoryQueue()
 
-	// Enqueue initial sample task
-	_ = q.Enqueue(context.Background(), &jobs.ExampleJob{Payload: "hello background task"}, worker.Options{
-		Queue: "default",
-	})
+	// Enqueue initial sample task.
+	_, _ = q.Enqueue(context.Background(), &jobs.ExampleJob{Payload: "hello background task"}, worker.Options{})
 
 	runner := worker.NewRunner(q, worker.WithConcurrency(4))
 
@@ -88,7 +95,7 @@ func main() {
 		cancel()
 	}()
 
-	if err := runner.Run(ctx); err != nil {
+	if err := runner.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
 		fmt.Fprintf(os.Stderr, "worker error: %%v\n", err)
 		os.Exit(1)
 	}

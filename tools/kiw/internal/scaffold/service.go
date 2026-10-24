@@ -4,9 +4,10 @@ package scaffold
 import (
 	"fmt"
 	"os"
+	"os/exec"
 )
 
-// equipService shapes the kernel into a standalone microservice application.
+// equipService shapes the bootstrap project into a standalone microservice application.
 func equipService(opts EquipOptions) ([]string, error) {
 	if opts.Module == "" {
 		return nil, fmt.Errorf("equip service: module path is required (read from go.mod)")
@@ -30,7 +31,14 @@ func equipService(opts EquipOptions) ([]string, error) {
 		{"README.md", serviceReadmeTemplate(opts.Name)},
 		{gitignoreFile, gitignoreTemplate(opts.Name)},
 	}
-	return writeVariant(opts.Dir, files)
+	report, err := writeVariant(opts.Dir, files)
+	if err != nil {
+		return nil, err
+	}
+	cmd := exec.Command("go", "mod", "tidy")
+	cmd.Dir = opts.Dir
+	_ = cmd.Run()
+	return report, nil
 }
 
 func serviceKrewireYamlTemplate(name string) string {
@@ -79,7 +87,7 @@ func main() {
 	}
 
 	// In-memory service discovery registry registration
-	reg := registry.NewMemory()
+	reg := registry.NewMemoryRegistry()
 	_ = reg.Register(context.Background(), registry.Service{
 		ID:      "%s-1",
 		Name:    "%s",

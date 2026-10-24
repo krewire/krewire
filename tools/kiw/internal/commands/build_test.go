@@ -208,7 +208,7 @@ func TestRunBuild_InfraPlan(t *testing.T) {
 	}
 }
 
-func TestRunBuild_KernelRequiresInit(t *testing.T) {
+func TestRunBuild_PreInitRequiresInit(t *testing.T) {
 	dir := t.TempDir()
 	for name, content := range map[string]string{
 		"go.mod":       "module starter\n\ngo 1.22\n",
@@ -227,7 +227,7 @@ func TestRunBuild_KernelRequiresInit(t *testing.T) {
 
 	code := RunBuild(fs)
 	if code != errs.ExitCodeUsage {
-		t.Fatalf("RunBuild on kernel = %v, want ExitCodeUsage (2)", code)
+		t.Fatalf("RunBuild on pre-init = %v, want ExitCodeUsage (2)", code)
 	}
 }
 

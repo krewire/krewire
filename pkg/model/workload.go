@@ -17,12 +17,12 @@ const (
 	KindBook    Kind = "book"
 	KindWorker  Kind = "worker"
 	KindService Kind = "service"
+	KindGateway Kind = "gateway"
 	KindInfra   Kind = "infra"
-	KindKernel  Kind = "kernel"
 )
 
 // AllKinds lists every valid Kind in canonical order.
-var AllKinds = []Kind{KindApp, KindCLI, KindSite, KindBook, KindWorker, KindService, KindInfra, KindKernel}
+var AllKinds = []Kind{KindApp, KindCLI, KindSite, KindBook, KindWorker, KindService, KindGateway, KindInfra}
 
 // IsValid reports whether k is one of the eight known kinds. It is derived from
 // AllKinds so the kind list has a single owner.

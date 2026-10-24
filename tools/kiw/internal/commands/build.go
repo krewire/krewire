@@ -151,8 +151,8 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 		return errs.ExitCodeUsage
 	}
 
-	if res.Kind == shape.KindKernel {
-		fmt.Fprintln(os.Stderr, "kiw build: kernel project must be initialized first — run 'kiw init' to choose a starter")
+	if res.IsPreInit() {
+		fmt.Fprintln(os.Stderr, "kiw build: project is not equipped yet — run 'kiw init' to choose a starter")
 		return errs.ExitCodeUsage
 	}
 
@@ -171,8 +171,8 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 		built = true
 	}
 
-	// 2. Binary workload dispatch (app, cli, worker, service)
-	if res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService {
+	// 2. Binary workload dispatch (app, cli, worker, service, gateway)
+	if res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService || res.Kind == shape.KindGateway {
 		if code := buildAppBinary(root, cfg, fs, res.Kind); code != errs.ExitCodeSuccess {
 			return code
 		}

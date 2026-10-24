@@ -50,17 +50,18 @@ func RunDev(fs *flag.FlagSet) errs.ExitCode {
 	}
 
 	switch res.Kind {
-	case shape.KindApp, shape.KindCLI, shape.KindWorker, shape.KindService:
+	case shape.KindApp, shape.KindCLI, shape.KindWorker, shape.KindService, shape.KindGateway:
 		return devApp(rt, fs)
 	case shape.KindSite, shape.KindBook:
 		return devSite(rt, fs)
 	case shape.KindInfra:
 		fmt.Fprintln(os.Stderr, "kiw dev: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
 		return errs.ExitCodeUsage
-	case shape.KindKernel:
-		fmt.Fprintln(os.Stderr, "kiw dev: kernel project must be initialized first — run 'kiw init' to choose a starter")
-		return errs.ExitCodeUsage
 	default:
+		if res.IsPreInit() {
+			fmt.Fprintln(os.Stderr, "kiw dev: project is not equipped yet — run 'kiw init' to choose a starter")
+			return errs.ExitCodeUsage
+		}
 		fmt.Fprintln(os.Stderr, "kiw dev: no project found — run 'kiw new <project>' first")
 		return errs.ExitCodeUsage
 	}

@@ -251,8 +251,8 @@ func FindColocated(dir string) []ColocatedProject {
 		mod, _ := gomod.Find(subDir)
 
 		kindStr := res.String()
-		if res.Kind == shape.KindNone {
-			kindStr = "kernel"
+		if res.IsPreInit() {
+			kindStr = shape.MarkerPreInit
 		}
 
 		modPath := ""
