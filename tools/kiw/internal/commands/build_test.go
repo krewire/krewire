@@ -296,3 +296,25 @@ func TestRunBuild_WasmAutomaticSideBySide(t *testing.T) {
 		t.Fatalf("expected assets/client.wasm at %s: %v", wasmAsset, err)
 	}
 }
+
+func TestLocaleBasePathIncludesMount(t *testing.T) {
+	cases := []struct {
+		name   string
+		base   string
+		locale string
+		mount  string
+		want   string
+	}{
+		{"root base with docs mount", "/", "id", "/docs", "/id/docs/"},
+		{"empty base with docs mount", "", "id", "docs/", "/id/docs/"},
+		{"prefixed base with docs mount", "/guide/", "id", "/docs", "/guide/id/docs/"},
+		{"no mount", "/", "id", "", "/id/"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := localeBasePath(c.base, c.locale, c.mount); got != c.want {
+				t.Errorf("localeBasePath(%q, %q, %q) = %q, want %q", c.base, c.locale, c.mount, got, c.want)
+			}
+		})
+	}
+}

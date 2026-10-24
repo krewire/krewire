@@ -132,7 +132,7 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 			fmt.Fprintln(os.Stderr, "kiw build: no content/ directory found for book")
 			return errs.ExitCodeUsage
 		}
-		if code := buildManuscript(root, cfg, fs, false, nil, nil); code != errs.ExitCodeSuccess {
+		if code := buildManuscript(root, cfg, fs, false, nil, nil, ""); code != errs.ExitCodeSuccess {
 			return code
 		}
 		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
@@ -232,14 +232,10 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 					cfg.Output = origOutput
 				} else {
 					cfg.Output = filepath.Join(origOutput, locale)
-					if origBase == "" || origBase == "/" {
-						cfg.Base = "/" + locale + "/"
-					} else {
-						cfg.Base = strings.TrimRight(origBase, "/") + "/" + locale + "/"
-					}
+					cfg.Base = localeBasePath(origBase, locale, cfg.Book.Mount)
 				}
 				slog.Info("i18n: building book for locale", "locale", locale, "input", cfg.Input, "output", cfg.Output, "base", cfg.Base)
-				if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != errs.ExitCodeSuccess {
+				if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS, locale); code != errs.ExitCodeSuccess {
 					if firstErr == errs.ExitCodeSuccess {
 						firstErr = code
 					}
@@ -254,7 +250,7 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 				cfg.Base = origBase
 			}
 		} else {
-			if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS); code != errs.ExitCodeSuccess {
+			if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS, ""); code != errs.ExitCodeSuccess {
 				if firstErr == errs.ExitCodeSuccess {
 					firstErr = code
 				}
@@ -384,7 +380,22 @@ func buildSSGFromConfig(root string, cfg *config.Config, fs *flag.FlagSet) (errs
 // In a hybrid project (ssg pages present) the book suppresses its generated
 // root TOC so the ssg landing page owns "/". Include/exclude path globs
 // resolve flag > krewire.yaml `build:` > book defaults (README skipped).
-func buildManuscript(root string, cfg *config.Config, fs *flag.FlagSet, hybrid bool, planCSS, planJS []string) errs.ExitCode {
+// localeBasePath resolves the URL base a non-default locale is served under.
+// The mount path must be part of it: book.Build exports pages under the mount
+// directory, so a base without the mount emits links that point at pages the
+// export never wrote (e.g. /id/workloads/app instead of /id/docs/workloads/app).
+func localeBasePath(base, locale, mount string) string {
+	path := strings.TrimRight(base, "/") + "/" + locale + "/"
+	if m := strings.Trim(mount, "/"); m != "" {
+		path += m + "/"
+	}
+	return path
+}
+
+// buildManuscript renders the book workload. lang is the BCP-47 tag of the
+// content being built ("" for a single-locale book) and becomes <html lang> on
+// every generated page, so a per-locale i18n build never mislabels its output.
+func buildManuscript(root string, cfg *config.Config, fs *flag.FlagSet, hybrid bool, planCSS, planJS []string, lang string) errs.ExitCode {
 	title := firstNonEmpty(flagValue(fs, "title"), cfg.Title, moduleName(root))
 	input := firstNonEmpty(flagValue(fs, "input"), cfg.Input)
 	if input == "" {
@@ -406,6 +417,7 @@ func buildManuscript(root string, cfg *config.Config, fs *flag.FlagSet, hybrid b
 		NoRootTOC:  hybrid && cfg.Book.TOC == nil,
 		Include:    include,
 		Exclude:    exclude,
+		Lang:       lang,
 	}
 	slog.Info("building book workload", "input", bcfg.Input, "output", bcfg.Output)
 	if hybrid {

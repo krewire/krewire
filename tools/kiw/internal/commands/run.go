@@ -243,7 +243,7 @@ func exportSiteAssets(root string, fs *flag.FlagSet) errs.ExitCode {
 		}
 	}
 	if hasBook {
-		if code := buildManuscript(root, cfg, fs, hasPages || hasSSG, planCSS, planJS); code != errs.ExitCodeSuccess {
+		if code := buildManuscript(root, cfg, fs, hasPages || hasSSG, planCSS, planJS, ""); code != errs.ExitCodeSuccess {
 			return code
 		}
 	}
