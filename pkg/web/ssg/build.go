@@ -55,7 +55,7 @@ func (s *Site) Build(outDir string) ([]string, error) {
 
 	// In bundle mode, re-run bundle generation after plugins may have emitted output
 	if s.auto.bundle {
-		s.writeBundleAssets(outDir)
+		s.WriteBundleAssets(outDir)
 	}
 
 	return created, nil
@@ -183,14 +183,14 @@ func (s *Site) writeAssets(outDir string) []string {
 		}
 	}
 	if s.auto.bundle {
-		created = append(created, s.writeBundleAssets(outDir)...)
+		created = append(created, s.WriteBundleAssets(outDir)...)
 	}
 	return created
 }
 
-// writeBundleAssets concatenates all eligible CSS and JS assets in resolved plan order
+// WriteBundleAssets concatenates all eligible CSS and JS assets in resolved plan order
 // into assets/krewire.css and assets/krewire.js using the assets.Bundler.
-func (s *Site) writeBundleAssets(outDir string) []string {
+func (s *Site) WriteBundleAssets(outDir string) []string {
 	var cssItems []assets.BundleItem
 	var jsItems []assets.BundleItem
 

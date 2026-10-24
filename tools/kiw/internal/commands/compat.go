@@ -8,7 +8,6 @@ import (
 	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/pkg/version"
 	kiwver "github.com/krewire/krewire/tools/kiw/internal/version"
-	"github.com/krewire/mdbind"
 )
 
 // RunCompat validates version compatibility across the whole Krewire ecosystem.
@@ -26,20 +25,15 @@ func RunCompat(_ *flag.FlagSet) errs.ExitCode {
 		"testing": krewire.Version,
 		"hub":     krewire.Version,
 		"kiw":     krewire.Version,
-		"mdbind":  version.MustParseVersion(mdbind.Version.String()),
 		"boost":   krewire.Version,
 	}
 
 	// Requirements: each module's declared EcosystemRequires.
 	reqs := map[string]map[string]version.Version{
-		"kiw":    {},
-		"mdbind": {},
+		"kiw": {},
 	}
 	for k, v := range kiwver.EcosystemRequires {
 		reqs["kiw"][k] = v
-	}
-	for k, v := range mdbind.EcosystemRequires {
-		reqs["mdbind"][string(k)] = version.MustParseVersion(v.String())
 	}
 
 	issues := version.CheckCompatibility(actual, reqs)

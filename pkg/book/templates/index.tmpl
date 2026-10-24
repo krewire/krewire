@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{{.Book.Title}}</title>
+{{if .Book.ExtraCSS}}{{range .Book.ExtraCSS}}<link rel="stylesheet" href="{{.}}">
+{{end}}{{else}}<link rel="stylesheet" href="{{.Stylesheet}}">
+{{end}}{{if .Theme}}{{.Theme.Script}}{{end}}
+</head>
+<body>
+{{template "navbar" .}}
+<div class="layout">
+  {{template "sidebar" .}}
+  <main>
+    <h1>{{.Book.Title}}</h1>
+    {{if .Book.Author}}<p class="author">by {{.Book.Author}}</p>{{end}}
+    <p class="lede">A {{if .Pages}}{{.Pages}}{{else}}0{{end}}-page book assembled from Markdown.</p>
+    {{with .First}}<p><a class="start" href="{{.Link}}">Start reading &rarr;</a></p>{{end}}
+  </main>
+</div>
+{{template "footer" .}}
+{{range .Book.ExtraJS}}<script src="{{.}}"></script>
+{{end}}</body>
+</html>

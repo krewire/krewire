@@ -1,0 +1,307 @@
+{{define "navbar"}}
+<header class="topbar">
+  <nav>
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+    </button>
+    <a class="brand" href="{{if .HomeURL}}{{.HomeURL}}{{else if .BasePath}}{{.BasePath}}{{else}}/{{end}}">
+      <span class="brand-mark">◈</span>
+      <span class="brand-text">{{if .Book.Title}}{{.Book.Title}}{{else}}Krewire{{end}}</span>
+      {{if .Version}}<span class="badge">{{.Version}}</span>{{end}}
+    </a>
+    <div class="nav-links">
+      {{range .NavLinks}}
+      <a class="nav-link{{if eq .Text "GitHub"}} nav-link-github{{end}}" href="{{.URL}}"{{if eq .Text "GitHub"}} target="_blank" rel="noopener"{{end}}>{{.Text}}</a>
+      {{end}}
+    </div>
+    <div class="topbar-actions">
+      <button type="button" class="lang-switch" data-lang-toggle aria-label="Toggle language" title="Switch language (EN/ID)"><span class="lang-icon" aria-hidden="true">🌐</span><span class="lang-code">{{if eq .Locale "id"}}ID{{else}}EN{{end}}</span></button>
+      {{if .Theme}}{{.Theme.Button}}{{end}}
+    </div>
+  </nav>
+</header>
+{{end}}
+
+{{define "sidebar"}}
+<aside class="sidebar" id="sidebar" aria-label="Table of contents">
+  <div class="sidebar-head">
+    <div class="sidebar-head-title">
+      <p class="sidebar-title">Contents</p>
+    </div>
+    <div class="sidebar-head-actions">
+      <button class="toc-action-btn" id="toc-toggle-all" aria-label="Toggle all chapters" title="Expand / collapse all">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/><path d="M4 10l4 4 4-4"/></svg>
+      </button>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation">×</button>
+    </div>
+  </div>
+  <div class="sidebar-search">
+    <span class="search-icon-box" aria-hidden="true">
+      <svg class="search-icon" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+    </span>
+    <input type="search" id="toc-search" class="toc-search-input" placeholder="Filter chapters..." aria-label="Filter chapters" autocomplete="off" spellcheck="false">
+    <kbd class="toc-search-kbd" id="toc-search-kbd" title="Press '/' to filter" aria-hidden="true">/</kbd>
+    <button type="button" id="toc-search-clear" class="toc-search-clear" aria-label="Clear filter" title="Clear filter" style="display:none">×</button>
+  </div>
+  <div class="toc-no-results" id="toc-no-results" style="display:none" aria-live="polite">
+    <span>◈ No matching chapters</span>
+  </div>
+  {{if .NavLinks}}
+  <div class="sidebar-mobile-nav" aria-label="Main Navigation">
+    <div class="sidebar-mobile-nav-title">Navigation</div>
+    <div class="sidebar-mobile-nav-links">
+      {{range .NavLinks}}
+      <a class="sidebar-nav-link{{if eq .Text "GitHub"}} sidebar-nav-github{{end}}" href="{{.URL}}"{{if eq .Text "GitHub"}} target="_blank" rel="noopener"{{end}}>
+        <span>{{.Text}}</span>{{if eq .Text "GitHub"}}<span class="ext-icon">↗</span>{{end}}
+      </a>
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+  <nav class="toc" id="sidebar-toc">
+    {{range .Toc}}
+      {{if .HasSubs}}
+      <div class="toc-group{{if .Open}} open{{end}}" data-group>
+        <div class="toc-parent-row">
+          <a href="{{.Link}}" class="toc-link{{if .Active}} active{{end}}"><span class="num">{{.Label}}</span> <span class="toc-text">{{.Title}}</span></a>
+          <button class="toc-toggle" aria-expanded="{{if .Open}}true{{else}}false{{end}}" aria-label="Toggle submenu for {{.Title}}">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+          </button>
+        </div>
+        <div class="toc-subs">
+          {{range .Subs}}<a href="{{.Link}}" class="toc-sub{{if .Active}} active{{end}}"><span class="num">{{.Label}}</span> <span class="toc-text">{{.Title}}</span></a>{{end}}
+        </div>
+      </div>
+      {{else}}
+      <a href="{{.Link}}" class="toc-link{{if .Active}} active{{end}}"><span class="num">{{.Label}}</span> <span class="toc-text">{{.Title}}</span></a>
+      {{end}}
+    {{end}}
+  </nav>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+{{if not .Book.ExtraJS}}<script>
+(function(){
+  var sidebar=document.getElementById('sidebar');
+  var toggle=document.getElementById('sidebar-toggle');
+  var close=document.getElementById('sidebar-close');
+  var overlay=document.getElementById('sidebar-overlay');
+  function setOpen(open){
+    document.documentElement.classList.toggle('sidebar-open', open);
+    if(toggle) toggle.setAttribute('aria-expanded', open?'true':'false');
+    if(sidebar) sidebar.setAttribute('aria-hidden', open?'false':'true');
+  }
+  if(toggle && !toggle._mdbindBound){
+    toggle._mdbindBound = true;
+    toggle.addEventListener('click', function(e){ e.preventDefault(); setOpen(!document.documentElement.classList.contains('sidebar-open')); });
+  }
+  if(close && !close._mdbindBound){
+    close._mdbindBound = true;
+    close.addEventListener('click', function(e){ e.preventDefault(); setOpen(false); });
+  }
+  if(overlay && !overlay._mdbindBound){
+    overlay._mdbindBound = true;
+    overlay.addEventListener('click', function(e){ e.preventDefault(); setOpen(false); });
+  }
+  if(!window._mdbindEscBound){
+    window._mdbindEscBound = true;
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') setOpen(false); });
+  }
+
+  // 0. Language toggle handler
+  document.querySelectorAll('[data-lang-toggle], .lang-switch').forEach(function(btn){
+    if(btn._mdbindLangBound) return;
+    btn._mdbindLangBound = true;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      var path = window.location.pathname;
+      var isId = path.indexOf('/id/') !== -1 || path === '/id';
+      var target;
+      if(isId){
+        target = path.replace(/^\/id(\/|$)/, '/');
+      } else {
+        var clean = path.replace(/^\/en(\/|$)/, '/');
+        target = '/id' + (clean.startsWith('/') ? clean : '/' + clean);
+      }
+      try { localStorage.setItem('krewire-lang', isId ? 'en' : 'id'); } catch(_){}
+      window.location.href = target;
+    });
+  });
+
+  // 1. Collapsible toggle per group
+  document.querySelectorAll('[data-group] .toc-toggle').forEach(function(btn){
+    if(btn._mdbindBound) return;
+    btn._mdbindBound = true;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var g=btn.closest('[data-group]');
+      if(!g) return;
+      var open=g.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open?'true':'false');
+      try{ localStorage.setItem('krewire-toc-'+g.querySelector('.toc-link').getAttribute('href'), open?'1':'0'); }catch(_){}
+    });
+  });
+
+  // 2. Restore state from localStorage while keeping active group open
+  try{
+    document.querySelectorAll('[data-group]').forEach(function(g){
+      if(g.querySelector('.active')){
+        g.classList.add('open');
+        g.classList.add('has-active');
+        var b=g.querySelector('.toc-toggle');
+        if(b) b.setAttribute('aria-expanded', 'true');
+        return;
+      }
+      var href=g.querySelector('.toc-link').getAttribute('href');
+      var v=localStorage.getItem('krewire-toc-'+href);
+      if(v==='0'){
+        g.classList.remove('open');
+        var b=g.querySelector('.toc-toggle');
+        if(b) b.setAttribute('aria-expanded', 'false');
+      }
+      if(v==='1'){
+        g.classList.add('open');
+        var b=g.querySelector('.toc-toggle');
+        if(b) b.setAttribute('aria-expanded', 'true');
+      }
+    });
+  }catch(_){}
+
+  // 3. Expand / Collapse All
+  var toggleAll=document.getElementById('toc-toggle-all');
+  if(toggleAll && !toggleAll._mdbindBound){
+    toggleAll._mdbindBound = true;
+    toggleAll.addEventListener('click', function(e){
+      e.preventDefault();
+      var groups=document.querySelectorAll('[data-group]');
+      var anyClosed=Array.from(groups).some(function(g){ return !g.classList.contains('open'); });
+      groups.forEach(function(g){
+        g.classList.toggle('open', anyClosed);
+        var b=g.querySelector('.toc-toggle');
+        if(b) b.setAttribute('aria-expanded', anyClosed?'true':'false');
+        try{ localStorage.setItem('krewire-toc-'+g.querySelector('.toc-link').getAttribute('href'), anyClosed?'1':'0'); }catch(_){}
+      });
+    });
+  }
+
+  // 4. Quick filter input for TOC items
+  var searchInput=document.getElementById('toc-search');
+  var searchClear=document.getElementById('toc-search-clear');
+  var searchKbd=document.getElementById('toc-search-kbd');
+  var noResults=document.getElementById('toc-no-results');
+  if(searchInput){
+    searchInput.addEventListener('input', function(){
+      var q=searchInput.value.trim().toLowerCase();
+      if(searchClear) searchClear.style.display=q?'inline-flex':'none';
+      if(searchKbd) searchKbd.style.display=q?'none':'';
+      var matchCount=0;
+      document.querySelectorAll('#sidebar-toc > *').forEach(function(el){
+        if(!q){
+          el.style.display='';
+          if(el.hasAttribute('data-group')){
+            el.querySelectorAll('.toc-sub').forEach(function(s){ s.style.display=''; });
+            var href=el.querySelector('.toc-link').getAttribute('href');
+            var v=localStorage.getItem('krewire-toc-'+href);
+            var hasActive=el.querySelector('.active');
+            var open=hasActive||v==='1'||(v!=='0'&&el.classList.contains('open'));
+            el.classList.toggle('open', !!open);
+            var b=el.querySelector('.toc-toggle');
+            if(b) b.setAttribute('aria-expanded', open?'true':'false');
+          }
+          return;
+        }
+        if(el.hasAttribute('data-group')){
+          var parentMatch=(el.querySelector('.toc-link').textContent||'').toLowerCase().indexOf(q)!==-1;
+          var subMatches=0;
+          el.querySelectorAll('.toc-sub').forEach(function(s){
+            var m=(s.textContent||'').toLowerCase().indexOf(q)!==-1;
+            s.style.display=(m||parentMatch)?'':'none';
+            if(m) subMatches++;
+          });
+          if(parentMatch||subMatches>0){
+            el.style.display='';
+            el.classList.add('open');
+            var b=el.querySelector('.toc-toggle');
+            if(b) b.setAttribute('aria-expanded', 'true');
+            matchCount += (parentMatch ? 1 : 0) + subMatches;
+          }else{
+            el.style.display='none';
+          }
+        }else{
+          var match=(el.textContent||'').toLowerCase().indexOf(q)!==-1;
+          el.style.display=match?'':'none';
+          if(match) matchCount++;
+        }
+      });
+      if(noResults){
+        noResults.style.display=(q && matchCount===0)?'block':'none';
+      }
+    });
+    if(searchClear){
+      searchClear.addEventListener('click', function(){
+        searchInput.value='';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.focus();
+      });
+    }
+    // Global hotkey: '/' to focus filter
+    document.addEventListener('keydown', function(e){
+      var tag=(e.target&&e.target.tagName)||'';
+      if(tag==='INPUT'||tag==='TEXTAREA'||(e.target&&e.target.isContentEditable)) return;
+      if(e.key==='/' && !e.ctrlKey && !e.metaKey && !e.altKey){
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+    });
+    // Escape to clear & blur
+    searchInput.addEventListener('keydown', function(e){
+      if(e.key==='Escape'){
+        if(searchInput.value){
+          searchInput.value='';
+          searchInput.dispatchEvent(new Event('input'));
+        }else{
+          searchInput.blur();
+        }
+      }
+    });
+  }
+  // Automatic code block copy button
+  document.querySelectorAll('.chapter pre').forEach(function(pre){
+    var btn = document.createElement('button');
+    btn.className = 'code-copy-btn';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.innerHTML = '<span class="copy-txt">Copy</span>';
+    btn.addEventListener('click', function(){
+      var code = pre.querySelector('code');
+      var text = code ? code.innerText : pre.innerText;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function(){
+          btn.innerHTML = '<span class="copy-txt copied">✓ Copied</span>';
+          setTimeout(function(){ btn.innerHTML = '<span class="copy-txt">Copy</span>'; }, 2000);
+        });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.innerHTML = '<span class="copy-txt copied">✓ Copied</span>';
+        setTimeout(function(){ btn.innerHTML = '<span class="copy-txt">Copy</span>'; }, 2000);
+      }
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>{{end}}
+{{end}}
+
+{{define "footer"}}
+<footer class="site-footer">
+  <div class="inner">
+    <p>{{if .FooterText}}{{.FooterText}}{{else}}{{if .Book.Author}}&copy; {{.Book.Author}}{{end}}{{end}}</p>
+    <p class="built-with">Built with <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener">Krewire</a> and <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener">Modular Go Libraries</a>{{if .Version}} · {{.Version}}{{end}}.</p>
+  </div>
+</footer>
+{{end}}

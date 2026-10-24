@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{{.Chapter.Title}} — {{.Book.Title}}</title>
+{{if .Book.ExtraCSS}}{{range .Book.ExtraCSS}}<link rel="stylesheet" href="{{.}}">
+{{end}}{{else}}<link rel="stylesheet" href="{{.Stylesheet}}">
+{{end}}{{if .Theme}}{{.Theme.Script}}{{end}}</head>
+<body>
+{{template "navbar" .}}
+<div class="layout">
+  {{template "sidebar" .}}
+  <main>
+    {{with .Crumbs}}
+    <nav class="crumbs" aria-label="Breadcrumb">
+      {{range $i, $c := .}}{{if $i}}<span class="sep">/</span>{{end}}{{if $c.Current}}<span class="current">{{$c.Title}}</span>{{else}}<a href="{{$c.Link}}">{{$c.Title}}</a>{{end}}{{end}}
+    </nav>
+    {{end}}
+    <article class="chapter">{{.Chapter.Body}}</article>
+    <nav class="pager">
+      {{with .Prev}}<a class="prev" href="{{.Link}}">&larr; {{.Title}}</a>{{end}}
+      {{with .Next}}<a class="next" href="{{.Link}}">{{.Title}} &rarr;</a>{{end}}
+    </nav>
+  </main>
+</div>
+{{template "footer" .}}
+{{range .Book.ExtraJS}}<script src="{{.}}"></script>
+{{end}}</body>
+</html>

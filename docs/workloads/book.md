@@ -1,6 +1,6 @@
 # Workload: Technical Book & Docs (`book`)
 
-The `book` workload powers multi-chapter technical documentation, books, and reference manuals by orchestrating the standalone [`mdbind`](https://github.com/krewire/mdbind) markdown book compiler.
+The `book` workload powers multi-chapter technical documentation, books, and reference manuals using Krewire's native book compiler (`pkg/book`).
 
 ---
 

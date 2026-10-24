@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/krewire/krewire/pkg/book"
 	"github.com/krewire/krewire/pkg/cloud/infra/provider"
 	"github.com/krewire/krewire/pkg/cloud/infra/schema"
 	"github.com/krewire/krewire/pkg/errs"
@@ -21,7 +22,6 @@ import (
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
-	"github.com/krewire/mdbind/book"
 )
 
 // RegisterBuild registers flags for the build command.
@@ -38,7 +38,7 @@ func RegisterBuild(fs *flag.FlagSet) {
 	fs.String("target", "ssg", "build target: site, book, binary, wasm, or infra (default ssg)")
 	fs.Bool("skip-deps", false, "skip executing build.depends_on commands")
 	fs.Bool("deps-only", false, "run only build.depends_on commands and skip Krewire build")
-	fs.Bool("bundle", false, "bundle all CSS and JS into assets/krewire.css and assets/krewire.js")
+	fs.Bool("bundle", true, "bundle all CSS and JS into assets/krewire.css and assets/krewire.js (default true)")
 	fs.Bool("plan", false, "infra: compile and show infrastructure plan without applying")
 	fs.String("env", "", "infra: target environment (local, production, testing)")
 }
@@ -321,7 +321,7 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (errs.E
 			site.DeclareAsset(ap.Assets(root)...)
 		}
 	}
-	if flagValue(fs, "bundle") == "true" {
+	if flagValue(fs, "bundle") != "false" {
 		site.WithBundle(true)
 	}
 	created, err := site.Build(outDir)
@@ -338,6 +338,9 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (errs.E
 			}
 		}
 	}
+	if flagValue(fs, "bundle") != "false" {
+		site.WriteBundleAssets(outDir)
+	}
 	for _, p := range created {
 		fmt.Println("created " + p)
 	}
@@ -350,7 +353,7 @@ func buildSSGFromFile(root string, cfg *config.Config, fs *flag.FlagSet) (errs.E
 // ssg.Config so they don't need to be repeated under ssg:.
 func buildSSGFromConfig(root string, cfg *config.Config, fs *flag.FlagSet) (errs.ExitCode, []string, []string) {
 	ssgCfg := cfg.ToSSGConfig()
-	if flagValue(fs, "bundle") == "true" {
+	if flagValue(fs, "bundle") != "false" {
 		if ssgCfg.AutoAssets == nil {
 			ssgCfg.AutoAssets = &ssg.AutoAssetConfig{}
 		}
@@ -403,16 +406,13 @@ func buildManuscript(root string, cfg *config.Config, fs *flag.FlagSet, hybrid b
 		Include:    include,
 		Exclude:    exclude,
 	}
-	slog.Info("building site with mdbind", "input", bcfg.Input, "output", bcfg.Output)
+	slog.Info("building book workload", "input", bcfg.Input, "output", bcfg.Output)
 	if hybrid {
 		// The ssg half owns the site's asset order. Reuse the plan it reported
 		// instead of repeating the list here, so the book pages and the landing
 		// page can never load stylesheets in different orders
 		// (AGENTS.md § No Hardcoding).
-		//
-		// mdbind links its own stylesheet last by itself, so the site's copy of
-		// that entry is dropped to avoid a duplicate <link>.
-		bcfg.ExtraCSS = versionedAssetURLs(withoutAsset(planCSS, book.StylesheetName), cfg.Version)
+		bcfg.ExtraCSS = versionedAssetURLs(planCSS, cfg.Version)
 		bcfg.ExtraJS = versionedAssetURLs(planJS, cfg.Version)
 	}
 	created, err := book.Build(bcfg)

@@ -12,7 +12,6 @@ import (
 	krewire "github.com/krewire/krewire"
 	"github.com/krewire/krewire/pkg/model"
 	"github.com/krewire/krewire/pkg/version"
-	"github.com/krewire/mdbind"
 )
 
 // ModuleName is a typed name of an ecosystem module.
@@ -20,7 +19,6 @@ type ModuleName string
 
 const (
 	ModuleKrewire ModuleName = "krewire"
-	ModuleMdbind  ModuleName = "mdbind"
 )
 
 // Manifest describes a module's location and version file within the workspace.
@@ -35,13 +33,11 @@ type Manifest struct {
 // Modules lists the ecosystem modules in dependency order (dependencies first).
 var Modules = []Manifest{
 	{Name: "krewire", Dir: ".", VersionFile: "version.go", Tier: model.TierFree},
-	{Name: "mdbind", Dir: "../mdbind", VersionFile: "../mdbind/version.go", Tier: model.TierFree},
 }
 
 // dependents maps each module to the modules that require it.
 var dependents = map[string][]string{
-	"krewire": {"mdbind"},
-	"mdbind":  {},
+	"krewire": {},
 }
 
 // ManifestFor returns the manifest for name.
@@ -60,8 +56,6 @@ func ident(name string) string {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return "ModuleKrewire"
-	case ModuleMdbind:
-		return "ModuleMdbind"
 	}
 	return ""
 }
@@ -96,8 +90,6 @@ func CurrentTier(name string) (model.Tier, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Tier, nil
-	case ModuleMdbind:
-		return mdbind.Tier, nil
 	default:
 		return "", fmt.Errorf("unknown module %q", name)
 	}
@@ -140,8 +132,6 @@ func CurrentVersion(name string) (version.Version, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Version, nil
-	case ModuleMdbind:
-		return version.MustParseVersion(mdbind.Version.String()), nil
 	default:
 		return version.Version{}, fmt.Errorf("unknown module %q", name)
 	}
@@ -150,12 +140,6 @@ func CurrentVersion(name string) (version.Version, error) {
 // RequiredVersion returns the minimum version that dependent currently requires
 // of name.
 func RequiredVersion(dependent, name string) (version.Version, bool) {
-	switch ModuleName(dependent) {
-	case ModuleMdbind:
-		if name == string(ModuleKrewire) {
-			return krewire.Version, true
-		}
-	}
 	return version.Version{}, false
 }
 

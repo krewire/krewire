@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/krewire/krewire/pkg/book"
 	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/pkg/web/ssg"
-	"github.com/krewire/mdbind/book"
 )
 
 func TestVersionedAssetURLs(t *testing.T) {
@@ -40,14 +40,14 @@ func TestVersionedAssetURLs(t *testing.T) {
 }
 
 func TestWithoutAssetDropsMatchingEntry(t *testing.T) {
-	plan := []string{"/assets/style.css", "/assets/tailwind.css", "/assets/mdbind.css"}
+	plan := []string{"/assets/style.css", "/assets/tailwind.css", "/assets/krewire.css"}
 	got := withoutAsset(plan, book.StylesheetName)
 	if len(got) != 2 {
 		t.Fatalf("got %v, want 2 entries", got)
 	}
 	for _, u := range got {
-		if strings.Contains(u, "mdbind.css") {
-			t.Errorf("mdbind.css must be dropped, got %q", u)
+		if strings.Contains(u, "krewire.css") {
+			t.Errorf("krewire.css must be dropped, got %q", u)
 		}
 	}
 }
