@@ -290,21 +290,43 @@ body {
   border-radius: 8px;
   background: var(--base-2);
   color: var(--ink);
-  padding: 0.35rem 0.65rem;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  padding: 0 0.65rem;
+  box-sizing: border-box;
   line-height: 1;
   font-size: 0.75rem;
   font-weight: 800;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   text-decoration: none;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
 .topbar .lang-switch:hover {
   background: var(--base-3);
   transform: translate(-1px, -1px);
+}
+
+.topbar .lang-switch:active {
+  transform: translate(1px, 1px);
+}
+
+.topbar .lang-switch .lang-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.topbar .lang-switch .lang-code {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1;
 }
 
 /* Sidebar Hamburger Toggle */

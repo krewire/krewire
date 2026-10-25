@@ -15,18 +15,35 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.35rem 0.65rem;
-  font-size: 0.8rem;
-  min-height: 0;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 0.65rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  border-radius: 8px !important;
+  border: var(--pop-border-thin) !important;
+  box-shadow: var(--pop-shadow-sm) !important;
   cursor: pointer;
   user-select: none;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease;
+}
+.lang-switch:hover {
+  transform: translate(-1px, -1px);
+}
+.lang-switch:active {
+  transform: translate(1px, 1px);
 }
 .lang-icon {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  line-height: 1;
 }
 .lang-code {
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.05em;
+  line-height: 1;
 }
 </style>
