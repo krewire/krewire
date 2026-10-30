@@ -90,11 +90,14 @@ type CompletionResponse struct {
 }
 
 // StreamChunk represents a streamed fragment of text or tool execution.
+// Usage, when set, carries the token statistics reported with the terminal
+// chunk of a stream.
 type StreamChunk struct {
 	Delta    string
 	ToolCall *ToolCall
 	Done     bool
 	Error    error
+	Usage    TokenUsage
 }
 
 // Provider defines the standard contract required by all LLM drivers.

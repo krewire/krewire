@@ -75,6 +75,11 @@ func (m *MockProvider) Stream(_ context.Context, _ ai.CompletionRequest) (<-chan
 		}
 		ch <- ai.StreamChunk{
 			Done: true,
+			Usage: ai.TokenUsage{
+				PromptTokens:     10,
+				CompletionTokens: 20,
+				TotalTokens:      30,
+			},
 		}
 	}()
 
