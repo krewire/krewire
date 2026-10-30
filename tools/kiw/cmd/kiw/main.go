@@ -36,7 +36,6 @@ func main() {
 		Command(tui.NewCommand("remove", "remove a package or plugin", commands.RegisterRemove, commands.RunRemove).WithGroup("project").WithExample("kiw remove twcss")).
 		Command(tui.NewCommand("deploy", "stage deployable artifacts in .krewire/dist/", commands.RegisterDeploy, commands.RunDeploy).WithGroup("ship").WithExample("kiw deploy --dry-run")).
 		Command(tui.NewCommand("worker", "run background workers / job queues", commands.RegisterWorker, commands.RunWorker).WithGroup("develop").WithExample("kiw worker")).
-		Command(tui.NewCommand("krew", "autonomous AI coding agent (suggest, explain, chat, run, serve, mcp)", commands.RegisterKrew, commands.RunKrew).WithGroup("develop").WithExample("kiw krew \"periksa unit test\"")).
 		Command(tui.NewCommand("dashboard", "local dev dashboard (services, logs, traces)", commands.RegisterDashboard, commands.RunDashboard).WithGroup("develop").WithExample("kiw dashboard")).
 		Command(tui.NewCommand("gateway", "run API gateway reverse proxy for microservices", commands.RegisterGateway, commands.RunGateway).WithGroup("develop").WithExample("kiw gateway --port 8080")).
 		Command(tui.NewCommand("mcp", "native Model Context Protocol server for AI coding agents", commands.RegisterMCP, commands.RunMCP).WithGroup("develop").WithExample("kiw mcp --stdio")).
