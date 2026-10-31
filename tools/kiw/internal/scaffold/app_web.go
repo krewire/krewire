@@ -54,7 +54,7 @@ func Register(a *web.App) {
 		Layout: "Shell",
 		Root:   "Hero",
 		Data: map[string]any{
-			"badge":    "v0.6.0",
+			"badge":    "v0.1.0",
 			"title":    "One model, every mode",
 			"subtitle": "SSR, API, and static export from a single runtime.",
 			"cta_left": map[string]any{"label": "Read the docs", "href": "/docs"},

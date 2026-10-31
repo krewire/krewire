@@ -58,10 +58,13 @@ my-app/
 ## 3. Configuration (`krewire.yaml`)
 
 ```yaml
-version: "0.1.0"
 project:
   name: my-app
   kind: app
+  version: "0.1.0"
+
+dev:
+  port: 8080
 
 server:
   host: "0.0.0.0"
