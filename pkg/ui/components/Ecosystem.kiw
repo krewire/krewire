@@ -54,7 +54,7 @@
         </div>
       </a>
 
-      <!-- 3. auth -->
+      <!-- 4. auth -->
       <a href="https://github.com/krewire/auth" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
@@ -69,7 +69,7 @@
         </div>
       </a>
 
-      <!-- 4. dash -->
+      <!-- 5. dash -->
       <a href="https://github.com/krewire/dash" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
@@ -84,7 +84,7 @@
         </div>
       </a>
 
-      <!-- 5. krewire.com -->
+      <!-- 6. krewire.com -->
       <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
@@ -99,7 +99,7 @@
         </div>
       </a>
 
-      <!-- 6. krewire.github.io -->
+      <!-- 7. krewire.github.io -->
       <a href="https://github.com/krewire/krewire.github.io" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
@@ -114,7 +114,7 @@
         </div>
       </a>
 
-      <!-- 7. internal -->
+      <!-- 8. internal -->
       <a href="https://github.com/krewire/internal" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
