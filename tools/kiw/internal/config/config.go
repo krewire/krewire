@@ -246,8 +246,9 @@ func (c *Config) EffectiveEnvFile() string {
 type Project struct {
 	// Name is the project name.
 	Name string `yaml:"name"`
-	// Kind pins the project kind: "app", "cli", "site", or "book". Empty
-	// lets the CLI detect it from marker files.
+	// Kind pins the project kind (see pkg/model/workload.go AllKinds:
+	// "app", "cli", "site", "book", "worker", "service", "gateway", or
+	// "infra"). Empty lets the CLI detect it from marker files.
 	Kind string `yaml:"kind"`
 	// Version is the product version declared next to the kind, the way a
 	// project writes it:

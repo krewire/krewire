@@ -63,7 +63,7 @@ Krewire is the core monorepo in the ecosystem:
 2. **krew**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
 3. **cloud**: Private enterprise hybrid PaaS engine and control plane.
 4. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform.
-5. **workspace**: Private SaaS AI-assisted virtual workspace.
+5. **dash**: Krewire Dash — private enterprise AI-powered virtual workspace.
 6. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
 7. **krewire.com**: Official product website and documentation portal.
 8. **krewire.github.io**: Community portal and guides hub.
@@ -83,7 +83,7 @@ Krewire is the core monorepo in the ecosystem:
 
 2. Build the CLI:
    ```bash
-   go build -o ../bin/kiw ./tools/kiw/cmd/kiw
+   go build -o bin/kiw ./tools/kiw/cmd/kiw
    ```
 
 3. Run quality gates:

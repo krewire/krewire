@@ -15,7 +15,7 @@ GROUPS
   project   new · init · add · remove · make
   inspect   version · info · compat · tier · doctor
   build     build · bundle · serve
-  develop   run · dev · test · vet · fmt · worker · dashboard · gateway · mcp · krew
+  develop   run · dev · test · vet · fmt · worker · dashboard · gateway · mcp
   ship      deploy · ws · boost · release
 ```
 
@@ -27,7 +27,7 @@ GROUPS
 Creates the project directory and scaffolds it in one step. The default variant is a fullstack `app`; choose another kind with a variant flag (at most one).
 - `--module <path>`: Go module path (defaults to the project name).
 - `--dir <dir>`: Parent directory (defaults to the current directory).
-- `--site` / `--book` / `--cli` / `--app` / `--worker` / `--service` / `--infra`: Variant to scaffold.
+- `--site` / `--book` / `--cli` / `--app` / `--worker` / `--service` / `--gateway` / `--infra`: Variant to scaffold.
 - `--template <git-url>`: Clone a remote starter instead of generating files.
 - `--title <title>`: Title for the `--site` and `--book` variants.
 ```bash
@@ -43,6 +43,7 @@ Initializes Krewire in the current directory in place: `git init`, `.gitignore`,
 - `--app`: Equips a fullstack monolith application.
 - `--worker`: Equips a background job-queue worker.
 - `--service`: Equips a standalone microservice.
+- `--gateway`: Equips an API gateway deployment.
 - `--infra`: Equips a cloud infrastructure blueprint.
 - `--template <git-url>`: Scaffolds from a remote git template.
 - `--force` / `-f`: Reset an existing `krewire.yaml` without prompting.
@@ -131,7 +132,7 @@ kiw tier --json        # Machine-readable output for CI/CD gates
 ### `kiw build [flags]`
 Builds the project according to its detected kind:
 - `site` / `book` $\rightarrow$ Compiles static assets into `.krewire/build`.
-- `app` / `cli` / `service` / `worker` $\rightarrow$ Compiles standalone Go binary with embedded `-ldflags` signature (`build with krewire`).
+- `app` / `cli` / `service` / `worker` / `gateway` $\rightarrow$ Compiles standalone Go binary with embedded `-ldflags` signature (`build with krewire`).
 - `infra` $\rightarrow$ Compiles and plans infrastructure state.
 
 **Flags:**

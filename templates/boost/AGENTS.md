@@ -95,7 +95,7 @@ The `kiw` CLI is the unified entry point:
 | Command | Purpose | Target Kinds |
 |---|---|---|
 | `kiw new <name>` | Scaffold a new project (fullstack `app` by default) | any |
-| `kiw init [--site\|--book\|--cli\|--gateway]` | Equip a pre-init bootstrap project with layout | any |
+| `kiw init [<variant>]` | Equip a pre-init bootstrap project with layout (see `kiw init --help`) | any |
 | `kiw build` | Compile binary or build static output (`.krewire/build`) | all |
 | `kiw serve` | Start local server or preview output | all |
 | `kiw run [args...]` | Build and run application binary | app, cli, worker, service |

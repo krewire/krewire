@@ -50,7 +50,7 @@ go test -v ./tools/kiw/...
 
 Use the local `kiw` binary to test project lifecycle operations:
 
-- `bin/kiw new my-app --kind app`: Scaffolds a new application.
+- `bin/kiw new my-app --app`: Scaffolds a new fullstack application.
 - `bin/kiw info`: Inspects the detected project shape and workload kind.
 - `bin/kiw dev`: Starts development server with live reload.
 - `bin/kiw build`: Builds production release artifacts.

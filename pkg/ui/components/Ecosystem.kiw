@@ -24,7 +24,22 @@
         </div>
       </a>
 
-      <!-- 2. cloud -->
+      <!-- 2. krew -->
+      <a href="https://github.com/krewire/krew" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
+         style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge badge-secondary text-2xs font-mono" data-i18n="ecosystem.krew_badge">AI Agent</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">krew</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.krew_desc">Autonomous AI agent runtime: in-process embed, standalone CLI, HTTP/SSE transport, and MCP integration.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/krew</code>
+        </div>
+      </a>
+
+      <!-- 3. cloud -->
       <a href="https://github.com/krewire/cloud" target="_blank" rel="noopener"
          class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
          style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
@@ -96,6 +111,21 @@
         <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.community_desc">Community portal for contributors, guides, release announcements, and sponsorships.</p>
         <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
           <code>github.com/krewire/krewire.github.io</code>
+        </div>
+      </a>
+
+      <!-- 7. internal -->
+      <a href="https://github.com/krewire/internal" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
+         style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge badge-muted text-2xs font-mono" data-i18n="ecosystem.internal_badge">Docs Hub</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">internal</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.internal_desc">Private documentation hub: architecture decision records, roadmaps, contributor guides, and research notes.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/internal</code>
         </div>
       </a>
 

@@ -13,7 +13,7 @@ The ecosystem spans eight repositories:
 2. **`krew`**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
 3. **`cloud`**: Private enterprise hybrid PaaS engine and control plane.
 4. **`auth`**: Private enterprise identity, SSO, MFA, and RBAC platform.
-5. **`workspace`**: Private SaaS AI-assisted virtual workspace.
+5. **`dash`**: Private enterprise AI-powered virtual workspace web platform.
 6. **`internal`**: Private documentation, ADRs, roadmaps, and project vision.
 7. **`krewire.com`**: Public marketing and documentation website built with the `site` workload.
 8. **`krewire.github.io`**: Community portal and distribution hub.
