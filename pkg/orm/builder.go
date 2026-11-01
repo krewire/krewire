@@ -2,8 +2,56 @@ package orm
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
+
+var allowedOperators = map[string]bool{
+	"=":           true,
+	"!=":          true,
+	"<>":          true,
+	"<":           true,
+	"<=":          true,
+	">":           true,
+	">=":          true,
+	"LIKE":        true,
+	"ILIKE":       true,
+	"NOT LIKE":    true,
+	"NOT ILIKE":   true,
+	"IN":          true,
+	"NOT IN":      true,
+	"IS":          true,
+	"IS NOT":      true,
+	"BETWEEN":     true,
+	"NOT BETWEEN": true,
+}
+
+var (
+	identRegex  = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+	dottedRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*\.(?:[a-zA-Z_][a-zA-Z0-9_]*|\*)$`)
+	funcRegex   = regexp.MustCompile(`^(?i:[a-zA-Z_][a-zA-Z0-9_]*)\((?:[a-zA-Z_][a-zA-Z0-9_.]*|\*)\)$`)
+	aliasRegex  = regexp.MustCompile(`^(?i)([a-zA-Z_][a-zA-Z0-9_.]*)\s+AS\s+([a-zA-Z_][a-zA-Z0-9_]*)$`)
+)
+
+func isValidIdentifier(ident string) bool {
+	ident = strings.TrimSpace(ident)
+	if ident == "*" {
+		return true
+	}
+	if identRegex.MatchString(ident) {
+		return true
+	}
+	if dottedRegex.MatchString(ident) {
+		return true
+	}
+	if funcRegex.MatchString(ident) {
+		return true
+	}
+	if aliasRegex.MatchString(ident) {
+		return true
+	}
+	return false
+}
 
 type whereCondition struct {
 	Column   string
@@ -40,6 +88,7 @@ type QueryBuilder struct {
 	orders     []orderClause
 	limitVal   int
 	offsetVal  int
+	err        error
 }
 
 // NewQueryBuilder creates a new QueryBuilder for a given dialect.
@@ -55,11 +104,23 @@ func NewQueryBuilder(dialect Dialect) *QueryBuilder {
 // Table sets the target table.
 func (b *QueryBuilder) Table(table string) *QueryBuilder {
 	b.table = table
+	if table != "" && !isValidIdentifier(table) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid table name %q", table)
+		}
+	}
 	return b
 }
 
 // Select sets columns to retrieve.
 func (b *QueryBuilder) Select(cols ...string) *QueryBuilder {
+	for _, col := range cols {
+		if !isValidIdentifier(col) {
+			if b.err == nil {
+				b.err = fmt.Errorf("orm: invalid column name %q", col)
+			}
+		}
+	}
 	b.columns = append(b.columns, cols...)
 	return b
 }
@@ -72,9 +133,22 @@ func (b *QueryBuilder) Distinct() *QueryBuilder {
 
 // Where adds an AND condition.
 func (b *QueryBuilder) Where(col, op string, val interface{}) *QueryBuilder {
+	normOp := strings.ToUpper(strings.TrimSpace(op))
+	if !allowedOperators[normOp] {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: unsupported operator %q", op)
+		}
+		return b
+	}
+	if !isValidIdentifier(col) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid column name %q", col)
+		}
+		return b
+	}
 	b.wheres = append(b.wheres, whereCondition{
 		Column:   col,
-		Operator: strings.ToUpper(strings.TrimSpace(op)),
+		Operator: normOp,
 		Value:    val,
 		IsOr:     false,
 	})
@@ -83,9 +157,22 @@ func (b *QueryBuilder) Where(col, op string, val interface{}) *QueryBuilder {
 
 // OrWhere adds an OR condition.
 func (b *QueryBuilder) OrWhere(col, op string, val interface{}) *QueryBuilder {
+	normOp := strings.ToUpper(strings.TrimSpace(op))
+	if !allowedOperators[normOp] {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: unsupported operator %q", op)
+		}
+		return b
+	}
+	if !isValidIdentifier(col) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid column name %q", col)
+		}
+		return b
+	}
 	b.wheres = append(b.wheres, whereCondition{
 		Column:   col,
-		Operator: strings.ToUpper(strings.TrimSpace(op)),
+		Operator: normOp,
 		Value:    val,
 		IsOr:     true,
 	})
@@ -94,6 +181,12 @@ func (b *QueryBuilder) OrWhere(col, op string, val interface{}) *QueryBuilder {
 
 // WhereIn adds an IN (val1, val2, ...) condition.
 func (b *QueryBuilder) WhereIn(col string, vals ...interface{}) *QueryBuilder {
+	if !isValidIdentifier(col) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid column name %q", col)
+		}
+		return b
+	}
 	if len(vals) == 0 {
 		return b.WhereRaw("1 = 0")
 	}
@@ -107,11 +200,23 @@ func (b *QueryBuilder) WhereIn(col string, vals ...interface{}) *QueryBuilder {
 
 // WhereNull adds an IS NULL condition.
 func (b *QueryBuilder) WhereNull(col string) *QueryBuilder {
+	if !isValidIdentifier(col) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid column name %q", col)
+		}
+		return b
+	}
 	return b.WhereRaw(fmt.Sprintf("%s IS NULL", b.quote(col)))
 }
 
 // WhereNotNull adds an IS NOT NULL condition.
 func (b *QueryBuilder) WhereNotNull(col string) *QueryBuilder {
+	if !isValidIdentifier(col) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid column name %q", col)
+		}
+		return b
+	}
 	return b.WhereRaw(fmt.Sprintf("%s IS NOT NULL", b.quote(col)))
 }
 
@@ -128,6 +233,11 @@ func (b *QueryBuilder) WhereRaw(clause string, args ...interface{}) *QueryBuilde
 
 // Join adds a JOIN clause.
 func (b *QueryBuilder) Join(joinType, table, on string) *QueryBuilder {
+	if !isValidIdentifier(table) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid join table name %q", table)
+		}
+	}
 	b.joins = append(b.joins, joinClause{
 		Type:  strings.ToUpper(strings.TrimSpace(joinType)),
 		Table: table,
@@ -148,6 +258,13 @@ func (b *QueryBuilder) InnerJoin(table, on string) *QueryBuilder {
 
 // GroupBy adds GROUP BY columns.
 func (b *QueryBuilder) GroupBy(cols ...string) *QueryBuilder {
+	for _, col := range cols {
+		if !isValidIdentifier(col) {
+			if b.err == nil {
+				b.err = fmt.Errorf("orm: invalid column name %q", col)
+			}
+		}
+	}
 	b.groups = append(b.groups, cols...)
 	return b
 }
@@ -161,6 +278,12 @@ func (b *QueryBuilder) Having(clause string, args ...interface{}) *QueryBuilder 
 
 // OrderBy adds an ORDER BY clause.
 func (b *QueryBuilder) OrderBy(col, dir string) *QueryBuilder {
+	if !isValidIdentifier(col) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid column name %q", col)
+		}
+		return b
+	}
 	d := strings.ToUpper(strings.TrimSpace(dir))
 	if d != "DESC" {
 		d = "ASC"
@@ -181,8 +304,32 @@ func (b *QueryBuilder) Offset(n int) *QueryBuilder {
 	return b
 }
 
+// Error returns the first error encountered during query building or compilation.
+func (b *QueryBuilder) Error() error {
+	return b.err
+}
+
+// Compile compiles the SELECT query and reports any compilation error.
+func (b *QueryBuilder) Compile() (string, []interface{}, error) {
+	sql, args := b.BuildSelect()
+	if b.err != nil {
+		return "", nil, b.err
+	}
+	return sql, args, nil
+}
+
 // BuildSelect compiles the SELECT query and its bound arguments.
 func (b *QueryBuilder) BuildSelect() (string, []interface{}) {
+	if b.err != nil {
+		return "", nil
+	}
+	if b.table == "" {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: missing table name")
+		}
+		return "", nil
+	}
+
 	var sql strings.Builder
 	var args []interface{}
 	argIndex := 1
@@ -270,11 +417,24 @@ func (b *QueryBuilder) BuildSelect() (string, []interface{}) {
 		sql.WriteString(fmt.Sprintf(" OFFSET %d", b.offsetVal))
 	}
 
+	if b.err != nil {
+		return "", nil
+	}
 	return sql.String(), args
 }
 
 // BuildInsert compiles an INSERT INTO statement for the specified columns.
 func (b *QueryBuilder) BuildInsert(columns []string) string {
+	if b.err != nil {
+		return ""
+	}
+	if b.table == "" {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: missing table name")
+		}
+		return ""
+	}
+
 	var sql strings.Builder
 	sql.WriteString("INSERT INTO ")
 	sql.WriteString(b.quote(b.table))
@@ -292,11 +452,24 @@ func (b *QueryBuilder) BuildInsert(columns []string) string {
 	sql.WriteString(strings.Join(placeholders, ", "))
 	sql.WriteString(")")
 
+	if b.err != nil {
+		return ""
+	}
 	return sql.String()
 }
 
 // BuildUpdate compiles an UPDATE statement for the specified columns and conditions.
 func (b *QueryBuilder) BuildUpdate(columns []string, values []interface{}) (string, []interface{}) {
+	if b.err != nil {
+		return "", nil
+	}
+	if b.table == "" {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: missing table name")
+		}
+		return "", nil
+	}
+
 	var sql strings.Builder
 	var args []interface{}
 	argIndex := 1
@@ -342,11 +515,24 @@ func (b *QueryBuilder) BuildUpdate(columns []string, values []interface{}) (stri
 		}
 	}
 
+	if b.err != nil {
+		return "", nil
+	}
 	return sql.String(), args
 }
 
 // BuildDelete compiles a DELETE FROM statement and bound arguments.
 func (b *QueryBuilder) BuildDelete() (string, []interface{}) {
+	if b.err != nil {
+		return "", nil
+	}
+	if b.table == "" {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: missing table name")
+		}
+		return "", nil
+	}
+
 	var sql strings.Builder
 	var args []interface{}
 	argIndex := 1
@@ -383,19 +569,44 @@ func (b *QueryBuilder) BuildDelete() (string, []interface{}) {
 		}
 	}
 
+	if b.err != nil {
+		return "", nil
+	}
 	return sql.String(), args
 }
 
 func (b *QueryBuilder) quote(ident string) string {
 	ident = strings.TrimSpace(ident)
-	if ident == "*" || strings.Contains(ident, "(") || strings.Contains(ident, " ") {
+	if ident == "" {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: empty identifier")
+		}
+		return ""
+	}
+	if !isValidIdentifier(ident) {
+		if b.err == nil {
+			b.err = fmt.Errorf("orm: invalid identifier %q", ident)
+		}
+		return ident
+	}
+	if ident == "*" {
+		return "*"
+	}
+	if m := aliasRegex.FindStringSubmatch(ident); len(m) == 3 {
+		return b.quote(m[1]) + " AS " + b.dialect.QuoteIdentifier(m[2])
+	}
+	if m := funcRegex.FindStringSubmatch(ident); len(m) > 0 {
 		return ident
 	}
 	if strings.Contains(ident, ".") {
 		parts := strings.Split(ident, ".")
 		quoted := make([]string, len(parts))
 		for i, p := range parts {
-			quoted[i] = b.dialect.QuoteIdentifier(p)
+			if p == "*" {
+				quoted[i] = "*"
+			} else {
+				quoted[i] = b.dialect.QuoteIdentifier(p)
+			}
 		}
 		return strings.Join(quoted, ".")
 	}

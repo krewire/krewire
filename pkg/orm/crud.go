@@ -80,6 +80,9 @@ func (q *Query) Offset(n int) *Query {
 func (q *Query) Count() (int64, error) {
 	q.builder.columns = []string{"COUNT(*)"}
 	query, args := q.builder.BuildSelect()
+	if err := q.builder.Error(); err != nil {
+		return 0, errs.FailureError(fmt.Sprintf("orm: count failed: %v", err))
+	}
 
 	row := q.db.QueryRow(q.ctx, query, args...)
 	var count int64
@@ -124,6 +127,9 @@ func (q *Query) Insert(record interface{}) (int64, error) {
 	}
 
 	sqlStr := q.builder.BuildInsert(cols)
+	if err := q.builder.Error(); err != nil {
+		return 0, errs.FailureError(fmt.Sprintf("orm: insert failed: %v", err))
+	}
 	res, err := q.db.Exec(q.ctx, sqlStr, vals...)
 	if err != nil {
 		return 0, errs.FailureError(fmt.Sprintf("orm: insert failed: %v", err))
@@ -165,6 +171,9 @@ func (q *Query) Find(dest interface{}, id ...interface{}) error {
 
 	q.builder.Limit(1)
 	query, args := q.builder.BuildSelect()
+	if err := q.builder.Error(); err != nil {
+		return errs.FailureError(fmt.Sprintf("orm: find query failed: %v", err))
+	}
 
 	rows, err := q.db.Query(q.ctx, query, args...)
 	if err != nil {
@@ -204,6 +213,9 @@ func (q *Query) FindAll(dest interface{}) error {
 	}
 
 	query, args := q.builder.BuildSelect()
+	if err := q.builder.Error(); err != nil {
+		return errs.FailureError(fmt.Sprintf("orm: findAll query failed: %v", err))
+	}
 	rows, err := q.db.Query(q.ctx, query, args...)
 	if err != nil {
 		return errs.FailureError(fmt.Sprintf("orm: findAll query failed: %v", err))
@@ -265,6 +277,9 @@ func (q *Query) Update(record interface{}) (int64, error) {
 
 	q.builder.Where(tm.PrimaryKey.Name, "=", pkVal)
 	query, args := q.builder.BuildUpdate(cols, vals)
+	if err := q.builder.Error(); err != nil {
+		return 0, errs.FailureError(fmt.Sprintf("orm: update failed: %v", err))
+	}
 
 	res, err := q.db.Exec(q.ctx, query, args...)
 	if err != nil {
@@ -299,6 +314,9 @@ func (q *Query) Delete(record interface{}, id ...interface{}) (int64, error) {
 	}
 
 	query, args := q.builder.BuildDelete()
+	if err := q.builder.Error(); err != nil {
+		return 0, errs.FailureError(fmt.Sprintf("orm: delete failed: %v", err))
+	}
 	res, err := q.db.Exec(q.ctx, query, args...)
 	if err != nil {
 		return 0, errs.FailureError(fmt.Sprintf("orm: delete failed: %v", err))
