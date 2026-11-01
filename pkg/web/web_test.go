@@ -70,6 +70,91 @@ func TestRouterServesStaticFiles(t *testing.T) {
 	}
 }
 
+func TestRouterStaticSecurity(t *testing.T) {
+	dir := t.TempDir()
+	outsideDir := t.TempDir()
+
+	secretFile := filepath.Join(outsideDir, "secret.txt")
+	if err := os.WriteFile(secretFile, []byte("super-secret"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	validFile := filepath.Join(dir, "valid.txt")
+	if err := os.WriteFile(validFile, []byte("valid content"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Symlink pointing outside static root
+	if err := os.Symlink(secretFile, filepath.Join(dir, "escape-link.txt")); err != nil {
+		t.Fatal(err)
+	}
+
+	// Symlink pointing inside static root
+	if err := os.Symlink(validFile, filepath.Join(dir, "internal-link.txt")); err != nil {
+		t.Fatal(err)
+	}
+
+	// Subdirectory without index.html
+	subDir := filepath.Join(dir, "sub")
+	if err := os.Mkdir(subDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(subDir, "inner.txt"), []byte("inner"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Subdirectory with index.html
+	indexDir := filepath.Join(dir, "site")
+	if err := os.Mkdir(indexDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(indexDir, "index.html"), []byte("<h1>Welcome</h1>"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	r := NewRouter()
+	r.Static("/static", dir)
+
+	// 1. Symlink escape should be blocked with 404
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/escape-link.txt", nil))
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for symlink escape, got %d", rec.Code)
+	}
+
+	// 2. Internal symlink within root should be served
+	rec = httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/internal-link.txt", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 for internal symlink, got %d", rec.Code)
+	}
+	if got := rec.Body.String(); got != "valid content" {
+		t.Fatalf("expected 'valid content', got %q", got)
+	}
+
+	// 3. Directory without index.html should return 404 (no directory listing)
+	rec = httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/sub", nil))
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for directory without index, got %d", rec.Code)
+	}
+	rec = httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/sub/", nil))
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for directory/ without index, got %d", rec.Code)
+	}
+
+	// 4. Directory with index.html should be served or redirected
+	rec = httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/static/site/", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 for directory with index.html, got %d", rec.Code)
+	}
+	if got := rec.Body.String(); got != "<h1>Welcome</h1>" {
+		t.Fatalf("expected '<h1>Welcome</h1>', got %q", got)
+	}
+}
+
 func TestTemplatesParseAndExecute(t *testing.T) {
 	fsys := fstest.MapFS{
 		"page.html": &fstest.MapFile{Data: []byte(`<h1>{{.Title}}</h1>`)},

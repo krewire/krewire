@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -317,8 +318,61 @@ func (r *Router) serve(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		rel := strings.TrimPrefix(req.URL.Path, st.prefix)
-		file := filepath.Join(st.dir, filepath.Clean("/"+rel))
-		http.ServeFile(w, req, file)
+		targetPath := filepath.Join(st.dir, filepath.Clean("/"+rel))
+
+		baseDir, err := filepath.EvalSymlinks(st.dir)
+		if err != nil {
+			baseDir = filepath.Clean(st.dir)
+		}
+		realPath, err := filepath.EvalSymlinks(targetPath)
+		if err != nil {
+			if r.NotFound != nil {
+				r.NotFound(w, req, nil)
+			} else {
+				http.NotFound(w, req)
+			}
+			return
+		}
+		relCheck, err := filepath.Rel(baseDir, realPath)
+		if err != nil || relCheck == ".." || strings.HasPrefix(relCheck, ".."+string(filepath.Separator)) {
+			if r.NotFound != nil {
+				r.NotFound(w, req, nil)
+			} else {
+				http.NotFound(w, req)
+			}
+			return
+		}
+		fi, err := os.Stat(realPath)
+		if err != nil {
+			if r.NotFound != nil {
+				r.NotFound(w, req, nil)
+			} else {
+				http.NotFound(w, req)
+			}
+			return
+		}
+		if fi.IsDir() {
+			indexPath := filepath.Join(realPath, "index.html")
+			realIndex, err := filepath.EvalSymlinks(indexPath)
+			if err != nil {
+				if r.NotFound != nil {
+					r.NotFound(w, req, nil)
+				} else {
+					http.NotFound(w, req)
+				}
+				return
+			}
+			relIndexCheck, err := filepath.Rel(baseDir, realIndex)
+			if err != nil || relIndexCheck == ".." || strings.HasPrefix(relIndexCheck, ".."+string(filepath.Separator)) {
+				if r.NotFound != nil {
+					r.NotFound(w, req, nil)
+				} else {
+					http.NotFound(w, req)
+				}
+				return
+			}
+		}
+		http.ServeFile(w, req, realPath)
 		return
 	}
 	if r.NotFound != nil {
