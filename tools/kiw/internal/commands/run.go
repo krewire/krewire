@@ -284,6 +284,39 @@ func runGoFile(rt *runtimeEnv, path string, extraArgs []string) errs.ExitCode {
 	return waitChild(cmd)
 }
 
+func quoteShellArg(s string) string {
+	if s == "" {
+		return "''"
+	}
+	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
+}
+
+func quoteCmdArg(s string) string {
+	s = strings.ReplaceAll(s, `"`, `\"`)
+	return `"` + s + `"`
+}
+
+func buildScriptCmd(script string, extraArgs []string) *exec.Cmd {
+	if len(extraArgs) > 0 {
+		quoted := make([]string, len(extraArgs))
+		if runtime.GOOS == "windows" {
+			for i, a := range extraArgs {
+				quoted[i] = quoteCmdArg(a)
+			}
+			script = script + " " + strings.Join(quoted, " ")
+		} else {
+			for i, a := range extraArgs {
+				quoted[i] = quoteShellArg(a)
+			}
+			script = script + " " + strings.Join(quoted, " ")
+		}
+	}
+	if runtime.GOOS == "windows" {
+		return exec.Command("cmd", "/C", script)
+	}
+	return exec.Command("sh", "-c", script)
+}
+
 func runScript(rt *runtimeEnv, task string, extraArgs []string) errs.ExitCode {
 	script, ok := rt.cfg.Scripts[task]
 	if !ok {
@@ -293,16 +326,8 @@ func runScript(rt *runtimeEnv, task string, extraArgs []string) errs.ExitCode {
 	if len(extraArgs) > 0 && extraArgs[0] == "--" {
 		extraArgs = extraArgs[1:]
 	}
-	if len(extraArgs) > 0 {
-		script = script + " " + strings.Join(extraArgs, " ")
-	}
-	slog.Info("running script", "task", task, "command", script)
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd", "/C", script)
-	} else {
-		cmd = exec.Command("sh", "-c", script)
-	}
+	cmd := buildScriptCmd(script, extraArgs)
+	slog.Info("running script", "task", task, "command", cmd.String())
 	cmd.Dir = rt.root
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

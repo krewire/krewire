@@ -2,8 +2,10 @@ package commands
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/krewire/krewire/pkg/errs"
@@ -197,5 +199,41 @@ scripts:
 	code := RunInfo(fs)
 	if code != errs.ExitCodeSuccess {
 		t.Errorf("RunInfo = %d want 0", code)
+	}
+}
+
+func TestRunScript_SanitizesSpecialShellArgs(t *testing.T) {
+	dir := t.TempDir()
+	canaryFile := filepath.Join(dir, "pwned.txt")
+	outputFile := filepath.Join(dir, "output.txt")
+
+	body := fmt.Sprintf("title: Demo\nscripts:\n  record: \"echo > %s\"\n", outputFile)
+	if err := os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	chdir(t, dir)
+
+	fs := flag.NewFlagSet("run", flag.ContinueOnError)
+	RegisterRun(fs)
+	maliciousArgs := []string{"record", "--", ";", "touch", canaryFile, "&", "|"}
+	if err := fs.Parse(maliciousArgs); err != nil {
+		t.Fatal(err)
+	}
+
+	code := RunRun(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunRun = %d, want 0", code)
+	}
+
+	// Verify canary file was NOT created (command injection prevented)
+	if _, err := os.Stat(canaryFile); !os.IsNotExist(err) {
+		t.Fatalf("vulnerability: canary file %s was created via command injection!", canaryFile)
+	}
+
+	// Verify special shell characters were passed literally in the command execution
+	cmd := buildScriptCmd("echo", []string{";", "touch", "&", "|"})
+	cmdStr := cmd.String()
+	if !strings.Contains(cmdStr, "';'") || !strings.Contains(cmdStr, "'&'") || !strings.Contains(cmdStr, "'|'") {
+		t.Fatalf("expected shell arguments to be safely quoted, got: %s", cmdStr)
 	}
 }
