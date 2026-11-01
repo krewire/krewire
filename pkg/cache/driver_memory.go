@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"container/list"
 	"context"
 	"sync"
 	"time"
@@ -9,6 +10,7 @@ import (
 type memoryItem struct {
 	value     []byte
 	expiresAt time.Time // zero time means no expiration
+	element   *list.Element
 }
 
 func (i memoryItem) isExpired() bool {
@@ -18,22 +20,37 @@ func (i memoryItem) isExpired() bool {
 	return time.Now().After(i.expiresAt)
 }
 
-// MemoryCache implements Cache in-memory with automatic TTL eviction.
+// MemoryCache implements Cache in-memory with automatic TTL eviction and LRU capacity bounds.
 type MemoryCache struct {
-	mu     sync.RWMutex
-	items  map[string]memoryItem
-	stopCh chan struct{}
+	mu       sync.RWMutex
+	items    map[string]memoryItem
+	lruList  *list.List
+	capacity int
+	stopCh   chan struct{}
 }
 
-// NewMemoryCache creates an in-memory Cache with periodic cleanup.
+// DefaultMemoryCapacity is the default maximum number of items before LRU eviction.
+const DefaultMemoryCapacity = 10000
+
+// NewMemoryCache creates an in-memory Cache with periodic cleanup and default capacity.
 func NewMemoryCache(cleanupInterval time.Duration) *MemoryCache {
+	return NewMemoryCacheWithCapacity(cleanupInterval, DefaultMemoryCapacity)
+}
+
+// NewMemoryCacheWithCapacity creates an in-memory Cache with periodic cleanup and custom capacity.
+func NewMemoryCacheWithCapacity(cleanupInterval time.Duration, capacity int) *MemoryCache {
 	if cleanupInterval <= 0 {
 		cleanupInterval = 1 * time.Minute
 	}
+	if capacity <= 0 {
+		capacity = DefaultMemoryCapacity
+	}
 
 	mc := &MemoryCache{
-		items:  make(map[string]memoryItem),
-		stopCh: make(chan struct{}),
+		items:    make(map[string]memoryItem),
+		lruList:  list.New(),
+		capacity: capacity,
+		stopCh:   make(chan struct{}),
 	}
 
 	go mc.cleanupLoop(cleanupInterval)
@@ -61,23 +78,31 @@ func (c *MemoryCache) cleanupExpired() {
 	now := time.Now()
 	for k, item := range c.items {
 		if !item.expiresAt.IsZero() && now.After(item.expiresAt) {
+			if item.element != nil {
+				c.lruList.Remove(item.element)
+			}
 			delete(c.items, k)
 		}
 	}
 }
 
 func (c *MemoryCache) Get(_ context.Context, key string) ([]byte, error) {
-	c.mu.RLock()
-	item, ok := c.items[key]
-	c.mu.RUnlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
+	item, ok := c.items[key]
 	if !ok || item.isExpired() {
 		if ok {
-			c.mu.Lock()
+			if item.element != nil {
+				c.lruList.Remove(item.element)
+			}
 			delete(c.items, key)
-			c.mu.Unlock()
 		}
 		return nil, ErrCacheMiss
+	}
+
+	if item.element != nil {
+		c.lruList.MoveToFront(item.element)
 	}
 
 	cp := make([]byte, len(item.value))
@@ -105,9 +130,31 @@ func (c *MemoryCache) Set(_ context.Context, key string, val []byte, ttl time.Du
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	if item, ok := c.items[key]; ok {
+		item.value = cp
+		item.expiresAt = exp
+		if item.element != nil {
+			c.lruList.MoveToFront(item.element)
+		}
+		c.items[key] = item
+		return nil
+	}
+
+	// Evict LRU items if at capacity
+	for c.capacity > 0 && len(c.items) >= c.capacity && c.lruList.Len() > 0 {
+		oldest := c.lruList.Back()
+		if oldest != nil {
+			c.lruList.Remove(oldest)
+			oldKey := oldest.Value.(string)
+			delete(c.items, oldKey)
+		}
+	}
+
+	elem := c.lruList.PushFront(key)
 	c.items[key] = memoryItem{
 		value:     cp,
 		expiresAt: exp,
+		element:   elem,
 	}
 	return nil
 }
@@ -119,7 +166,12 @@ func (c *MemoryCache) SetString(ctx context.Context, key string, val string, ttl
 func (c *MemoryCache) Delete(_ context.Context, key string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	delete(c.items, key)
+	if item, ok := c.items[key]; ok {
+		if item.element != nil {
+			c.lruList.Remove(item.element)
+		}
+		delete(c.items, key)
+	}
 	return nil
 }
 
@@ -138,6 +190,7 @@ func (c *MemoryCache) Clear(_ context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.items = make(map[string]memoryItem)
+	c.lruList.Init()
 	return nil
 }
 

@@ -9,17 +9,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
 // FileCacheConfig contains options for disk-backed file caching.
 type FileCacheConfig struct {
-	Directory string
+	Directory     string
+	SweepInterval time.Duration
 }
 
 // FileCache implements Cache using local filesystem storage.
 type FileCache struct {
-	dir string
+	dir    string
+	stopCh chan struct{}
 }
 
 // NewFileCache creates a disk-based Cache.
@@ -33,7 +36,63 @@ func NewFileCache(cfg FileCacheConfig) (*FileCache, error) {
 		return nil, fmt.Errorf("cache: create dir %s: %w", dir, err)
 	}
 
-	return &FileCache{dir: dir}, nil
+	fc := &FileCache{
+		dir:    dir,
+		stopCh: make(chan struct{}),
+	}
+
+	sweepInterval := cfg.SweepInterval
+	if sweepInterval <= 0 {
+		sweepInterval = 10 * time.Minute
+	}
+	go fc.sweepLoop(sweepInterval)
+
+	return fc, nil
+}
+
+func (f *FileCache) sweepLoop(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			f.Sweep()
+		case <-f.stopCh:
+			return
+		}
+	}
+}
+
+// Sweep scans the cache directory and removes all expired or corrupt cache files.
+func (f *FileCache) Sweep() {
+	now := time.Now().UnixNano()
+	_ = filepath.WalkDir(f.dir, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		if strings.Contains(d.Name(), ".tmp.") {
+			if info, err := d.Info(); err == nil && time.Since(info.ModTime()) > time.Hour {
+				_ = os.Remove(path)
+			}
+			return nil
+		}
+
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil
+		}
+		if len(data) < 8 {
+			_ = os.Remove(path)
+			return nil
+		}
+
+		expiryNano := int64(binary.BigEndian.Uint64(data[:8]))
+		if expiryNano > 0 && now > expiryNano {
+			_ = os.Remove(path)
+		}
+		return nil
+	})
 }
 
 func (f *FileCache) keyPath(key string) string {
@@ -148,6 +207,11 @@ func (f *FileCache) Remember(ctx context.Context, key string, ttl time.Duration,
 }
 
 func (f *FileCache) Close() error {
+	select {
+	case <-f.stopCh:
+	default:
+		close(f.stopCh)
+	}
 	return nil
 }
 

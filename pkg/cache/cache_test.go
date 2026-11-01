@@ -254,3 +254,59 @@ func TestRedisCache_MockServer(t *testing.T) {
 		t.Errorf("expected ErrCacheMiss, got %v", err)
 	}
 }
+
+func TestMemoryCache_CapacityLRU(t *testing.T) {
+	c := cache.NewMemoryCacheWithCapacity(1*time.Minute, 3)
+	defer c.Close()
+
+	ctx := context.Background()
+
+	_ = c.Set(ctx, "k1", []byte("v1"), 0)
+	_ = c.Set(ctx, "k2", []byte("v2"), 0)
+	_ = c.Set(ctx, "k3", []byte("v3"), 0)
+
+	// Access k1 to make it most recently used (LRU order: k2, k3, k1)
+	_, _ = c.Get(ctx, "k1")
+
+	// Insert k4, should evict k2 (least recently used)
+	_ = c.Set(ctx, "k4", []byte("v4"), 0)
+
+	_, err := c.Get(ctx, "k2")
+	if err != cache.ErrCacheMiss {
+		t.Fatalf("expected k2 to be evicted by LRU capacity bound, got %v", err)
+	}
+
+	for _, k := range []string{"k1", "k3", "k4"} {
+		if _, err := c.Get(ctx, k); err != nil {
+			t.Errorf("expected %s to still exist, got %v", k, err)
+		}
+	}
+}
+
+func TestFileCache_AutomaticSweep(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "krewire_sweep_test_*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	c, err := cache.NewFileCache(cache.FileCacheConfig{
+		Directory:     tempDir,
+		SweepInterval: 50 * time.Millisecond,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	ctx := context.Background()
+
+	_ = c.Set(ctx, "expiring_file", []byte("val"), 30*time.Millisecond)
+
+	time.Sleep(120 * time.Millisecond)
+
+	has, _ := c.Has(ctx, "expiring_file")
+	if has {
+		t.Fatal("expected expired file to be gone")
+	}
+}
