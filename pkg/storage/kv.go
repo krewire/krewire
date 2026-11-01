@@ -24,6 +24,14 @@ type KV interface {
 	List(ctx context.Context, prefix string) ([]string, error)
 }
 
+// AtomicKV extends KV with atomic conditional operations.
+type AtomicKV interface {
+	KV
+	// PutIfAbsent stores val under key only if key does not already exist.
+	// Returns true if stored, false if key already exists.
+	PutIfAbsent(ctx context.Context, key string, val []byte) (bool, error)
+}
+
 // MemoryKV is a goroutine-safe in-memory KV store implementing KV.
 type MemoryKV struct {
 	mu    sync.RWMutex
@@ -59,6 +67,22 @@ func (m *MemoryKV) Put(_ context.Context, key string, val []byte) error {
 	defer m.mu.Unlock()
 	m.items[key] = cp
 	return nil
+}
+
+func (m *MemoryKV) PutIfAbsent(_ context.Context, key string, val []byte) (bool, error) {
+	key = CleanKey(key)
+	if key == "" {
+		return false, errors.New("storage: empty key")
+	}
+	cp := make([]byte, len(val))
+	copy(cp, val)
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.items[key]; exists {
+		return false, nil
+	}
+	m.items[key] = cp
+	return true, nil
 }
 
 func (m *MemoryKV) Delete(_ context.Context, key string) error {

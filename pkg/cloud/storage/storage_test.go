@@ -57,6 +57,23 @@ func TestKVContract_AllBackends(t *testing.T) {
 			}
 			// deleting absent key is not an error
 			ftest.NoError(t, kv.Delete(ctx, "a/b.txt"))
+
+			if akv, ok := kv.(AtomicKV); ok {
+				stored, err := akv.PutIfAbsent(ctx, "atomic/k", []byte("1"))
+				ftest.NoError(t, err)
+				if !stored {
+					t.Error("expected first PutIfAbsent to succeed")
+				}
+				stored, err = akv.PutIfAbsent(ctx, "atomic/k", []byte("2"))
+				ftest.NoError(t, err)
+				if stored {
+					t.Error("expected second PutIfAbsent to fail")
+				}
+				v, _, _ := akv.Get(ctx, "atomic/k")
+				if string(v) != "1" {
+					t.Errorf("expected original value 1, got %s", v)
+				}
+			}
 		})
 	}
 }

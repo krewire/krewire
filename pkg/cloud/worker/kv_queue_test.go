@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -193,5 +195,91 @@ func TestKVQueue_RunnerIntegration(t *testing.T) {
 
 	if executed.Load() != 5 {
 		t.Fatalf("expected 5 jobs executed by runner, got %d", executed.Load())
+	}
+}
+
+func TestKVQueue_MultiWorkerConcurrent(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	kv := storage.NewMemory()
+
+	// 3 separate worker nodes with their own KVQueue instances sharing the same KV storage
+	q1, err := worker.NewKVQueue(ctx, kv, worker.WithPollInterval(10*time.Millisecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+	q2, err := worker.NewKVQueue(ctx, kv, worker.WithPollInterval(10*time.Millisecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+	q3, err := worker.NewKVQueue(ctx, kv, worker.WithPollInterval(10*time.Millisecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	totalJobs := 30
+	for i := 0; i < totalJobs; i++ {
+		job := &worker.PayloadJob{
+			Type: fmt.Sprintf("task-%d", i),
+			Data: []byte(fmt.Sprintf("payload-%d", i)),
+		}
+		// Enqueue onto q1
+		if _, err := q1.Enqueue(ctx, job, worker.Options{Priority: i}); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var claimed sync.Map
+	var totalCompleted atomic.Int32
+	var wg sync.WaitGroup
+
+	runWorker := func(q *worker.KVQueue) {
+		defer wg.Done()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+
+			if totalCompleted.Load() >= int32(totalJobs) {
+				return
+			}
+
+			dequeueCtx, dCancel := context.WithTimeout(ctx, 150*time.Millisecond)
+			task, err := q.Dequeue(dequeueCtx)
+			dCancel()
+			if err != nil {
+				if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+					if totalCompleted.Load() >= int32(totalJobs) {
+						return
+					}
+					continue
+				}
+				t.Errorf("dequeue error: %v", err)
+				return
+			}
+
+			if _, loaded := claimed.LoadOrStore(task.ID, true); loaded {
+				t.Errorf("duplicate task claimed concurrently: %s", task.ID)
+			}
+
+			if err := q.Ack(ctx, task); err != nil {
+				t.Errorf("ack error: %v", err)
+			}
+			totalCompleted.Add(1)
+		}
+	}
+
+	wg.Add(3)
+	go runWorker(q1)
+	go runWorker(q2)
+	go runWorker(q3)
+
+	wg.Wait()
+
+	if totalCompleted.Load() != int32(totalJobs) {
+		t.Fatalf("expected %d completed jobs, got %d", totalJobs, totalCompleted.Load())
 	}
 }

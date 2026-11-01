@@ -26,6 +26,9 @@ var ErrNotFound = foundation.ErrNotFound
 // KV is the canonical key-value storage contract defined in pkg/storage.
 type KV = foundation.KV
 
+// AtomicKV extends KV with atomic conditional operations re-exported from pkg/storage.
+type AtomicKV = foundation.AtomicKV
+
 // MemoryKV is a goroutine-safe in-memory backend re-exported from pkg/storage.
 type MemoryKV = foundation.MemoryKV
 
@@ -89,6 +92,29 @@ func (f *FileKV) Put(_ context.Context, key string, val []byte) error {
 		return fmt.Errorf("storage: rename %s: %w", key, err)
 	}
 	return nil
+}
+
+func (f *FileKV) PutIfAbsent(_ context.Context, key string, val []byte) (bool, error) {
+	p, err := f.path(key)
+	if err != nil {
+		return false, err
+	}
+	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+		return false, fmt.Errorf("storage: mkdir for %s: %w", key, err)
+	}
+	fl, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	if err != nil {
+		if os.IsExist(err) {
+			return false, nil
+		}
+		return false, fmt.Errorf("storage: put if absent %s: %w", key, err)
+	}
+	defer fl.Close()
+	if _, err := fl.Write(val); err != nil {
+		os.Remove(p)
+		return false, err
+	}
+	return true, nil
 }
 
 func (f *FileKV) Delete(_ context.Context, key string) error {
