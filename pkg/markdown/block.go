@@ -29,7 +29,8 @@ func parseAndRenderBlocks(src []byte) string {
 		slugs: newSlugTracker(),
 	}
 
-	var sb strings.Builder
+	sb := GetBuffer()
+	defer PutBuffer(sb)
 	i := 0
 	n := len(lines)
 
@@ -82,9 +83,9 @@ func parseAndRenderBlocks(src []byte) string {
 			level := len(m[1])
 			title := m[2]
 			slug := ctx.slugs.Slug(title)
-			fmt.Fprintf(&sb, `<h%d id="%s">`, level, html.EscapeString(slug))
-			renderInlines(title, &sb)
-			fmt.Fprintf(&sb, "</h%d>\n", level)
+			fmt.Fprintf(sb, `<h%d id="%s">`, level, html.EscapeString(slug))
+			renderInlines(title, sb)
+			fmt.Fprintf(sb, "</h%d>\n", level)
 			i++
 			continue
 		}
@@ -99,9 +100,9 @@ func parseAndRenderBlocks(src []byte) string {
 				}
 				title := trimmed
 				slug := ctx.slugs.Slug(title)
-				fmt.Fprintf(&sb, `<h%d id="%s">`, level, html.EscapeString(slug))
-				renderInlines(title, &sb)
-				fmt.Fprintf(&sb, "</h%d>\n", level)
+				fmt.Fprintf(sb, `<h%d id="%s">`, level, html.EscapeString(slug))
+				renderInlines(title, sb)
+				fmt.Fprintf(sb, "</h%d>\n", level)
 				i += 2
 				continue
 			}
@@ -206,7 +207,7 @@ func parseAndRenderBlocks(src []byte) string {
 		if len(pLines) > 0 {
 			pText := strings.Join(pLines, "\n")
 			sb.WriteString("<p>")
-			renderInlines(pText, &sb)
+			renderInlines(pText, sb)
 			sb.WriteString("</p>\n")
 		}
 	}
@@ -288,15 +289,16 @@ func parseTable(lines []string) (string, int) {
 		}
 	}
 
-	var sb strings.Builder
+	sb := GetBuffer()
+	defer PutBuffer(sb)
 	sb.WriteString("<table>\n<thead>\n<tr>\n")
 	for j, h := range headerCols {
 		sb.WriteString("<th")
 		if j < len(aligns) && aligns[j] != "" {
-			fmt.Fprintf(&sb, ` align="%s"`, aligns[j])
+			fmt.Fprintf(sb, ` align="%s"`, aligns[j])
 		}
 		sb.WriteString(">")
-		renderInlines(h, &sb)
+		renderInlines(h, sb)
 		sb.WriteString("</th>\n")
 	}
 	sb.WriteString("</tr>\n</thead>\n")
@@ -324,10 +326,10 @@ func parseTable(lines []string) (string, int) {
 				}
 				sb.WriteString("<td")
 				if j < len(aligns) && aligns[j] != "" {
-					fmt.Fprintf(&sb, ` align="%s"`, aligns[j])
+					fmt.Fprintf(sb, ` align="%s"`, aligns[j])
 				}
 				sb.WriteString(">")
-				renderInlines(val, &sb)
+				renderInlines(val, sb)
 				sb.WriteString("</td>\n")
 			}
 			sb.WriteString("</tr>\n")
@@ -362,8 +364,9 @@ func parseList(lines []string, ordered bool) (string, int) {
 		i++
 	}
 
-	var sb strings.Builder
-	fmt.Fprintf(&sb, "<%s>\n", tag)
+	sb := GetBuffer()
+	defer PutBuffer(sb)
+	fmt.Fprintf(sb, "<%s>\n", tag)
 	for _, item := range items {
 		// Check for task list item: [ ] or [x]
 		itemTrim := strings.TrimSpace(item)
@@ -376,15 +379,15 @@ func parseList(lines []string, ordered bool) (string, int) {
 			} else {
 				sb.WriteString(`<input disabled="" type="checkbox"> `)
 			}
-			renderInlines(rest, &sb)
+			renderInlines(rest, sb)
 			sb.WriteString("</li>\n")
 		} else {
 			sb.WriteString("<li>")
-			renderInlines(item, &sb)
+			renderInlines(item, sb)
 			sb.WriteString("</li>\n")
 		}
 	}
-	fmt.Fprintf(&sb, "</%s>\n", tag)
+	fmt.Fprintf(sb, "</%s>\n", tag)
 
 	return sb.String(), i
 }

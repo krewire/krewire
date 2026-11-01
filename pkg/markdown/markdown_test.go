@@ -254,3 +254,35 @@ func TestRender_PreservesRawHTML(t *testing.T) {
 		t.Errorf("expected raw HTML to be preserved, got: %s", html)
 	}
 }
+
+func BenchmarkRender(b *testing.B) {
+	src := []byte(`# Heading 1
+
+This is a paragraph with **bold** text, *italic* words, and [a link](https://example.com).
+
+- Item 1
+- Item 2
+  - Subitem
+
+| Col 1 | Col 2 |
+|---|---|
+| Val 1 | Val 2 |
+`)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = Render(src)
+	}
+}
+
+func BenchmarkRenderSafe(b *testing.B) {
+	src := []byte(`# Heading 1
+
+This is a paragraph with **bold** text, *italic* words, and [a link](https://example.com).
+`)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = RenderSafe(src)
+	}
+}

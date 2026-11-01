@@ -5,10 +5,33 @@
 package markdown
 
 import (
+	"bytes"
 	"errors"
 	"regexp"
 	"strings"
+	"sync"
 )
+
+var bufferPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
+}
+
+// GetBuffer acquires a buffer from the package sync.Pool.
+func GetBuffer() *bytes.Buffer {
+	buf := bufferPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	return buf
+}
+
+// PutBuffer returns a buffer to the package sync.Pool.
+func PutBuffer(buf *bytes.Buffer) {
+	if buf != nil {
+		buf.Reset()
+		bufferPool.Put(buf)
+	}
+}
 
 // ErrSanitize reports a malformed HTML fragment. It never occurs for
 // well-formed parser output; it exists so callers can distinguish an
@@ -88,19 +111,20 @@ func prefixLinks(html, base string) string {
 		return rewriteLinks(html, prefix)
 	}
 
-	var sb strings.Builder
+	buf := GetBuffer()
+	defer PutBuffer(buf)
 	lastIdx := 0
 	for _, m := range matches {
 		if m[0] > lastIdx {
-			sb.WriteString(rewriteLinks(html[lastIdx:m[0]], prefix))
+			buf.WriteString(rewriteLinks(html[lastIdx:m[0]], prefix))
 		}
-		sb.WriteString(html[m[0]:m[1]])
+		buf.WriteString(html[m[0]:m[1]])
 		lastIdx = m[1]
 	}
 	if lastIdx < len(html) {
-		sb.WriteString(rewriteLinks(html[lastIdx:], prefix))
+		buf.WriteString(rewriteLinks(html[lastIdx:], prefix))
 	}
-	return sb.String()
+	return buf.String()
 }
 
 func rewriteLinks(html, prefix string) string {

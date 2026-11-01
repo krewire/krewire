@@ -82,7 +82,8 @@ func toGoField(path string, loopVars map[string]bool) string {
 
 // desugarInterpolation converts single-brace {var} and {path.field} to Go template {{.Path.Field}}.
 func desugarInterpolation(src string, loopVars map[string]bool) string {
-	var buf strings.Builder
+	buf := GetBuffer()
+	defer PutBuffer(buf)
 	n := len(src)
 	i := 0
 

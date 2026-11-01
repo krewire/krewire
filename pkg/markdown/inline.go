@@ -12,8 +12,13 @@ var (
 	entityRe   = regexp.MustCompile(`^&(?:[a-zA-Z0-9]+|#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6});`)
 )
 
+type stringWriter interface {
+	WriteString(string) (int, error)
+	WriteByte(byte) error
+}
+
 // renderInlines parses inline Markdown tokens and writes the resulting HTML into sb.
-func renderInlines(s string, sb *strings.Builder) {
+func renderInlines(s string, sb stringWriter) {
 	n := len(s)
 	i := 0
 
@@ -200,20 +205,21 @@ func tryParseLink(s string) (string, int) {
 	rawDest := strings.TrimSpace(s[closeBracket+2 : closeParen])
 	urlPart, titlePart := splitURLAndTitle(rawDest)
 
-	var sb strings.Builder
-	sb.WriteString(`<a href="`)
-	sb.WriteString(html.EscapeString(urlPart))
-	sb.WriteString(`"`)
+	buf := GetBuffer()
+	defer PutBuffer(buf)
+	buf.WriteString(`<a href="`)
+	buf.WriteString(html.EscapeString(urlPart))
+	buf.WriteString(`"`)
 	if titlePart != "" {
-		sb.WriteString(` title="`)
-		sb.WriteString(html.EscapeString(titlePart))
-		sb.WriteString(`"`)
+		buf.WriteString(` title="`)
+		buf.WriteString(html.EscapeString(titlePart))
+		buf.WriteString(`"`)
 	}
-	sb.WriteString(`>`)
-	renderInlines(text, &sb)
-	sb.WriteString(`</a>`)
+	buf.WriteString(`>`)
+	renderInlines(text, buf)
+	buf.WriteString(`</a>`)
 
-	return sb.String(), closeParen + 1
+	return buf.String(), closeParen + 1
 }
 
 func tryParseImage(s string) (string, int) {
@@ -241,20 +247,21 @@ func tryParseImage(s string) (string, int) {
 	rawDest := strings.TrimSpace(s[closeBracket+2 : closeParen])
 	urlPart, titlePart := splitURLAndTitle(rawDest)
 
-	var sb strings.Builder
-	sb.WriteString(`<img src="`)
-	sb.WriteString(html.EscapeString(urlPart))
-	sb.WriteString(`" alt="`)
-	sb.WriteString(html.EscapeString(alt))
-	sb.WriteString(`"`)
+	buf := GetBuffer()
+	defer PutBuffer(buf)
+	buf.WriteString(`<img src="`)
+	buf.WriteString(html.EscapeString(urlPart))
+	buf.WriteString(`" alt="`)
+	buf.WriteString(html.EscapeString(alt))
+	buf.WriteString(`"`)
 	if titlePart != "" {
-		sb.WriteString(` title="`)
-		sb.WriteString(html.EscapeString(titlePart))
-		sb.WriteString(`"`)
+		buf.WriteString(` title="`)
+		buf.WriteString(html.EscapeString(titlePart))
+		buf.WriteString(`"`)
 	}
-	sb.WriteString(`>`)
+	buf.WriteString(`>`)
 
-	return sb.String(), closeParen + 1
+	return buf.String(), closeParen + 1
 }
 
 func splitURLAndTitle(s string) (string, string) {

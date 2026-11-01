@@ -468,3 +468,21 @@ func TestDesugar_IslandHydrationDirectives(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkParseKiw(b *testing.B) {
+	src := "---\ntitle: Landing\nlayout: Base\n---\n<h1>{title}</h1>\n<style scoped>h1{color:red}</style>\n<script>console.log(1)</script>\n<Navbar active=\"home\" />"
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = ParseKiw(src)
+	}
+}
+
+func BenchmarkDesugarInterpolation(b *testing.B) {
+	src := "Hello {user.name}, your account balance is {account.balance}. Status: {status}."
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = desugarInterpolation(src, nil)
+	}
+}

@@ -9,16 +9,39 @@
 package kiw
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/krewire/krewire/pkg/markdown"
 	"gopkg.in/yaml.v3"
 )
+
+var bufferPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
+}
+
+// GetBuffer acquires a buffer from the package sync.Pool.
+func GetBuffer() *bytes.Buffer {
+	buf := bufferPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	return buf
+}
+
+// PutBuffer returns a buffer to the package sync.Pool.
+func PutBuffer(buf *bytes.Buffer) {
+	if buf != nil {
+		buf.Reset()
+		bufferPool.Put(buf)
+	}
+}
 
 var (
 	styleRe           = regexp.MustCompile(`(?is)<style([^>]*)>(.*?)</style>`)
