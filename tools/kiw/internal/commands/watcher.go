@@ -93,12 +93,32 @@ func (w *watcher) loop() {
 	}
 }
 
+func isIgnoredDir(name string) bool {
+	if name == "" {
+		return false
+	}
+	if strings.HasPrefix(name, ".") {
+		return true
+	}
+	switch name {
+	case "node_modules", "vendor", ".git", ".krewire":
+		return true
+	}
+	return false
+}
+
 // signature walks the watched roots and hashes path+modtime pairs, so
 // content-safe rebuilds are triggered by edits within the watched set.
 func (w *watcher) signature() string {
 	var b strings.Builder
 	_ = filepath.WalkDir(w.root, func(path string, d os.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			if path != w.root && isIgnoredDir(d.Name()) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 		if !w.watched(path) {

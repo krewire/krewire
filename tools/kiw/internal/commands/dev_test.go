@@ -3,6 +3,7 @@ package commands
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -98,5 +99,49 @@ func TestWatcherDetectsTailwindConfigChange(t *testing.T) {
 	case <-w.Changed():
 	case <-time.After(500 * time.Millisecond):
 		t.Fatal("expected change signal for tailwind.config.js edit")
+	}
+}
+
+func TestWatcher_PrunesHeavyDirectoriesFromTraversal(t *testing.T) {
+	dir := t.TempDir()
+
+	heavyDirs := []string{
+		"node_modules",
+		"vendor",
+		".git",
+		".krewire",
+		".hidden",
+	}
+	for _, h := range heavyDirs {
+		sub := filepath.Join(dir, h, "sub")
+		if err := os.MkdirAll(sub, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(sub, "lib.go"), []byte("package sub\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	w := newWatcher(dir, 20*time.Millisecond, nil)
+	defer func() { close(w.done) }()
+
+	sig := w.signature()
+	for _, h := range heavyDirs {
+		if strings.Contains(sig, h) {
+			t.Fatalf("expected ignored dir %q to be pruned from watcher signature, got: %s", h, sig)
+		}
+	}
+
+	for _, h := range heavyDirs {
+		target := filepath.Join(dir, h, "sub", "lib.go")
+		if err := os.WriteFile(target, []byte("package sub\nfunc Edit(){}\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	select {
+	case <-w.Changed():
+		t.Fatal("watcher must not signal for edits inside pruned directories")
+	case <-time.After(100 * time.Millisecond):
 	}
 }
