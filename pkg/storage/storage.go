@@ -4,6 +4,7 @@ package storage
 
 import (
 	"fmt"
+	"io"
 	"io/fs"
 	"path/filepath"
 
@@ -17,6 +18,13 @@ type Store interface {
 	Get(key string) ([]byte, error)
 	Delete(key string) error
 	Stat(key string) (ObjectInfo, error)
+}
+
+// StreamStore defines the streaming interface for chunked object storage.
+type StreamStore interface {
+	Store
+	PutStream(key string, r io.Reader) error
+	GetStream(key string) (io.ReadCloser, error)
 }
 
 // ObjectInfo describes a stored object.
@@ -63,6 +71,15 @@ func (s *Local) Put(key string, data []byte) error {
 	return file.WriteAtomic(s.FS, path, data, 0o600)
 }
 
+// PutStream writes an object from a streaming reader without buffering all in memory.
+func (s *Local) PutStream(key string, r io.Reader) error {
+	path, err := s.path(key)
+	if err != nil {
+		return err
+	}
+	return file.WriteStream(s.FS, path, r, 0o600)
+}
+
 // Get returns an object's complete contents.
 func (s *Local) Get(key string) ([]byte, error) {
 	path, err := s.path(key)
@@ -70,6 +87,19 @@ func (s *Local) Get(key string) ([]byte, error) {
 		return nil, err
 	}
 	return file.Read(s.FS, path)
+}
+
+// GetStream returns an io.ReadCloser for streaming object contents.
+func (s *Local) GetStream(key string) (io.ReadCloser, error) {
+	path, err := s.path(key)
+	if err != nil {
+		return nil, err
+	}
+	rc, err := s.FS.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("storage: open stream %q: %w", key, err)
+	}
+	return rc, nil
 }
 
 // Delete removes an object.
@@ -98,3 +128,4 @@ func (s *Local) Stat(key string) (ObjectInfo, error) {
 }
 
 var _ Store = (*Local)(nil)
+var _ StreamStore = (*Local)(nil)

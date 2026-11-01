@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/krewire/krewire/pkg/fs"
 )
@@ -170,7 +171,76 @@ func enforcePerm(fsys fs.FileSystem, name string, perm os.FileMode) error {
 	return nil
 }
 
-// Copy copies all bytes from src to dst.
+var copyBufPool = sync.Pool{
+	New: func() any {
+		b := make([]byte, 32*1024)
+		return &b
+	},
+}
+
+type openFiler interface {
+	OpenFile(name string, flag int, perm os.FileMode) (*os.File, error)
+}
+
+type fileCreator interface {
+	Create(name string) (*os.File, error)
+}
+
+// WriteStream writes data from reader r to name using streaming io.CopyBuffer.
+func WriteStream(fsys fs.FileSystem, name string, r io.Reader, perm os.FileMode) error {
+	if fsys == nil {
+		fsys = fs.Default
+	}
+	fsys, perm, err := prepareWrite(fsys, name, perm)
+	if err != nil {
+		return err
+	}
+	if of, ok := fsys.(openFiler); ok {
+		out, err := of.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+		if err != nil {
+			return fmt.Errorf("file: open %q for write: %w", name, err)
+		}
+		defer out.Close()
+
+		bufPtr := copyBufPool.Get().(*[]byte)
+		defer copyBufPool.Put(bufPtr)
+
+		if _, err := io.CopyBuffer(out, r, *bufPtr); err != nil {
+			return fmt.Errorf("file: write stream to %q: %w", name, err)
+		}
+		if err := out.Close(); err != nil {
+			return fmt.Errorf("file: close %q: %w", name, err)
+		}
+		return enforcePerm(fsys, name, perm)
+	}
+
+	if fc, ok := fsys.(fileCreator); ok {
+		out, err := fc.Create(name)
+		if err != nil {
+			return fmt.Errorf("file: create %q: %w", name, err)
+		}
+		defer out.Close()
+
+		bufPtr := copyBufPool.Get().(*[]byte)
+		defer copyBufPool.Put(bufPtr)
+
+		if _, err := io.CopyBuffer(out, r, *bufPtr); err != nil {
+			return fmt.Errorf("file: write stream to %q: %w", name, err)
+		}
+		if err := out.Close(); err != nil {
+			return fmt.Errorf("file: close %q: %w", name, err)
+		}
+		return enforcePerm(fsys, name, perm)
+	}
+
+	data, err := io.ReadAll(r)
+	if err != nil {
+		return fmt.Errorf("file: read stream: %w", err)
+	}
+	return Write(fsys, name, data, perm)
+}
+
+// Copy copies all bytes from src to dst using streaming io.CopyBuffer.
 func Copy(fsys fs.FileSystem, dst, src string, perm os.FileMode) error {
 	if fsys == nil {
 		fsys = fs.Default
@@ -180,9 +250,6 @@ func Copy(fsys fs.FileSystem, dst, src string, perm os.FileMode) error {
 		return fmt.Errorf("file: open %q: %w", src, err)
 	}
 	defer in.Close()
-	data, err := io.ReadAll(in)
-	if err != nil {
-		return fmt.Errorf("file: read %q: %w", src, err)
-	}
-	return Write(fsys, dst, data, perm)
+
+	return WriteStream(fsys, dst, in, perm)
 }

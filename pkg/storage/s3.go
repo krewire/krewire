@@ -107,31 +107,66 @@ func (s *S3Store) Put(key string, data []byte) error {
 	return nil
 }
 
-// Get downloads an object from S3.
-func (s *S3Store) Get(key string) ([]byte, error) {
+// PutStream uploads an object to S3 from a streaming reader without buffering in memory.
+func (s *S3Store) PutStream(key string, r io.Reader) error {
+	url := s.objectURL(key)
+	req, err := http.NewRequest(http.MethodPut, url, r)
+	if err != nil {
+		return fmt.Errorf("storage: build s3 put stream request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/octet-stream")
+	s.signStreamRequest(req)
+
+	res, err := s.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("storage: s3 put stream %q failed: %w", key, err)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		body, _ := io.ReadAll(res.Body)
+		return fmt.Errorf("storage: s3 put stream %q error (status %d): %s", key, res.StatusCode, string(body))
+	}
+	return nil
+}
+
+// GetStream downloads an object from S3 as a stream.
+func (s *S3Store) GetStream(key string) (io.ReadCloser, error) {
 	url := s.objectURL(key)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("storage: build s3 get request: %w", err)
+		return nil, fmt.Errorf("storage: build s3 get stream request: %w", err)
 	}
 
 	s.signRequest(req, nil)
 
 	res, err := s.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("storage: s3 get %q failed: %w", key, err)
+		return nil, fmt.Errorf("storage: s3 get stream %q failed: %w", key, err)
 	}
-	defer res.Body.Close()
 
 	if res.StatusCode == http.StatusNotFound {
+		res.Body.Close()
 		return nil, ErrNotFound
 	}
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		body, _ := io.ReadAll(res.Body)
-		return nil, fmt.Errorf("storage: s3 get %q error (status %d): %s", key, res.StatusCode, string(body))
+		res.Body.Close()
+		return nil, fmt.Errorf("storage: s3 get stream %q error (status %d): %s", key, res.StatusCode, string(body))
 	}
 
-	return io.ReadAll(res.Body)
+	return res.Body, nil
+}
+
+// Get downloads an object from S3.
+func (s *S3Store) Get(key string) ([]byte, error) {
+	rc, err := s.GetStream(key)
+	if err != nil {
+		return nil, err
+	}
+	defer rc.Close()
+	return io.ReadAll(rc)
 }
 
 // Delete removes an object from S3.
@@ -228,6 +263,47 @@ func (s *S3Store) signRequest(req *http.Request, payload []byte) {
 	req.Header.Set("Authorization", authHeader)
 }
 
+// signStreamRequest applies AWS SigV4 authorization headers with UNSIGNED-PAYLOAD for streaming.
+func (s *S3Store) signStreamRequest(req *http.Request) {
+	if s.accessKey == "" || s.secretKey == "" {
+		return
+	}
+
+	t := time.Now().UTC()
+	amzDate := t.Format("20060102T150405Z")
+	dateStamp := t.Format("20060102")
+
+	req.Header.Set("x-amz-date", amzDate)
+	host := req.URL.Host
+	req.Header.Set("Host", host)
+
+	payloadHash := "UNSIGNED-PAYLOAD"
+	req.Header.Set("x-amz-content-sha256", payloadHash)
+
+	canonicalURI := req.URL.Path
+	if canonicalURI == "" {
+		canonicalURI = "/"
+	}
+
+	canonicalHeaders := fmt.Sprintf("host:%s\nx-amz-content-sha256:%s\nx-amz-date:%s\n",
+		host, payloadHash, amzDate)
+	signedHeaders := "host;x-amz-content-sha256;x-amz-date"
+
+	canonicalReq := fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s",
+		req.Method, canonicalURI, req.URL.RawQuery, canonicalHeaders, signedHeaders, payloadHash)
+
+	credentialScope := fmt.Sprintf("%s/%s/s3/aws4_request", dateStamp, s.region)
+	stringToSign := fmt.Sprintf("AWS4-HMAC-SHA256\n%s\n%s\n%s",
+		amzDate, credentialScope, sha256Hex([]byte(canonicalReq)))
+
+	signingKey := getSignatureKey(s.secretKey, dateStamp, s.region, "s3")
+	signature := hex.EncodeToString(hmacSHA256(signingKey, []byte(stringToSign)))
+
+	authHeader := fmt.Sprintf("AWS4-HMAC-SHA256 Credential=%s/%s, SignedHeaders=%s, Signature=%s",
+		s.accessKey, credentialScope, signedHeaders, signature)
+	req.Header.Set("Authorization", authHeader)
+}
+
 func sha256Hex(b []byte) string {
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:])
@@ -248,3 +324,4 @@ func getSignatureKey(key, dateStamp, regionName, serviceName string) []byte {
 }
 
 var _ Store = (*S3Store)(nil)
+var _ StreamStore = (*S3Store)(nil)

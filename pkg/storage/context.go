@@ -23,8 +23,8 @@ func NewMemory() (*Local, error) {
 	return NewLocal("memory", kfs.NewMemory())
 }
 
-// PutReaderContext stores all bytes read from r, honoring context before and
-// after the read and write operations.
+// PutReaderContext stores all bytes read from r using streaming transfer,
+// honoring context before and after the write operation.
 func (s *Local) PutReaderContext(ctx context.Context, key string, r io.Reader) error {
 	if err := contextError(ctx); err != nil {
 		return err
@@ -32,14 +32,10 @@ func (s *Local) PutReaderContext(ctx context.Context, key string, r io.Reader) e
 	if r == nil {
 		return fmt.Errorf("storage: reader must not be nil")
 	}
-	data, err := io.ReadAll(r)
-	if err != nil {
-		return fmt.Errorf("storage: read object %q: %w", key, err)
-	}
-	if err := contextError(ctx); err != nil {
+	if err := s.PutStream(key, r); err != nil {
 		return err
 	}
-	return s.PutContext(ctx, key, data)
+	return contextError(ctx)
 }
 
 // PutContext stores an object while checking context cancellation.

@@ -1,6 +1,7 @@
 package file
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"os"
@@ -327,5 +328,40 @@ func TestWriteAtomic_UnpredictableTempName(t *testing.T) {
 		if len(suffix) != 32 {
 			t.Errorf("temporary name carries %d hex chars, want 32: %s", len(suffix), name)
 		}
+	}
+}
+
+func TestCopy_LargeFileStreaming(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "large_src.bin")
+	dst := filepath.Join(dir, "large_dst.bin")
+
+	size := 2 * 1024 * 1024
+	data := make([]byte, size)
+	for i := range data {
+		data[i] = byte(i % 256)
+	}
+	if err := os.WriteFile(src, data, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := Copy(fs.Default, dst, src, 0o644); err != nil {
+		t.Fatalf("Copy failed: %v", err)
+	}
+
+	dstInfo, err := os.Stat(dst)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if dstInfo.Size() != int64(size) {
+		t.Fatalf("copied size = %d, want %d", dstInfo.Size(), size)
+	}
+
+	dstData, err := os.ReadFile(dst)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(dstData, data) {
+		t.Fatal("destination file contents mismatch")
 	}
 }

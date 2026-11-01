@@ -25,7 +25,11 @@ type FileSystem interface {
 type OS struct{}
 
 func (OS) Open(name string) (io.ReadCloser, error) { return os.Open(name) }
-func (OS) ReadFile(name string) ([]byte, error)    { return os.ReadFile(name) }
+func (OS) OpenFile(name string, flag int, perm fs.FileMode) (*os.File, error) {
+	return os.OpenFile(name, flag, perm)
+}
+func (OS) Create(name string) (*os.File, error) { return os.Create(name) }
+func (OS) ReadFile(name string) ([]byte, error) { return os.ReadFile(name) }
 func (OS) WriteFile(name string, data []byte, perm fs.FileMode) error {
 	return os.WriteFile(name, data, perm)
 }

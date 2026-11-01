@@ -1,8 +1,10 @@
 package storage
 
 import (
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -103,5 +105,32 @@ func TestStore_MemoryBackend(t *testing.T) {
 	}
 	if string(got) != "v" {
 		t.Errorf("Get = %q", got)
+	}
+}
+
+func TestLocal_StreamingAPIs(t *testing.T) {
+	store, err := NewLocal(t.TempDir(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var _ StreamStore = store
+
+	content := "chunked-stream-payload"
+	if err := store.PutStream("stream/test.txt", strings.NewReader(content)); err != nil {
+		t.Fatalf("PutStream: %v", err)
+	}
+
+	rc, err := store.GetStream("stream/test.txt")
+	if err != nil {
+		t.Fatalf("GetStream: %v", err)
+	}
+	defer rc.Close()
+
+	got, err := io.ReadAll(rc)
+	if err != nil {
+		t.Fatalf("ReadAll: %v", err)
+	}
+	if string(got) != content {
+		t.Fatalf("stream content = %q, want %q", string(got), content)
 	}
 }
