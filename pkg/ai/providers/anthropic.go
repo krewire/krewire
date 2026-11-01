@@ -246,8 +246,27 @@ func (p *AnthropicProvider) Stream(ctx context.Context, req ai.CompletionRequest
 		defer resp.Body.Close()
 		defer close(ch)
 
+		stop := context.AfterFunc(ctx, func() {
+			resp.Body.Close()
+		})
+		defer stop()
+
+		sendChunk := func(chunk ai.StreamChunk) bool {
+			select {
+			case ch <- chunk:
+				return true
+			case <-ctx.Done():
+				return false
+			}
+		}
+
 		scanner := bufio.NewScanner(resp.Body)
 		for scanner.Scan() {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 			line := scanner.Text()
 			if !strings.HasPrefix(line, "data: ") {
 				continue
@@ -262,15 +281,17 @@ func (p *AnthropicProvider) Stream(ctx context.Context, req ai.CompletionRequest
 			}
 			if err := json.Unmarshal([]byte(data), &event); err == nil {
 				if event.Type == "content_block_delta" && event.Delta.Text != "" {
-					ch <- ai.StreamChunk{Delta: event.Delta.Text}
+					if !sendChunk(ai.StreamChunk{Delta: event.Delta.Text}) {
+						return
+					}
 				} else if event.Type == "message_stop" {
-					ch <- ai.StreamChunk{Done: true}
+					sendChunk(ai.StreamChunk{Done: true})
 					return
 				}
 			}
 		}
-		if err := scanner.Err(); err != nil && !errors.Is(err, io.EOF) {
-			ch <- ai.StreamChunk{Error: err}
+		if err := scanner.Err(); err != nil && !errors.Is(err, io.EOF) && ctx.Err() == nil {
+			sendChunk(ai.StreamChunk{Error: err})
 		}
 	}()
 

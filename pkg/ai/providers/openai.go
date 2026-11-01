@@ -265,15 +265,34 @@ func (p *OpenAIProvider) Stream(ctx context.Context, req ai.CompletionRequest) (
 		defer resp.Body.Close()
 		defer close(ch)
 
+		stop := context.AfterFunc(ctx, func() {
+			resp.Body.Close()
+		})
+		defer stop()
+
+		sendChunk := func(chunk ai.StreamChunk) bool {
+			select {
+			case ch <- chunk:
+				return true
+			case <-ctx.Done():
+				return false
+			}
+		}
+
 		scanner := bufio.NewScanner(resp.Body)
 		for scanner.Scan() {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 			line := scanner.Text()
 			if !strings.HasPrefix(line, "data: ") {
 				continue
 			}
 			data := strings.TrimPrefix(line, "data: ")
 			if strings.TrimSpace(data) == "[DONE]" {
-				ch <- ai.StreamChunk{Done: true}
+				sendChunk(ai.StreamChunk{Done: true})
 				return
 			}
 
@@ -288,16 +307,18 @@ func (p *OpenAIProvider) Stream(ctx context.Context, req ai.CompletionRequest) (
 			if err := json.Unmarshal([]byte(data), &chunk); err == nil && len(chunk.Choices) > 0 {
 				delta := chunk.Choices[0].Delta.Content
 				if delta != "" {
-					ch <- ai.StreamChunk{Delta: delta}
+					if !sendChunk(ai.StreamChunk{Delta: delta}) {
+						return
+					}
 				}
 				if chunk.Choices[0].FinishReason != "" {
-					ch <- ai.StreamChunk{Done: true}
+					sendChunk(ai.StreamChunk{Done: true})
 					return
 				}
 			}
 		}
-		if err := scanner.Err(); err != nil {
-			ch <- ai.StreamChunk{Error: err}
+		if err := scanner.Err(); err != nil && ctx.Err() == nil {
+			sendChunk(ai.StreamChunk{Error: err})
 		}
 	}()
 

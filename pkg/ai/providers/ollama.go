@@ -141,8 +141,16 @@ func (p *OllamaProvider) Stream(ctx context.Context, req ai.CompletionRequest) (
 	ch := make(chan ai.StreamChunk, 2)
 	go func() {
 		defer close(ch)
-		ch <- ai.StreamChunk{Delta: resp.Content}
-		ch <- ai.StreamChunk{Done: true}
+		select {
+		case ch <- ai.StreamChunk{Delta: resp.Content}:
+		case <-ctx.Done():
+			return
+		}
+		select {
+		case ch <- ai.StreamChunk{Done: true}:
+		case <-ctx.Done():
+			return
+		}
 	}()
 	return ch, nil
 }

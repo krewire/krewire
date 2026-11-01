@@ -3,9 +3,11 @@ package providers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/krewire/krewire/pkg/ai"
 )
@@ -214,5 +216,100 @@ func TestOllamaProvider_HTTP(t *testing.T) {
 	}
 	if resp.Content != "Hello from Ollama mock" {
 		t.Errorf("expected 'Hello from Ollama mock', got %q", resp.Content)
+	}
+}
+
+func TestStreamCancellation_OpenAI(t *testing.T) {
+	streamStarted := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+		close(streamStarted)
+		for i := 0; ; i++ {
+			chunk := fmt.Sprintf("data: {\"choices\":[{\"delta\":{\"content\":\"chunk-%d\"}}]}\n\n", i)
+			if _, err := w.Write([]byte(chunk)); err != nil {
+				return
+			}
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+	}))
+	defer server.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	client := NewOpenAI("test-key", WithBaseURL(server.URL))
+	ch, err := client.Stream(ctx, ai.CompletionRequest{
+		Model:    "gpt-4o",
+		Messages: []ai.Message{ai.UserMessage("stream please")},
+	})
+	if err != nil {
+		t.Fatalf("Stream error: %v", err)
+	}
+
+	<-streamStarted
+	<-ch
+	cancel()
+
+	select {
+	case _, ok := <-ch:
+		if ok {
+			for range ch {
+			}
+		}
+	case <-time.After(1 * time.Second):
+		t.Fatal("openai stream goroutine did not terminate on context cancellation")
+	}
+}
+
+func TestStreamCancellation_Anthropic(t *testing.T) {
+	streamStarted := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+		close(streamStarted)
+		for i := 0; ; i++ {
+			chunk := fmt.Sprintf("data: {\"type\":\"content_block_delta\",\"delta\":{\"type\":\"text\",\"text\":\"chunk-%d\"}}\n\n", i)
+			if _, err := w.Write([]byte(chunk)); err != nil {
+				return
+			}
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+	}))
+	defer server.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	client := NewAnthropic("test-key")
+	client.BaseURL = server.URL
+	ch, err := client.Stream(ctx, ai.CompletionRequest{
+		Model:    "claude-3-sonnet",
+		Messages: []ai.Message{ai.UserMessage("stream please")},
+	})
+	if err != nil {
+		t.Fatalf("Stream error: %v", err)
+	}
+
+	<-streamStarted
+	<-ch
+	cancel()
+
+	select {
+	case _, ok := <-ch:
+		if ok {
+			for range ch {
+			}
+		}
+	case <-time.After(1 * time.Second):
+		t.Fatal("anthropic stream goroutine did not terminate on context cancellation")
 	}
 }
