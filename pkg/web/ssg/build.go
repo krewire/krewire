@@ -165,6 +165,12 @@ func (s *Site) writeAssets(outDir string) []string {
 	}
 	sort.Strings(names)
 	for _, name := range names {
+		// Declared assets are produced outside the build (plugins write them
+		// straight into outDir). Writing the in-repo source here would clobber
+		// the plugin's artifact, so Build leaves them alone.
+		if s.declared[name] {
+			continue
+		}
 		rel := cleanAssetPath(name)
 		if s.auto.bundle {
 			ext := strings.ToLower(filepath.Ext(rel))
@@ -227,8 +233,14 @@ func (s *Site) WriteBundleAssets(outDir string) []string {
 
 	created, _ := bundler.WriteToDir(res, outDir)
 
-	// Clean up intermediate or loose CSS/JS assets from outDir that have been bundled
+	// Clean up intermediate or loose CSS/JS assets from outDir that have been
+	// bundled. Declared assets are owned by the plugin that produced them, so
+	// Build leaves them in place; deleting one here would make a later bundle
+	// pass fall back to the in-repo source.
 	for _, item := range append(cssItems, jsItems...) {
+		if s.declared[item.Path] {
+			continue
+		}
 		if item.Path != assets.DefaultCSSBundlePath && item.Path != assets.DefaultJSBundlePath {
 			_ = os.Remove(filepath.Join(outDir, filepath.FromSlash(item.Path)))
 		}
@@ -252,6 +264,15 @@ func (s *Site) assetContent(name, outDir string) string {
 		return raw
 	}
 	if content, ok := s.assets[name]; ok && content != "" {
+		// A declared asset is produced outside the build: the in-repo file is
+		// its source (for Tailwind, CSS containing @apply), not its artifact.
+		// When the plugin has written the compiled file into outDir, that file
+		// is what the bundle must contain.
+		if s.declared[name] && outDir != "" {
+			if b, err := os.ReadFile(filepath.Join(outDir, filepath.FromSlash(name))); err == nil {
+				return string(b)
+			}
+		}
 		return content
 	}
 	if outDir != "" {
