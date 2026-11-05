@@ -975,8 +975,36 @@ nav.crumbs .current {
   border: 1px solid var(--neutral);
 }
 
-/* Pre Code Blocks (Terminal / Code Window) */
-.chapter pre {
+/* Code Block Wrapper — Always keeps the copy button fixed in the top-right corner even when horizontally scrolled */
+.code-block-wrapper {
+  position: relative;
+  margin: 1.5rem 0 2rem;
+  border-radius: 12px;
+  border: var(--pop-border);
+  box-shadow: var(--pop-shadow);
+  background: var(--code-bg);
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.code-block-wrapper pre {
+  position: static !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow-x: auto;
+  padding: 1.25rem 1.25rem;
+  padding-right: 5rem !important; /* reserve space so code never flows behind copy button */
+  line-height: 1.6;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Fallback for unwrapped Pre Code Blocks */
+.chapter pre:not(.code-block-wrapper pre) {
   position: relative;
   background: var(--code-bg);
   color: var(--code-fg);
@@ -998,7 +1026,7 @@ nav.crumbs .current {
   color: inherit;
 }
 
-/* Floating Code Copy Button — Always visible in top-right corner */
+/* Floating Code Copy Button — Always in top-right corner relatively */
 .code-copy-btn {
   position: absolute;
   top: 10px;
@@ -1015,6 +1043,27 @@ nav.crumbs .current {
   opacity: 1;
   transition: all 0.15s ease;
   z-index: 10;
+  line-height: 1.4;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Fallback for copy buttons placed directly inside pre */
+pre > .code-copy-btn {
+  position: sticky;
+  top: 10px;
+  right: 10px;
+  float: right;
+  margin-top: -0.25rem;
+  margin-right: -0.25rem;
+}
+
+.code-block-wrapper > .code-copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  float: none;
+  margin: 0;
 }
 
 .code-copy-btn:hover {
@@ -1022,6 +1071,10 @@ nav.crumbs .current {
   color: var(--primary-content);
   border-color: var(--primary);
   transform: translate(-1px, -1px);
+}
+
+.code-copy-btn:active {
+  transform: translate(0, 0);
 }
 
 .code-copy-btn .copied {

@@ -266,15 +266,24 @@
       }
     });
   }
-  // Automatic code block copy button
+  // Automatic code block copy button — wraps pre in non-scrolling wrapper so button is fixed in top-right corner
   document.querySelectorAll('.chapter pre').forEach(function(pre){
+    if (pre.closest('.terminal') || pre.closest('.code-window') || pre.closest('.code-block-wrapper')) return;
+    if (pre.querySelector('.code-copy-btn')) return;
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    pre.parentNode.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+
     var btn = document.createElement('button');
     btn.className = 'code-copy-btn';
+    btn.setAttribute('type', 'button');
     btn.setAttribute('aria-label', 'Copy code to clipboard');
     btn.innerHTML = '<span class="copy-txt">Copy</span>';
     btn.addEventListener('click', function(){
       var code = pre.querySelector('code');
-      var text = code ? code.innerText : pre.innerText;
+      var text = (code ? code.innerText : pre.innerText).replace(/\n$/, '');
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function(){
           btn.innerHTML = '<span class="copy-txt copied">✓ Copied</span>';
@@ -283,6 +292,8 @@
       } else {
         var ta = document.createElement('textarea');
         ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
         document.execCommand('copy');
@@ -291,7 +302,7 @@
         setTimeout(function(){ btn.innerHTML = '<span class="copy-txt">Copy</span>'; }, 2000);
       }
     });
-    pre.appendChild(btn);
+    wrapper.appendChild(btn);
   });
 })();
 </script>{{end}}
