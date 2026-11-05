@@ -244,6 +244,12 @@ func Apply(edits []Edit, root string, dryRun bool) ([]string, error) {
 		targetPath := e.File
 		if root != "" && !filepath.IsAbs(targetPath) {
 			targetPath = filepath.Join(root, targetPath)
+			if _, err := os.Stat(targetPath); os.IsNotExist(err) && e.Module != "" {
+				altPath := filepath.Join(root, e.Module, e.File)
+				if _, aerr := os.Stat(altPath); aerr == nil {
+					targetPath = altPath
+				}
+			}
 		}
 		if dryRun {
 			modified = append(modified, targetPath)
