@@ -450,10 +450,23 @@ func Apply(edits []Edit, root string, dryRun bool) ([]string, error) {
 			return nil, fmt.Errorf("read %s: %w", targetPath, err)
 		}
 		content := string(data)
-		if !strings.Contains(content, e.From) {
-			return nil, fmt.Errorf("%s: target text not found: %q", targetPath, e.From)
+		var replaced string
+		if strings.Contains(content, e.From) {
+			replaced = strings.Replace(content, e.From, e.To, 1)
+		} else {
+			// Try flexible matching for map entries where gofmt aligned colons with multiple spaces/tabs
+			words := strings.Fields(e.From)
+			if len(words) >= 2 {
+				pattern := regexp.QuoteMeta(words[0]) + `\s+` + regexp.QuoteMeta(strings.Join(words[1:], " "))
+				re, err := regexp.Compile(pattern)
+				if err == nil && re.MatchString(content) {
+					replaced = re.ReplaceAllString(content, e.To)
+				}
+			}
+			if replaced == "" {
+				return nil, fmt.Errorf("%s: target text not found: %q", targetPath, e.From)
+			}
 		}
-		replaced := strings.Replace(content, e.From, e.To, 1)
 		if err := os.WriteFile(targetPath, []byte(replaced), 0o644); err != nil {
 			return nil, fmt.Errorf("write %s: %w", targetPath, err)
 		}

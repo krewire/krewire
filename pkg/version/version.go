@@ -181,7 +181,7 @@ func (v Version) IsCompatible(required Version) bool {
 }
 
 // CurrentVersion is the kern module's own version. Bump per release.
-var CurrentVersion = MustParseVersion("0.1.0")
+var CurrentVersion = MustParseVersion("0.2.0")
 
 // CheckEcosystemCompatibility verifies that actual versions satisfy required versions,
 // returning the first compatibility error encountered (fail-fast).
