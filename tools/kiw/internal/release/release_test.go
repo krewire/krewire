@@ -89,3 +89,40 @@ func TestCheckTierCompliance(t *testing.T) {
 		}
 	}
 }
+
+func TestReadEcosystemVersionsAndRequirements(t *testing.T) {
+	root, err := FindWorkspaceRoot()
+	if err != nil {
+		t.Skip("skipping workspace test outside go.work")
+	}
+
+	actual, err := ReadEcosystemActualVersions(root)
+	if err != nil {
+		t.Fatalf("ReadEcosystemActualVersions failed: %v", err)
+	}
+	for _, m := range Modules {
+		if v, ok := actual[m.Name]; !ok || v.String() == "" {
+			t.Errorf("module %s version not read", m.Name)
+		}
+	}
+
+	reqs, err := ReadEcosystemRequirements(root)
+	if err != nil {
+		t.Fatalf("ReadEcosystemRequirements failed: %v", err)
+	}
+	if len(reqs["dash"]) < 3 {
+		t.Errorf("dash requirements = %v, want at least 3", reqs["dash"])
+	}
+}
+
+func TestPlanMinorBumpPropagatesRequirements(t *testing.T) {
+	// When krewire is bumped with BumpMinor, its dependents (krew, auth, cloud, dash)
+	// must receive requirement updates because 0.y caret requires identical minor.
+	edits, err := Plan([]string{string(ModuleKrewire)}, BumpMinor)
+	if err != nil {
+		t.Fatalf("Plan failed: %v", err)
+	}
+	if len(edits) <= 1 {
+		t.Errorf("got %d edits, want edits for krewire plus dependents", len(edits))
+	}
+}

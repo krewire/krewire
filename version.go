@@ -6,7 +6,11 @@ import (
 )
 
 // Version is the master version of the Krewire monorepo and its constituent packages.
-var Version = version.MustParseVersion("0.1.1")
+var Version = version.MustParseVersion("0.1.0")
+
+// EcosystemRequires declares the minimum version of each ecosystem module this monorepo
+// requires. As the core foundation, it has no upstream ecosystem requirements.
+var EcosystemRequires = map[string]version.Version{}
 
 // Tier is the default ecosystem tier assigned to the krewire monorepo.
 // All code in krewire/krewire is 100% open source; all packages are currently

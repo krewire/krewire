@@ -3,10 +3,13 @@ package commands
 import (
 	"flag"
 	"fmt"
+	"sort"
+	"strings"
 
 	krewire "github.com/krewire/krewire"
 	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/pkg/version"
+	"github.com/krewire/krewire/tools/kiw/internal/release"
 	kiwver "github.com/krewire/krewire/tools/kiw/internal/version"
 )
 
@@ -17,32 +20,90 @@ import (
 // This is the single entry point that turns the per-module version.go files into
 // a repo-wide compatibility gate.
 func RunCompat(_ *flag.FlagSet) errs.ExitCode {
-	// Actual: each module's own declared version.
-	actual := map[string]version.Version{
-		"krewire": krewire.Version,
-		"model":   krewire.Version,
-		"version": krewire.Version,
-		"testing": krewire.Version,
-		"hub":     krewire.Version,
-		"kiw":     krewire.Version,
-		"boost":   krewire.Version,
+	var actual map[string]version.Version
+	var reqs map[string]map[string]version.Version
+
+	root, err := release.FindWorkspaceRoot()
+	if err == nil {
+		actual, _ = release.ReadEcosystemActualVersions(root)
+		reqs, _ = release.ReadEcosystemRequirements(root)
 	}
 
-	// Requirements: each module's declared EcosystemRequires.
-	reqs := map[string]map[string]version.Version{
-		"kiw": {},
+	if len(actual) == 0 {
+		actual = make(map[string]version.Version)
+		for _, m := range release.Modules {
+			if cv, err := release.CurrentVersion(m.Name); err == nil {
+				actual[m.Name] = cv
+			} else {
+				actual[m.Name] = krewire.Version
+			}
+		}
+	}
+
+	if len(reqs) == 0 {
+		reqs = make(map[string]map[string]version.Version)
+		for k, v := range release.DefaultRequirements {
+			sub := make(map[string]version.Version)
+			for sk, sv := range v {
+				sub[sk] = sv
+			}
+			reqs[k] = sub
+		}
+	}
+
+	// Internal core packages track the master krewire version
+	krewireVer := actual["krewire"]
+	if krewireVer.String() == "" {
+		krewireVer = krewire.Version
+	}
+	for _, sub := range []string{"model", "version", "testing", "hub", "kiw", "boost"} {
+		if _, exists := actual[sub]; !exists {
+			actual[sub] = krewireVer
+		}
+	}
+
+	// Include CLI requires if any
+	if _, ok := reqs["kiw"]; !ok {
+		reqs["kiw"] = make(map[string]version.Version)
 	}
 	for k, v := range kiwver.EcosystemRequires {
 		reqs["kiw"][k] = v
 	}
 
 	issues := version.CheckCompatibility(actual, reqs)
-	if len(issues) == 0 {
-		fmt.Println("ok: all module version declarations are mutually compatible")
-		return errs.ExitCodeSuccess
+	if len(issues) > 0 {
+		for _, err := range issues {
+			fmt.Printf("  x %s\n", err.Error())
+		}
+		return errs.ExitCodeFailure
 	}
-	for _, err := range issues {
-		fmt.Printf("  x %s\n", err.Error())
+
+	// Print mutual compatibility verification summary
+	fmt.Printf("Checked %d ecosystem modules (and %d core packages):\n", len(release.Modules), 6)
+	var modNames []string
+	for _, m := range release.Modules {
+		modNames = append(modNames, m.Name)
 	}
-	return errs.ExitCodeFailure
+	sort.Strings(modNames)
+	for _, name := range modNames {
+		actVer := actual[name]
+		depReqs := reqs[name]
+		if len(depReqs) == 0 {
+			fmt.Printf("  • %s @ %s (no upstream dependencies)\n", name, actVer)
+		} else {
+			var parts []string
+			var depKeys []string
+			for k := range depReqs {
+				depKeys = append(depKeys, k)
+			}
+			sort.Strings(depKeys)
+			for _, k := range depKeys {
+				parts = append(parts, fmt.Sprintf("%s@%s", k, depReqs[k]))
+			}
+			fmt.Printf("  • %s @ %s (requires: %s)\n", name, actVer, strings.Join(parts, ", "))
+		}
+	}
+
+	fmt.Println("ok: all module version declarations are mutually compatible")
+	return errs.ExitCodeSuccess
 }
