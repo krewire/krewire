@@ -983,6 +983,7 @@ nav.crumbs .current {
   border: var(--pop-border);
   box-shadow: var(--pop-shadow);
   background: var(--code-bg);
+  color: var(--code-fg, #FAF8F4);
   overflow: hidden;
   max-width: 100%;
   box-sizing: border-box;
@@ -995,6 +996,7 @@ nav.crumbs .current {
   box-shadow: none !important;
   border-radius: 0 !important;
   background: transparent !important;
+  color: var(--code-fg, #FAF8F4) !important;
   overflow-x: auto;
   padding: 1.25rem 1.25rem;
   padding-right: 5rem !important; /* reserve space so code never flows behind copy button */
@@ -1003,11 +1005,16 @@ nav.crumbs .current {
   box-sizing: border-box;
 }
 
-/* Fallback for unwrapped Pre Code Blocks */
-.chapter pre:not(.code-block-wrapper pre) {
+.code-block-wrapper pre code {
+  color: var(--code-fg, #FAF8F4);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Fallback for Pre Code Blocks */
+.chapter pre {
   position: relative;
   background: var(--code-bg);
-  color: var(--code-fg);
+  color: var(--code-fg, #FAF8F4);
   padding: 1.25rem 1.25rem;
   overflow-x: auto;
   border-radius: 12px;
@@ -1023,7 +1030,8 @@ nav.crumbs .current {
   padding: 0;
   font-size: 13.5px;
   font-weight: 600;
-  color: inherit;
+  color: var(--code-fg, #FAF8F4);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* Floating Code Copy Button — Always in top-right corner relatively */
