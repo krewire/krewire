@@ -58,4 +58,13 @@ go build -o bin/kiw ./tools/kiw/cmd/kiw
 - **Conventional Commits**: `feat|fix|docs|test|refactor|perf|security|chore(scope): desc`.
 - Atomic commits (≤~300 LOC).
 - Run `git` inside `krewire/`; push to `origin` when the tree is green.
+
+## Versioning, Release & Hotfix Protocol
+
+- **Module Version Contract**: Every module declares its own version and dependencies in `<module>/version.go` (`Version` and `EcosystemRequires`).
+- **Compatibility Verification**: `kiw compat` validates cross-module compatibility dynamically across all 5 workspace modules.
+- **Release Bumping**: Performed using `kiw release --all --bump <kind> --apply`.
+- **Production vs Hotfix Deployment**:
+  - Production releases require stable SemVer tags (`vX.Y.Z`) on `main`.
+  - Emergency hotfixes bypass the release ceremony and tags entirely; they are deployed directly via the dedicated `hotfix` branch (`git checkout hotfix && git merge main --ff-only && git push origin hotfix`). Never tag hotfixes.
 - Never force-push or rewrite published history unless explicitly asked.
