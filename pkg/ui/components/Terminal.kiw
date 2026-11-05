@@ -8,7 +8,7 @@
   </div>
   {#if command}
   <button type="button"
-          class="btn-copy absolute right-2.5 top-1/2 -translate-y-1/2 shrink-0 text-xs font-black px-2.5 py-1 rounded-md bg-secondary text-secondary-content transition-all duration-150 cursor-pointer hover:bg-primary z-10"
+          class="btn-copy shrink-0 text-xs font-black px-2.5 py-1 rounded-md bg-secondary text-secondary-content transition-all duration-150 cursor-pointer hover:bg-primary z-10"
           style="border:var(--pop-border-thin); box-shadow:1.5px 1.5px 0px var(--border)"
           onclick="copyCmd(this, '{command}')">Copy</button>
   {/if}
@@ -16,8 +16,16 @@
 
 <style>
 .terminal {
+  position: relative;
   box-sizing: border-box;
   max-width: 100%;
+}
+.btn-copy {
+  position: absolute;
+  right: 0.625rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
 }
 .btn-copy:hover {
   transform: translateY(-50%) translate(-1px, -1px);

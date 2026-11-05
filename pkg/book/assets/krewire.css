@@ -1090,6 +1090,24 @@ pre > .code-copy-btn {
   font-weight: 900;
 }
 
+/* Terminal Copy Button Fallback */
+.terminal {
+  position: relative !important;
+}
+.terminal .btn-copy {
+  position: absolute !important;
+  right: 0.625rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+}
+.terminal .btn-copy:hover {
+  transform: translateY(-50%) translate(-1px, -1px) !important;
+}
+.terminal .btn-copy:active {
+  transform: translateY(-50%) translate(0px, 0px) !important;
+}
+
 /* Blockquotes / Callout Boxes */
 .chapter blockquote {
   margin: 1.75rem 0;
