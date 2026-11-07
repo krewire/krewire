@@ -188,6 +188,25 @@ func TestDesugarTemplate_NestedComponentInBody(t *testing.T) {
 	}
 }
 
+func TestDesugarTemplate_NamedSlots(t *testing.T) {
+	src := `<Navbar BrandName="Acme">
+  <a href="/docs">Docs</a>
+  <div slot="drawer">
+    <a href="/mobile-docs">Mobile Docs</a>
+  </div>
+</Navbar>`
+	out, err := DesugarTemplate(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, `"Drawer" "<a href=\"/mobile-docs\">Mobile Docs</a>"`) {
+		t.Errorf("expected named slot Drawer in dict, got:\n%s", out)
+	}
+	if !strings.Contains(out, `"Body" "<a href=\"/docs\">Docs</a>"`) {
+		t.Errorf("expected default slot Body in dict without drawer, got:\n%s", out)
+	}
+}
+
 // Nesting must recurse: a grandchild is as invisible as a child was.
 func TestDesugarTemplate_DeeplyNestedComponentInBody(t *testing.T) {
 	out, err := DesugarTemplate(`<Outer><Mid><Inner Label="x" /></Mid></Outer>`)

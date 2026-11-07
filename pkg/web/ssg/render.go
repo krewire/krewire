@@ -401,13 +401,14 @@ func (s *Site) componentDict(values ...any) (map[string]any, error) {
 			return nil, fmt.Errorf("dict: key must be string, got %T", values[i])
 		}
 		var val any = values[i+1]
-		if k == "Body" {
-			if src, ok := values[i+1].(string); ok {
+		if src, ok := values[i+1].(string); ok {
+			if k == "Body" || strings.Contains(src, "<") || strings.Contains(src, "{{") {
 				rendered, err := s.renderFragment(src)
 				if err != nil {
-					return nil, err
+					val = template.HTML(src)
+				} else {
+					val = rendered
 				}
-				val = rendered
 			}
 		}
 		m[k] = val

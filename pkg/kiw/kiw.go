@@ -53,6 +53,8 @@ var (
 	mustacheCompRe    = regexp.MustCompile(`{{\s*component\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
 	mustacheMountRe   = regexp.MustCompile(`{{\s*mount\s+"([^"]+)"\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
 	compAttrRe        = regexp.MustCompile("([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|\\{([^}]*)\\}|([^\\s\"'=<>`]+)))?")
+	namedSlotRe       = regexp.MustCompile(`(?s)<(?:template|div|section)\s+slot=["']([a-zA-Z0-9_-]+)["']>([\s\S]*?)</(?:template|div|section)>`)
+	namedSlotTagRe    = regexp.MustCompile(`(?s)<slot\s+name=["']([a-zA-Z0-9_-]+)["']>([\s\S]*?)</slot>`)
 )
 
 // StyleBlock holds a scoped style block with its attributes.
@@ -257,15 +259,32 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 	}
 
 	if trimmedBody != "" {
-		// A component may contain other components (<Breadcrumb><BreadcrumbItem/></Breadcrumb>).
-		// The body is embedded below as a quoted string literal, so a child tag
-		// left un-desugared would reach the browser as literal text instead of a
-		// component call. Desugar the children first.
-		if desugared, _ := DesugarTemplate(trimmedBody); desugared != "" {
-			trimmedBody = desugared
+		// Extract named slots (<div slot="xyz">...</div>, <slot name="xyz">...</slot>)
+		for _, re := range []*regexp.Regexp{namedSlotRe, namedSlotTagRe} {
+			matches := re.FindAllStringSubmatch(trimmedBody, -1)
+			for _, ns := range matches {
+				slotName := capitalize(ns[1])
+				slotContent := strings.TrimSpace(ns[2])
+				if desugared, _ := DesugarTemplate(slotContent); desugared != "" {
+					slotContent = desugared
+				}
+				call.Props[slotName] = slotContent
+				dictPairs = append(dictPairs, fmt.Sprintf("%q %q", slotName, slotContent))
+			}
+			trimmedBody = strings.TrimSpace(re.ReplaceAllString(trimmedBody, ""))
 		}
-		call.Props["Body"] = trimmedBody
-		dictPairs = append(dictPairs, fmt.Sprintf("%q %q", "Body", trimmedBody))
+
+		if trimmedBody != "" {
+			// A component may contain other components (<Breadcrumb><BreadcrumbItem/></Breadcrumb>).
+			// The body is embedded below as a quoted string literal, so a child tag
+			// left un-desugared would reach the browser as literal text instead of a
+			// component call. Desugar the children first.
+			if desugared, _ := DesugarTemplate(trimmedBody); desugared != "" {
+				trimmedBody = desugared
+			}
+			call.Props["Body"] = trimmedBody
+			dictPairs = append(dictPairs, fmt.Sprintf("%q %q", "Body", trimmedBody))
+		}
 	}
 
 	if hydrateMode != "" {
