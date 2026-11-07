@@ -27,12 +27,14 @@
         <a href="https://dash.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Workspace</a>
         <a href="https://cloud.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Cloud</a>
         <a href="https://auth.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Auth</a>
+        <a href="https://panel.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Panel</a>
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mt-2 mb-1" data-i18n="footer.col_repos">Repositories</strong>
         <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire (core monorepo)</a>
         <a href="https://github.com/krewire/krew" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krew (AI agent)</a>
         <a href="https://github.com/krewire/dash" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">dash (virtual workspace & automation)</a>
         <a href="https://github.com/krewire/cloud" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cloud (control plane)</a>
         <a href="https://github.com/krewire/auth" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">auth (identity & SSO)</a>
+        <a href="https://github.com/krewire/panel" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">panel (server & admin panel)</a>
         <a href="https://github.com/krewire/internal" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">internal (docs hub)</a>
         <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.com (portal)</a>
         <a href="https://github.com/krewire/krewire.github.io" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.github.io (community)</a>
@@ -115,12 +117,14 @@
         <a href="https://dash.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Workspace</a>
         <a href="https://cloud.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Cloud</a>
         <a href="https://auth.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Auth</a>
+        <a href="https://panel.krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">Panel</a>
         <strong class="text-2xs font-black tracking-widest uppercase text-fg dark:text-fg-dark mt-2 mb-1" data-i18n="footer.ecosystem_title">Ecosystem</strong>
         <a href="https://github.com/krewire/krewire" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire (core monorepo)</a>
         <a href="https://github.com/krewire/krew" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krew (AI agent)</a>
         <a href="https://github.com/krewire/dash" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">dash (workspace)</a>
         <a href="https://github.com/krewire/cloud" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">cloud (control plane)</a>
         <a href="https://github.com/krewire/auth" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">auth (identity & SSO)</a>
+        <a href="https://github.com/krewire/panel" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">panel (server & admin panel)</a>
         <a href="https://github.com/krewire/internal" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">internal (docs hub)</a>
         <a href="https://github.com/krewire/krewire.com" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.com (portal)</a>
         <a href="https://github.com/krewire/krewire.github.io" target="_blank" rel="noopener" class="text-sm font-semibold text-muted dark:text-muted-dark hover:text-primary transition-colors">krewire.github.io (community)</a>

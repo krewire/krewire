@@ -37,6 +37,16 @@
             <div class="text-[11px] text-muted dark:text-muted-dark leading-snug mt-0.5">Multi-tenant SSO, MFA &amp; OIDC identity</div>
           </div>
         </a>
+        <a href="https://panel.krewire.com" target="_blank" rel="noopener" class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-colors">
+          <span class="icon-box bg-[#00D1C1] text-sm shrink-0" style="width:30px;height:30px">🎛</span>
+          <div>
+            <div class="text-xs font-black text-fg dark:text-fg-dark flex items-center gap-1.5">
+              <span>Krewire Panel</span>
+              <span class="text-[9px] badge badge-secondary py-0 px-1">Host</span>
+            </div>
+            <div class="text-[11px] text-muted dark:text-muted-dark leading-snug mt-0.5">Self-hosted server &amp; admin control panel</div>
+          </div>
+        </a>
       </div>
     </div>
   </div>

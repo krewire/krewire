@@ -129,6 +129,21 @@
         </div>
       </a>
 
+      <!-- 9. panel -->
+      <a href="https://github.com/krewire/panel" target="_blank" rel="noopener"
+         class="eco-card flex flex-col p-5 rounded-xl no-underline transition-all duration-150 bg-bg dark:bg-bg-dark"
+         style="border:var(--pop-border); box-shadow:var(--pop-shadow)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span class="badge text-2xs font-mono" style="background:#00D1C1; color:#0B1F3B; border:var(--pop-border-thin); box-shadow:var(--pop-shadow-sm)" data-i18n="ecosystem.panel_badge">Server Admin</span>
+          <span class="eco-arrow text-base font-black text-muted dark:text-muted-dark transition-all duration-150">↗</span>
+        </div>
+        <h3 class="text-lg font-black tracking-tight mb-2 text-fg dark:text-fg-dark">panel</h3>
+        <p class="text-sm text-muted dark:text-muted-dark leading-relaxed flex-1 mb-3" data-i18n="ecosystem.panel_desc">Self-hosted server &amp; admin control panel for bare-metal VPS, vHosts, systemd daemons, databases, and firewall.</p>
+        <div class="mt-auto px-2 py-1 rounded-md font-mono text-xs font-bold text-muted dark:text-muted-dark bg-bg-2 dark:bg-bg-dark-2 w-fit" style="border:1.5px solid var(--border)">
+          <code>github.com/krewire/panel</code>
+        </div>
+      </a>
+
     </div>
   </div>
 </section>
