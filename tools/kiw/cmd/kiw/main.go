@@ -22,6 +22,7 @@ func main() {
 		Command(tui.NewCommand("compat", "check version compatibility across all modules", nil, commands.RunCompat).WithGroup("inspect").WithExample("kiw compat")).
 		Command(tui.NewCommand("tier", "inspect open-core tier posture and validate boundary rules", commands.RegisterTier, commands.RunTier).WithGroup("inspect").WithExample("kiw tier --check free")).
 		Command(tui.NewCommand("doctor", "diagnose developer environment, toolchain prerequisites, and workspace", commands.RegisterDoctor, commands.RunDoctor).WithGroup("inspect").WithExample("kiw doctor")).
+		Command(tui.NewCommand("self-update", "update the kiw devtool to the latest stable release", commands.RegisterSelfUpdate, commands.RunSelfUpdate).WithGroup("inspect").WithExample("kiw self-update --check")).
 		Command(tui.NewCommand("new", "scaffold a minimal Krewire bootstrap project", commands.RegisterNew, commands.RunNew).WithGroup("project").WithExample("kiw new my-site")).
 		Command(tui.NewCommand("init", "equip the project with a variant: monolith, --site, --book, --cli, --worker, --service, --gateway, --infra, or --template", commands.RegisterInit, commands.RunInit).WithGroup("project").WithExample("kiw init --site")).
 		Command(tui.NewCommand("build", "build the project for production (site, book, app, cli, worker, service, gateway, infra)", commands.RegisterBuild, commands.RunBuild).WithGroup("build").WithExample("kiw build")).
@@ -34,6 +35,7 @@ func main() {
 		Command(tui.NewCommand("fmt", "check formatting with gofmt/go fmt", commands.RegisterFmt, commands.RunFmt).WithGroup("develop").WithExample("kiw fmt --write")).
 		Command(tui.NewCommand("add", "add a package or plugin (package@version, @latest for latest)", commands.RegisterAdd, commands.RunAdd).WithGroup("project").WithExample("kiw add twcss@latest")).
 		Command(tui.NewCommand("remove", "remove a package or plugin", commands.RegisterRemove, commands.RunRemove).WithGroup("project").WithExample("kiw remove twcss")).
+		Command(tui.NewCommand("update", "update project dependencies to their latest versions", commands.RegisterUpdate, commands.RunUpdate).WithGroup("project").WithExample("kiw update")).
 		Command(tui.NewCommand("deploy", "stage deployable artifacts in .krewire/dist/", commands.RegisterDeploy, commands.RunDeploy).WithGroup("ship").WithExample("kiw deploy --dry-run")).
 		Command(tui.NewCommand("worker", "run background workers / job queues", commands.RegisterWorker, commands.RunWorker).WithGroup("develop").WithExample("kiw worker")).
 		Command(tui.NewCommand("dashboard", "local dev dashboard (services, logs, traces)", commands.RegisterDashboard, commands.RunDashboard).WithGroup("develop").WithExample("kiw dashboard")).

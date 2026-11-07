@@ -12,8 +12,8 @@ USAGE
   kiw help [command]
 
 GROUPS
-  project   new · init · add · remove · make
-  inspect   version · info · compat · tier · doctor
+  project   new · init · add · remove · update · make
+  inspect   version · info · compat · tier · doctor · self-update
   build     build · bundle · serve
   develop   run · dev · test · vet · fmt · worker · dashboard · gateway · mcp
   ship      deploy · ws · boost · release
@@ -65,6 +65,17 @@ kiw add github.com/krewire/krewire@v0.1.0
 Uninstalls an external package or deactivates an opt-in plugin.
 ```bash
 kiw remove twcss
+```
+
+### `kiw update [packages...] [flags]`
+Updates project dependencies to their latest compatible versions. When run without arguments, updates all direct and indirect dependencies in `go.mod` and tidies the module files.
+- `--dry-run`: Previews available dependency updates without modifying `go.mod`.
+- `--tidy`: Runs `go mod tidy` after updating (default `true`).
+```bash
+kiw update                      # Update all dependencies in project
+kiw update --dry-run            # Preview available updates
+kiw update krewire ui           # Update specific ecosystem packages
+kiw update github.com/foo/bar   # Update specific external dependency
 ```
 
 ### `kiw make <kind> <name>`
@@ -123,6 +134,18 @@ Inspects the current project's open-core tier (`free` $\rightarrow$ `pro` $\righ
 kiw tier
 kiw tier --check free  # Assert project does not exceed specified tier
 kiw tier --json        # Machine-readable output for CI/CD gates
+```
+
+### `kiw self-update [flags]`
+Checks for and installs the latest stable release of the `kiw` devtool binary.
+- `--check`: Checks if a newer stable version is available without installing.
+- `--force`: Reinstalls or updates even if the tool is already on the latest version.
+- `--dry-run`: Simulates the update process without replacing the binary.
+- `--version <ver>`: Installs a specific target version.
+```bash
+kiw self-update          # Update kiw to latest stable release
+kiw self-update --check  # Check for updates
+kiw self-update --force  # Force reinstall
 ```
 
 ---
