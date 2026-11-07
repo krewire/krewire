@@ -1,6 +1,18 @@
 <nav class="kiw-breadcrumb {class}" {#if id}id="{id}"{/if} aria-label="{#if label}{label}{:else}Breadcrumb{/if}" data-kiw-component="Breadcrumb">
   <ol class="kiw-breadcrumb-list">
-    {body}
+    {#if items}
+      {#each items as item}
+        <li>
+          {#if item.href && !item.current}
+            <a class="kiw-breadcrumb-item" href="{item.href}" data-kiw-component="BreadcrumbItem">{item.label}</a>
+          {:else}
+            <span class="kiw-breadcrumb-item is-current" aria-current="page" data-kiw-component="BreadcrumbItem">{item.label}</span>
+          {/if}
+        </li>
+      {/each}
+    {:else}
+      {body}
+    {/if}
   </ol>
 </nav>
 

@@ -1,4 +1,27 @@
-<nav class="side-menu" id="site-toc" aria-label="Documentation Table of Contents">
+<nav class="side-menu {class}" id="{#if id}{id}{:else}site-toc{/if}" aria-label="{#if label}{label}{:else}Documentation Table of Contents{/if}">
+  {#if body}
+    {body}
+  {:else if groups}
+    {#each groups as g}
+      <div class="toc-group open" data-group>
+        <div class="toc-parent-row">
+          <a href="{g.href}" class="toc-link">{g.title}</a>
+          {#if g.subs}
+            <button class="toc-toggle" type="button" aria-expanded="true" aria-label="Toggle submenu">
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+            </button>
+          {/if}
+        </div>
+        {#if g.subs}
+          <div class="toc-subs">
+            {#each g.subs as s}
+              <a href="{s.href}" class="toc-sub">{s.title}</a>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    {/each}
+  {:else if showDocMenu}
   <div class="toc-group open" data-group>
     <div class="toc-parent-row">
       <a href="/docs/overview" class="toc-link">1. Overview</a>
@@ -86,6 +109,7 @@
       <a href="/docs/guides/deployment-and-operations" class="toc-sub">6.2 Deployment & Operations</a>
     </div>
   </div>
+  {/if}
 </nav>
 
 <style>

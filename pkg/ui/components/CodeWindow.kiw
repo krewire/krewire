@@ -6,12 +6,14 @@
       <span class="code-window-dot dot-green"></span>
     </div>
     <span class="code-window-title font-mono">{#if title}{title}{:else}terminal{/if}</span>
-    <button type="button" class="btn-copy-code" aria-label="Copy code to clipboard" onclick="copyCodeWindow(this)">Copy</button>
+    {#if actions}
+      {actions}
+    {:else if !hideCopy}
+      <button type="button" class="btn-copy-code" aria-label="Copy code to clipboard" onclick="copyCodeWindow(this)">Copy</button>
+    {/if}
   </div>
-  <pre class="code-window-pre"><code class="code-window-code">{#if body}{body}{:else}<span class="c"># Krewire Devtool</span>
-<span class="p">$ </span><span class="k">kiw</span> new my-project --site
-<span class="p">$ </span><span class="k">cd</span> my-project && <span class="k">kiw</span> dev
-<span class="t">✓ Ready at http://localhost:8080</span>{/if}</code></pre>
+  <pre class="code-window-pre"><code class="code-window-code">{#if body}{body}{:else if code}{code}{:else if showDefaultSample}<span class="c"># Terminal Shell</span>
+<span class="p">$ </span><span>echo "Hello, world!"</span>{/if}</code></pre>
 </div>
 
 <style>

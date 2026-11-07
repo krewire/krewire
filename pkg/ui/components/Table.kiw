@@ -1,6 +1,27 @@
 <div class="kiw-table-wrapper {class}" class:is-bordered={bordered} {#if id}id="{id}"{/if} data-kiw-component="Table">
   <table class="kiw-table" class:is-striped={striped} class:is-hover={hover}>
-    {body}
+    {#if headers}
+      <thead>
+        <tr>
+          {#each headers as h}
+            <th>{h}</th>
+          {/each}
+        </tr>
+      </thead>
+    {/if}
+    {#if rows}
+      <tbody>
+        {#each rows as row}
+          <tr>
+            {#each row as cell}
+              <td>{cell}</td>
+            {/each}
+          </tr>
+        {/each}
+      </tbody>
+    {:else}
+      {body}
+    {/if}
   </table>
 </div>
 

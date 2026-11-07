@@ -1,15 +1,27 @@
 <dialog class="modal-dialog {class}" id="{id}">
   <div class="modal-box">
+    {#if header}
+      {header}
+    {:else if head}
+      {head}
+    {:else if title || !hideClose}
     <div class="modal-head">
-      <h3 class="modal-title">{title}</h3>
+      {#if title}<h3 class="modal-title">{title}</h3>{/if}
+      {#if !hideClose}
       <button type="button" class="modal-close" aria-label="Close dialog" onclick="this.closest('dialog').close()">✕</button>
+      {/if}
     </div>
+    {/if}
     <div class="modal-body">
       {#if body}{body}{/if}
     </div>
     {#if footer}
     <div class="modal-footer">
       {footer}
+    </div>
+    {:else if actions}
+    <div class="modal-footer modal-actions">
+      {actions}
     </div>
     {/if}
   </div>

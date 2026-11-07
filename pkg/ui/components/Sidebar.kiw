@@ -1,15 +1,24 @@
-<aside class="site-sidebar" id="site-sidebar" aria-label="Sidebar">
-  <div class="sidebar-head flex items-center justify-between mb-3">
-    <span class="sidebar-title text-xs font-black tracking-wider uppercase text-muted dark:text-muted-dark">{#if title}{title}{:else}Navigate{/if}</span>
-    <button class="md:hidden btn w-8 h-8 p-0 min-h-0 flex items-center justify-center text-lg sidebar-close" id="site-sidebar-close" aria-label="Close navigation">×</button>
-  </div>
+<aside class="site-sidebar" id="{#if id}{id}{:else}site-sidebar{/if}" aria-label="{#if label}{label}{:else}Sidebar{/if}">
+  {#if head}
+    {head}
+  {:else if header}
+    {header}
+  {:else}
+    <div class="sidebar-head flex items-center justify-between mb-3">
+      <span class="sidebar-title text-xs font-black tracking-wider uppercase text-muted dark:text-muted-dark">{#if title}{title}{:else}Navigate{/if}</span>
+      <button class="md:hidden btn w-8 h-8 p-0 min-h-0 flex items-center justify-center text-lg sidebar-close" id="{#if id}{id}{:else}site-sidebar{/if}-close" aria-label="Close navigation">×</button>
+    </div>
+  {/if}
+
   {#if body}
     {body}
-  {:else}
-    <SideMenu />
+  {:else if menu}
+    {menu}
+  {:else if showDocMenu}
+    <SideMenu showDocMenu=true />
   {/if}
 </aside>
-<div class="sidebar-overlay" id="site-sidebar-overlay" aria-hidden="true"></div>
+<div class="sidebar-overlay" id="{#if id}{id}{:else}site-sidebar{/if}-overlay" aria-hidden="true"></div>
 
 <style>
 .site-sidebar {

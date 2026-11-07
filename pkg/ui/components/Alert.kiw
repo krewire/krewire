@@ -12,6 +12,11 @@
   <div class="alert-content">
     {#if title}<strong class="alert-title">{title}</strong>{/if}
     <div class="alert-message">{#if message}{message}{:else if body}{body}{/if}</div>
+    {#if actions}
+    <div class="alert-actions mt-2">{actions}</div>
+    {:else if action}
+    <div class="alert-actions mt-2">{action}</div>
+    {/if}
   </div>
   {#if dismissible}
   <button type="button" class="alert-close" aria-label="Dismiss alert" onclick="this.closest('.alert').remove()">×</button>

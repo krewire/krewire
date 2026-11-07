@@ -10,7 +10,7 @@
 <span class="kiw-avatar kiw-avatar-{#if size}{size}{:else}md{/if} kiw-avatar-{#if shape}{shape}{:else}circle{/if} kiw-avatar-initials {class}"
       {#if id}id="{id}"{/if}
       {#if alt}role="img" aria-label="{alt}"{:else}aria-hidden="true"{/if}
-      data-kiw-component="Avatar">{initials}</span>
+      data-kiw-component="Avatar">{#if body}{body}{:else}{initials}{/if}</span>
 {/if}
 
 <style>

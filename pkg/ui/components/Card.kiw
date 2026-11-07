@@ -1,5 +1,14 @@
 <div class="{{class "card" .Variant "default" .Class}}">
-  {#if title || badge}
+  {#if media}
+  <div class="card-media">{media}</div>
+  {:else if image}
+  <div class="card-media">{image}</div>
+  {/if}
+  {#if header}
+    {header}
+  {:else if head}
+    {head}
+  {:else if title || badge}
   <div class="card-head">
     <div class="card-titles">
       {#if title}<h3 class="card-title">{title}</h3>{/if}
@@ -7,6 +16,9 @@
     </div>
     {#if badge}
     <span class="card-badge">{badge}</span>
+    {/if}
+    {#if actions}
+    <div class="card-actions">{actions}</div>
     {/if}
   </div>
   {/if}

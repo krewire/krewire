@@ -1,7 +1,7 @@
 
-<div class="callout {type}">
-  <strong>{title}</strong>
-  <p>{body}</p>
+<div class="callout {#if type}{type}{:else}info{/if}">
+  {#if title}<strong>{title}</strong>{/if}
+  {#if body}<p>{body}</p>{/if}
 </div>
 
 <style>

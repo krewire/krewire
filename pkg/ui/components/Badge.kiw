@@ -1,6 +1,6 @@
 <span class="{{class "badge" .Variant "neutral" .Size "md" .Class}}">
   {#if dot}<span class="badge-dot" aria-hidden="true"></span>{/if}
-  <span class="badge-text">{text}</span>
+  <span class="badge-text">{#if body}{body}{:else}{text}{/if}</span>
 </span>
 
 <style>

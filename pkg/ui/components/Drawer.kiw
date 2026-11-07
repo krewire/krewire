@@ -7,7 +7,11 @@
   data-kiw-component="Drawer">
   
   <div class="drawer-panel">
-    {#if title || Title || !noClose && !NoClose}
+    {#if header}
+      {header}
+    {:else if head}
+      {head}
+    {:else if title || Title || !noClose && !NoClose}
     <div class="drawer-head">
       <div class="drawer-title-area">
         {#if title}
@@ -34,6 +38,10 @@
     {#if footer || Footer}
     <div class="drawer-footer">
       {#if footer}{footer}{:else if Footer}{Footer}{/if}
+    </div>
+    {:else if actions}
+    <div class="drawer-footer drawer-actions">
+      {actions}
     </div>
     {/if}
   </div>
