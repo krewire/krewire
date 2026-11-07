@@ -56,7 +56,7 @@ krewire/
     └── new/      # Fresh project scaffolding blueprints
 ```
 
-## Role in the 8-Repository Ecosystem
+## Role in the 9-Repository Ecosystem
 
 Krewire is the core monorepo in the ecosystem:
 1. **krewire** (this repository): Core monorepo containing packages, apps, CLI tooling (`kiw`), and starters.
@@ -64,9 +64,17 @@ Krewire is the core monorepo in the ecosystem:
 3. **cloud**: Private enterprise hybrid PaaS engine and control plane.
 4. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform.
 5. **dash**: Krewire Dash — private enterprise AI-powered virtual workspace.
-6. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
-7. **krewire.com**: Official product website and documentation portal.
-8. **krewire.github.io**: Community portal and guides hub.
+6. **panel**: Krewire Panel — private enterprise self-hosted server & admin control panel.
+7. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
+8. **krewire.com**: Official product website and documentation portal.
+9. **krewire.github.io**: Community portal and guides hub.
+
+## The 3S Pillars (Secure, Sustainable, Scalable)
+
+Every library, tool, and service in Krewire is engineered to pass the **Three Pillars**:
+- **Secure (S1)**: Standard library first to eliminate supply-chain vulnerabilities, secure-by-default HTTP primitives (OWASP/CWE-aligned), context-aware template auto-escaping, CSRF/CORS protection, and secrets referenced via `${env:NAME}` without hardcoding.
+- **Sustainable (S2)**: Modular packages where you only pay for what you import, single static binaries with embedded assets, boring proven technology, a permanent MIT-licensed open-core foundation, and near-zero operational costs allowing workloads to run on a $5 VPS.
+- **Scalable (S3)**: Progressive pipeline (`KWF-ARCH-P7L2Q`) from static sites to distributed cloud mesh without rewrites, reversible provider swapping (SQLite to Postgres, Memory to Redis), and 6-tier Pyramid architecture with Bridge/Gateway decoupling.
 
 ## Prerequisites
 
