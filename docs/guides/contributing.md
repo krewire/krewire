@@ -9,7 +9,7 @@ Guidelines for contributing to the Krewire core monorepo and its constituent pac
 - **English for Stored Artifacts**: Code, documentation, PR titles, and commit messages must be written in English.
 - **Conventional Commits**: Format commit messages as:
   ```text
-  feat(web): add websocket HMR handler (ref #12, req KWF-HMR-001)
+  feat(web): add websocket HMR handler (ref #12)
   fix(cli): handle missing config gracefully
   docs(foundation): clarify layering invariants
   ```

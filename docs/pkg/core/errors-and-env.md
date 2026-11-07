@@ -1,6 +1,6 @@
 # Package: `pkg/errs` & `pkg/env` (Errors, Exit Codes & Logging)
 
-This library pair manages structured error categorization, diagnostic stack traces, process exit codes, and environment-aware logging (`KWL-W0J2X`, `KWL-P8W2N`, `KWL-K4T7W`).
+This library pair manages structured error categorization, diagnostic stack traces, process exit codes, and environment-aware logging.
 
 ---
 

@@ -62,7 +62,7 @@ auto_assets:
   js_placement: "head"      # head | body
   bundle: true
 
-# Build pipeline & foreign dependency orchestration (KWN-BLD5Y)
+# Build pipeline & foreign dependency orchestration
 build:
   base: "/"
   output: ".krewire/build"
@@ -83,7 +83,7 @@ server:
   host: "0.0.0.0"
   port: 8080                # Default port (must be between 1 and 65535)
 
-# Multi-runtime coordination & environment binding (KWN-MRCN, KWN-Q7X4M)
+# Multi-runtime coordination & environment binding
 runtime:
   namespace: "api"          # Prefix for environment variables: KREWIRE_API_<KEY>
   env_file: ".env.local"    # Custom dotenv file path (defaults to .env)
@@ -94,14 +94,14 @@ service:
   name: "auth"
   port: 8081
 
-# Co-located microservices with distinct port allocations (FRK-CONF-032)
+# Co-located microservices with distinct port allocations
 services:
   - name: "auth"
     port: 8081
   - name: "billing"
     port: 8082
 
-# API gateway reverse proxy configuration (KWF-L5H2F)
+# API gateway reverse proxy configuration
 gateway:
   host: "0.0.0.0"
   port: 8080
@@ -149,12 +149,12 @@ worker:
   concurrency: 4
   queues: ["default", "critical"]
 
-# WASM client build (KWF-T4X9P)
+# WASM client build
 wasm:
   entry: "./wasm"           # Main package path (default: ./wasm)
   name: "runtime"           # Output module name (default: runtime)
 
-# Cloud infrastructure blueprint (kind: infra, KWF-B7N3D)
+# Cloud infrastructure blueprint (kind: infra)
 infra:
   provider: "aws"
   region: "ap-southeast-1"
@@ -184,7 +184,7 @@ Krewire coordinates cleanly with other runtimes (Node.js, Laravel/PHP) in the sa
 ### 1. Dotenv Loading & Precedence
 - `kiw` loads `.env` files automatically on boot (`kiw run`, `kiw dev`, `kiw build`).
 - If `runtime.env_file` is specified, that file is loaded with higher precedence over `.env`.
-- If the target env file is missing but `.env.example` exists, `kiw` logs a warning and scaffolds a template `.env` (`KWL-CFGV-005`).
+- If the target env file is missing but `.env.example` exists, `kiw` logs a warning and scaffolds a template `.env`.
 
 ### 2. Namespace Prefixing & Synchronization
 When `runtime.namespace` is declared (e.g. `namespace: "api"`):

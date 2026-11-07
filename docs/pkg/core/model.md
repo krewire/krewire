@@ -1,6 +1,6 @@
 # Package: `pkg/model` (Declarative Domain Models)
 
-The `pkg/model` library declares pure data structures, validation invariants, workload matrices, and scope hierarchies for the Krewire ecosystem (`KWF-M8K2Q`, `KWL-K1N2Q`).
+The `pkg/model` library declares pure data structures, validation invariants, workload matrices, and scope hierarchies for the Krewire ecosystem.
 
 ---
 
@@ -28,7 +28,7 @@ const (
 ```
 
 ### Scope Hierarchy (`Scope`)
-Codifies architectural boundaries (`KWL-ARCH-J2K9Q`):
+Codifies architectural boundaries:
 ```text
 Workspace  ───►  Module  ───►  Domain  ───►  Service  ───►  Unit
 ```

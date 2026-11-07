@@ -30,7 +30,7 @@ import (
 func main() {
     r := web.NewRouter()
 
-    // 1. Cross-Runtime Distributed Tracing & Request ID (KWN-NDV-013)
+    // 1. Cross-Runtime Distributed Tracing & Request ID
     // Extracts W3C "traceparent" header from Node.js/Laravel, or "X-Request-ID",
     // or generates a cryptographically secure random ID.
     r.Use(web.RequestID())

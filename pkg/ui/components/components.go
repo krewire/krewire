@@ -6,4 +6,3 @@ import (
 
 // FS delegates to the canonical Krewire UI (kui) embedded component filesystem.
 var FS = uicomponents.FS
-

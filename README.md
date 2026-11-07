@@ -74,7 +74,7 @@ Krewire is the core monorepo in the ecosystem:
 Every library, tool, and service in Krewire is engineered to pass the **Three Pillars**:
 - **Secure (S1)**: Standard library first to eliminate supply-chain vulnerabilities, secure-by-default HTTP primitives (OWASP/CWE-aligned), context-aware template auto-escaping, CSRF/CORS protection, and secrets referenced via `${env:NAME}` without hardcoding.
 - **Sustainable (S2)**: Modular packages where you only pay for what you import, single static binaries with embedded assets, boring proven technology, a permanent MIT-licensed open-core foundation, and near-zero operational costs allowing workloads to run on a $5 VPS.
-- **Scalable (S3)**: Progressive pipeline (`KWF-ARCH-P7L2Q`) from static sites to distributed cloud mesh without rewrites, reversible provider swapping (SQLite to Postgres, Memory to Redis), and 6-tier Pyramid architecture with Bridge/Gateway decoupling.
+- **Scalable (S3)**: Progressive pipeline from static sites to distributed cloud mesh without rewrites, reversible provider swapping (SQLite to Postgres, Memory to Redis), and 6-tier Pyramid architecture with Bridge/Gateway decoupling.
 
 ## Prerequisites
 

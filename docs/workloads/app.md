@@ -70,7 +70,7 @@ server:
   host: "0.0.0.0"
   port: 8080
 
-# Optional client WASM build (KWF-T4X9P)
+# Optional client WASM build
 wasm:
   entry: "./wasm"     # main package path
   name: "runtime"     # output module name
