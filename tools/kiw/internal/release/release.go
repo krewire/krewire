@@ -24,6 +24,7 @@ const (
 	ModuleCloud   ModuleName = "cloud"
 	ModuleAuth    ModuleName = "auth"
 	ModuleDash    ModuleName = "dash"
+	ModulePanel   ModuleName = "panel"
 )
 
 // Manifest describes a module's location and version file within the workspace.
@@ -42,15 +43,17 @@ var Modules = []Manifest{
 	{Name: "auth", Dir: "auth", VersionFile: "version.go", Tier: model.TierFree},
 	{Name: "cloud", Dir: "cloud", VersionFile: "version.go", Tier: model.TierFree},
 	{Name: "dash", Dir: "dash", VersionFile: "version.go", Tier: model.TierFree},
+	{Name: "panel", Dir: "panel", VersionFile: "version.go", Tier: model.TierFree},
 }
 
 // dependents maps each module to the modules that require it.
 var dependents = map[string][]string{
-	"krewire": {"krew", "auth", "cloud", "dash"},
+	"krewire": {"krew", "auth", "cloud", "dash", "panel"},
 	"krew":    {"dash"},
-	"auth":    {"cloud", "dash"},
+	"auth":    {"cloud", "dash", "panel"},
 	"cloud":   {},
 	"dash":    {},
+	"panel":   {},
 }
 
 // DefaultRequirements maps each module to the static default versions of ecosystem modules it requires.
@@ -69,6 +72,10 @@ var DefaultRequirements = map[string]map[string]version.Version{
 	"dash": {
 		"krewire": krewire.Version,
 		"krew":    krewire.Version,
+		"auth":    krewire.Version,
+	},
+	"panel": {
+		"krewire": krewire.Version,
 		"auth":    krewire.Version,
 	},
 }
@@ -248,7 +255,7 @@ func CurrentTier(name string) (model.Tier, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Tier, nil
-	case ModuleKrew, ModuleCloud, ModuleAuth, ModuleDash:
+	case ModuleKrew, ModuleCloud, ModuleAuth, ModuleDash, ModulePanel:
 		return model.TierFree, nil
 	default:
 		return "", fmt.Errorf("unknown module %q", name)
@@ -300,7 +307,7 @@ func CurrentVersion(name string) (version.Version, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Version, nil
-	case ModuleKrew, ModuleCloud, ModuleAuth, ModuleDash:
+	case ModuleKrew, ModuleCloud, ModuleAuth, ModuleDash, ModulePanel:
 		return krewire.Version, nil
 	default:
 		return version.Version{}, fmt.Errorf("unknown module %q", name)
