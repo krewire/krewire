@@ -1,8 +1,9 @@
 package components
 
-import "embed"
+import (
+	uicomponents "github.com/krewire/ui/components"
+)
 
-// FS embeds all built-in .kiw reusable and atomic UI components provided by Krewire UI.
-//
-//go:embed *.kiw
-var FS embed.FS
+// FS delegates to the canonical Krewire UI (kui) embedded component filesystem.
+var FS = uicomponents.FS
+

@@ -1,7 +1,0 @@
-<li class="kiw-breadcrumb-entry">
-  {#if href}
-  <a class="kiw-breadcrumb-item {class}" href="{href}" {#if target}target="{target}" rel="noopener"{/if} {#if current}aria-current="page"{/if} data-kiw-component="BreadcrumbItem">{label}</a>
-  {:else}
-  <span class="kiw-breadcrumb-item is-current {class}" {#if current}aria-current="page"{/if} data-kiw-component="BreadcrumbItem">{label}</span>
-  {/if}
-</li>
