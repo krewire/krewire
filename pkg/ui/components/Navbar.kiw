@@ -33,6 +33,29 @@
   <!-- Mobile navigation drawer -->
   <Drawer ID="nav-mobile-menu" Side="right" Title="Menu" Class="lg:hidden">
     <div class="flex flex-col gap-1">
+      <div class="px-3 py-1 text-2xs font-black uppercase tracking-wider text-muted dark:text-muted-dark" data-i18n="nav.products">Products</div>
+      <a href="https://dash.krewire.com" target="_blank" rel="noopener" class="mobile-link flex items-center justify-between px-3 py-2.5 rounded-lg font-bold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all">
+        <span class="flex items-center gap-2.5">
+          <span class="icon-box bg-secondary text-xs w-6 h-6 shrink-0 flex items-center justify-center">⚡</span>
+          <span>Krewire Workspace</span>
+        </span>
+        <span class="text-2xs badge badge-secondary">AI</span>
+      </a>
+      <a href="https://cloud.krewire.com" target="_blank" rel="noopener" class="mobile-link flex items-center justify-between px-3 py-2.5 rounded-lg font-bold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all">
+        <span class="flex items-center gap-2.5">
+          <span class="icon-box bg-primary text-xs w-6 h-6 shrink-0 flex items-center justify-center">◈</span>
+          <span>Krewire Cloud</span>
+        </span>
+        <span class="text-2xs badge badge-primary">PaaS</span>
+      </a>
+      <a href="https://auth.krewire.com" target="_blank" rel="noopener" class="mobile-link flex items-center justify-between px-3 py-2.5 rounded-lg font-bold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all">
+        <span class="flex items-center gap-2.5">
+          <span class="icon-box bg-[#FFD000] text-xs w-6 h-6 shrink-0 flex items-center justify-center">🛡</span>
+          <span>Krewire Auth</span>
+        </span>
+        <span class="text-2xs badge badge-muted">ID</span>
+      </a>
+      <hr class="my-2" style="border-color:var(--pop-border); border-width:1.5px">
       <a href="/docs/getting-started" class="mobile-link flex items-center gap-3 px-3 py-3 rounded-lg font-extrabold text-sm text-fg dark:text-fg-dark min-h-[44px] hover:bg-bg-2 dark:hover:bg-bg-dark-2 transition-all duration-150">
         <span class="text-primary w-4 font-black">›</span> <span data-i18n="nav.get_started">Get Started</span>
       </a>
