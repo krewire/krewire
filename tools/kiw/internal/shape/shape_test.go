@@ -216,9 +216,13 @@ func TestDetectAllEightExplicitKinds(t *testing.T) {
 	}
 }
 
-func TestDetectUnknownExplicitKind(t *testing.T) {
-	if _, err := Detect(t.TempDir(), "lambda"); err == nil {
-		t.Error("want error for unknown explicit kind")
+func TestDetectCustomExplicitKind(t *testing.T) {
+	got, err := Detect(t.TempDir(), "lambda")
+	if err != nil {
+		t.Fatalf("unexpected error for custom explicit kind: %v", err)
+	}
+	if got.Kind != Kind("lambda") {
+		t.Errorf("got kind %v, want lambda", got.Kind)
 	}
 }
 

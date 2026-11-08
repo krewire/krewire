@@ -170,16 +170,20 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 	var firstErr errs.ExitCode = errs.ExitCodeSuccess
 
 	// 1. Infra workload dispatch
-	if res.Kind == shape.KindInfra {
+	if res.Capabilities.HasInfra || res.Kind == shape.KindInfra {
 		if code := buildInfra(root, cfg, fs); code != errs.ExitCodeSuccess {
 			return code
 		}
 		built = true
 	}
 
-	// 2. Binary workload dispatch (app, cli, worker, service, gateway)
-	if res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService || res.Kind == shape.KindGateway {
-		if code := buildAppBinary(root, cfg, fs, res.Kind); code != errs.ExitCodeSuccess {
+	// 2. Binary workload dispatch (app, cli, worker, service, gateway, or presence of main.go/cmd)
+	if res.Capabilities.HasApp || res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService || res.Kind == shape.KindGateway {
+		targetKind := res.Kind
+		if targetKind == shape.KindNone || targetKind == shape.KindSite || targetKind == shape.KindBook {
+			targetKind = shape.KindApp
+		}
+		if code := buildAppBinary(root, cfg, fs, targetKind); code != errs.ExitCodeSuccess {
 			return code
 		}
 		built = true

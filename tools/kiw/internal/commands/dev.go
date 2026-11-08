@@ -49,22 +49,25 @@ func RunDev(fs *flag.FlagSet) errs.ExitCode {
 		return errs.ExitCodeUsage
 	}
 
-	switch res.Kind {
-	case shape.KindApp, shape.KindCLI, shape.KindWorker, shape.KindService, shape.KindGateway:
-		return devApp(rt, fs)
-	case shape.KindSite, shape.KindBook:
-		return devSite(rt, fs)
-	case shape.KindInfra:
-		fmt.Fprintln(os.Stderr, "kiw dev: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
-		return errs.ExitCodeUsage
-	default:
-		if res.IsPreInit() {
-			fmt.Fprintln(os.Stderr, "kiw dev: project is not equipped yet — run 'kiw init' to choose a starter")
-			return errs.ExitCodeUsage
-		}
-		fmt.Fprintln(os.Stderr, "kiw dev: no project found — run 'kiw new <project>' first")
+	if res.IsPreInit() {
+		fmt.Fprintln(os.Stderr, "kiw dev: project is not equipped yet — run 'kiw init' to choose a starter")
 		return errs.ExitCodeUsage
 	}
+
+	if res.Kind == shape.KindInfra {
+		fmt.Fprintln(os.Stderr, "kiw dev: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")
+		return errs.ExitCodeUsage
+	}
+
+	if res.Capabilities.HasApp || res.Kind == shape.KindApp || res.Kind == shape.KindCLI || res.Kind == shape.KindWorker || res.Kind == shape.KindService || res.Kind == shape.KindGateway {
+		return devApp(rt, fs)
+	}
+	if res.Capabilities.HasPages || res.Capabilities.HasBook || res.Kind == shape.KindSite || res.Kind == shape.KindBook {
+		return devSite(rt, fs)
+	}
+
+	fmt.Fprintln(os.Stderr, "kiw dev: no project found — run 'kiw new <project>' first")
+	return errs.ExitCodeUsage
 }
 
 // devSite runs a live development server for static sites and book projects,

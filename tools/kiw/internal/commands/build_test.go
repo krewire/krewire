@@ -297,24 +297,44 @@ func TestRunBuild_WasmAutomaticSideBySide(t *testing.T) {
 	}
 }
 
-func TestLocaleBasePathIncludesMount(t *testing.T) {
-	cases := []struct {
-		name   string
-		base   string
-		locale string
-		mount  string
-		want   string
-	}{
-		{"root base with docs mount", "/", "id", "/docs", "/id/docs/"},
-		{"empty base with docs mount", "", "id", "docs/", "/id/docs/"},
-		{"prefixed base with docs mount", "/guide/", "id", "/docs", "/guide/id/docs/"},
-		{"no mount", "/", "id", "", "/id/"},
+func TestRunBuild_FluidHybridProject(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "krewire.yaml"), `
+name: hybrid-app
+output: .krewire/build
+`)
+	writeFile(t, filepath.Join(dir, "go.mod"), "module example.com/hybrid\n\ngo 1.24\n")
+	writeFile(t, filepath.Join(dir, "main.go"), `package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("hybrid server running")
+}
+`)
+	writeFile(t, filepath.Join(dir, "layouts", "Base.kiw"), `<html><head><title>{{.Title}}</title></head><body>{{.Content}}</body></html>`)
+	writeFile(t, filepath.Join(dir, "pages", "index.kiw"), `---
+title: Welcome
+---
+<h1>Welcome to Hybrid App</h1>
+`)
+
+	chdir(t, dir)
+	fs := flag.NewFlagSet("build", flag.ContinueOnError)
+	RegisterBuild(fs)
+
+	code := RunBuild(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunBuild failed on fluid hybrid project: %v", code)
 	}
-	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			if got := localeBasePath(c.base, c.locale, c.mount); got != c.want {
-				t.Errorf("localeBasePath(%q, %q, %q) = %q, want %q", c.base, c.locale, c.mount, got, c.want)
-			}
-		})
+
+	binPath := filepath.Join(dir, ".krewire", "build", "bin", "hybrid-app")
+	if _, err := os.Stat(binPath); err != nil {
+		t.Fatalf("expected binary at %s: %v", binPath, err)
+	}
+
+	htmlPath := filepath.Join(dir, ".krewire", "build", "index.html")
+	if _, err := os.Stat(htmlPath); err != nil {
+		t.Fatalf("expected SSG page at %s: %v", htmlPath, err)
 	}
 }

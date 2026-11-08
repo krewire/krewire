@@ -137,3 +137,25 @@ func TestLoad_BuildDependsOnAndOutputs(t *testing.T) {
 		t.Errorf("Build.Outputs = %v, want 3 mapped outputs", c.Build.Outputs)
 	}
 }
+
+func TestAPIEndpoints(t *testing.T) {
+	c := &Config{}
+	if got := c.APIURL(); got != DefaultAPIURL {
+		t.Errorf("APIURL() = %q, want %q", got, DefaultAPIURL)
+	}
+	if got := c.AuthURL(); got != DefaultAuthAPIURL {
+		t.Errorf("AuthURL() = %q, want %q", got, DefaultAuthAPIURL)
+	}
+	if got := c.CloudURL(); got != DefaultCloudAPIURL {
+		t.Errorf("CloudURL() = %q, want %q", got, DefaultCloudAPIURL)
+	}
+	if got := c.DashURL(); got != DefaultDashAPIURL {
+		t.Errorf("DashURL() = %q, want %q", got, DefaultDashAPIURL)
+	}
+
+	// Environment variable override
+	t.Setenv("KREWIRE_API_URL", "https://api.staging.krewire.com/")
+	if got := c.APIURL(); got != "https://api.staging.krewire.com" {
+		t.Errorf("APIURL() with env override = %q, want %q", got, "https://api.staging.krewire.com")
+	}
+}

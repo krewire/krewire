@@ -9,9 +9,11 @@ func TestProjectValidate(t *testing.T) {
 	}{
 		{Project{Name: "demo", Kind: KindApp}, true},
 		{Project{Name: "my-app", Kind: KindCLI, ModulePath: "example.com/my-app"}, true},
+		{Project{Name: "fluid-proj"}, true},
+		{Project{Name: "custom-proj", Kind: Kind("custom-workload")}, true},
+		{Project{Name: "ws-kind", Kind: Kind("   ")}, false},
 		{Project{Name: "", Kind: KindApp}, false},
 		{Project{Name: "Bad_Name", Kind: KindApp}, false},
-		{Project{Name: "demo", Kind: Kind("unknown")}, false},
 		{Project{Name: "demo", Kind: KindApp, ConfigPath: "krewire.yaml"}, true},
 		{Project{Name: "demo", Kind: KindApp, ConfigPath: "ssg.yaml"}, false},
 		{Project{Name: "demo", Kind: KindApp, ModulePath: "example.com/a/../b"}, false},

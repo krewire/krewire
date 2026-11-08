@@ -46,6 +46,60 @@ go test -v ./pkg/web/...
 go test -v ./tools/kiw/...
 ```
 
+## First-Project Quickstart (Zero to Shipped in 60 Seconds)
+
+Krewire enables an immediate, reproducible onboarding experience with zero npm/node dependencies:
+
+### 1. Scaffold a New Project
+```bash
+kiw new hello-world
+cd hello-world
+```
+*Expected Output*:
+```text
+Created project hello-world (kind: app, module: example.com/hello-world)
+Equipped starter template with main.go and krewire.yaml.
+```
+
+### 2. Inspect Project Shape
+```bash
+kiw info
+```
+*Expected Output*:
+```text
+Project: hello-world
+Shape:   app (main.go)
+Go:      1.24+ (pure Go, CGO_ENABLED=0)
+Output:  .krewire/build
+```
+
+### 3. Build Production Artifacts
+```bash
+kiw build
+```
+*Expected Output*:
+```text
+INFO building binary kind=app entry=. output=.krewire/build/bin/hello-world
+created .krewire/build/bin/hello-world
+```
+
+### 4. Run the Application
+```bash
+kiw run
+```
+*Expected Output*:
+```text
+Starting hello-world...
+HTTP server listening on http://127.0.0.1:8080
+```
+
+### 5. Troubleshooting & FAQ
+- **Error: `kiw: command not found`**: Ensure `$(go env GOPATH)/bin` or `./bin` is added to your `$PATH`.
+- **Port Conflict (`bind: address already in use`)**: Specify a custom port via `PORT=8088 kiw run` or configure `dev.port: 8088` in `krewire.yaml`.
+- **Pure-Go Invariant**: All builds enforce `CGO_ENABLED=0` by default; no host C compilers or native shared libraries are required.
+
+---
+
 ## Developing with `kiw`
 
 Use the local `kiw` binary to test project lifecycle operations:

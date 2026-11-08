@@ -34,13 +34,27 @@ const (
 // with a variant before any workload command can run.
 const MarkerPreInit = "pre-init"
 
+// Capabilities captures every workload capability present in the project.
+type Capabilities struct {
+	HasApp     bool
+	HasPages   bool
+	HasSSG     bool
+	HasBook    bool
+	HasWorker  bool
+	HasService bool
+	HasGateway bool
+	HasInfra   bool
+}
+
 // Result is the outcome of a detection.
 type Result struct {
-	// Kind is the detected project kind.
+	// Kind is the primary detected project kind.
 	Kind Kind
 	// Marker names the file or config key that determined the kind, e.g.
 	// "main.go" or "krewire.yaml#ssg".
 	Marker string
+	// Capabilities details the composable features discovered in the project.
+	Capabilities Capabilities
 }
 
 // IsPreInit reports whether the project is a pre-scaffold bootstrap that must
@@ -57,40 +71,58 @@ func (r Result) String() string {
 	return string(r.Kind)
 }
 
+// IsApp reports whether dir builds an application package main directly from
+// main.go or through cmd/ packages containing func main.
+func IsApp(dir string) bool {
+	return isApp(dir)
+}
+
 // Detect classifies the project rooted at dir. explicitKind, when non-empty,
 // comes from config.project.kind and wins over any marker detection.
 func Detect(dir, explicitKind string) (Result, error) {
+	preInit := isPreInit(dir)
+	caps := Capabilities{
+		HasApp:     !preInit && isApp(dir),
+		HasPages:   isDir(dir, "pages"),
+		HasSSG:     hasYamlKey(dir, "ssg"),
+		HasBook:    isDir(dir, "content"),
+		HasWorker:  hasYamlKey(dir, "worker"),
+		HasService: hasYamlKey(dir, "service"),
+		HasGateway: hasYamlKey(dir, "gateway"),
+		HasInfra:   hasYamlKey(dir, "infra"),
+	}
+
 	if explicitKind != "" {
 		parsed, err := model.ParseKind(explicitKind)
 		if err != nil {
-			return Result{}, fmt.Errorf("shape: unknown project kind %q", explicitKind)
+			return Result{Capabilities: caps}, fmt.Errorf("shape: unknown project kind %q", explicitKind)
 		}
-		return Result{Kind: parsed, Marker: "project.kind"}, nil
+		return Result{Kind: parsed, Marker: "project.kind", Capabilities: caps}, nil
 	}
 
 	// 1. Explicit marker keys in krewire.yaml
 	if hasYamlKey(dir, "worker") {
-		return Result{Kind: KindWorker, Marker: "krewire.yaml#worker"}, nil
+		return Result{Kind: KindWorker, Marker: "krewire.yaml#worker", Capabilities: caps}, nil
 	}
 	if hasYamlKey(dir, "service") {
-		return Result{Kind: KindService, Marker: "krewire.yaml#service"}, nil
+		return Result{Kind: KindService, Marker: "krewire.yaml#service", Capabilities: caps}, nil
 	}
 	if hasYamlKey(dir, "gateway") {
-		return Result{Kind: KindGateway, Marker: "krewire.yaml#gateway"}, nil
+		return Result{Kind: KindGateway, Marker: "krewire.yaml#gateway", Capabilities: caps}, nil
 	}
 	if hasYamlKey(dir, "infra") {
-		return Result{Kind: KindInfra, Marker: "krewire.yaml#infra"}, nil
+		return Result{Kind: KindInfra, Marker: "krewire.yaml#infra", Capabilities: caps}, nil
 	}
 
 	// 2. Pre-scaffold bootstrap (go.mod + krewire.yaml + starter main.go).
 	// This is not a workload kind: the project must be equipped first.
-	if isPreInit(dir) {
-		return Result{Kind: KindNone, Marker: MarkerPreInit}, nil
+	if preInit {
+		return Result{Kind: KindNone, Marker: MarkerPreInit, Capabilities: caps}, nil
 	}
 
 	// 3. Application entry point
 	if isApp(dir) {
-		return Result{Kind: KindApp, Marker: appMarker(dir)}, nil
+		return Result{Kind: KindApp, Marker: appMarker(dir), Capabilities: caps}, nil
 	}
 
 	// 4. Declarative SSG site (ssg: key in krewire.yaml, or pages/ directory)
@@ -99,15 +131,15 @@ func Detect(dir, explicitKind string) (Result, error) {
 		if hasYamlKey(dir, "ssg") {
 			marker = "krewire.yaml#ssg"
 		}
-		return Result{Kind: KindSite, Marker: marker}, nil
+		return Result{Kind: KindSite, Marker: marker, Capabilities: caps}, nil
 	}
 
 	// 5. Content documentation (book)
 	if isDir(dir, "content") {
-		return Result{Kind: KindBook, Marker: "content/"}, nil
+		return Result{Kind: KindBook, Marker: "content/", Capabilities: caps}, nil
 	}
 
-	return Result{Kind: KindNone}, nil
+	return Result{Kind: KindNone, Capabilities: caps}, nil
 }
 
 // isPreInit reports whether dir is a fresh, pre-scaffold bootstrap project.

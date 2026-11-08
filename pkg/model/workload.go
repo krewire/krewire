@@ -2,12 +2,11 @@
 package model
 
 import (
-	"fmt"
-	"github.com/krewire/krewire/pkg/errs"
 	"strings"
 )
 
-// Kind is a Krewire project kind. Eight kinds cover the unified workload spectrum.
+// Kind is a Krewire project kind. The canonical kinds cover common starters,
+// while custom and fluid workloads are supported without artificial restriction.
 type Kind string
 
 const (
@@ -21,12 +20,11 @@ const (
 	KindInfra   Kind = "infra"
 )
 
-// AllKinds lists every valid Kind in canonical order.
+// AllKinds lists every canonical starter Kind in recommended order.
 var AllKinds = []Kind{KindApp, KindCLI, KindSite, KindBook, KindWorker, KindService, KindGateway, KindInfra}
 
-// IsValid reports whether k is one of the eight known kinds. It is derived from
-// AllKinds so the kind list has a single owner.
-func (k Kind) IsValid() bool {
+// IsCanonical reports whether k is one of the eight canonical starter kinds.
+func (k Kind) IsCanonical() bool {
 	for _, kind := range AllKinds {
 		if k == kind {
 			return true
@@ -35,12 +33,16 @@ func (k Kind) IsValid() bool {
 	return false
 }
 
-// ParseKind parses s as a Kind, returning UsageError on unknown.
+// IsValid reports whether k is a valid Kind name. Any non-empty string is valid,
+// enabling projects to evolve freely.
+func (k Kind) IsValid() bool {
+	return strings.TrimSpace(string(k)) != ""
+}
+
+// ParseKind parses s as a Kind, trimming surrounding whitespace.
+// Unknown kinds are accepted to ensure projects can evolve fluidly.
 func ParseKind(s string) (Kind, error) {
 	k := Kind(strings.TrimSpace(s))
-	if !k.IsValid() {
-		return "", errs.UsageError(fmt.Sprintf("unknown project kind %q: want one of %s", s, strings.Join(kindsAsStrings(), ", ")))
-	}
 	return k, nil
 }
 

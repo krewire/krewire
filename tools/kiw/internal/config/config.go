@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/krewire/krewire/pkg/cloud/infra/provider"
 	"github.com/krewire/krewire/pkg/ui"
@@ -17,6 +18,18 @@ import (
 )
 
 const DefaultOutput = ".krewire/build"
+
+// DefaultAPIURL is the canonical endpoint for the unified Krewire API Gateway.
+const DefaultAPIURL = "https://api.krewire.com"
+
+// DefaultAuthAPIURL is the endpoint for central identity and auth routing.
+const DefaultAuthAPIURL = "https://api.krewire.com/auth"
+
+// DefaultCloudAPIURL is the endpoint for hybrid PaaS and workload dispatch.
+const DefaultCloudAPIURL = "https://api.krewire.com/cloud"
+
+// DefaultDashAPIURL is the endpoint for virtual workspaces and dashboard sessions.
+const DefaultDashAPIURL = "https://api.krewire.com/dash"
 
 // DefaultInput is the default content directory consumed by the book
 // build, mirroring the ssg content layout.
@@ -94,6 +107,14 @@ type Config struct {
 	// When set, kiw build iterates over supported locales and generates
 	// localized output trees (e.g. .krewire/build/en/docs/, .../id/docs/).
 	I18n *ssg.I18nConfig `yaml:"i18n"`
+	// API configures central API Gateway routing.
+	API APIConfig `yaml:"api"`
+}
+
+// APIConfig holds settings for the unified API Gateway.
+type APIConfig struct {
+	// URL overrides the central API Gateway endpoint (default: "https://api.krewire.com").
+	URL string `yaml:"url"`
 }
 
 // GatewayConfig holds API gateway configuration under the `gateway:` key (KWF-L5H2F).
@@ -211,6 +232,32 @@ func (c *Config) Kind() string {
 		return ""
 	}
 	return c.Project.Kind
+}
+
+// APIURL returns the effective API Gateway endpoint, respecting KREWIRE_API_URL.
+func (c *Config) APIURL() string {
+	if env := os.Getenv("KREWIRE_API_URL"); env != "" {
+		return strings.TrimRight(env, "/")
+	}
+	if c != nil && c.API.URL != "" {
+		return strings.TrimRight(c.API.URL, "/")
+	}
+	return DefaultAPIURL
+}
+
+// AuthURL returns the central Auth service endpoint.
+func (c *Config) AuthURL() string {
+	return c.APIURL() + "/auth"
+}
+
+// CloudURL returns the Cloud engine endpoint.
+func (c *Config) CloudURL() string {
+	return c.APIURL() + "/cloud"
+}
+
+// DashURL returns the Dash workspace endpoint.
+func (c *Config) DashURL() string {
+	return c.APIURL() + "/dash"
 }
 
 // DeclaredPort returns the port declared in krewire.yaml across runtime.port,

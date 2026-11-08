@@ -8,26 +8,22 @@ func TestParseKind(t *testing.T) {
 	cases := []struct {
 		in   string
 		want Kind
-		ok   bool
 	}{
-		{"app", KindApp, true},
-		{"cli", KindCLI, true},
-		{"worker", KindWorker, true},
-		{"service", KindService, true},
-		{"infra", KindInfra, true},
-		{"gateway", KindGateway, true},
-		{"unknown", "", false},
-		{"", "", false},
+		{"app", KindApp},
+		{"cli", KindCLI},
+		{"worker", KindWorker},
+		{"service", KindService},
+		{"infra", KindInfra},
+		{"gateway", KindGateway},
+		{"custom", Kind("custom")},
+		{"", Kind("")},
 	}
 	for _, c := range cases {
 		got, err := ParseKind(c.in)
-		if c.ok && err != nil {
+		if err != nil {
 			t.Errorf("ParseKind(%q) error = %v, want nil", c.in, err)
 		}
-		if !c.ok && err == nil {
-			t.Errorf("ParseKind(%q) = %v, want error", c.in, got)
-		}
-		if c.ok && got != c.want {
+		if got != c.want {
 			t.Errorf("ParseKind(%q) = %v, want %v", c.in, got, c.want)
 		}
 	}
@@ -37,20 +33,26 @@ func TestKindIsValid(t *testing.T) {
 	if !KindApp.IsValid() {
 		t.Error("KindApp should be valid")
 	}
-	if Kind("nope").IsValid() {
-		t.Error("unknown kind should be invalid")
+	if !Kind("custom-workload").IsValid() {
+		t.Error("custom workload kind should be valid")
+	}
+	if Kind("").IsValid() {
+		t.Error("empty kind should be invalid for IsValid")
+	}
+	if Kind("   ").IsValid() {
+		t.Error("whitespace kind should be invalid for IsValid")
 	}
 }
 
-// IsValid is derived from AllKinds: every listed kind is valid and nothing else.
-func TestIsValidDerivedFromAllKinds(t *testing.T) {
+// IsCanonical is derived from AllKinds: every listed kind is canonical and nothing else.
+func TestIsCanonicalDerivedFromAllKinds(t *testing.T) {
 	for _, k := range AllKinds {
-		if !k.IsValid() {
-			t.Errorf("AllKinds contains %q but IsValid() is false", k)
+		if !k.IsCanonical() {
+			t.Errorf("AllKinds contains %q but IsCanonical() is false", k)
 		}
 	}
-	if Kind("bogus").IsValid() {
-		t.Error(`Kind("bogus").IsValid() = true, want false`)
+	if Kind("bogus").IsCanonical() {
+		t.Error(`Kind("bogus").IsCanonical() = true, want false`)
 	}
 }
 

@@ -35,8 +35,9 @@ func (p Project) Validate() error {
 			return err
 		}
 	}
-	if !p.Kind.IsValid() {
-		return errs.UsageError(fmt.Sprintf("invalid project kind %q", p.Kind))
+	// Kind is optional. When provided, it must not consist solely of whitespace.
+	if p.Kind != "" && strings.TrimSpace(string(p.Kind)) == "" {
+		return errs.UsageError("invalid project kind")
 	}
 	if p.ConfigPath != "" {
 		if err := ValidateKrewireYamlPath(p.ConfigPath); err != nil {

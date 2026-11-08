@@ -6,7 +6,7 @@ The Krewire framework unifies eight software workload kinds under a single decla
 
 ## 1. The Eight Canonical Kinds
 
-Every project in the Krewire ecosystem declares a primary `kind` in its [`krewire.yaml`](../../pkg/model/project.go) file or relies on deterministic filesystem markers:
+Every project in the Krewire ecosystem declares a primary `kind` in its [`krewire.yaml`](../../pkg/model/project.go) file or relies on deterministic filesystem markers. See the comprehensive [Workload Maturity & Readiness Matrix](./maturity-matrix.md) for evidence-based production statuses.
 
 | Kind | Target | Primary Packages | Build / Run Behavior |
 |---|---|---|---|
