@@ -11,6 +11,11 @@
 //   - _txlock=immediate: BEGIN takes the write lock up front, so busy_timeout
 //     also covers transactions that read before they write.
 //
+// Switching a brand-new file to WAL needs an exclusive lock that SQLite does
+// not wait for, so several processes opening the same new file at the same
+// instant can fail with SQLITE_BUSY. Create the database once (for example
+// with `kiw migrate up`) before starting replicas.
+//
 // The driver is opt-in: pkg/orm itself never imports it, so programs that use
 // another database do not link SQLite.
 package sqlite
