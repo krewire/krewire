@@ -8,6 +8,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/krewire/krewire/pkg/term"
 )
 
 // projectKind is one starter offered by `kiw new` and `kiw init`; Flag is the
@@ -33,8 +35,16 @@ var (
 	promptIn    io.Reader = os.Stdin
 	promptOut   io.Writer = os.Stdout
 	interactive           = func() bool {
-		st, err := os.Stdin.Stat()
-		return err == nil && st.Mode()&os.ModeCharDevice != 0
+		if !term.IsTerminal(os.Stdin) || !term.IsTerminal(os.Stdout) {
+			return false
+		}
+		// /dev/null is a character device too; it never answers.
+		in, err := os.Stdin.Stat()
+		if err != nil {
+			return false
+		}
+		null, err := os.Stat(os.DevNull)
+		return err != nil || !os.SameFile(in, null)
 	}
 )
 
