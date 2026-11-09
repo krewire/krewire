@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/krewire/krewire/pkg/errs"
@@ -99,5 +100,18 @@ func main() {}
 	code := RunVet(fs)
 	if code != errs.ExitCodeSuccess {
 		t.Fatalf("got exit code %v, want ExitCodeSuccess (0)", code)
+	}
+}
+
+func TestLintKiwFiles(t *testing.T) {
+	root := t.TempDir()
+	_ = os.MkdirAll(filepath.Join(root, "components"), 0o755)
+	_ = os.MkdirAll(filepath.Join(root, "node_modules", "x"), 0o755)
+	_ = os.WriteFile(filepath.Join(root, "components", "Ok.kiw"), []byte("{#if a}<p>{a}</p>{/if}"), 0o644)
+	_ = os.WriteFile(filepath.Join(root, "components", "Bad.kiw"), []byte("<div>\n{#if a}\n</div>"), 0o644)
+	_ = os.WriteFile(filepath.Join(root, "node_modules", "x", "Skip.kiw"), []byte("{#if"), 0o644)
+	issues := lintKiwFiles(root)
+	if len(issues) != 1 || !strings.HasPrefix(issues[0], "components/Bad.kiw:2:1: {#if} is never closed") {
+		t.Errorf("issues = %q", issues)
 	}
 }

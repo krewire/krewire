@@ -122,19 +122,22 @@ func generateComponent(root, name string) error {
 		return fmt.Errorf("component %q already exists at components/%s.kiw", pascal, pascal)
 	}
 
-	content := fmt.Sprintf(`{{/* components/%s.kiw */}}
-<div class="%s">
-  <h3>{{.Title}}</h3>
-  <slot></slot>
+	content := fmt.Sprintf(`{{/* components/%[1]s.kiw — use as <%[1]s title="…" variant="…">…</%[1]s>.
+     Props are read lower-camel ({title}, {variant}); callers may write
+     title= or Title=, aria-label= or ariaLabel= (lenient prop casing).
+     {body} is the child content of a paired tag. */}}
+<div class="{{class "%[2]s" .Variant "default" .Class}}">
+  {#if title}<h3 class="%[2]s-title">{title}</h3>{/if}
+  {#if body}<div class="%[2]s-body">{body}</div>{/if}
 </div>
 
 <style>
-.%s {
+.%[2]s {
   display: block;
   padding: 1rem;
 }
 </style>
-`, pascal, slug, slug)
+`, pascal, slug)
 
 	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
 		return err
