@@ -28,7 +28,7 @@ Documentation catalog for all 37 domain packages in `github.com/krewire/krewire`
 | `mail` | [`mail.md`](./mail.md) | Multi-driver email delivery system (SMTP, Resend, SendGrid, Postmark, Memory) |
 | `markdown` | [`markdown.md`](./markdown.md) | Markdown-to-HTML rendering and relative link prefixing |
 | `model` | [`model.md`](./model.md) | Pure data models, workload matrix, scopes, tiers, and opt-in rules |
-| `orm` | [`orm.md`](./orm.md) | Pure-Go multi-driver ORM & SQL Query Builder (SQLite, Postgres, MySQL) |
+| `orm` | [`orm.md`](./orm.md) | Pure-Go multi-driver ORM & SQL Query Builder (SQLite, Postgres, MySQL); opt-in SQLite driver (`orm/sqlite`) and migration runner (`orm/migrate`) |
 | `redis` | [`redis.md`](./redis.md) | Pure-Go Redis client: RESP protocol, Strings, Hashes, Lists, Sets, and Pub/Sub |
 | `resilience` | [`resilience.md`](./resilience.md) | Retry policies with exponential backoff and circuit breakers |
 | `runtime` | [`runtime.md`](./runtime.md) | Client WebAssembly VDOM engine, component mounting, reactive widgets |

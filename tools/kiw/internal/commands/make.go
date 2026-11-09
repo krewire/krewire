@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
 )
 
@@ -45,6 +46,8 @@ func RunMake(fs *flag.FlagSet) errs.ExitCode {
 	if kind == "" || name == "" {
 		fmt.Fprintln(os.Stderr, "kiw make: usage: kiw make <kind> <name>")
 		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration, model, middleware, service, job, chapter, doc")
+		fmt.Fprintln(os.Stderr, "example: kiw make component Card")
+		fmt.Fprintln(os.Stderr, "hint: to start from a ready-made kui component instead, run 'kiw ui list' and 'kiw add ui/<name>'")
 		return errs.ExitCodeUsage
 	}
 
@@ -65,6 +68,17 @@ func RunMake(fs *flag.FlagSet) errs.ExitCode {
 }
 
 // Make executes the scaffolding generator for a given kind and artifact name.
+// Migrations go to the directory `kiw migrate` reads (database.migrations).
 func Make(root, kind, name string) error {
+	if strings.EqualFold(kind, "migration") {
+		dir := config.DefaultMigrationsDir
+		if cfg, err := config.Load(root); err == nil {
+			if db, err := cfg.ResolveDatabase(os.LookupEnv, config.DatabaseConfig{}); err == nil {
+				dir = db.Migrations
+			}
+		}
+		_, err := scaffold.MakeMigration(root, dir, name)
+		return err
+	}
 	return scaffold.MakeArtifact(root, kind, name)
 }

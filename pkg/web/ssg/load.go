@@ -77,7 +77,7 @@ func LoadFromDir(root string) (*Site, error) {
 			}
 			name := strings.TrimSuffix(e.Name(), ".kiw")
 			style := strings.Join(mod.Styles, "\n")
-			site.Component(Component{Name: name, Body: mod.Body, Style: style})
+			site.Component(Component{Name: name, Body: mod.Body, Style: style, Source: "kui/" + e.Name(), Raw: mod.Raw})
 		}
 	}
 
@@ -92,7 +92,7 @@ func LoadFromDir(root string) (*Site, error) {
 			continue
 		}
 		style := strings.Join(mod.Styles, "\n")
-		site.Component(Component{Name: name, Body: mod.Body, Style: style})
+		site.Component(Component{Name: name, Body: mod.Body, Style: style, Source: relSource(root, p), Raw: mod.Raw})
 	}
 
 	for _, p := range findKiwFiles(filepath.Join(root, "layouts")) {
@@ -114,7 +114,7 @@ func LoadFromDir(root string) (*Site, error) {
 			site.ScriptAsset(strings.TrimPrefix(spath, "/"), sc)
 			scripts = append(scripts, spath)
 		}
-		site.Layout(Layout{Name: name, Body: mod.Body, Style: style, Scripts: scripts})
+		site.Layout(Layout{Name: name, Body: mod.Body, Style: style, Scripts: scripts, Source: relSource(root, p), Raw: mod.Raw})
 	}
 
 	// Content collections: every dir under content/ is a collection
@@ -225,7 +225,7 @@ func LoadFromDir(root string) (*Site, error) {
 				style := strings.Join(mod.Styles, "\n")
 				compName := "page:" + route
 				if style != "" {
-					site.Component(Component{Name: compName, Body: body, Style: style})
+					site.Component(Component{Name: compName, Body: body, Style: style, Source: relSource(root, p), Raw: mod.Raw})
 					body = ""
 				} else {
 					compName = ""
@@ -236,7 +236,7 @@ func LoadFromDir(root string) (*Site, error) {
 				rootName := compName
 				if rootName == "" {
 					rootName = "page:" + route + ":body"
-					site.Component(Component{Name: rootName, Body: body})
+					site.Component(Component{Name: rootName, Body: body, Source: relSource(root, p), Raw: mod.Raw})
 				}
 				site.Page(Page{
 					Path:   route,
@@ -266,7 +266,7 @@ func LoadFromDir(root string) (*Site, error) {
 		style := strings.Join(mod.Styles, "\n")
 		pageCompName := "page:" + route
 		if style != "" {
-			site.Component(Component{Name: pageCompName, Body: body, Style: style})
+			site.Component(Component{Name: pageCompName, Body: body, Style: style, Source: relSource(root, p), Raw: mod.Raw})
 			body = ""
 		} else {
 			pageCompName = ""
@@ -277,7 +277,7 @@ func LoadFromDir(root string) (*Site, error) {
 		rootName := pageCompName
 		if rootName == "" {
 			rootName = "page:" + route + ":body"
-			site.Component(Component{Name: rootName, Body: body})
+			site.Component(Component{Name: rootName, Body: body, Source: relSource(root, p), Raw: mod.Raw})
 		}
 		var scriptPaths []string
 		for i, sc := range mod.Scripts {
@@ -453,6 +453,14 @@ func strFromFM(fm map[string]any, key, fallback string) string {
 		}
 	}
 	return fallback
+}
+
+// relSource returns path relative to the site root for diagnostics.
+func relSource(root, path string) string {
+	if rel, err := filepath.Rel(root, path); err == nil {
+		return filepath.ToSlash(rel)
+	}
+	return path
 }
 
 func findKiwFiles(dir string) []string {

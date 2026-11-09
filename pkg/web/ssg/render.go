@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	kiwdsl "github.com/krewire/krewire/pkg/kiw"
 	"github.com/krewire/krewire/pkg/runtime/mount"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -24,11 +25,11 @@ func (s *Site) renderComponent(name string, data ...any) (template.HTML, error) 
 	if len(data) > 0 {
 		d = data[0]
 	}
-	if _, ok := s.comps[name]; ok {
+	if c, ok := s.comps[name]; ok {
 		s.markUsed(name)
 		var buf bytes.Buffer
 		if err := s.set.ExecuteTemplate(&buf, name, d); err != nil {
-			return "", err
+			return "", explain(c.Source, name, c.Raw, s.templateFns, err)
 		}
 		return scopeFragment(name, buf.String())
 	}
@@ -91,6 +92,7 @@ func (s *Site) renderPage(p *Page) (string, error) {
 	// the template helper and automatic injection cannot spell it differently.
 	assetVersion := VersionToken(version)
 	var buf bytes.Buffer
+	layout := s.layouts[p.Layout]
 	if err := s.set.ExecuteTemplate(&buf, p.Layout, LayoutData{
 		Title:        p.Title,
 		Content:      root,
@@ -99,7 +101,7 @@ func (s *Site) renderPage(p *Page) (string, error) {
 		AssetVersion: assetVersion,
 		BasePath:     s.templateBasePath(),
 	}); err != nil {
-		return "", err
+		return "", explain(layout.Source, p.Layout, layout.Raw, s.templateFns, err)
 	}
 	// Inject the layout scope attribute onto the document root so layout
 	// styles can be scoped under [data-kiw-layout="name"].
@@ -292,19 +294,22 @@ func dict(values ...any) (map[string]any, error) {
 				val = template.HTML(s)
 			}
 		}
-		m[k] = val
-		if len(k) > 0 {
-			upper := strings.ToUpper(k[:1]) + k[1:]
-			lower := strings.ToLower(k[:1]) + k[1:]
-			if _, exists := m[upper]; !exists {
-				m[upper] = val
-			}
-			if _, exists := m[lower]; !exists {
-				m[lower] = val
-			}
-		}
+		setProp(m, k, val)
 	}
 	return m, nil
+}
+
+// setProp stores a component prop under its name and every alias of the
+// lenient casing convention (kiw.PropAliases): variant/Variant,
+// aria-label/ariaLabel/AriaLabel, id/ID. An alias never overwrites a prop
+// that was passed explicitly.
+func setProp(m map[string]any, k string, val any) {
+	m[k] = val
+	for _, alias := range kiwdsl.PropAliases(k)[1:] {
+		if _, exists := m[alias]; !exists {
+			m[alias] = val
+		}
+	}
 }
 
 // prepare parses component and layout templates into one template set.
@@ -364,8 +369,9 @@ func (s *Site) prepare() error {
 	}
 	sort.Strings(compNames)
 	for _, name := range compNames {
-		if _, err := set.New(name).Parse(s.comps[name].Body); err != nil {
-			return fmt.Errorf("ssg: component %q: %w", name, err)
+		c := s.comps[name]
+		if _, err := set.New(name).Parse(c.Body); err != nil {
+			return fmt.Errorf("ssg: component %q: %w", name, explain(c.Source, name, c.Raw, funcs, err))
 		}
 	}
 	layoutNames := make([]string, 0, len(s.layouts))
@@ -374,13 +380,23 @@ func (s *Site) prepare() error {
 	}
 	sort.Strings(layoutNames)
 	for _, name := range layoutNames {
-		if _, err := set.New(name).Parse(s.layouts[name].Body); err != nil {
-			return fmt.Errorf("ssg: layout %q: %w", name, err)
+		l := s.layouts[name]
+		if _, err := set.New(name).Parse(l.Body); err != nil {
+			return fmt.Errorf("ssg: layout %q: %w", name, explain(l.Source, name, l.Raw, funcs, err))
 		}
 	}
 	s.set = set
 	s.templateFns = funcs
 	return nil
+}
+
+// explain locates a template error in the .kiw source it was desugared from
+// (kiw.Explain). Templates registered without source are returned unchanged.
+func explain(file, name, raw string, funcs template.FuncMap, err error) error {
+	if raw == "" {
+		return err
+	}
+	return kiwdsl.Explain(file, name, raw, funcs, err)
 }
 
 // componentDict is the template `dict` used for component props. It behaves
@@ -411,17 +427,7 @@ func (s *Site) componentDict(values ...any) (map[string]any, error) {
 				}
 			}
 		}
-		m[k] = val
-		if len(k) > 0 {
-			upper := strings.ToUpper(k[:1]) + k[1:]
-			lower := strings.ToLower(k[:1]) + k[1:]
-			if _, exists := m[upper]; !exists {
-				m[upper] = val
-			}
-			if _, exists := m[lower]; !exists {
-				m[lower] = val
-			}
-		}
+		setProp(m, k, val)
 	}
 	return m, nil
 }

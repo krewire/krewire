@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/pkg/kiw"
 )
 
 func setupTestRoot(t *testing.T) string {
@@ -62,8 +63,11 @@ func TestMake_Component(t *testing.T) {
 		t.Fatalf("expected components/CardItem.kiw to exist: %v", err)
 	}
 	content := string(b)
-	if !strings.Contains(content, `<div class="card-item">`) {
-		t.Errorf("expected component class card-item, got: %s", content)
+	if !strings.Contains(content, `{{class "card-item" .Variant "default" .Class}}`) || !strings.Contains(content, "{body}") {
+		t.Errorf("expected component class card-item and a {body} slot, got: %s", content)
+	}
+	if diags := kiw.Lint("CardItem.kiw", content); len(diags) > 0 {
+		t.Errorf("generated component does not lint clean: %v", diags)
 	}
 
 	// Duplicate component should fail

@@ -310,14 +310,20 @@ func DesugarTemplate(src string) (string, error) {
 
 // DesugarTemplateWithScope translates .kiw 2.0 syntax within a given variable scope.
 func DesugarTemplateWithScope(src string, loopVars map[string]bool) (string, error) {
+	return desugar(src, loopVars, false), nil
+}
+
+// desugar runs the desugaring passes. With pad set, every replacement keeps
+// the line count of the text it replaces (see keepLines).
+func desugar(src string, loopVars map[string]bool, pad bool) string {
 	// 1. Desugar class directives on HTML tags: class:active={isActive}
-	res := desugarClassDirectives(src)
+	res := desugarClassDirectives(src, pad)
 
 	// 2. Desugar loops: {#each items as item}...{/each}
-	res = desugarLoops(res)
+	res = desugarLoops(res, loopVars, pad)
 
 	// 3. Desugar conditionals: {#if ...}, {:else if ...}, {:else}, {/if}
-	res = desugarConditionals(res, loopVars)
+	res = desugarConditionals(res, loopVars, pad)
 
 	// 4. Desugar self-closing components: <Navbar ... />
 	res = selfClosingCompRe.ReplaceAllStringFunc(res, func(match string) string {
@@ -328,19 +334,17 @@ func DesugarTemplateWithScope(src string, loopVars map[string]bool) (string, err
 		name := sm[1]
 		attrStr := sm[2]
 		replacement, _ := desugarComponent(name, attrStr, "", match)
-		return replacement
+		return keepLines(match, replacement, pad)
 	})
 
 	// 5. Desugar paired components: <Card ...>...</Card>
-	res = desugarPairedComponents(res)
+	res = desugarPairedComponents(res, pad)
 
 	// 6. Desugar clean expression interpolation: {var} -> {{.Var}}
-	res = desugarInterpolation(res, loopVars)
-
-	return res, nil
+	return desugarInterpolation(res, loopVars)
 }
 
-func desugarPairedComponents(src string) string {
+func desugarPairedComponents(src string, pad bool) string {
 	res := src
 	for {
 		m := openCompTagRe.FindStringSubmatchIndex(res)
@@ -356,7 +360,7 @@ func desugarPairedComponents(src string) string {
 			realAttr := strings.TrimSuffix(trimmedAttr, "/")
 			fullTag := res[m[0]:m[1]]
 			replacement, _ := desugarComponent(tagName, realAttr, "", fullTag)
-			res = res[:m[0]] + replacement + res[m[1]:]
+			res = res[:m[0]] + keepLines(fullTag, replacement, pad) + res[m[1]:]
 			continue
 		}
 
@@ -366,14 +370,14 @@ func desugarPairedComponents(src string) string {
 			// No matching closing tag, treat as self-closing
 			fullTag := res[m[0]:m[1]]
 			replacement, _ := desugarComponent(tagName, attrStr, "", fullTag)
-			res = res[:m[0]] + replacement + res[m[1]:]
+			res = res[:m[0]] + keepLines(fullTag, replacement, pad) + res[m[1]:]
 			continue
 		}
 		closeIdx += m[1]
 		bodyContent := res[m[1]:closeIdx]
 		fullTag := res[m[0] : closeIdx+len(closeTag)]
 		replacement, _ := desugarComponent(tagName, attrStr, bodyContent, fullTag)
-		res = res[:m[0]] + replacement + res[closeIdx+len(closeTag):]
+		res = res[:m[0]] + keepLines(fullTag, replacement, pad) + res[closeIdx+len(closeTag):]
 	}
 	return res
 }
@@ -397,6 +401,13 @@ func desugarPairedComponents(src string) string {
 // Both {{component "Name"}} and <ComponentName /> are recognized and desugared
 // to uniform component calls.
 func ParseKiw(src string) (*KiwModule, error) {
+	return parseKiw(src, false), nil
+}
+
+// parseKiw implements ParseKiw. With pad set it produces a line-preserving
+// Body for diagnostics: the frontmatter and removed blocks become blank lines
+// and the body is not trimmed, so body line N is source line N.
+func parseKiw(src string, pad bool) *KiwModule {
 	m := &KiwModule{
 		Frontmatter: map[string]any{},
 		Raw:         src,
@@ -417,6 +428,9 @@ func ParseKiw(src string) (*KiwModule, error) {
 				var fm map[string]any
 				if err := yaml.Unmarshal([]byte(fmRaw), &fm); err == nil && fm != nil {
 					m.Frontmatter = fm
+				}
+				if pad {
+					body = strings.Repeat("\n", strings.Count(src[:len(src)-len(body)], "\n")) + body
 				}
 			}
 		}
@@ -443,7 +457,7 @@ func ParseKiw(src string) (*KiwModule, error) {
 			m.StyleBlocks[len(m.StyleBlocks)-1].Scoped = true
 		}
 	}
-	body = styleRe.ReplaceAllString(body, "")
+	body = styleRe.ReplaceAllStringFunc(body, func(match string) string { return keepLines(match, "", pad) })
 
 	scripts := scriptRe.FindAllStringSubmatch(body, -1)
 	for _, sm := range scripts {
@@ -487,7 +501,7 @@ func ParseKiw(src string) (*KiwModule, error) {
 				return match
 			}
 		}
-		return ""
+		return keepLines(match, "", pad)
 	})
 
 	markdowns := markdownRe.FindAllStringSubmatch(body, -1)
@@ -503,15 +517,21 @@ func ParseKiw(src string) (*KiwModule, error) {
 		}
 		inner := strings.TrimSpace(sub[1])
 		if inner == "" {
-			return ""
+			return keepLines(match, "", pad)
 		}
 		rendered, _ := markdown.Render([]byte(inner))
+		if pad {
+			return keepLines(match, strings.ReplaceAll(rendered, "\n", " "), pad)
+		}
 		return "\n" + strings.TrimSpace(rendered) + "\n"
 	})
 
 	// Desugar JSX-like component tags (<ComponentName ... />) to {{component "ComponentName" ...}}
-	desugared, _ := DesugarTemplate(body)
-	body = desugared
+	body = desugar(body, nil, pad)
+	if pad {
+		m.Body = body
+		return m
+	}
 
 	// Extract all component invocations (both original {{component ...}}, {{mount ...}}, and desugared <Tag />)
 	nameSet := make(map[string]bool)
@@ -546,7 +566,7 @@ func ParseKiw(src string) (*KiwModule, error) {
 	sort.Strings(m.ComponentNames)
 
 	m.Body = strings.TrimSpace(body)
-	return m, nil
+	return m
 }
 
 // ParseKiwFile reads and parses a .kiw file at path.

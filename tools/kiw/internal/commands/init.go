@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"errors"
 	"flag"
 	"fmt"
@@ -28,6 +29,7 @@ func RegisterInit(fs *flag.FlagSet) {
 	fs.Bool("infra", false, "equip a cloud infrastructure blueprint (cloud/infra)")
 	fs.String("template", "", "bootstrap from a remote git template (git URL)")
 	fs.String("title", "", "site title for the site and book variants")
+	fs.Bool("no-input", false, "never prompt; without a variant flag only write krewire.yaml, .gitignore and git")
 }
 
 // RunInit initializes a minimal Krewire Ecosystem project in the target directory
@@ -50,6 +52,13 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 	}
 
 	force := flagBool(fs, "force") || flagBool(fs, "f")
+
+	// Interactive and no starter chosen: offer one (Enter keeps the minimal setup).
+	if !hasKindFlag(fs) && shouldPrompt(fs) {
+		if kind := askKind(bufio.NewReader(promptIn), "none", true); kind != "" {
+			_ = fs.Set(kind, "true")
+		}
+	}
 
 	// 1. Run minimal Krewire Ecosystem initialization (git init, .gitignore, krewire.yaml)
 	initCreated, err := scaffold.Init(scaffold.InitOptions{

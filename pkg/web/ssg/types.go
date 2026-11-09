@@ -14,6 +14,10 @@ type Component struct {
 	Name  string
 	Body  string
 	Style string
+	// Source and Raw, when set, are the .kiw path and text Body was
+	// desugared from; template errors are then reported at source positions.
+	Source string
+	Raw    string
 }
 
 // Layout wraps page content in a shared shell. Body receives a LayoutData
@@ -24,6 +28,9 @@ type Layout struct {
 	Body    string
 	Style   string
 	Scripts []string
+	// Source and Raw: see Component.
+	Source string
+	Raw    string
 }
 
 // LayoutData is the value passed to a layout template.

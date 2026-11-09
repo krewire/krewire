@@ -12,7 +12,7 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
   - `Adapter` interface (`Name() string`, `Type() AdapterType`, `Ping(ctx context.Context) error`, `Close() error`)
   - `AdapterType`: `AdapterTypeSQL`, `AdapterTypeDocument`, `AdapterTypeSearch`
 - **Supported Drivers & Adapters**:
-  - **SQLite**: `NewSQLite(cfg SQLiteConfig) (*DB, error)`, `cfg.FormatDSN()`
+  - **SQLite**: `NewSQLite(cfg SQLiteConfig) (*DB, error)`, `cfg.FormatDSN()` (`SQLiteConfig.TxLock` sets the `BEGIN` mode: `deferred`, `immediate`, `exclusive`); bundled driver in [`pkg/orm/sqlite`](#sqlite-driver-pkgormsqlite)
   - **PostgreSQL**: `NewPostgres(cfg PostgresConfig) (*DB, error)`, `cfg.FormatDSN()`
   - **MySQL**: `NewMySQL(cfg MySQLConfig) (*DB, error)`, `cfg.FormatDSN()`
   - **MongoDB**: `NewMongoDB(cfg MongoConfig) (*MongoAdapter, error)`, collections, document CRUD (`InsertOne`, `FindOne`, `Find`, `UpdateOne`, `DeleteOne`, `CountDocuments`)
@@ -29,8 +29,9 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
   - `DB.Close() error`, `DB.Ping(ctx context.Context) error`
   - `DB.Table(name string) *Query`, `DB.Model(v interface{}) *Query`
 - **Transactions**:
-  - `DB.Begin(ctx context.Context) (*Tx, error)`
+  - `DB.Begin(ctx context.Context) (*Tx, error)`, `DB.BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error)`
   - `DB.Transaction(ctx context.Context, fn func(tx *Tx) error) error`
+  - `Tx.Exec`, `Tx.Query`, `Tx.QueryRow` (same signatures as on `DB`), `Tx.Dialect()`, `Tx.SQLTx() *sql.Tx`, `Tx.Commit()`, `Tx.Rollback()`
 - **Fluent Query Builder & CRUD**:
   - `Query.Where(col, op string, val interface{}) *Query`
   - `Query.OrWhere(col, op string, val interface{}) *Query`
@@ -46,7 +47,8 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
 - **Schema & Migrations**:
   - `ParseModel(v interface{}) (*TableModel, error)`
   - `GenerateCreateTableSQL(model interface{}, dialect Dialect) (string, error)`
-  - `DB.AutoMigrate(ctx context.Context, models ...interface{}) error`
+  - `DB.AutoMigrate(ctx context.Context, models ...interface{}) error` (creates missing tables only; never alters them)
+  - Versioned SQL migrations: [`pkg/orm/migrate`](#migrations-pkgormmigrate)
 
 ## Struct Tags
 
@@ -116,8 +118,61 @@ func main() {
 }
 ```
 
+## SQLite driver (`pkg/orm/sqlite`)
+
+`pkg/orm` does not link any driver. Importing `github.com/krewire/krewire/pkg/orm/sqlite`
+registers the pure-Go `modernc.org/sqlite` driver as `"sqlite"` (no cgo, so
+`CGO_ENABLED=0` cross-compiles work) and opens databases with WAL,
+`foreign_keys=on`, `busy_timeout=5000`, and immediate transactions:
+
+- `sqlite.Open(path string) (*orm.DB, error)` — creates the file when missing; `":memory:"` for a private in-memory database
+- `sqlite.OpenConfig(cfg orm.SQLiteConfig) (*orm.DB, error)` — custom pool or pragmas
+- `sqlite.Config(path) orm.SQLiteConfig`, `sqlite.DSN(path) string`, `sqlite.DriverName`
+
+```go
+db, err := sqlite.Open("app.db")
+```
+
+Only binaries opt in: a guard in `layering_test.go` keeps every other package
+under `pkg/` from importing the driver. Switching a brand-new file to WAL does
+not wait for locks, so create the database once (for example with
+`kiw migrate up`) before starting several processes on it.
+
+## Migrations (`pkg/orm/migrate`)
+
+Applies the files `kiw make migration` (or `kiw migrate create`) generates —
+`<version>_<name>.sql` with `-- +up` and `-- +down` sections — and records them
+in `schema_migrations` (`version`, `name`, `checksum`, `applied_at`).
+
+- `migrate.Up(ctx, db *orm.DB, fsys fs.FS) error` — apply everything pending; the start-up one-liner
+- `migrate.New(db, fsys, migrate.Options{Table, LockTimeout}) (*Migrator, error)`
+- `Migrator.Up(ctx, n)` (n <= 0: all), `Migrator.Down(ctx, n)` (n >= 1), `Migrator.Redo(ctx)`, `Migrator.Status(ctx)`, `Migrator.Migrations()`
+- `migrate.Load(fsys)`, `migrate.Parse(file, src)` — the file format on its own
+- Errors: `ErrChecksumMismatch`, `ErrMissingFile`, `ErrIrreversible`, `ErrLocked`, `ErrUnsupportedDialect`
+
+```go
+//go:embed *.sql
+var Files embed.FS // in package migrations
+
+db, err := sqlite.Open("app.db")
+if err != nil {
+	return err
+}
+if err := migrate.Up(ctx, db, migrations.Files); err != nil {
+	return err
+}
+```
+
+Guarantees:
+
+- **Transactional**: each migration and its bookkeeping row commit together; a failing migration leaves nothing behind. `Redo` rolls back and re-applies in one transaction.
+- **Checksums**: an applied file that was edited stops `Up` and `Down` (`ErrChecksumMismatch`); put the change in a new migration instead. `Status` reports `pending`, `applied`, `modified`, or `missing`.
+- **Locking**: concurrent runners (replicas, `kiw migrate` beside a running app) apply each migration once. SQLite uses `BEGIN IMMEDIATE` with `busy_timeout` raised to `LockTimeout`; PostgreSQL uses a transaction-scoped advisory lock, so a crashed runner never leaves a stale lock.
+- **Dialects**: SQLite and PostgreSQL. MySQL is refused because its DDL commits implicitly, so a failed migration could not be rolled back with its row. Statements that cannot run inside a transaction (such as PostgreSQL `CREATE INDEX CONCURRENTLY`) are not supported.
+- **Driver-free**: the package links no driver; pass an `*orm.DB` opened with the driver you import.
+
 ## Security & Architecture Boundaries
 
 - **Parameterized Queries**: All dynamic criteria pass through dialect-specific placeholders (`$1, $2` for PostgreSQL; `?` for SQLite/MySQL) preventing SQL injection vulnerabilities.
 - **Pure-Go Architecture**: No CGO dependencies required. Fully cross-compilable across Linux, macOS, and Windows.
-- **Downward Dependency Pyramid**: Depends only on Level 1 (`pkg/errs`, `pkg/model`) and standard library `database/sql`.
+- **Downward Dependency Pyramid**: Depends only on Level 1 (`pkg/errs`, `pkg/model`) and standard library `database/sql`. `pkg/orm/migrate` adds only `pkg/orm`; `pkg/orm/sqlite` is the one package that links a driver.
