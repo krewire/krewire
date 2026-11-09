@@ -215,10 +215,25 @@ kiw test
 kiw test --filter Unit
 ```
 
-### `kiw vet [--sec]`
-Runs `go vet` and static security audits across the codebase.
+### `kiw vet [--sec] [--vuln]`
+Runs `go vet`, validates `krewire.yaml` against its JSON Schema (errors fail,
+unknown/deprecated keys warn), lints every `.kiw` template (unbalanced
+`{#if}`/`{#each}`, control blocks inside component attributes, invalid
+frontmatter) with `file:line:col` diagnostics, and optionally runs the security
+(`--sec`) and vulnerability (`--vuln`) audits.
 ```bash
 kiw vet --sec
+```
+
+### `kiw config [validate|schema] [path] [--strict] [--json]`
+Validates `krewire.yaml` (or `path`) against the canonical JSON Schema and
+reports issues with line and column plus did-you-mean suggestions; `--strict`
+also fails on warnings. `kiw config schema` prints the schema. See
+[Configuration](configuration.md#json-schema-and-editor-validation).
+```bash
+kiw config
+kiw config validate --strict services/api/krewire.yaml
+kiw config schema > krewire.schema.json
 ```
 
 ### `kiw fmt [--write]`

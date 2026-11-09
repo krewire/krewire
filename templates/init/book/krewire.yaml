@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://krewire.com/schemas/krewire.json
 project:
   name: {{.Name}}
   kind: book
@@ -5,5 +6,7 @@ project:
 
 title: {{.Name}}
 author: ""
-base: /
 input: content
+
+build:
+  base: /

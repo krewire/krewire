@@ -36,8 +36,10 @@ func bookKrewireYamlTemplate(name, title string) string {
 
 title: %s
 author: ""
-base: /
 input: content
+
+build:
+  base: /
 `, name, title)
 }
 

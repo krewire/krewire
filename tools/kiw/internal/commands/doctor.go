@@ -251,6 +251,23 @@ func DiagnoseEnvironment(cwd string) DoctorReport {
 				Remediation: "Review and fix YAML syntax in krewire.yaml.",
 			})
 			report.Passed = false
+		} else if _, issues, verr := validateProjectConfig(cwd); verr == nil && len(issues) > 0 {
+			status, remediation := StatusWarn, "Fix or remove the reported keys; run 'kiw config' for details."
+			if config.HasErrors(issues) {
+				status = StatusFail
+				report.Passed = false
+			}
+			msgs := make([]string, 0, len(issues))
+			for _, i := range issues {
+				msgs = append(msgs, "krewire.yaml:"+i.String())
+			}
+			report.Checks = append(report.Checks, DoctorCheck{
+				Category:    "Project",
+				Name:        "Configuration",
+				Status:      status,
+				Message:     strings.Join(msgs, "; "),
+				Remediation: remediation,
+			})
 		} else {
 			pName := cfg.Project.Name
 			if pName == "" {

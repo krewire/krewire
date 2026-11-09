@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/krewire/krewire/tools/kiw/internal/config"
 )
 
 // Sentinels returned by the scaffold functions.
@@ -138,7 +140,7 @@ func Init(opts InitOptions) ([]string, error) {
 
 	// 3. krewire.yaml
 	yamlPath := filepath.Join(opts.Dir, krewireYaml)
-	yamlContent := fmt.Sprintf("project:\n  name: %s\n  version: 0.1.0\n", opts.Name)
+	yamlContent := withSchemaHeader(fmt.Sprintf("project:\n  name: %s\n  version: 0.1.0\n", opts.Name))
 
 	if _, err := os.Stat(yamlPath); err == nil {
 		// Existing project: reset to default with confirmation
@@ -312,6 +314,16 @@ var bootstrapUpgrade = map[string]bool{
 	mainGo:        true,
 }
 
+// withSchemaHeader prefixes a krewire.yaml body with the yaml-language-server
+// modeline that points editors at the canonical JSON Schema, unless the body
+// already declares a schema.
+func withSchemaHeader(body string) string {
+	if strings.Contains(body, "$schema") {
+		return body
+	}
+	return config.SchemaHeader + "\n" + body
+}
+
 // writeVariant writes files into Dir, refusing to overwrite anything outside
 // the bootstrap set, and returns the created paths relative to Dir.
 func writeVariant(dir string, files []file) ([]string, error) {
@@ -321,7 +333,11 @@ func writeVariant(dir string, files []file) ([]string, error) {
 		if _, err := os.Stat(path); err == nil && !bootstrapUpgrade[f.name] {
 			return nil, fmt.Errorf("%w: %s", ErrConflict, f.name)
 		}
-		if err := writeFile(path, []byte(f.body)); err != nil {
+		body := f.body
+		if f.name == krewireYaml {
+			body = withSchemaHeader(body)
+		}
+		if err := writeFile(path, []byte(body)); err != nil {
 			return nil, err
 		}
 		created = append(created, f.name)

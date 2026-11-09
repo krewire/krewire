@@ -23,7 +23,8 @@ func RegisterVet(fs *flag.FlagSet) {
 	fs.Bool("vuln", false, "run vulnerability audit (govulncheck / checksum verification)")
 }
 
-// RunVet runs `go vet`, lints every .kiw template (kiw.Lint), and runs the
+// RunVet runs `go vet`, validates krewire.yaml against its JSON Schema, lints
+// every .kiw template (kiw.Lint), and runs the
 // optional security posture and vulnerability audits.
 func RunVet(fs *flag.FlagSet) errs.ExitCode {
 	dir, err := os.Getwd()
@@ -68,6 +69,17 @@ func RunVet(fs *flag.FlagSet) errs.ExitCode {
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return errs.ExitCodeFailure
+	}
+
+	if ok, issues, err := validateProjectConfig(dir); ok {
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  ✗ [CONFIG] %v\n", err)
+			return errs.ExitCodeFailure
+		}
+		printConfigIssues(os.Stderr, "krewire.yaml", issues)
+		if kiwconfig.HasErrors(issues) {
+			return errs.ExitCodeFailure
+		}
 	}
 
 	if issues := lintKiwFiles(dir); len(issues) > 0 {

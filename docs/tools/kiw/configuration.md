@@ -1,7 +1,59 @@
 # Configuration Reference — `krewire.yaml` Specification
 
 ## Description
-The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects. The schema is owned by [`tools/kiw/internal/config/config.go`](../../../tools/kiw/internal/config/config.go).
+The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects. The schema is owned by [`tools/kiw/internal/config/config.go`](../../../tools/kiw/internal/config/config.go) and published as a JSON Schema (see below).
+
+---
+
+## JSON Schema and Editor Validation
+
+The canonical JSON Schema (Draft-07) for `krewire.yaml` is
+[`tools/kiw/internal/config/krewire.schema.json`](../../../tools/kiw/internal/config/krewire.schema.json),
+published at `https://krewire.com/schemas/krewire.json` (its `$id`). It
+documents every key with descriptions, allowed values (`project.kind`, `env`,
+`theme.default`, `auto_assets.js_placement`), defaults, port ranges, and
+deprecations. `kiw config schema` prints it.
+
+`kiw new` and `kiw init` start every generated `krewire.yaml` with a modeline
+that the YAML language server (VS Code YAML extension, Neovim, JetBrains,
+Helix, Zed) uses for completion, hover docs and instant validation:
+
+```yaml
+# yaml-language-server: $schema=https://krewire.com/schemas/krewire.json
+project:
+  name: my-app
+```
+
+Add the same first line to an existing file, or use a top-level
+`$schema: "https://krewire.com/schemas/krewire.json"` key. For an offline
+editor, save the schema locally (`kiw config schema > krewire.schema.json`) and
+point the modeline at the file.
+
+Validate from the command line:
+
+```bash
+kiw config                 # validate ./krewire.yaml (same as: kiw config validate)
+kiw config --strict        # also fail on warnings
+kiw config --json          # machine-readable issues
+kiw vet                    # go vet + krewire.yaml + .kiw templates
+kiw doctor                 # reports schema issues in the Project section
+```
+
+Issues carry line and column. Wrong types, values outside an enum or range,
+and pattern mismatches are **errors**; unknown and deprecated keys are
+**warnings** (they are ignored by `kiw`), with a suggestion when one is likely:
+
+```text
+krewire.yaml:6:3: warning: unknown key "outdir" in build; did you mean "build.output"? (ignored)
+krewire.yaml:10:1: warning: unknown key "port"; did you mean "dev.port"? (ignored)
+krewire.yaml:11:1: warning: base is deprecated. Use build.base instead.
+krewire.yaml:9:9: error: dev.port: 70000 is out of range 1..65535
+```
+
+Suggestions come from common synonyms listed in the schema (`x-aliases`, e.g.
+`outdir`, `dist` → `output`), close spellings, and keys that belong one level
+down. Tests keep the schema in step with `config.go` and validate the
+`krewire.yaml` files of the ecosystem repositories.
 
 ---
 
@@ -43,7 +95,7 @@ debug: false
 # Shared site/book metadata
 title: "My Service"
 author: "Krewire Contributors"
-base: "/"                   # URL base prefix
+base: "/"                   # Deprecated: use build.base
 input: "content"            # Content directory (default: content)
 output: ".krewire/build"    # Output directory (default: .krewire/build)
 
