@@ -93,7 +93,16 @@ Starting hello-world...
 HTTP server listening on http://127.0.0.1:8080
 ```
 
-### 5. Troubleshooting & FAQ
+### 5. Everyday Commands
+`kiw help` lists the core workflow first (`new`, `dev`, `build`, `test`, `add`,
+`make`); `kiw help --all` describes every command. While editing, use
+`kiw dev` (watches and reloads); `kiw run` runs once without watching, and
+`kiw serve` previews a finished `kiw build`. Run `kiw new` without arguments to
+be asked for the name and kind, or `kiw init` to set up an existing directory.
+Add ready-made UI components with `kiw add ui/<name>` (browse with `kiw ui list`).
+See the [command reference](tools/kiw/commands.md).
+
+### 6. Troubleshooting & FAQ
 - **Error: `kiw: command not found`**: Ensure `$(go env GOPATH)/bin` or `./bin` is added to your `$PATH`.
 - **Port Conflict (`bind: address already in use`)**: Specify a custom port via `PORT=8088 kiw run` or configure `dev.port: 8088` in `krewire.yaml`.
 - **Pure-Go Invariant**: All builds enforce `CGO_ENABLED=0` by default; no host C compilers or native shared libraries are required.
