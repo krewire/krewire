@@ -49,16 +49,18 @@ type source struct {
 	next     string
 }
 
-// item is one top-level content unit: a chapter file or a directory that
+// item is one content unit: a chapter file or a directory that
 // becomes a chapter with subchapters.
 type item struct {
 	// name is the entry name used for ordering and slugging.
 	name string
+	// isDir indicates whether this item is a directory.
+	isDir bool
 	// chapter holds the chapter body; for directories this is the optional
 	// index.md/_index.md, empty when the chapter page is auto-generated.
 	chapter source
-	// subs holds the subchapter sources for a directory unit.
-	subs []source
+	// subs holds child items (files or subdirectories).
+	subs []item
 	// order and hasOrder are derived from frontmatter
 	order    int
 	hasOrder bool
@@ -90,123 +92,7 @@ func LoadWithBase(input, title, author, base string) (*Book, error) {
 	return loadWithRules(input, title, author, base, nil, nil)
 }
 
-func loadWithRules(input, title, author, base string, include, exclude []string) (*Book, error) {
-	if input == "" {
-		input = defaultInput
-	}
-	entries, err := os.ReadDir(input)
-	if err != nil {
-		return nil, fmt.Errorf("book: read content %s: %w", input, err)
-	}
-
-	var items []item
-	var rootIndex *source
-	for _, e := range entries {
-		name := e.Name()
-		if e.IsDir() {
-			it := item{name: name}
-			subEntries, err := os.ReadDir(filepath.Join(input, name))
-			if err != nil {
-				return nil, fmt.Errorf("book: read %s: %w", name, err)
-			}
-			for _, se := range subEntries {
-				sn := se.Name()
-				if se.IsDir() || !strings.HasSuffix(sn, ".md") {
-					continue
-				}
-				if !accepts(include, exclude, name+"/"+sn) {
-					continue
-				}
-				data, err := os.ReadFile(filepath.Join(input, name, sn))
-				if err != nil {
-					return nil, fmt.Errorf("book: read %s: %w", filepath.Join(name, sn), err)
-				}
-				meta, cleanBody := parseFrontmatterAndBody(data)
-				order, hasOrder := meta.resolveOrder()
-				if isIndex(sn) {
-					it.chapter = source{
-						file:     sn,
-						body:     cleanBody,
-						order:    order,
-						hasOrder: hasOrder,
-						prev:     meta.resolvePrev(),
-						next:     meta.Next,
-					}
-					if hasOrder {
-						it.order = order
-						it.hasOrder = true
-					}
-					continue
-				}
-				it.subs = append(it.subs, source{
-					file:     sn,
-					body:     cleanBody,
-					order:    order,
-					hasOrder: hasOrder,
-					prev:     meta.resolvePrev(),
-					next:     meta.Next,
-				})
-			}
-			sort.Slice(it.subs, func(i, j int) bool {
-				if it.subs[i].hasOrder && it.subs[j].hasOrder {
-					if it.subs[i].order != it.subs[j].order {
-						return it.subs[i].order < it.subs[j].order
-					}
-				} else if it.subs[i].hasOrder {
-					return true
-				} else if it.subs[j].hasOrder {
-					return false
-				}
-				ni, si := splitOrder(it.subs[i].file)
-				nj, sj := splitOrder(it.subs[j].file)
-				if ni != nj {
-					return ni < nj
-				}
-				return si < sj
-			})
-			if it.chapter.file != "" || len(it.subs) > 0 {
-				items = append(items, it)
-			}
-			continue
-		}
-		if !strings.HasSuffix(name, ".md") {
-			continue
-		}
-		if !accepts(include, exclude, name) {
-			continue
-		}
-		data, err := os.ReadFile(filepath.Join(input, name))
-		if err != nil {
-			return nil, fmt.Errorf("book: read %s: %w", name, err)
-		}
-		meta, cleanBody := parseFrontmatterAndBody(data)
-		order, hasOrder := meta.resolveOrder()
-		if isIndex(name) {
-			rootIndex = &source{
-				file:     name,
-				body:     cleanBody,
-				order:    order,
-				hasOrder: hasOrder,
-				prev:     meta.resolvePrev(),
-				next:     meta.Next,
-			}
-			continue
-		}
-		items = append(items, item{
-			name:     name,
-			order:    order,
-			hasOrder: hasOrder,
-			chapter: source{
-				file:     name,
-				body:     cleanBody,
-				order:    order,
-				hasOrder: hasOrder,
-				prev:     meta.resolvePrev(),
-				next:     meta.Next,
-			},
-		})
-	}
-
+func sortItems(items []item) {
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].hasOrder && items[j].hasOrder {
 			if items[i].order != items[j].order {
@@ -224,6 +110,125 @@ func loadWithRules(input, title, author, base string, include, exclude []string)
 		}
 		return si < sj
 	})
+}
+
+func loadDir(dirPath, relPrefix string, include, exclude []string) ([]item, *source, error) {
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("book: read %s: %w", dirPath, err)
+	}
+
+	var items []item
+	var dirIndex *source
+
+	for _, e := range entries {
+		name := e.Name()
+		fullPath := filepath.Join(dirPath, name)
+		relPath := name
+		if relPrefix != "" {
+			relPath = relPrefix + "/" + name
+		}
+
+		if e.IsDir() {
+			subItems, subIndex, err := loadDir(fullPath, relPath, include, exclude)
+			if err != nil {
+				return nil, nil, err
+			}
+			it := item{
+				name:  name,
+				isDir: true,
+				subs:  subItems,
+			}
+			if subIndex != nil {
+				it.chapter = *subIndex
+				if subIndex.hasOrder {
+					it.order = subIndex.order
+					it.hasOrder = true
+				}
+			}
+			if it.chapter.file != "" || len(it.subs) > 0 {
+				items = append(items, it)
+			}
+			continue
+		}
+
+		if !strings.HasSuffix(name, ".md") {
+			continue
+		}
+		if !accepts(include, exclude, relPath) {
+			continue
+		}
+		data, err := os.ReadFile(fullPath)
+		if err != nil {
+			return nil, nil, fmt.Errorf("book: read %s: %w", fullPath, err)
+		}
+		meta, cleanBody := parseFrontmatterAndBody(data)
+		order, hasOrder := meta.resolveOrder()
+		src := source{
+			file:     name,
+			body:     cleanBody,
+			order:    order,
+			hasOrder: hasOrder,
+			prev:     meta.resolvePrev(),
+			next:     meta.Next,
+		}
+		if isIndex(name) {
+			dirIndex = &src
+			continue
+		}
+		items = append(items, item{
+			name:     name,
+			isDir:    false,
+			chapter:  src,
+			order:    order,
+			hasOrder: hasOrder,
+		})
+	}
+
+	sortItems(items)
+	return items, dirIndex, nil
+}
+
+func buildChapterTree(items []item, parent *Chapter, parentNumber int, base string) []*Chapter {
+	var chapters []*Chapter
+	for j, it := range items {
+		slug := slugFor(it.name)
+		ch := &Chapter{
+			Number:     parentNumber,
+			Sub:        j + 1,
+			Slug:       slug,
+			Title:      titleFor(it.chapter.body, slug),
+			Parent:     parent,
+			CustomPrev: it.chapter.prev,
+			CustomNext: it.chapter.next,
+		}
+		if it.isDir {
+			if it.chapter.file != "" {
+				html, err := renderMarkdown(it.chapter.body, base)
+				if err == nil {
+					ch.Body = template.HTML(html)
+				}
+			}
+			ch.Subs = buildChapterTree(it.subs, ch, parentNumber, base)
+		} else {
+			html, err := renderMarkdown(it.chapter.body, base)
+			if err == nil {
+				ch.Body = template.HTML(html)
+			}
+		}
+		chapters = append(chapters, ch)
+	}
+	return chapters
+}
+
+func loadWithRules(input, title, author, base string, include, exclude []string) (*Book, error) {
+	if input == "" {
+		input = defaultInput
+	}
+	items, rootIndex, err := loadDir(input, "", include, exclude)
+	if err != nil {
+		return nil, fmt.Errorf("book: read content %s: %w", input, err)
+	}
 
 	base = normalizeBase(base)
 	book := &Book{Title: title, Author: author, base: base, Chapters: make([]Chapter, 0, len(items))}
@@ -249,32 +254,34 @@ func loadWithRules(input, title, author, base string, include, exclude []string)
 			CustomNext: it.chapter.next,
 		})
 		ch := &book.Chapters[len(book.Chapters)-1]
-		if it.chapter.file != "" {
+		if it.isDir {
+			if it.chapter.file != "" {
+				html, err := renderMarkdown(it.chapter.body, base)
+				if err != nil {
+					return nil, fmt.Errorf("book: render %s: %w", it.chapter.file, err)
+				}
+				ch.Body = template.HTML(html)
+			}
+			ch.Subs = buildChapterTree(it.subs, ch, i+1, base)
+			if it.chapter.file == "" {
+				ch.Body = template.HTML(book.autoSubList(ch))
+			}
+			var populateAutoList func(c *Chapter)
+			populateAutoList = func(c *Chapter) {
+				if len(c.Subs) > 0 && c.Body == "" {
+					c.Body = template.HTML(book.autoSubList(c))
+				}
+				for _, sub := range c.Subs {
+					populateAutoList(sub)
+				}
+			}
+			populateAutoList(ch)
+		} else {
 			html, err := renderMarkdown(it.chapter.body, base)
 			if err != nil {
 				return nil, fmt.Errorf("book: render %s: %w", it.chapter.file, err)
 			}
 			ch.Body = template.HTML(html)
-		} else {
-			ch.Body = template.HTML(book.autoSubList(ch, it.subs))
-		}
-		for j, s := range it.subs {
-			slug := slugFor(s.file)
-			sub := Chapter{
-				Number:     i + 1,
-				Sub:        j + 1,
-				Slug:       slug,
-				Title:      titleFor(s.body, slug),
-				Parent:     ch,
-				CustomPrev: s.prev,
-				CustomNext: s.next,
-			}
-			html, err := renderMarkdown(s.body, base)
-			if err != nil {
-				return nil, fmt.Errorf("book: render %s: %w", s.file, err)
-			}
-			sub.Body = template.HTML(html)
-			ch.Subs = append(ch.Subs, &sub)
 		}
 	}
 	flat := book.flattened()

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"strconv"
+	"strings"
 )
 
 // Chapter is one content unit, named by its slug and rendered from Markdown.
@@ -35,12 +36,16 @@ type Chapter struct {
 }
 
 // Path returns the chapter page URL: /{slug} for top-level chapters and
-// /{parent}/{slug} for subchapters, mirroring the content tree. URLs stay
+// nested /{parent}/{slug} for subchapters, mirroring the content tree. URLs stay
 // extensionless — each page is emitted as a sibling .html file served at that
 // address — and are prefixed with the book's base path by Book.link.
 func (c Chapter) Path() string {
 	if c.Parent != nil {
-		return "/" + c.Parent.Slug + "/" + c.Slug
+		parentPath := strings.TrimRight(c.Parent.Path(), "/")
+		if parentPath == "" {
+			return "/" + c.Slug
+		}
+		return parentPath + "/" + c.Slug
 	}
 	if c.Slug == "" || c.Slug == "index" {
 		return "/"
@@ -49,8 +54,14 @@ func (c Chapter) Path() string {
 }
 
 // Label returns the numeric label shown in the table of contents: "7" for a
-// top-level chapter and "7.1" for a subchapter.
+// top-level chapter, "7.1" for a subchapter, and "7.1.1" for nested subchapters.
 func (c Chapter) Label() string {
+	if c.Parent != nil {
+		if c.Sub > 0 {
+			return fmt.Sprintf("%s.%d", c.Parent.Label(), c.Sub)
+		}
+		return c.Parent.Label()
+	}
 	if c.Sub > 0 {
 		return fmt.Sprintf("%d.%d", c.Number, c.Sub)
 	}

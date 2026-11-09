@@ -69,7 +69,23 @@
           </button>
         </div>
         <div class="toc-subs">
-          {{range .Subs}}<a href="{{.Link}}" class="toc-sub{{if .Active}} active{{end}}"><span class="num">{{.Label}}</span> <span class="toc-text">{{.Title}}</span></a>{{end}}
+          {{range .Subs}}
+            {{if .HasSubs}}
+            <div class="toc-group toc-subgroup{{if .Open}} open{{end}}" data-subgroup>
+              <div class="toc-parent-row">
+                <a href="{{.Link}}" class="toc-sub{{if .Active}} active{{end}}"><span class="num">{{.Label}}</span> <span class="toc-text">{{.Title}}</span></a>
+                <button class="toc-toggle" aria-expanded="{{if .Open}}true{{else}}false{{end}}" aria-label="Toggle submenu for {{.Title}}">
+                  <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+                </button>
+              </div>
+              <div class="toc-subs">
+                {{range .Subs}}<a href="{{.Link}}" class="toc-sub nested{{if .Active}} active{{end}}"><span class="num">{{.Label}}</span> <span class="toc-text">{{.Title}}</span></a>{{end}}
+              </div>
+            </div>
+            {{else}}
+            <a href="{{.Link}}" class="toc-sub{{if .Active}} active{{end}}"><span class="num">{{.Label}}</span> <span class="toc-text">{{.Title}}</span></a>
+            {{end}}
+          {{end}}
         </div>
       </div>
       {{else}}
@@ -127,24 +143,27 @@
     });
   });
 
-  // 1. Collapsible toggle per group
-  document.querySelectorAll('[data-group] .toc-toggle').forEach(function(btn){
+  // 1. Collapsible toggle per group & subgroup
+  document.querySelectorAll('[data-group] .toc-toggle, [data-subgroup] .toc-toggle').forEach(function(btn){
     if(btn._bookBound) return;
     btn._bookBound = true;
     btn.addEventListener('click', function(e){
       e.preventDefault();
       e.stopPropagation();
-      var g=btn.closest('[data-group]');
+      var g=btn.closest('[data-subgroup], [data-group]');
       if(!g) return;
       var open=g.classList.toggle('open');
       btn.setAttribute('aria-expanded', open?'true':'false');
-      try{ localStorage.setItem('krewire-toc-'+g.querySelector('.toc-link').getAttribute('href'), open?'1':'0'); }catch(_){}
+      try{
+        var l=g.querySelector('.toc-link, .toc-sub');
+        if(l) localStorage.setItem('krewire-toc-'+l.getAttribute('href'), open?'1':'0');
+      }catch(_){}
     });
   });
 
   // 2. Restore state from localStorage while keeping active group open
   try{
-    document.querySelectorAll('[data-group]').forEach(function(g){
+    document.querySelectorAll('[data-group], [data-subgroup]').forEach(function(g){
       if(g.querySelector('.active')){
         g.classList.add('open');
         g.classList.add('has-active');
@@ -152,7 +171,9 @@
         if(b) b.setAttribute('aria-expanded', 'true');
         return;
       }
-      var href=g.querySelector('.toc-link').getAttribute('href');
+      var l=g.querySelector('.toc-link, .toc-sub');
+      if(!l) return;
+      var href=l.getAttribute('href');
       var v=localStorage.getItem('krewire-toc-'+href);
       if(v==='0'){
         g.classList.remove('open');

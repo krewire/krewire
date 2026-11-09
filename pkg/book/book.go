@@ -71,12 +71,18 @@ type Link struct {
 }
 
 // flattened returns all pages in reading order: each chapter page followed by
-// its subchapters.
+// its subchapters recursively.
 func (b *Book) flattened() []*Chapter {
 	var flat []*Chapter
+	var collect func(ch *Chapter)
+	collect = func(ch *Chapter) {
+		flat = append(flat, ch)
+		for _, sub := range ch.Subs {
+			collect(sub)
+		}
+	}
 	for i := range b.Chapters {
-		flat = append(flat, &b.Chapters[i])
-		flat = append(flat, b.Chapters[i].Subs...)
+		collect(&b.Chapters[i])
 	}
 	return flat
 }

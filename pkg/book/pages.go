@@ -81,16 +81,49 @@ func (b *Book) Pages() ([]Page, error) {
 }
 
 // crumbs builds the breadcrumb trail for a chapter page: Home, the containing
-// chapter, and the page itself.
+// chapter(s), and the page itself.
 func (b *Book) crumbs(ch *Chapter) []crumb {
 	out := []crumb{{Title: "Home", Link: b.base}}
-	if ch.Parent != nil {
-		out = append(out, crumb{Title: ch.Parent.Title, Link: b.link(ch.Parent.Path())})
+	var parents []*Chapter
+	for p := ch.Parent; p != nil; p = p.Parent {
+		parents = append(parents, p)
+	}
+	for i := len(parents) - 1; i >= 0; i-- {
+		out = append(out, crumb{Title: parents[i].Title, Link: b.link(parents[i].Path())})
 	}
 	if ch != nil {
 		out = append(out, crumb{Title: ch.Title, Link: b.link(ch.Path()), Current: true})
 	}
 	return out
+}
+
+// buildTOCEntry builds a tocEntry and all its nested subchapters recursively.
+func (b *Book) buildTOCEntry(ch *Chapter, active *Chapter, isTop bool) (tocEntry, bool) {
+	hasSubs := len(ch.Subs) > 0
+	activeSelf := ch == active
+	activeInSubs := false
+	subs := make([]tocEntry, 0, len(ch.Subs))
+	for _, s := range ch.Subs {
+		subEntry, subActive := b.buildTOCEntry(s, active, false)
+		if subActive {
+			activeInSubs = true
+		}
+		subs = append(subs, subEntry)
+	}
+	open := activeSelf || activeInSubs
+	label := ch.Label()
+	if isTop {
+		label += "."
+	}
+	return tocEntry{
+		Label:   label,
+		Title:   ch.Title,
+		Link:    b.link(ch.Path()),
+		Active:  activeSelf,
+		HasSubs: hasSubs,
+		Open:    open,
+		Subs:    subs,
+	}, open
 }
 
 // chapterList builds the sidebar chapter list for responsive collapsible nav.
@@ -101,33 +134,8 @@ func (b *Book) crumbs(ch *Chapter) []crumb {
 func (b *Book) chapterList(active *Chapter) []tocEntry {
 	toc := make([]tocEntry, 0, len(b.Chapters))
 	for i := range b.Chapters {
-		ch := &b.Chapters[i]
-		hasSubs := len(ch.Subs) > 0
-		activeSelf := ch == active
-		activeInSubs := false
-		subs := make([]tocEntry, 0, len(ch.Subs))
-		for _, s := range ch.Subs {
-			isActive := s == active
-			if isActive {
-				activeInSubs = true
-			}
-			subs = append(subs, tocEntry{
-				Label:  s.Label(),
-				Title:  s.Title,
-				Link:   b.link(s.Path()),
-				Active: isActive,
-			})
-		}
-		open := activeSelf || activeInSubs
-		toc = append(toc, tocEntry{
-			Label:   ch.Label() + ".",
-			Title:   ch.Title,
-			Link:    b.link(ch.Path()),
-			Active:  activeSelf,
-			HasSubs: hasSubs,
-			Open:    open,
-			Subs:    subs,
-		})
+		entry, _ := b.buildTOCEntry(&b.Chapters[i], active, true)
+		toc = append(toc, entry)
 	}
 	return toc
 }
@@ -213,14 +221,12 @@ func (b *Book) stylesheetURL(version string) string {
 
 // autoSubList renders the auto-generated chapter page for a directory without
 // an index file: a list of its subchapters with numeric labels.
-func (b *Book) autoSubList(ch *Chapter, subs []source) string {
+func (b *Book) autoSubList(ch *Chapter) string {
 	var sb strings.Builder
 	sb.WriteString("<p class=\"lede\">This chapter has the following sections.</p>\n<ul class=\"sub-toc\">\n")
-	for i, s := range subs {
-		slug := slugFor(s.file)
-		title := titleFor(s.body, slug)
-		link := b.link("/" + ch.Slug + "/" + slug)
-		fmt.Fprintf(&sb, "<li><a href=\"%s\"><strong>%d.%d</strong> %s</a></li>\n", link, ch.Number, i+1, template.HTMLEscapeString(title))
+	for _, sub := range ch.Subs {
+		link := b.link(sub.Path())
+		fmt.Fprintf(&sb, "<li><a href=\"%s\"><strong>%s</strong> %s</a></li>\n", link, sub.Label(), template.HTMLEscapeString(sub.Title))
 	}
 	sb.WriteString("</ul>\n")
 	return sb.String()

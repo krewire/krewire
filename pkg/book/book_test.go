@@ -911,3 +911,62 @@ func TestBuildEmitsConfiguredLang(t *testing.T) {
 		}
 	})
 }
+
+func TestNestedSubchapters(t *testing.T) {
+	dir := writeContent(t, map[string]string{
+		"01-intro.md":                      "# Intro\n",
+		"02-ui/_index.md":                  "# UI\n",
+		"02-ui/01-components/_index.md":    "# Components\n",
+		"02-ui/01-components/01-button.md": "# Button\n",
+		"02-ui/01-components/02-card.md":   "# Card\n",
+	})
+	b, err := Load(dir, "Krewire", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(b.Chapters) != 2 {
+		t.Fatalf("got %d chapters, want 2", len(b.Chapters))
+	}
+	ui := &b.Chapters[1]
+	if ui.Title != "UI" || len(ui.Subs) != 1 {
+		t.Fatalf("ui = %+v, want title UI with 1 sub", ui)
+	}
+	comps := ui.Subs[0]
+	if comps.Title != "Components" || len(comps.Subs) != 2 {
+		t.Fatalf("comps = %+v, want title Components with 2 subs", comps)
+	}
+	btn := comps.Subs[0]
+	card := comps.Subs[1]
+
+	if btn.Title != "Button" || card.Title != "Card" {
+		t.Errorf("titles = %q, %q; want Button, Card", btn.Title, card.Title)
+	}
+	if got := btn.Path(); got != "/ui/components/button" {
+		t.Errorf("btn path = %q, want /ui/components/button", got)
+	}
+	if got := card.Path(); got != "/ui/components/card" {
+		t.Errorf("card path = %q, want /ui/components/card", got)
+	}
+	if got := btn.Label(); got != "2.1.1" {
+		t.Errorf("btn label = %q, want 2.1.1", got)
+	}
+	if got := card.Label(); got != "2.1.2" {
+		t.Errorf("card label = %q, want 2.1.2", got)
+	}
+
+	flat := b.flattened()
+	if len(flat) != 5 {
+		t.Fatalf("flattened = %d pages, want 5 (intro, ui, components, button, card)", len(flat))
+	}
+	if flat[0].Title != "Intro" || flat[1].Title != "UI" || flat[2].Title != "Components" || flat[3].Title != "Button" || flat[4].Title != "Card" {
+		t.Errorf("linear reading order wrong: %+v", flat)
+	}
+
+	crumbs := b.crumbs(btn)
+	if len(crumbs) != 4 {
+		t.Fatalf("crumbs length = %d, want 4 (Home, UI, Components, Button)", len(crumbs))
+	}
+	if crumbs[1].Title != "UI" || crumbs[2].Title != "Components" || crumbs[3].Title != "Button" {
+		t.Errorf("crumbs wrong: %+v", crumbs)
+	}
+}
