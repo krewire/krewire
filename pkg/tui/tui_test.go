@@ -109,7 +109,7 @@ func TestHiddenCommandCanRunAndIsHiddenFromGeneralHelp(t *testing.T) {
 	}
 
 	// Should not be in general help listing
-	groups := app.groupedCommands()
+	groups := app.groupedCommands(false)
 	for _, g := range groups {
 		for _, cmd := range g.cmds {
 			if cmd.Name == "secret" {

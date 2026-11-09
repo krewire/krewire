@@ -22,11 +22,15 @@ import (
 
 // Command is a runnable sub-command.
 type Command struct {
-	Name     string
-	About    string
-	Group    string
-	Example  string
-	Hidden   bool
+	Name    string
+	About   string
+	Group   string
+	Example string
+	Hidden  bool
+	// Core marks an everyday workflow command. When any command is Core,
+	// general help lists core commands in full and the rest compactly
+	// ("progressive disclosure"); `help --all` lists everything in full.
+	Core     bool
 	Register func(*flag.FlagSet)
 	Run      func(*flag.FlagSet) errs.ExitCode
 }
@@ -55,6 +59,12 @@ func (c *Command) WithHidden(hidden bool) *Command {
 	return c
 }
 
+// WithCore marks the command as a core workflow command.
+func (c *Command) WithCore() *Command {
+	c.Core = true
+	return c
+}
+
 // App is the framework's CLI application model.
 type App struct {
 	name        string
@@ -64,6 +74,7 @@ type App struct {
 	logger      *slog.Logger
 	terminal    *term.Terminal
 	stderr      io.Writer
+	hints       map[string]string
 }
 
 // NewApp creates an App with the given name and version.
@@ -83,6 +94,17 @@ func (a *App) WithDescription(desc string) *App {
 	return a
 }
 
+// WithHint maps a name that is not a command (for example a command from
+// another tool, such as "start") to a suggestion shown instead of the
+// generic "did you mean" match, e.g. "kiw dev  (live dev server)".
+func (a *App) WithHint(name, suggestion string) *App {
+	if a.hints == nil {
+		a.hints = map[string]string{}
+	}
+	a.hints[name] = suggestion
+	return a
+}
+
 // Command registers a Command and returns the App for chaining.
 func (a *App) Command(cmd *Command) *App {
 	a.commands = append(a.commands, cmd)
@@ -98,6 +120,7 @@ func (a *App) Name() string {
 // resulting exit code. Help is consistent across all forms (subcommand and flag):
 //
 //	kiw help                → general help (success)
+//	kiw help --all | -a     → complete command reference (success)
 //	kiw --help | -h         → general help (success) — flag alias
 //	kiw help <command>      → help for <command> (success) — canonical subcommand form
 //	kiw <command> help      → help for <command> (success) — alias, kept for ergonomics
@@ -112,9 +135,9 @@ func (a *App) Run(tokens []string) errs.ExitCode {
 		return errs.ExitCodeUsage
 	}
 
-	// General help via flag: kiw --help, kiw -h, kiw -help
-	if tokens[0] == "--help" || tokens[0] == "-h" || tokens[0] == "-help" {
-		a.printHelp()
+	// General help via flag: kiw --help, kiw -h, kiw -help (optionally --all)
+	if isHelpFlag(tokens[0]) || isAllFlag(tokens[0]) {
+		a.printHelpMode(isAllFlag(tokens[0]) || (len(tokens) > 1 && isAllFlag(tokens[1])))
 		return errs.ExitCodeSuccess
 	}
 
@@ -124,9 +147,9 @@ func (a *App) Run(tokens []string) errs.ExitCode {
 			a.printHelp()
 			return errs.ExitCodeSuccess
 		}
-		// Support `kiw help --help` → general help
-		if tokens[1] == "--help" || tokens[1] == "-h" || tokens[1] == "-help" {
-			a.printHelp()
+		// `kiw help --help` → general help; `kiw help --all` → full reference
+		if isHelpFlag(tokens[1]) || isAllFlag(tokens[1]) {
+			a.printHelpMode(isAllFlag(tokens[1]))
 			return errs.ExitCodeSuccess
 		}
 		if cmd := a.findCommand(tokens[1]); cmd != nil {
@@ -169,6 +192,10 @@ func (a *App) Run(tokens []string) errs.ExitCode {
 	}
 	return cmd.Run(fs)
 }
+
+func isHelpFlag(s string) bool { return s == "--help" || s == "-h" || s == "-help" }
+
+func isAllFlag(s string) bool { return s == "--all" || s == "-a" || s == "-all" }
 
 func reorderArgs(fs *flag.FlagSet, args []string) []string {
 	var flags []string
@@ -219,6 +246,10 @@ func (a *App) findCommand(name string) *Command {
 func (a *App) printUnknownCommand(name string) {
 	msg := a.terminal.Paint("✗", term.ColorRed, []term.Style{term.StyleBold}) + " unknown command " + a.terminal.Paint(fmt.Sprintf("%q", name), term.ColorYellow, nil)
 	a.stderr.Write([]byte(msg + "\n"))
+	if hint, ok := a.hints[name]; ok {
+		a.stderr.Write([]byte(a.terminal.Paint("  did you mean ", term.ColorDefault, []term.Style{term.StyleDim}) + a.terminal.Paint(hint, term.ColorCyan, nil) + "\n\n"))
+		return
+	}
 	if sug := a.suggestCommand(name); sug != "" {
 		hint := a.terminal.Paint("  did you mean ", term.ColorDefault, []term.Style{term.StyleDim}) + a.terminal.Paint(sug, term.ColorCyan, nil) + a.terminal.Paint(" ?", term.ColorDefault, []term.Style{term.StyleDim})
 		a.stderr.Write([]byte(hint + "\n"))
@@ -281,62 +312,114 @@ func levenshtein(a, b string) int {
 	return prev[lb]
 }
 
-func (a *App) printHelp() {
+func (a *App) printHelp() { a.printHelpMode(false) }
+
+// printHelpMode prints general help. With core commands registered it uses
+// progressive disclosure: core commands in full, every other command by name
+// under its group. With all set, every command is listed in full.
+func (a *App) printHelpMode(all bool) {
 	t := a.terminal
+	dim := func(s string) string { return t.Paint(s, term.ColorDefault, []term.Style{term.StyleDim}) }
+	title := func(s string) string {
+		return t.Paint(s, term.ColorDefault, []term.Style{term.StyleBold, term.StyleDim})
+	}
 	// Banner
 	name := t.Paint(a.name, term.ColorCyan, []term.Style{term.StyleBold})
-	ver := t.Paint("v"+a.version, term.ColorDefault, []term.Style{term.StyleDim})
-	a.stderr.Write([]byte(name + " " + ver + "\n"))
+	a.stderr.Write([]byte(name + " " + dim("v"+a.version) + "\n"))
 	if a.description != "" {
-		a.stderr.Write([]byte(t.Paint(a.description, term.ColorDefault, []term.Style{term.StyleDim}) + "\n"))
+		a.stderr.Write([]byte(dim(a.description) + "\n"))
 	}
 	a.stderr.Write([]byte("\n"))
 
 	// Usage
-	usageTitle := t.Paint("USAGE", term.ColorDefault, []term.Style{term.StyleBold, term.StyleDim})
-	a.stderr.Write([]byte(usageTitle + "\n"))
-	a.stderr.Write([]byte("  " + t.Paint(a.name, term.ColorCyan, nil) + " " + t.Paint("<command>", term.ColorYellow, nil) + " " + t.Paint("[options]", term.ColorDefault, []term.Style{term.StyleDim}) + "\n"))
-	a.stderr.Write([]byte("  " + t.Paint(a.name+" help [command]", term.ColorDefault, []term.Style{term.StyleDim}) + t.Paint("          canonical", term.ColorDefault, []term.Style{term.StyleDim}) + "\n"))
-	a.stderr.Write([]byte("  " + t.Paint(a.name+" --help | -h", term.ColorDefault, []term.Style{term.StyleDim}) + t.Paint("              flag alias", term.ColorDefault, []term.Style{term.StyleDim}) + "\n"))
+	a.stderr.Write([]byte(title("USAGE") + "\n"))
+	a.stderr.Write([]byte("  " + t.Paint(a.name, term.ColorCyan, nil) + " " + t.Paint("<command>", term.ColorYellow, nil) + " " + dim("[options]") + "\n"))
+	a.stderr.Write([]byte("  " + dim(a.name+" help [command]") + dim("          canonical") + "\n"))
+	a.stderr.Write([]byte("  " + dim(a.name+" help --all") + dim("              every command") + "\n"))
+	a.stderr.Write([]byte("  " + dim(a.name+" --help | -h") + dim("              flag alias") + "\n"))
 	a.stderr.Write([]byte("\n"))
 
-	// Commands grouped
-	if len(a.commands) > 0 {
-		cmdTitle := t.Paint("COMMANDS", term.ColorDefault, []term.Style{term.StyleBold, term.StyleDim})
-		a.stderr.Write([]byte(cmdTitle + "\n"))
-		groups := a.groupedCommands()
-		maxLen := 0
-		for _, c := range a.commands {
-			if c.Hidden {
-				continue
-			}
-			if len(c.Name) > maxLen {
-				maxLen = len(c.Name)
-			}
+	var core []*Command
+	maxLen := len("help")
+	for _, c := range a.commands {
+		if c.Hidden {
+			continue
+		}
+		if c.Core {
+			core = append(core, c)
+		}
+		maxLen = max(maxLen, len(c.Name))
+	}
+	line := func(cmd *Command) {
+		about := cmd.About
+		if about == "" {
+			about = dim("—")
+		}
+		about, _, _ = strings.Cut(about, "\n")
+		l := "    " + t.Paint(cmd.Name, term.ColorCyan, nil) + strings.Repeat(" ", maxLen-len(cmd.Name)) + "  " + about
+		if cmd.Example != "" {
+			l += "\n      " + dim("→ "+cmd.Example)
+		}
+		a.stderr.Write([]byte(l + "\n"))
+	}
+
+	if len(core) > 0 {
+		a.stderr.Write([]byte(title("CORE WORKFLOW") + "\n"))
+		for _, c := range core {
+			line(c)
+		}
+		a.stderr.Write([]byte("\n"))
+	}
+
+	groups := a.groupedCommands(len(core) > 0)
+	if len(groups) > 0 {
+		heading := "COMMANDS"
+		if len(core) > 0 {
+			heading = "ADVANCED CAPABILITIES"
+		}
+		a.stderr.Write([]byte(title(heading) + "\n"))
+		groupWidth := 0
+		for _, g := range groups {
+			groupWidth = max(groupWidth, len(g.name))
 		}
 		for _, g := range groups {
+			if !all && len(core) > 0 {
+				names := make([]string, len(g.cmds))
+				for i, c := range g.cmds {
+					names[i] = t.Paint(c.Name, term.ColorCyan, nil)
+				}
+				label := firstNonEmptyStr(g.name, "other")
+				a.stderr.Write([]byte("  " + dim(fmt.Sprintf("%-*s", groupWidth, strings.ToUpper(label))) + "  " + strings.Join(names, dim(" · ")) + "\n"))
+				continue
+			}
 			if g.name != "" {
-				a.stderr.Write([]byte("  " + t.Paint(strings.ToUpper(g.name), term.ColorDefault, []term.Style{term.StyleDim}) + "\n"))
+				a.stderr.Write([]byte("  " + dim(strings.ToUpper(g.name)) + "\n"))
 			}
 			for _, cmd := range g.cmds {
-				pad := strings.Repeat(" ", maxLen-len(cmd.Name))
-				about := cmd.About
-				if about == "" {
-					about = t.Paint("—", term.ColorDefault, []term.Style{term.StyleDim})
-				}
-				line := "    " + t.Paint(cmd.Name, term.ColorCyan, nil) + pad + "  " + about
-				if cmd.Example != "" {
-					line += "\n      " + t.Paint("→ "+cmd.Example, term.ColorDefault, []term.Style{term.StyleDim})
-				}
-				a.stderr.Write([]byte(line + "\n"))
+				line(cmd)
 			}
 			a.stderr.Write([]byte("\n"))
 		}
-		a.stderr.Write([]byte("  " + t.Paint("help", term.ColorCyan, nil) + strings.Repeat(" ", maxLen-4) + "  " + t.Paint("Show help", term.ColorDefault, []term.Style{term.StyleDim}) + "\n\n"))
+		if !all && len(core) > 0 {
+			a.stderr.Write([]byte("\n"))
+		}
 	}
+	a.stderr.Write([]byte("  " + t.Paint("help", term.ColorCyan, nil) + strings.Repeat(" ", maxLen-4) + "  " + dim("Show help") + "\n\n"))
 
 	// Footer
-	a.stderr.Write([]byte(t.Paint("Run ", term.ColorDefault, []term.Style{term.StyleDim}) + t.Paint(a.name+" help <command>", term.ColorCyan, nil) + t.Paint(" or ", term.ColorDefault, []term.Style{term.StyleDim}) + t.Paint(a.name+" <command> --help", term.ColorCyan, nil) + t.Paint(" for details.", term.ColorDefault, []term.Style{term.StyleDim}) + "\n"))
+	a.stderr.Write([]byte(dim("Run ") + t.Paint(a.name+" help <command>", term.ColorCyan, nil) + dim(" or ") + t.Paint(a.name+" <command> --help", term.ColorCyan, nil) + dim(" for details.") + "\n"))
+	if !all && len(core) > 0 {
+		a.stderr.Write([]byte(dim("Run ") + t.Paint(a.name+" help --all", term.ColorCyan, nil) + dim(" to describe every command.") + "\n"))
+	}
+}
+
+func firstNonEmptyStr(vals ...string) string {
+	for _, v := range vals {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }
 
 type cmdGroup struct {
@@ -344,12 +427,12 @@ type cmdGroup struct {
 	cmds []*Command
 }
 
-func (a *App) groupedCommands() []cmdGroup {
+func (a *App) groupedCommands(skipCore bool) []cmdGroup {
 	// Preserve insertion order of groups as first seen, but sort ungrouped last
 	seen := map[string]int{}
 	var groups []cmdGroup
 	for _, c := range a.commands {
-		if c.Hidden {
+		if c.Hidden || (skipCore && c.Core) {
 			continue
 		}
 		g := c.Group
