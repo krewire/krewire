@@ -15,6 +15,7 @@ type SQLiteConfig struct {
 	ForeignKeys     bool          // Enables PRAGMA foreign_keys = ON (default: true)
 	BusyTimeout     time.Duration // Lock timeout before returning busy (default: 5s)
 	DriverName      string        // Driver to use (default: "sqlite3" or "sqlite")
+	TxLock          string        // BEGIN mode: "deferred", "immediate", or "exclusive" (default: driver default, deferred)
 	MaxOpenConns    int
 	MaxIdleConns    int
 	ConnMaxLifetime time.Duration
@@ -43,6 +44,10 @@ func (c SQLiteConfig) FormatDSN() string {
 		timeoutMs = int(c.BusyTimeout.Milliseconds())
 	}
 	params.Set("_busy_timeout", fmt.Sprintf("%d", timeoutMs))
+
+	if lock := strings.ToLower(strings.TrimSpace(c.TxLock)); lock != "" {
+		params.Set("_txlock", lock)
+	}
 
 	if strings.Contains(c.Path, "?") {
 		return fmt.Sprintf("%s&%s", c.Path, params.Encode())

@@ -224,3 +224,72 @@ func TestORM_FindAllWithMockRows(t *testing.T) {
 		t.Errorf("unexpected members slice: %+v", members)
 	}
 }
+
+func TestTx_ExecQueryInsideTransaction(t *testing.T) {
+	initMockDriver()
+
+	db, err := orm.Open("krewire_mock", "mock_dsn")
+	if err != nil {
+		t.Fatalf("Open failed: %v", err)
+	}
+	defer db.Close()
+	ctx := context.Background()
+
+	err = db.Transaction(ctx, func(tx *orm.Tx) error {
+		if tx.Dialect() == nil || tx.SQLTx() == nil {
+			t.Fatal("transaction must expose its dialect and *sql.Tx")
+		}
+		res, err := tx.Exec(ctx, "UPDATE members SET name = ? WHERE id = ?", "Ana", 7)
+		if err != nil {
+			return err
+		}
+		if n, _ := res.RowsAffected(); n != 1 {
+			t.Errorf("RowsAffected = %d, want 1", n)
+		}
+		globalMockDriver.mu.Lock()
+		got, args := globalMockDriver.lastQuery, len(globalMockDriver.lastArgs)
+		globalMockDriver.colsToYield = []string{"n"}
+		globalMockDriver.rowsToYield = [][]driver.Value{{int64(3)}}
+		globalMockDriver.mu.Unlock()
+		if got != "UPDATE members SET name = ? WHERE id = ?" || args != 2 {
+			t.Errorf("Exec ran %q with %d args", got, args)
+		}
+
+		var n int64
+		if err := tx.QueryRow(ctx, "SELECT COUNT(*) FROM members").Scan(&n); err != nil {
+			return err
+		}
+		if n != 3 {
+			t.Errorf("QueryRow scanned %d, want 3", n)
+		}
+		rows, err := tx.Query(ctx, "SELECT COUNT(*) FROM members")
+		if err != nil {
+			return err
+		}
+		return rows.Close()
+	})
+	if err != nil {
+		t.Fatalf("transaction failed: %v", err)
+	}
+
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{ReadOnly: false})
+	if err != nil {
+		t.Fatalf("BeginTx failed: %v", err)
+	}
+	if err := tx.Rollback(); err != nil {
+		t.Fatalf("Rollback failed: %v", err)
+	}
+}
+
+func TestTx_NilTransactionIsAFailure(t *testing.T) {
+	var tx orm.Tx
+	if _, err := tx.Exec(context.Background(), "SELECT 1"); err == nil {
+		t.Error("Exec on a nil transaction should fail")
+	}
+	if _, err := tx.Query(context.Background(), "SELECT 1"); err == nil {
+		t.Error("Query on a nil transaction should fail")
+	}
+	if tx.QueryRow(context.Background(), "SELECT 1") != nil {
+		t.Error("QueryRow on a nil transaction should return nil")
+	}
+}

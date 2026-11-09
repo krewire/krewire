@@ -32,6 +32,15 @@ func TestSQLiteConfig_FormatDSN(t *testing.T) {
 	if !strings.Contains(dsn, "_busy_timeout=3000") {
 		t.Errorf("missing busy timeout 3000 in DSN: %s", dsn)
 	}
+	if strings.Contains(dsn, "_txlock") {
+		t.Errorf("TxLock unset must leave the driver default: %s", dsn)
+	}
+
+	// 3. Explicit BEGIN mode
+	cfgFile.TxLock = "IMMEDIATE"
+	if dsn := cfgFile.FormatDSN(); !strings.Contains(dsn, "_txlock=immediate") {
+		t.Errorf("missing _txlock=immediate in DSN: %s", dsn)
+	}
 }
 
 func TestPostgresConfig_FormatDSN(t *testing.T) {

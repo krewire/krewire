@@ -134,16 +134,60 @@ type Tx struct {
 	dialect Dialect
 }
 
-// Begin starts a transaction.
+// Begin starts a transaction with the driver's default options.
 func (db *DB) Begin(ctx context.Context) (*Tx, error) {
+	return db.BeginTx(ctx, nil)
+}
+
+// BeginTx starts a transaction with explicit isolation and read-only options.
+// A nil opts uses the driver defaults, exactly like Begin.
+func (db *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
 	if db.sqlDB == nil {
 		return nil, errs.FailureError("orm: database connection is nil")
 	}
-	tx, err := db.sqlDB.BeginTx(ctx, nil)
+	tx, err := db.sqlDB.BeginTx(ctx, opts)
 	if err != nil {
 		return nil, errs.FailureError(fmt.Sprintf("orm: failed to begin transaction: %v", err))
 	}
 	return &Tx{sqlTx: tx, dialect: db.dialect}, nil
+}
+
+// Dialect returns the dialect of the database the transaction runs on.
+func (tx *Tx) Dialect() Dialect {
+	return tx.dialect
+}
+
+// SQLTx returns the underlying *sql.Tx for APIs that need the standard type.
+func (tx *Tx) SQLTx() *sql.Tx {
+	return tx.sqlTx
+}
+
+// Exec executes a statement without returning rows inside the transaction.
+// Placeholders follow the dialect (`?` for SQLite and MySQL, `$1` for
+// PostgreSQL).
+func (tx *Tx) Exec(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	if tx.sqlTx == nil {
+		return nil, errs.FailureError("orm: transaction is nil")
+	}
+	return tx.sqlTx.ExecContext(ctx, query, args...)
+}
+
+// Query executes a query that returns rows inside the transaction.
+func (tx *Tx) Query(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	if tx.sqlTx == nil {
+		return nil, errs.FailureError("orm: transaction is nil")
+	}
+	return tx.sqlTx.QueryContext(ctx, query, args...)
+}
+
+// QueryRow executes a query that is expected to return at most one row inside
+// the transaction. It returns nil when the transaction is nil, mirroring
+// DB.QueryRow.
+func (tx *Tx) QueryRow(ctx context.Context, query string, args ...interface{}) *sql.Row {
+	if tx.sqlTx == nil {
+		return nil
+	}
+	return tx.sqlTx.QueryRowContext(ctx, query, args...)
 }
 
 // Commit commits the transaction.
