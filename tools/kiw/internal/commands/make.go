@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/pkg/errs"
+	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
 )
 
@@ -67,6 +68,17 @@ func RunMake(fs *flag.FlagSet) errs.ExitCode {
 }
 
 // Make executes the scaffolding generator for a given kind and artifact name.
+// Migrations go to the directory `kiw migrate` reads (database.migrations).
 func Make(root, kind, name string) error {
+	if strings.EqualFold(kind, "migration") {
+		dir := config.DefaultMigrationsDir
+		if cfg, err := config.Load(root); err == nil {
+			if db, err := cfg.ResolveDatabase(os.LookupEnv, config.DatabaseConfig{}); err == nil {
+				dir = db.Migrations
+			}
+		}
+		_, err := scaffold.MakeMigration(root, dir, name)
+		return err
+	}
 	return scaffold.MakeArtifact(root, kind, name)
 }
