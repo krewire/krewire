@@ -15,7 +15,7 @@ CORE WORKFLOW
   new · dev · build · test · add · make
 
 ADVANCED CAPABILITIES
-  project   init · remove · update · ui
+  project   init · remove · update · migrate · ui
   inspect   version · info · compat · tier · config · doctor · self-update
   build     bundle · serve
   develop   run · vet · fmt · worker · dashboard · gateway · mcp
@@ -147,6 +147,20 @@ kiw make job SendInvoice
 kiw make chapter introduction
 kiw make doc architecture
 ```
+
+### `kiw migrate <up [n] | down [n] | redo | status | create <name>>`
+Applies the SQL files `kiw make migration` writes (`migrations/<timestamp>_<name>.sql`, with `-- +up` and `-- +down` sections) using [`pkg/orm/migrate`](../../pkg/mod/orm.md#migrations-pkgormmigrate).
+```bash
+kiw migrate create create_users   # same file as kiw make migration
+kiw migrate up                    # apply every pending migration
+kiw migrate up 1                  # apply only the next one
+kiw migrate status                # STATE / MIGRATION / APPLIED AT
+kiw migrate down                  # roll back the last migration (down 3: the last three)
+kiw migrate redo                  # roll back the last migration and apply it again
+```
+- **Database**: `--dsn`, `--driver`, and `--dir` win over `APP_DATABASE_DSN`, `APP_DATABASE_DRIVER`, and `APP_DATABASE_MIGRATIONS` (`.env` is loaded), which win over the [`database:` section](./configuration.md#database-database) of `krewire.yaml`. The driver defaults to `sqlite` and the directory to `migrations`; a relative SQLite path is resolved from the project root.
+- **Drivers**: `kiw` links only the pure-Go SQLite driver ([`pkg/orm/sqlite`](../../pkg/mod/orm.md#sqlite-driver-pkgormsqlite)). For PostgreSQL, import a driver in your app and call `migrate.Up` from it.
+- **Safety**: each migration runs in a transaction with its `schema_migrations` row; concurrent runners wait for one another (`--lock-timeout`, default 30s); an applied file that was edited stops `up` and `down`, and `status` exits 1 when an applied file was edited (`modified`) or deleted (`missing`).
 
 ---
 

@@ -135,6 +135,12 @@ server:
   host: "0.0.0.0"
   port: 8080                # Default port (must be between 1 and 65535)
 
+# Database for `kiw migrate` (env APP_DATABASE_DRIVER / _DSN / _MIGRATIONS override)
+database:
+  driver: sqlite            # database/sql driver; kiw links only "sqlite"
+  dsn: app.db               # SQLite file relative to the project root, or a connection URL
+  migrations: migrations    # where `kiw make migration` writes (default)
+
 # Multi-runtime coordination & environment binding
 runtime:
   namespace: "api"          # Prefix for environment variables: KREWIRE_API_<KEY>
@@ -254,6 +260,22 @@ When `runtime.namespace` is declared (e.g. `namespace: "api"`):
 - The `--addr` command-line flag (`kiw run --addr :9000`) always takes precedence over all configuration and environment declarations.
 
 ---
+
+## Database (`database:`)
+
+`kiw migrate` reads the database to migrate from the `database:` section. The
+keys follow the same environment overlay an app gets from `pkg/config`
+(`APP_<SECTION>_<KEY>`), so one `.env` serves both:
+
+| Key | Environment override | Default | Meaning |
+| :--- | :--- | :--- | :--- |
+| `database.driver` | `APP_DATABASE_DRIVER` | `sqlite` | `database/sql` driver name |
+| `database.dsn` | `APP_DATABASE_DSN` | — (required) | SQLite file path relative to the project root, or a connection URL |
+| `database.migrations` | `APP_DATABASE_MIGRATIONS` | `migrations` | Directory `kiw make migration` writes and `kiw migrate` reads |
+
+Command-line flags (`--driver`, `--dsn`, `--dir`) win over both. `kiw` itself
+links only the SQLite driver; a project on PostgreSQL runs `migrate.Up` from
+its own binary, where its driver is imported.
 
 ## Build Orchestration (`build.depends_on`)
 
