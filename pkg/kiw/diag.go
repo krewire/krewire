@@ -163,7 +163,7 @@ func tokenColumn(line, msg string) int {
 		default:
 			for _, part := range strings.Split(strings.Trim(tok, ".$"), ".") {
 				if part != "" {
-					needles = append(needles, part, lowerFirst(part))
+					needles = append(needles, part, lowerFirstRune(part))
 				}
 			}
 		}
@@ -188,11 +188,4 @@ func hintFor(msg string) string {
 		return "a control block ({#if}, {#each}) or brace is out of place; blocks may not appear inside component attributes"
 	}
 	return ""
-}
-
-func lowerFirst(s string) string {
-	if s == "" {
-		return s
-	}
-	return strings.ToLower(s[:1]) + s[1:]
 }
