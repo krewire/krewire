@@ -50,6 +50,8 @@ type Config struct {
 	Debug bool `yaml:"debug"`
 	// Title is the site title.
 	Title string `yaml:"title"`
+	// Description is the site description (read by pkg/web/ssg for page data).
+	Description string `yaml:"description"`
 	// Author is the site author.
 	Author string `yaml:"author"`
 	// Base is the URL base the site is served under, e.g. "/docs/".
@@ -161,6 +163,7 @@ type ServerConfig struct {
 // ServiceConfig holds service-specific settings under the `service:` or `services:` key (FRK-CONF-032).
 type ServiceConfig struct {
 	Name string `yaml:"name"`
+	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
 }
 
@@ -307,6 +310,10 @@ type Project struct {
 	// Load folds it into Config.Version when no top-level `version:` is set,
 	// so the version has one effective value regardless of where it is declared.
 	Version string `yaml:"version"`
+	// Author is the project author or team.
+	Author string `yaml:"author"`
+	// Description is a one-line project description.
+	Description string `yaml:"description"`
 	// Dirs overrides the canonical directory locations (FRK-STR-010).
 	Dirs Dirs `yaml:"dirs"`
 }

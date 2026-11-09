@@ -227,22 +227,31 @@ func (a *App) printUnknownCommand(name string) {
 }
 
 func (a *App) suggestCommand(name string) string {
+	names := make([]string, 0, len(a.commands))
+	for _, c := range a.commands {
+		names = append(names, c.Name)
+	}
+	return Suggest(name, names)
+}
+
+// Suggest returns the candidate a mistyped name most likely meant: the first
+// candidate that name is a prefix of, otherwise the closest candidate within
+// an edit distance of 2 (case-insensitive). It returns "" when none is close.
+func Suggest(name string, candidates []string) string {
 	best := ""
 	bestDist := 3
-	for _, c := range a.commands {
-		if strings.HasPrefix(c.Name, name) {
-			return c.Name
+	lname := strings.ToLower(name)
+	for _, c := range candidates {
+		lc := strings.ToLower(c)
+		if lname != "" && strings.HasPrefix(lc, lname) {
+			return c
 		}
-		d := levenshtein(name, c.Name)
-		if d < bestDist {
+		if d := levenshtein(lname, lc); d < bestDist {
 			bestDist = d
-			best = c.Name
+			best = c
 		}
 	}
-	if bestDist <= 2 {
-		return best
-	}
-	return ""
+	return best
 }
 
 func levenshtein(a, b string) int {
