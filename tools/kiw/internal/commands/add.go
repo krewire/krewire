@@ -11,23 +11,45 @@ import (
 )
 
 func RegisterAdd(fs *flag.FlagSet) {
-	// No flags yet; version is encoded in package@version syntax.
-	// Future: --dev, --save-dev for npm dev deps.
+	// Package versions are encoded in package@version syntax.
+	fs.Bool("force", false, "ui/<name>: overwrite locally modified components")
+	fs.Bool("dry-run", false, "ui/<name>: show what would change without writing")
 }
 
 func RunAdd(fs *flag.FlagSet) errs.ExitCode {
 	args := fs.Args()
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: kiw add <package[@version]> [package[@version] ...]")
+		fmt.Fprintln(os.Stderr, "usage: kiw add <package[@version]|ui/<component>|ui:<pack>> ...")
 		fmt.Fprintln(os.Stderr, "  package@latest  latest version")
 		fmt.Fprintln(os.Stderr, "  package@1.2.3   specific version")
-		fmt.Fprintln(os.Stderr, "examples: kiw add twcss, kiw add tailwindcss@3.4.1, kiw add github.com/foo/bar@v1.2.3")
+		fmt.Fprintln(os.Stderr, "  ui/<component>  copy a kui component into ./components (e.g. ui/button)")
+		fmt.Fprintln(os.Stderr, "  ui:<pack>       copy a starter pack (ui:minimal, ui:base, ui:dashboard)")
+		fmt.Fprintln(os.Stderr, "examples: kiw add twcss, kiw add github.com/foo/bar@v1.2.3, kiw add ui/card")
+		fmt.Fprintln(os.Stderr, "hint: browse components with 'kiw ui list'")
 		return errs.ExitCodeUsage
 	}
 	root, err := os.Getwd()
 	if err != nil {
 		return fail(err)
 	}
+	var uiRefs, pkgs []string
+	for _, a := range args {
+		if isUIRef(a) {
+			uiRefs = append(uiRefs, a)
+		} else {
+			pkgs = append(pkgs, a)
+		}
+	}
+	if len(uiRefs) > 0 {
+		uiRoot := root
+		if r, err := findRoot(); err == nil {
+			uiRoot = r
+		}
+		if code := uiAdd(uiRoot, uiRefs, flagBool(fs, "force"), flagBool(fs, "dry-run")); code != errs.ExitCodeSuccess || len(pkgs) == 0 {
+			return code
+		}
+	}
+	args = pkgs
 	chain := resolver.DefaultChain()
 	for _, raw := range args {
 		spec, err := resolver.ParseSpec(raw)

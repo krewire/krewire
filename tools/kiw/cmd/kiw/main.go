@@ -46,6 +46,7 @@ func main() {
 		Command(tui.NewCommand("boost", "manage Boost AI agent template (install, status)", commands.RegisterBoost, commands.RunBoost).WithGroup("ship").WithExample("kiw boost status")).
 		Command(tui.NewCommand("release", "bump versions and stage a release across modules", commands.RegisterRelease, commands.RunRelease).WithGroup("ship").WithExample("kiw release framework --bump minor --apply")).
 		Command(tui.NewCommand("make", "scaffold components, pages, handlers, migrations", commands.RegisterMake, commands.RunMake).WithGroup("project").WithExample("kiw make component Card")).
+		Command(tui.NewCommand("ui", "browse, install, and diff kui components: list, info <name>, add <name|pack:x>, diff <name>", commands.RegisterUI, commands.RunUI).WithGroup("project").WithExample("kiw ui list")).
 		Command(tui.NewCommand("kiw", "easter egg: playful client catcalls to developers", commands.RegisterKiw, commands.RunKiw).WithHidden(true).WithExample("kiw kiw"))
 
 	os.Exit(int(app.Run(os.Args[1:])))
