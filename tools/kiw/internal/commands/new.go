@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -24,13 +25,25 @@ func RegisterNew(fs *flag.FlagSet) {
 	fs.Bool("infra", false, "equip a cloud infrastructure blueprint (cloud/infra)")
 	fs.String("template", "", "bootstrap from a remote git template (git URL)")
 	fs.String("title", "", "site title for the site and book variants")
+	fs.Bool("no-input", false, "never prompt; fail with usage when the project name is missing")
 }
 
 // RunNew creates a new Krewire project: initializing minimal ecosystem files and scaffolding.
 func RunNew(fs *flag.FlagSet) errs.ExitCode {
 	name := fs.Arg(0)
+	if name == "" && shouldPrompt(fs) {
+		r := bufio.NewReader(promptIn)
+		name = ask(r, "Project name", "")
+		if name != "" && !hasKindFlag(fs) {
+			if kind := askKind(r, "app", false); kind != "" {
+				_ = fs.Set(kind, "true")
+			}
+		}
+	}
 	if name == "" {
 		fmt.Fprintln(os.Stderr, "usage: kiw new <project> [--site|--book|--cli|--app|--worker|--service|--gateway|--infra|--template <git-url>]")
+		fmt.Fprintln(os.Stderr, "  kiw new creates a new directory; to set up the current directory use 'kiw init'")
+		fmt.Fprintln(os.Stderr, "  run it in a terminal without arguments to be asked for the name and kind")
 		return errs.ExitCodeUsage
 	}
 

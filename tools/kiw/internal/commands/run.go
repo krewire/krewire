@@ -83,7 +83,8 @@ func RunRun(fs *flag.FlagSet) errs.ExitCode {
 	case shape.KindCLI:
 		return runCLI(rt, fs)
 	case shape.KindSite, shape.KindBook:
-		fmt.Fprintf(os.Stderr, "kiw run: this is a %s project — build and serve it instead: 'kiw build' then 'kiw serve'\n", res.Kind)
+		fmt.Fprintf(os.Stderr, "kiw run: this is a %s project — 'kiw run' executes apps, CLIs, Go files and scripts once\n", res.Kind)
+		fmt.Fprintln(os.Stderr, "  hint: use 'kiw dev' for a live dev server with reload, or 'kiw build' then 'kiw serve' to preview the production output")
 		return errs.ExitCodeUsage
 	case shape.KindInfra:
 		fmt.Fprintln(os.Stderr, "kiw run: this is an infra project — use 'kiw build --plan' or 'kiw deploy' instead")

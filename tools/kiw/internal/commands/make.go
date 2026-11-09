@@ -45,6 +45,8 @@ func RunMake(fs *flag.FlagSet) errs.ExitCode {
 	if kind == "" || name == "" {
 		fmt.Fprintln(os.Stderr, "kiw make: usage: kiw make <kind> <name>")
 		fmt.Fprintln(os.Stderr, "supported kinds: component, page, handler, migration, model, middleware, service, job, chapter, doc")
+		fmt.Fprintln(os.Stderr, "example: kiw make component Card")
+		fmt.Fprintln(os.Stderr, "hint: to start from a ready-made kui component instead, run 'kiw ui list' and 'kiw add ui/<name>'")
 		return errs.ExitCodeUsage
 	}
 
