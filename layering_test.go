@@ -274,3 +274,32 @@ func TestUIDoesNotImportWeb(t *testing.T) {
 		t.Fatal("no pkg/ui files checked; the sibling-direction guard did not run")
 	}
 }
+
+// TestSQLiteDriverIsOptIn asserts that the bundled SQLite driver stays opt-in:
+// only pkg/orm/sqlite imports modernc.org/sqlite, and no other library under
+// pkg/ imports pkg/orm/sqlite. Binaries (an app's main, tools/kiw) choose to
+// link the driver; a library never forces it on its importers.
+func TestSQLiteDriverIsOptIn(t *testing.T) {
+	root := repoRoot(t)
+	mod := modulePath(t, root)
+	driverPkg := filepath.Join(root, "pkg", "orm", "sqlite")
+	wrapper := mod + "/pkg/orm/sqlite"
+
+	checked := 0
+	for _, file := range goFiles(t, filepath.Join(root, "pkg")) {
+		rel, _ := filepath.Rel(root, file)
+		inDriverPkg := filepath.Dir(file) == driverPkg
+		for _, imp := range parseImports(t, file) {
+			if strings.HasPrefix(imp, "modernc.org/") && !inDriverPkg {
+				t.Errorf("%s imports %q: only pkg/orm/sqlite may link the SQLite driver", rel, imp)
+			}
+			if imp == wrapper && !inDriverPkg {
+				t.Errorf("%s imports %q: libraries must not force the SQLite driver on their importers", rel, imp)
+			}
+		}
+		checked++
+	}
+	if checked == 0 {
+		t.Fatal("no pkg files checked; the driver opt-in guard did not run")
+	}
+}
