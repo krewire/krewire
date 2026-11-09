@@ -111,6 +111,8 @@ type Config struct {
 	I18n *ssg.I18nConfig `yaml:"i18n"`
 	// API configures central API Gateway routing.
 	API APIConfig `yaml:"api"`
+	// Database tells `kiw migrate` which database to migrate.
+	Database DatabaseConfig `yaml:"database"`
 }
 
 // APIConfig holds settings for the unified API Gateway.

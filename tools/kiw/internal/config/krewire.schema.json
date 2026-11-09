@@ -798,6 +798,35 @@
           "default": "https://api.krewire.com"
         }
       }
+    },
+    "database": {
+      "type": "object",
+      "description": "Database that `kiw migrate` migrates. Environment variables APP_DATABASE_DRIVER, APP_DATABASE_DSN and APP_DATABASE_MIGRATIONS override these keys, as pkg/config does for apps.",
+      "additionalProperties": false,
+      "properties": {
+        "driver": {
+          "type": "string",
+          "description": "database/sql driver name. kiw links only the pure-Go SQLite driver (\"sqlite\"); other drivers are migrated from the app with pkg/orm/migrate.",
+          "default": "sqlite",
+          "examples": [
+            "sqlite",
+            "postgres"
+          ]
+        },
+        "dsn": {
+          "type": "string",
+          "description": "Connection string. For SQLite, a file path relative to the project root.",
+          "examples": [
+            "app.db",
+            "postgres://user:pass@localhost:5432/app?sslmode=disable"
+          ]
+        },
+        "migrations": {
+          "type": "string",
+          "description": "Migrations directory, relative to the project root (where `kiw make migration` writes).",
+          "default": "migrations"
+        }
+      }
     }
   }
 }

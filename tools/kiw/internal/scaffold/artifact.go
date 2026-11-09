@@ -229,16 +229,38 @@ func %sHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func generateMigration(root, name string) error {
+	_, err := MakeMigration(root, "migrations", name)
+	return err
+}
+
+// MakeMigration writes an empty timestamped migration with "-- +up" and
+// "-- +down" sections into dir (relative to root) and returns its path
+// relative to root. When another migration already uses the current second,
+// the timestamp moves forward so versions stay unique.
+func MakeMigration(root, dir, name string) (string, error) {
 	name = strings.TrimSuffix(name, ".sql")
 	slug := strings.ReplaceAll(toSlug(name), "-", "_")
-	dir := filepath.Join(root, "migrations")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
+	if slug == "" {
+		return "", fmt.Errorf("migration name %q has no letters or digits", name)
+	}
+	full := filepath.Join(root, dir)
+	if err := os.MkdirAll(full, 0o755); err != nil {
+		return "", err
 	}
 
-	ts := time.Now().UTC().Format("20060102150405")
-	fileName := fmt.Sprintf("%s_%s.sql", ts, slug)
-	target := filepath.Join(dir, fileName)
+	now := time.Now().UTC()
+	for {
+		taken, err := filepath.Glob(filepath.Join(full, now.Format("20060102150405")+"_*.sql"))
+		if err != nil {
+			return "", err
+		}
+		if len(taken) == 0 {
+			break
+		}
+		now = now.Add(time.Second)
+	}
+	fileName := fmt.Sprintf("%s_%s.sql", now.Format("20060102150405"), slug)
+	target := filepath.Join(full, fileName)
 
 	content := fmt.Sprintf(`-- Migration: %s
 -- Created at: %s
@@ -250,13 +272,15 @@ func generateMigration(root, name string) error {
 -- +down
 -- Write your DOWN migration SQL here:
 
-`, name, time.Now().UTC().Format(time.RFC3339))
+`, name, now.Format(time.RFC3339))
 
 	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
-		return err
+		return "", err
 	}
-	fmt.Printf("created migrations/%s\n", fileName)
-	return nil
+	rel, _ := filepath.Rel(root, target)
+	rel = filepath.ToSlash(rel)
+	fmt.Printf("created %s\n", rel)
+	return rel, nil
 }
 
 func generateModel(root, name string) error {
