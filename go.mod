@@ -5,6 +5,7 @@ go 1.27.1
 require (
 	github.com/chai2010/webp v1.4.0
 	github.com/disintegration/imaging v1.6.2
+	github.com/krewire/ui v0.0.0-20261109124147-f8e4d32a0a7c
 	github.com/tdewolff/minify/v2 v2.24.19
 	golang.org/x/net v0.62.0
 	gopkg.in/yaml.v3 v3.0.1
