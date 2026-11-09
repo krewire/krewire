@@ -56,18 +56,26 @@ krewire/
     └── new/      # Fresh project scaffolding blueprints
 ```
 
-## Role in the 9-Repository Ecosystem
+## Role in the 10-Repository Ecosystem & Battery Architecture
 
-Krewire is the core monorepo in the ecosystem:
+All workloads, libraries, and platforms advance along the **Ecosystem Architectural Battery**, fully driven by the `kiw` devtool CLI and declarative `krewire.yaml` configuration:
+
+```text
+Go Stdlib ──► Krewire Libraries ──► Krewire UI | Krewire Auth | Krewire Krew ──► Krewire Forge | Krewire Cloud ──► Krewire Dash
+                                                                                                                   (Unified Workspace)
+```
+
+Krewire is the core monorepo in the 10-repository ecosystem:
 1. **krewire** (this repository): Core monorepo containing packages, apps, CLI tooling (`kiw`), and starters.
 2. **krew**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
 3. **cloud**: Private enterprise hybrid PaaS engine and control plane.
 4. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform.
-5. **dash**: Krewire Dash — private enterprise AI-powered virtual workspace.
-6. **panel**: Krewire Panel — private enterprise self-hosted server & admin control panel.
-7. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
-8. **krewire.com**: Official product website and documentation portal.
-9. **krewire.github.io**: Community portal and guides hub.
+5. **dash**: Krewire Dash — AI-native virtual workspace, execution sandboxes, and collaboration console.
+6. **panel**: Krewire Forge — Declarative web, form, resource, and admin panel builder for Go & `.kiw`.
+7. **ui**: Pop-Brutalist `.kiw` design system (50+ components, pure Go embed.FS, zero npm runtime).
+8. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
+9. **krewire.com**: Official product website and documentation portal.
+10. **krewire.github.io**: Community portal and guides hub.
 
 ## The 3S Pillars (Secure, Sustainable, Scalable)
 
