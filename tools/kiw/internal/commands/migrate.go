@@ -187,7 +187,7 @@ func runMigrateCommand(ctx context.Context, w io.Writer, m *migrate.Migrator, su
 		if r.Direction == migrate.DirectionDown {
 			verb = "rolled back"
 		}
-		fmt.Fprintf(w, "%s %s (%s)\n", verb, r.Migration, r.Duration.Round(time.Millisecond))
+		fmt.Fprintf(w, "%s %s (%s)\n", verb, r.Migration, roundDuration(r.Duration))
 	}
 	if err != nil {
 		printMigrateError(os.Stderr, err)
@@ -237,4 +237,12 @@ func printMigrateError(w io.Writer, err error) {
 	if hint := errs.HintOf(err); hint != "" {
 		fmt.Fprintln(w, "hint: "+hint)
 	}
+}
+
+// roundDuration keeps sub-millisecond timings readable instead of "0s".
+func roundDuration(d time.Duration) time.Duration {
+	if d < time.Millisecond {
+		return d.Round(time.Microsecond)
+	}
+	return d.Round(time.Millisecond)
 }

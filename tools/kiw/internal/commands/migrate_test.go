@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/pkg/orm/sqlite"
@@ -165,5 +166,14 @@ func TestMigrate_ConfigPrecedenceAndErrors(t *testing.T) {
 		if _, code := runMigrate(t, args...); code != errs.ExitCodeUsage {
 			t.Errorf("kiw migrate %v = %v, want usage", args, code)
 		}
+	}
+}
+
+func TestRoundDuration(t *testing.T) {
+	if got := roundDuration(412345 * time.Nanosecond); got != 412*time.Microsecond {
+		t.Errorf("sub-millisecond = %s", got)
+	}
+	if got := roundDuration(1500 * time.Microsecond); got != 2*time.Millisecond {
+		t.Errorf("millisecond rounding = %s", got)
 	}
 }
