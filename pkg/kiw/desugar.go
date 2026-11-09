@@ -9,7 +9,7 @@ import (
 
 var (
 	identPathRe       = regexp.MustCompile(`^[a-zA-Z_$][a-zA-Z0-9_$]*(?:\.[a-zA-Z0-9_$]+)*$`)
-	eachBlockRe       = regexp.MustCompile(`(?s)\{#each\s+([a-zA-Z0-9_$.]+)\s+as\s+([a-zA-Z0-9_$]+)(?:\s*,\s*([a-zA-Z0-9_$]+))?\s*\}(.*?)\{/each\}`)
+	eachOpenRe        = regexp.MustCompile(`\{#each\s+([a-zA-Z0-9_$.]+)\s+as\s+([a-zA-Z0-9_$]+)(?:\s*,\s*([a-zA-Z0-9_$]+))?\s*\}`)
 	ifTagRe           = regexp.MustCompile(`\{#if\s+([^}]+)\}`)
 	elseIfTagRe       = regexp.MustCompile(`\{:else\s+if\s+([^}]+)\}`)
 	elseTagRe         = regexp.MustCompile(`\{:else\}`)
@@ -136,7 +136,7 @@ func desugarInterpolation(src string, loopVars map[string]bool) string {
 }
 
 // desugarClassDirectives handles class:name={cond} on HTML tags.
-func desugarClassDirectives(src string) string {
+func desugarClassDirectives(src string, pad bool) string {
 	return tagWithClassDirRe.ReplaceAllStringFunc(src, func(tagMatch string) string {
 		sub := tagWithClassDirRe.FindStringSubmatch(tagMatch)
 		if len(sub) < 3 {
@@ -190,57 +190,106 @@ func desugarClassDirectives(src string) string {
 			cleanAttr += fmt.Sprintf(` class="%s"`, joinedConds)
 		}
 
-		return fmt.Sprintf("<%s%s>", tagName, cleanAttr)
+		return keepLines(tagMatch, fmt.Sprintf("<%s%s>", tagName, cleanAttr), pad)
 	})
 }
 
+// eachClose terminates an {#each} block.
+const eachClose = "{/each}"
+
+// matchingEachClose returns the index in src of the {/each} that closes a
+// block whose body starts at from, skipping nested {#each} blocks.
+func matchingEachClose(src string, from int) int {
+	depth := 1
+	for i := from; i < len(src); {
+		open := eachOpenRe.FindStringIndex(src[i:])
+		closeIdx := strings.Index(src[i:], eachClose)
+		if closeIdx < 0 {
+			return -1
+		}
+		if open != nil && open[0] < closeIdx {
+			depth++
+			i += open[1]
+			continue
+		}
+		depth--
+		if depth == 0 {
+			return i + closeIdx
+		}
+		i += closeIdx + len(eachClose)
+	}
+	return -1
+}
+
 // desugarLoops translates {#each items as item, index}...{/each} blocks.
-func desugarLoops(src string) string {
-	res := src
+// Blocks nest: an inner block sees the variables of every enclosing loop, so
+// {#each rows as row}{#each row as cell}...{/each}{/each} ranges over $row.
+// A block without a matching {/each} is left untouched (Lint reports it).
+func desugarLoops(src string, scope map[string]bool, pad bool) string {
+	var b strings.Builder
+	rest := src
 	for {
-		m := eachBlockRe.FindStringSubmatchIndex(res)
+		m := eachOpenRe.FindStringSubmatchIndex(rest)
 		if m == nil {
 			break
 		}
-		itemsExpr := strings.TrimSpace(res[m[2]:m[3]])
-		itemVar := strings.TrimSpace(res[m[4]:m[5]])
+		end := matchingEachClose(rest, m[1])
+		if end < 0 {
+			break
+		}
+		itemsExpr := strings.TrimSpace(rest[m[2]:m[3]])
+		itemVar := strings.TrimSpace(rest[m[4]:m[5]])
 		indexVar := ""
 		if m[6] != -1 && m[7] != -1 {
-			indexVar = strings.TrimSpace(res[m[6]:m[7]])
+			indexVar = strings.TrimSpace(rest[m[6]:m[7]])
 		}
-		body := res[m[8]:m[9]]
 
-		loopVars := map[string]bool{itemVar: true}
+		inner := make(map[string]bool, len(scope)+2)
+		for k, v := range scope {
+			inner[k] = v
+		}
+		inner[itemVar] = true
 		if indexVar != "" {
-			loopVars[indexVar] = true
+			inner[indexVar] = true
 		}
 
-		goItems := toGoField(itemsExpr, nil)
-		var rangeHeader string
+		goItems := toGoField(itemsExpr, scope)
+		header := fmt.Sprintf("{{range $%s := %s}}", itemVar, goItems)
 		if indexVar != "" {
-			rangeHeader = fmt.Sprintf("{{range $%s, $%s := %s}}", indexVar, itemVar, goItems)
-		} else {
-			rangeHeader = fmt.Sprintf("{{range $%s := %s}}", itemVar, goItems)
+			header = fmt.Sprintf("{{range $%s, $%s := %s}}", indexVar, itemVar, goItems)
 		}
-
-		// Recursively desugar body with loop variable scope
-		desugaredBody, _ := DesugarTemplateWithScope(body, loopVars)
-
-		replacement := rangeHeader + desugaredBody + "{{end}}"
-		res = res[:m[0]] + replacement + res[m[1]:]
+		b.WriteString(rest[:m[0]])
+		b.WriteString(keepLines(rest[m[0]:m[1]], header, pad))
+		b.WriteString(desugar(rest[m[1]:end], inner, pad))
+		b.WriteString("{{end}}")
+		rest = rest[end+len(eachClose):]
 	}
-	return res
+	b.WriteString(rest)
+	return b.String()
+}
+
+// keepLines returns repl followed by the newlines it dropped from orig when
+// pad is set. Line-preserving desugaring (used only to locate errors) keeps
+// every template line at its .kiw source line this way.
+func keepLines(orig, repl string, pad bool) string {
+	if !pad {
+		return repl
+	}
+	if d := strings.Count(orig, "\n") - strings.Count(repl, "\n"); d > 0 {
+		return repl + strings.Repeat("\n", d)
+	}
+	return repl
 }
 
 // desugarConditionals converts {#if expr}, {:else if expr}, {:else}, {/if}.
-func desugarConditionals(src string, loopVars map[string]bool) string {
+func desugarConditionals(src string, loopVars map[string]bool, pad bool) string {
 	res := ifTagRe.ReplaceAllStringFunc(src, func(match string) string {
 		sub := ifTagRe.FindStringSubmatch(match)
 		if len(sub) < 2 {
 			return match
 		}
 		expr := strings.TrimSpace(sub[1])
-		return fmt.Sprintf("{{if %s}}", desugarInfixExpr(expr, loopVars))
+		return keepLines(match, fmt.Sprintf("{{if %s}}", desugarInfixExpr(expr, loopVars)), pad)
 	})
 
 	res = elseIfTagRe.ReplaceAllStringFunc(res, func(match string) string {
@@ -249,7 +298,7 @@ func desugarConditionals(src string, loopVars map[string]bool) string {
 			return match
 		}
 		expr := strings.TrimSpace(sub[1])
-		return fmt.Sprintf("{{else if %s}}", desugarInfixExpr(expr, loopVars))
+		return keepLines(match, fmt.Sprintf("{{else if %s}}", desugarInfixExpr(expr, loopVars)), pad)
 	})
 
 	res = elseTagRe.ReplaceAllString(res, "{{else}}")
