@@ -38,3 +38,6 @@ type Cache interface {
 	// Close releases connection pool or background resources.
 	Close() error
 }
+
+// Driver is an alias for Cache to satisfy ecosystem naming conventions (cache.Driver).
+type Driver = Cache

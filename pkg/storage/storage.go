@@ -20,6 +20,9 @@ type Store interface {
 	Stat(key string) (ObjectInfo, error)
 }
 
+// Provider is an alias for Store to align with ecosystem naming contracts (storage.Provider).
+type Provider = Store
+
 // StreamStore defines the streaming interface for chunked object storage.
 type StreamStore interface {
 	Store
