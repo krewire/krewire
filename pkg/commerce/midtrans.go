@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha512"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -278,7 +279,7 @@ func (m *MidtransProvider) VerifyWebhook(payload []byte) (*WebhookEvent, error) 
 	// Verify SHA-512 signature key if server key is configured
 	if m.serverKey != "" {
 		expectedSig := CalculateMidtransSignature(notif.OrderID, notif.StatusCode, notif.GrossAmount, m.serverKey)
-		if notif.SignatureKey != expectedSig {
+		if subtle.ConstantTimeCompare([]byte(notif.SignatureKey), []byte(expectedSig)) != 1 {
 			return nil, errs.FailureError("invalid webhook signature: signature mismatch")
 		}
 	}
