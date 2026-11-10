@@ -29,20 +29,28 @@ const (
 
 // MySQLConfig contains connection parameters for MySQL and MariaDB engines.
 type MySQLConfig struct {
-	Host            string
-	Port            int // default: DefaultMySQLPort (3306)
-	Database        string
-	User            string
-	Password        string
-	Charset         string // default: DefaultMySQLCharset ("utf8mb4")
-	Collation       string // default: "utf8mb4_unicode_ci"
-	ParseTime       bool   // default: true
-	Loc             string // default: DefaultMySQLLoc ("Local")
-	DriverName      string // default: DefaultMySQLDriverName ("mysql")
-	MaxOpenConns    int
-	MaxIdleConns    int
-	ConnMaxLifetime time.Duration
-	ConnMaxIdleTime time.Duration
+	Host                 string
+	Port                 int // default: DefaultMySQLPort (3306)
+	Database             string
+	User                 string
+	Password             string
+	Charset              string        // default: DefaultMySQLCharset ("utf8mb4")
+	Collation            string        // default: "utf8mb4_unicode_ci"
+	ParseTime            bool          // default: true
+	Loc                  string        // default: DefaultMySQLLoc ("Local")
+	DriverName           string        // default: DefaultMySQLDriverName ("mysql")
+	TLS                  string        // e.g. "false", "true", "skip-verify", "preferred"
+	Timeout              time.Duration // Dial timeout
+	ReadTimeout          time.Duration // I/O read timeout
+	WriteTimeout         time.Duration // I/O write timeout
+	InterpolateParams    bool          // Client-side statement interpolation (default: true in production)
+	MultiStatements      bool          // Allow multiple statements per query (default: false for security)
+	AllowNativePasswords bool          // Allow native password authentication
+	CheckConnLiveness    bool          // Check connection liveness before reuse
+	MaxOpenConns         int
+	MaxIdleConns         int
+	ConnMaxLifetime      time.Duration
+	ConnMaxIdleTime      time.Duration
 }
 
 // FormatDSN generates a standard MySQL connection DSN:
@@ -80,6 +88,33 @@ func (c MySQLConfig) FormatDSN() string {
 
 	if c.Collation != "" {
 		params.Set("collation", c.Collation)
+	}
+
+	if c.TLS != "" {
+		params.Set("tls", c.TLS)
+	}
+
+	if c.Timeout > 0 {
+		params.Set("timeout", c.Timeout.String())
+	}
+	if c.ReadTimeout > 0 {
+		params.Set("readTimeout", c.ReadTimeout.String())
+	}
+	if c.WriteTimeout > 0 {
+		params.Set("writeTimeout", c.WriteTimeout.String())
+	}
+
+	if c.InterpolateParams {
+		params.Set("interpolateParams", "true")
+	}
+	if c.MultiStatements {
+		params.Set("multiStatements", "true")
+	}
+	if c.AllowNativePasswords {
+		params.Set("allowNativePasswords", "true")
+	}
+	if c.CheckConnLiveness {
+		params.Set("checkConnLiveness", "true")
 	}
 
 	var authPart string

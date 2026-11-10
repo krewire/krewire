@@ -124,3 +124,59 @@ func TestForeignKeysEnforced(t *testing.T) {
 		t.Fatal("insert with a dangling foreign key succeeded; foreign_keys is off")
 	}
 }
+
+func TestProductionConfigAndOperations(t *testing.T) {
+	ctx := context.Background()
+	dbPath := filepath.Join(t.TempDir(), "prod.db")
+	db, err := sqlite.OpenProduction(dbPath)
+	if err != nil {
+		t.Fatalf("OpenProduction failed: %v", err)
+	}
+	defer db.Close()
+
+	// Verify integrity checks on fresh database
+	msgs, err := sqlite.IntegrityCheck(ctx, db)
+	if err != nil {
+		t.Fatalf("IntegrityCheck failed: %v", err)
+	}
+	if len(msgs) != 1 || msgs[0] != "ok" {
+		t.Errorf("unexpected integrity check message: %v", msgs)
+	}
+
+	quickMsgs, err := sqlite.QuickCheck(ctx, db)
+	if err != nil {
+		t.Fatalf("QuickCheck failed: %v", err)
+	}
+	if len(quickMsgs) != 1 || quickMsgs[0] != "ok" {
+		t.Errorf("unexpected quick check message: %v", quickMsgs)
+	}
+
+	// Create a table and write some data
+	_, err = db.Exec(ctx, "CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT)")
+	if err != nil {
+		t.Fatalf("create table items failed: %v", err)
+	}
+	for i := 0; i < 50; i++ {
+		_, err = db.Exec(ctx, "INSERT INTO items (name) VALUES (?)", "test item")
+		if err != nil {
+			t.Fatalf("insert item failed: %v", err)
+		}
+	}
+
+	// Verify maintenance operations
+	if err := sqlite.Checkpoint(ctx, db, sqlite.CheckpointTruncate); err != nil {
+		t.Errorf("Checkpoint TRUNCATE failed: %v", err)
+	}
+	if err := sqlite.Checkpoint(ctx, db, sqlite.CheckpointPassive); err != nil {
+		t.Errorf("Checkpoint PASSIVE failed: %v", err)
+	}
+	if err := sqlite.Optimize(ctx, db); err != nil {
+		t.Errorf("Optimize failed: %v", err)
+	}
+	if err := sqlite.IncrementalVacuum(ctx, db, 10); err != nil {
+		t.Errorf("IncrementalVacuum failed: %v", err)
+	}
+	if err := sqlite.Vacuum(ctx, db); err != nil {
+		t.Errorf("Vacuum failed: %v", err)
+	}
+}

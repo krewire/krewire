@@ -30,9 +30,15 @@ type SQLiteConfig struct {
 	BusyTimeout     time.Duration // Lock timeout before returning busy (default: DefaultSQLiteBusyTimeout)
 	DriverName      string        // Driver to use (default: DefaultSQLiteDriverName)
 	TxLock          string        // BEGIN mode: "deferred", "immediate", or "exclusive" (default: driver default, deferred)
+	Synchronous     string        // e.g. "NORMAL", "FULL", "OFF" (default: "NORMAL" in WAL mode)
+	CacheSize       int           // Cache size in KiB (negative, e.g. -64000 = 64MB) or pages (positive)
+	TempStore       string        // e.g. "MEMORY", "FILE"
+	MmapSize        int64         // Maximum memory-mapped I/O address space size in bytes
+	AutoVacuum      string        // e.g. "NONE", "FULL", "INCREMENTAL"
 	MaxOpenConns    int
 	MaxIdleConns    int
 	ConnMaxLifetime time.Duration
+	ConnMaxIdleTime time.Duration
 }
 
 // FormatDSN generates a standard SQLite connection string with query pragmas.
@@ -63,6 +69,26 @@ func (c SQLiteConfig) FormatDSN() string {
 		params.Set("_txlock", lock)
 	}
 
+	if syncMode := strings.ToUpper(strings.TrimSpace(c.Synchronous)); syncMode != "" {
+		params.Set("_synchronous", syncMode)
+	}
+
+	if c.CacheSize != 0 {
+		params.Set("_cache_size", fmt.Sprintf("%d", c.CacheSize))
+	}
+
+	if temp := strings.ToUpper(strings.TrimSpace(c.TempStore)); temp != "" {
+		params.Set("_temp_store", temp)
+	}
+
+	if c.MmapSize > 0 {
+		params.Set("_mmap_size", fmt.Sprintf("%d", c.MmapSize))
+	}
+
+	if autoVac := strings.ToUpper(strings.TrimSpace(c.AutoVacuum)); autoVac != "" {
+		params.Set("_auto_vacuum", autoVac)
+	}
+
 	if strings.Contains(c.Path, "?") {
 		return fmt.Sprintf("%s&%s", c.Path, params.Encode())
 	}
@@ -84,6 +110,7 @@ func NewSQLite(cfg SQLiteConfig) (*DB, error) {
 		MaxOpenConns:    cfg.MaxOpenConns,
 		MaxIdleConns:    cfg.MaxIdleConns,
 		ConnMaxLifetime: cfg.ConnMaxLifetime,
+		ConnMaxIdleTime: cfg.ConnMaxIdleTime,
 	}
 
 	// SQLite typically performs best with serialized or single-writer concurrency in memory
