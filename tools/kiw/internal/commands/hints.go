@@ -20,4 +20,6 @@ var Hints = map[string]string{
 	"admin":     "kiw forge panel <name>  (scaffold admin panel dashboard)",
 	"crud":      "kiw forge resource <name>  (scaffold CRUD resource and forms)",
 	"form":      "kiw forge form <name>  (scaffold declarative form)",
+	"workspace": "kiw dash  (AI-native virtual workspace & sandboxes) or kiw ws  (go.work multi-repo)",
+	"dashboard": "kiw dash  (local dev dashboard, services, logs, sandboxes)",
 }

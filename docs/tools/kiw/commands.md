@@ -317,16 +317,25 @@ Runs background queue workers in local supervision mode.
 kiw worker
 ```
 
-### `kiw dashboard`
-Opens an interactive local developer dashboard and telemetry server visualizing microservices, background jobs, detected routes, memory metrics, and real-time SSE telemetry pulses.
+### `kiw dash` (alias: `kiw dashboard`)
+Opens an interactive local developer dashboard and telemetry server visualizing microservices, background jobs, detected routes, memory metrics, and real-time SSE telemetry pulses, or manages AI-native virtual developer workspaces and isolated execution sandboxes.
 ```bash
-kiw dashboard
-kiw dashboard --port 4000 --host 127.0.0.1
+kiw dash
+kiw dash --port 4000 --host 127.0.0.1
+kiw dash start --sandbox=go-1.27
+kiw dash list
+kiw dash status
+kiw dash console
+kiw dash stop
 ```
 
-**Options:**
-- `--port`: HTTP listen port (default: `4000`).
-- `--host`: Bind host address (default: `127.0.0.1`).
+**Options & Subcommands:**
+- `kiw dash` / `--port`, `--host`: Launch local dev dashboard & MCP telemetry server (default port `4000`).
+- `start [--sandbox=<image>]`: Mount and attach to an isolated developer workspace sandbox.
+- `list`: List active developer workspaces and sandboxes.
+- `status`: Inspect Dash server connectivity, quota, and health.
+- `console`: Open or print Web IDE console URL.
+- `stop [id]`: Stop a running sandbox.
 
 **Built-in Telemetry APIs:**
 - `GET /`: Dark-themed Web Dashboard UI with live stats and SSE event feed.
@@ -370,7 +379,7 @@ kiw mcp --port 4000 --host 127.0.0.1 # Run standalone over HTTP/SSE
 **Supported Resources & Tools:**
 - **Resources**: `krewire://project/info`, `krewire://project/routes`, `krewire://runtime/metrics`, `krewire://runtime/health`.
 - **Tools**: `kiw_inspect_project`, `kiw_list_routes`, `kiw_make_scaffold`, `kiw_get_metrics`, `kiw_run_tests`.
-- **Dashboard Integration**: `kiw dashboard` also mounts MCP at `http://127.0.0.1:4000/mcp/sse` and `http://127.0.0.1:4000/mcp/message`.
+- **Dash Integration**: `kiw dash` (or `kiw dashboard`) also mounts MCP at `http://127.0.0.1:4000/mcp/sse` and `http://127.0.0.1:4000/mcp/message`.
 
 ---
 
@@ -402,4 +411,13 @@ Bumps semver versions and coordinates multi-module releases. Module names come f
 ```bash
 kiw release krewire --bump minor --apply
 kiw release --all --bump patch
+```
+
+### `kiw forge <subcommand>`
+Declarative web, form, and admin panel builder for Go and `.kiw`.
+```bash
+kiw forge panel admin
+kiw forge resource product --model=Product
+kiw forge form contact --fields="name:string,email:string,message:textarea"
+kiw forge studio --port=8089
 ```

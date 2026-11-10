@@ -39,7 +39,8 @@ func main() {
 		Command(tui.NewCommand("update", "update project dependencies to their latest versions", commands.RegisterUpdate, commands.RunUpdate).WithGroup("project").WithExample("kiw update")).
 		Command(tui.NewCommand("deploy", "stage deployable artifacts in .krewire/dist/", commands.RegisterDeploy, commands.RunDeploy).WithGroup("ship").WithExample("kiw deploy --dry-run")).
 		Command(tui.NewCommand("worker", "run background workers / job queues", commands.RegisterWorker, commands.RunWorker).WithGroup("develop").WithExample("kiw worker")).
-		Command(tui.NewCommand("dashboard", "local dev dashboard (services, logs, traces)", commands.RegisterDashboard, commands.RunDashboard).WithGroup("develop").WithExample("kiw dashboard")).
+		Command(tui.NewCommand("dash", "local dev dashboard, services, logs & virtual workspace sandboxes", commands.RegisterDash, commands.RunDash).WithGroup("develop").WithCore().WithExample("kiw dash")).
+		Command(tui.NewCommand("dashboard", "alias for kiw dash (local dev dashboard, logs, traces)", commands.RegisterDashboard, commands.RunDashboard).WithGroup("develop").WithHidden(true).WithExample("kiw dashboard")).
 		Command(tui.NewCommand("gateway", "run API gateway reverse proxy for microservices", commands.RegisterGateway, commands.RunGateway).WithGroup("develop").WithExample("kiw gateway --port 8080")).
 		Command(tui.NewCommand("mcp", "native Model Context Protocol server for AI coding agents", commands.RegisterMCP, commands.RunMCP).WithGroup("develop").WithExample("kiw mcp --stdio")).
 		Command(tui.NewCommand("ws", "workspace for monorepo, multi-repo, multi-project, microservices", commands.RegisterWs, commands.RunWs).WithGroup("ship").WithExample("kiw ws help")).

@@ -106,7 +106,7 @@ The `kiw` CLI is the unified entry point:
 | `kiw vet` | Run `go vet ./...` | all Go projects |
 | `kiw fmt` | Run `gofmt -l .` / format code | all Go projects |
 | `kiw make <kind> <name>` | Scaffold component, page, handler, migration, model, middleware, service | all |
-| `kiw dashboard` | Interactive dev dashboard, metrics & SSE telemetry (`:4000`) | all |
+| `kiw dash` | Interactive dev dashboard, metrics, virtual workspaces & SSE telemetry (`:4000`) | all |
 | `kiw mcp [--stdio]` | Native Model Context Protocol (MCP) server for AI coding agents | all |
 | `kiw info` | Display project environment and kind | all |
 | `kiw version` | Display CLI and ecosystem version | all |
@@ -117,7 +117,7 @@ The `kiw` CLI is the unified entry point:
 Krewire projects feature native bidirectional Model Context Protocol (MCP) support for AI coding assistants (Antigravity, Cursor, Claude Desktop, OpenCode):
 
 - **stdio transport**: Connect local IDEs and desktop assistants directly with `kiw mcp --stdio`. Configured out of the box in `opencode.json` and `.cursor/mcp.json`.
-- **SSE / HTTP transport**: Access telemetry and tools over network streams via `kiw dashboard` at `http://127.0.0.1:4000/mcp/sse`.
+- **SSE / HTTP transport**: Access telemetry and tools over network streams via `kiw dash` at `http://127.0.0.1:4000/mcp/sse`.
 
 ### MCP Resources
 - `krewire://project/info` — Project metadata, workload kind, Go runtime, and active services.
