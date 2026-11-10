@@ -17,9 +17,17 @@ import (
 // ErrNil is returned when a key does not exist.
 var ErrNil = errors.New("redis: nil")
 
+const (
+	// DefaultAddress is the standard fallback Redis listen address.
+	DefaultAddress = "127.0.0.1:6379"
+
+	// DefaultTimeout is the standard network I/O timeout.
+	DefaultTimeout = 5 * time.Second
+)
+
 // Config contains options for connecting to Redis/KeyDB/Valkey servers.
 type Config struct {
-	Address  string // "host:port", default: "127.0.0.1:6379"
+	Address  string // "host:port", default: DefaultAddress
 	Password string
 	DB       int // Database index (default: 0)
 	Timeout  time.Duration
@@ -38,10 +46,10 @@ type Client struct {
 // NewClient initializes a new Redis Client.
 func NewClient(cfg Config) (*Client, error) {
 	if cfg.Address == "" {
-		cfg.Address = "127.0.0.1:6379"
+		cfg.Address = DefaultAddress
 	}
 	if cfg.Timeout <= 0 {
-		cfg.Timeout = 5 * time.Second
+		cfg.Timeout = DefaultTimeout
 	}
 
 	return &Client{

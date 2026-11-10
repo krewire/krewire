@@ -11,9 +11,17 @@ import (
 	"time"
 )
 
+const (
+	// DefaultMemcachedAddress is the default host:port endpoint for Memcached cache.
+	DefaultMemcachedAddress = "127.0.0.1:11211"
+
+	// DefaultMemcachedTimeout is the default connection and command timeout for Memcached cache.
+	DefaultMemcachedTimeout = 5 * time.Second
+)
+
 // MemcachedConfig contains connection parameters for Memcached servers.
 type MemcachedConfig struct {
-	Address string // "host:port", default: "127.0.0.1:11211"
+	Address string // "host:port", default: DefaultMemcachedAddress
 	Timeout time.Duration
 }
 
@@ -29,10 +37,10 @@ type MemcachedCache struct {
 // NewMemcachedCache creates a new Memcached Cache client.
 func NewMemcachedCache(cfg MemcachedConfig) (*MemcachedCache, error) {
 	if cfg.Address == "" {
-		cfg.Address = "127.0.0.1:11211"
+		cfg.Address = DefaultMemcachedAddress
 	}
 	if cfg.Timeout <= 0 {
-		cfg.Timeout = 5 * time.Second
+		cfg.Timeout = DefaultMemcachedTimeout
 	}
 
 	return &MemcachedCache{

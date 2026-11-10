@@ -13,9 +13,17 @@ import (
 	"time"
 )
 
+const (
+	// DefaultRedisAddress is the default host:port endpoint for Redis cache.
+	DefaultRedisAddress = "127.0.0.1:6379"
+
+	// DefaultRedisTimeout is the default connection and command timeout for Redis cache.
+	DefaultRedisTimeout = 5 * time.Second
+)
+
 // RedisConfig contains connection and authentication options for Redis/Valkey/Dragonfly.
 type RedisConfig struct {
-	Address  string // "host:port", default: "127.0.0.1:6379"
+	Address  string // "host:port", default: DefaultRedisAddress
 	Password string
 	DB       int // database index, default: 0
 	Timeout  time.Duration
@@ -33,10 +41,10 @@ type RedisCache struct {
 // NewRedisCache creates a new Redis Cache client.
 func NewRedisCache(cfg RedisConfig) (*RedisCache, error) {
 	if cfg.Address == "" {
-		cfg.Address = "127.0.0.1:6379"
+		cfg.Address = DefaultRedisAddress
 	}
 	if cfg.Timeout <= 0 {
-		cfg.Timeout = 5 * time.Second
+		cfg.Timeout = DefaultRedisTimeout
 	}
 
 	rc := &RedisCache{
