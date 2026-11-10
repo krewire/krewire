@@ -7,14 +7,28 @@ import (
 	"time"
 )
 
+const (
+	// DefaultSQLiteInMemory is the sentinel DSN for an in-memory SQLite database.
+	DefaultSQLiteInMemory = ":memory:"
+
+	// DefaultSQLiteJournalMode is the default high-concurrency journal mode.
+	DefaultSQLiteJournalMode = "WAL"
+
+	// DefaultSQLiteBusyTimeout is the default wait timeout when database is locked.
+	DefaultSQLiteBusyTimeout = 5 * time.Second
+
+	// DefaultSQLiteDriverName is the fallback driver name for sqlite3.
+	DefaultSQLiteDriverName = "sqlite3"
+)
+
 // SQLiteConfig contains connection and pragma options for SQLite databases.
 type SQLiteConfig struct {
-	Path            string        // File path or ":memory:"
-	InMemory        bool          // If true, forces ":memory:"
-	JournalMode     string        // e.g. "WAL", "DELETE", "TRUNCATE"
+	Path            string        // File path or DefaultSQLiteInMemory (":memory:")
+	InMemory        bool          // If true, forces DefaultSQLiteInMemory
+	JournalMode     string        // e.g. DefaultSQLiteJournalMode ("WAL"), "DELETE", "TRUNCATE"
 	ForeignKeys     bool          // Enables PRAGMA foreign_keys = ON (default: true)
-	BusyTimeout     time.Duration // Lock timeout before returning busy (default: 5s)
-	DriverName      string        // Driver to use (default: "sqlite3" or "sqlite")
+	BusyTimeout     time.Duration // Lock timeout before returning busy (default: DefaultSQLiteBusyTimeout)
+	DriverName      string        // Driver to use (default: DefaultSQLiteDriverName)
 	TxLock          string        // BEGIN mode: "deferred", "immediate", or "exclusive" (default: driver default, deferred)
 	MaxOpenConns    int
 	MaxIdleConns    int
@@ -23,15 +37,15 @@ type SQLiteConfig struct {
 
 // FormatDSN generates a standard SQLite connection string with query pragmas.
 func (c SQLiteConfig) FormatDSN() string {
-	if c.InMemory || strings.TrimSpace(c.Path) == "" || c.Path == ":memory:" {
-		return ":memory:"
+	if c.InMemory || strings.TrimSpace(c.Path) == "" || c.Path == DefaultSQLiteInMemory {
+		return DefaultSQLiteInMemory
 	}
 
 	params := url.Values{}
 
 	journal := strings.ToUpper(strings.TrimSpace(c.JournalMode))
 	if journal == "" {
-		journal = "WAL"
+		journal = DefaultSQLiteJournalMode
 	}
 	params.Set("_journal_mode", journal)
 
@@ -39,7 +53,7 @@ func (c SQLiteConfig) FormatDSN() string {
 		params.Set("_foreign_keys", "on")
 	}
 
-	timeoutMs := 5000
+	timeoutMs := int(DefaultSQLiteBusyTimeout.Milliseconds())
 	if c.BusyTimeout > 0 {
 		timeoutMs = int(c.BusyTimeout.Milliseconds())
 	}
@@ -59,7 +73,7 @@ func (c SQLiteConfig) FormatDSN() string {
 func NewSQLite(cfg SQLiteConfig) (*DB, error) {
 	driver := strings.TrimSpace(cfg.DriverName)
 	if driver == "" {
-		driver = "sqlite3"
+		driver = DefaultSQLiteDriverName
 	}
 
 	dsn := cfg.FormatDSN()

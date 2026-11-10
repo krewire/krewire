@@ -14,10 +14,21 @@ import (
 	"github.com/krewire/krewire/pkg/errs"
 )
 
+const (
+	// DefaultMongoDatabase is the fallback database name for MongoDB.
+	DefaultMongoDatabase = "default"
+
+	// DefaultMongoTimeout is the default command execution timeout.
+	DefaultMongoTimeout = 10 * time.Second
+
+	// DefaultMongoMemoryURI is the URI scheme triggering in-memory storage mode.
+	DefaultMongoMemoryURI = "memory://"
+)
+
 // MongoConfig contains connection options for MongoDB backends.
 type MongoConfig struct {
-	URI      string // e.g. "mongodb://localhost:27017" or "memory://"
-	Database string
+	URI      string // e.g. "mongodb://localhost:27017" or DefaultMongoMemoryURI ("memory://")
+	Database string // default: DefaultMongoDatabase ("default")
 	Timeout  time.Duration
 }
 
@@ -36,10 +47,10 @@ var _ Adapter = (*MongoAdapter)(nil)
 // it runs in high-performance in-memory mode (ideal for testing and hermetic builds).
 func NewMongoDB(cfg MongoConfig) (*MongoAdapter, error) {
 	if strings.TrimSpace(cfg.Database) == "" {
-		cfg.Database = "default"
+		cfg.Database = DefaultMongoDatabase
 	}
 	if cfg.Timeout <= 0 {
-		cfg.Timeout = 10 * time.Second
+		cfg.Timeout = DefaultMongoTimeout
 	}
 
 	return &MongoAdapter{

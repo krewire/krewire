@@ -15,13 +15,21 @@ import (
 	"github.com/krewire/krewire/pkg/errs"
 )
 
+const (
+	// DefaultElasticsearchAddress is the fallback cluster HTTP endpoint.
+	DefaultElasticsearchAddress = "http://localhost:9200"
+
+	// DefaultElasticsearchTimeout is the default HTTP request timeout for cluster queries.
+	DefaultElasticsearchTimeout = 15 * time.Second
+)
+
 // ElasticsearchConfig contains cluster connection and authentication parameters.
 type ElasticsearchConfig struct {
-	Addresses []string
+	Addresses []string // default: []string{DefaultElasticsearchAddress}
 	Username  string
 	Password  string
 	APIKey    string
-	Timeout   time.Duration
+	Timeout   time.Duration // default: DefaultElasticsearchTimeout
 	Client    *http.Client
 }
 
@@ -42,7 +50,7 @@ var _ Adapter = (*ElasticsearchAdapter)(nil)
 func NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error) {
 	addrs := cfg.Addresses
 	if len(addrs) == 0 {
-		addrs = []string{"http://localhost:9200"}
+		addrs = []string{DefaultElasticsearchAddress}
 	}
 
 	for i, a := range addrs {
@@ -53,7 +61,7 @@ func NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error) {
 	if httpClient == nil {
 		timeout := cfg.Timeout
 		if timeout <= 0 {
-			timeout = 15 * time.Second
+			timeout = DefaultElasticsearchTimeout
 		}
 		httpClient = &http.Client{Timeout: timeout}
 	}

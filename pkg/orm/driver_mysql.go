@@ -7,18 +7,38 @@ import (
 	"time"
 )
 
+const (
+	// DefaultMySQLHost is the fallback host for MySQL.
+	DefaultMySQLHost = "127.0.0.1"
+
+	// DefaultMySQLPort is the standard MySQL port.
+	DefaultMySQLPort = 3306
+
+	// DefaultMySQLUser is the default username.
+	DefaultMySQLUser = "root"
+
+	// DefaultMySQLCharset is the default character encoding.
+	DefaultMySQLCharset = "utf8mb4"
+
+	// DefaultMySQLLoc is the default timezone location.
+	DefaultMySQLLoc = "Local"
+
+	// DefaultMySQLDriverName is the default SQL driver name.
+	DefaultMySQLDriverName = "mysql"
+)
+
 // MySQLConfig contains connection parameters for MySQL and MariaDB engines.
 type MySQLConfig struct {
 	Host            string
-	Port            int // default: 3306
+	Port            int // default: DefaultMySQLPort (3306)
 	Database        string
 	User            string
 	Password        string
-	Charset         string // default: "utf8mb4"
+	Charset         string // default: DefaultMySQLCharset ("utf8mb4")
 	Collation       string // default: "utf8mb4_unicode_ci"
 	ParseTime       bool   // default: true
-	Loc             string // default: "Local"
-	DriverName      string // default: "mysql"
+	Loc             string // default: DefaultMySQLLoc ("Local")
+	DriverName      string // default: DefaultMySQLDriverName ("mysql")
 	MaxOpenConns    int
 	MaxIdleConns    int
 	ConnMaxLifetime time.Duration
@@ -30,27 +50,27 @@ type MySQLConfig struct {
 func (c MySQLConfig) FormatDSN() string {
 	host := c.Host
 	if host == "" {
-		host = "127.0.0.1"
+		host = DefaultMySQLHost
 	}
 
 	port := c.Port
 	if port <= 0 {
-		port = 3306
+		port = DefaultMySQLPort
 	}
 
 	user := c.User
 	if user == "" {
-		user = "root"
+		user = DefaultMySQLUser
 	}
 
 	charset := c.Charset
 	if charset == "" {
-		charset = "utf8mb4"
+		charset = DefaultMySQLCharset
 	}
 
 	loc := c.Loc
 	if loc == "" {
-		loc = "Local"
+		loc = DefaultMySQLLoc
 	}
 
 	params := url.Values{}
@@ -83,7 +103,7 @@ func (c MySQLConfig) FormatDSN() string {
 func NewMySQL(cfg MySQLConfig) (*DB, error) {
 	driver := strings.TrimSpace(cfg.DriverName)
 	if driver == "" {
-		driver = "mysql"
+		driver = DefaultMySQLDriverName
 	}
 
 	return OpenWithConfig(Config{

@@ -7,16 +7,39 @@ import (
 	"time"
 )
 
+const (
+	// DefaultPostgresHost is the fallback host for PostgreSQL.
+	DefaultPostgresHost = "localhost"
+
+	// DefaultPostgresPort is the standard PostgreSQL port.
+	DefaultPostgresPort = 5432
+
+	// DefaultPostgresUser is the default superuser name.
+	DefaultPostgresUser = "postgres"
+
+	// DefaultPostgresDatabase is the default maintenance database name.
+	DefaultPostgresDatabase = "postgres"
+
+	// DefaultPostgresSSLMode is the default SSL connection mode.
+	DefaultPostgresSSLMode = "disable"
+
+	// DefaultPostgresTimeZone is the default session time zone.
+	DefaultPostgresTimeZone = "UTC"
+
+	// DefaultPostgresDriverName is the default SQL driver name.
+	DefaultPostgresDriverName = "postgres"
+)
+
 // PostgresConfig contains connection parameters for PostgreSQL engines.
 type PostgresConfig struct {
 	Host            string
-	Port            int // default: 5432
+	Port            int // default: DefaultPostgresPort (5432)
 	Database        string
 	User            string
 	Password        string
-	SSLMode         string // default: "disable" (options: "require", "verify-ca", "verify-full")
-	TimeZone        string // default: "UTC"
-	DriverName      string // default: "postgres" (or "pgx")
+	SSLMode         string // default: DefaultPostgresSSLMode ("disable")
+	TimeZone        string // default: DefaultPostgresTimeZone ("UTC")
+	DriverName      string // default: DefaultPostgresDriverName ("postgres" or "pgx")
 	MaxOpenConns    int
 	MaxIdleConns    int
 	ConnMaxLifetime time.Duration
@@ -27,32 +50,32 @@ type PostgresConfig struct {
 func (c PostgresConfig) FormatDSN() string {
 	host := c.Host
 	if host == "" {
-		host = "localhost"
+		host = DefaultPostgresHost
 	}
 
 	port := c.Port
 	if port <= 0 {
-		port = 5432
+		port = DefaultPostgresPort
 	}
 
 	user := c.User
 	if user == "" {
-		user = "postgres"
+		user = DefaultPostgresUser
 	}
 
 	dbName := c.Database
 	if dbName == "" {
-		dbName = "postgres"
+		dbName = DefaultPostgresDatabase
 	}
 
 	sslMode := strings.ToLower(strings.TrimSpace(c.SSLMode))
 	if sslMode == "" {
-		sslMode = "disable"
+		sslMode = DefaultPostgresSSLMode
 	}
 
 	tz := c.TimeZone
 	if tz == "" {
-		tz = "UTC"
+		tz = DefaultPostgresTimeZone
 	}
 
 	var userPass string
@@ -77,7 +100,7 @@ func (c PostgresConfig) FormatDSN() string {
 func NewPostgres(cfg PostgresConfig) (*DB, error) {
 	driver := strings.TrimSpace(cfg.DriverName)
 	if driver == "" {
-		driver = "postgres"
+		driver = DefaultPostgresDriverName
 	}
 
 	return OpenWithConfig(Config{
