@@ -22,7 +22,7 @@ krewire/
 │   ├── tui/      # Terminal UI toolkit powering the kiw CLI
 │   ├── runtime/  # WebAssembly client runtime (VDOM, mounting, widgets)
 │   ├── ai/       # Native AI SDK: providers, streaming, tools, schema, object generation
-│   ├── sec/      # Secure defaults (headers, CSRF, CORS, SSRF, PII redaction)
+│   ├── sec/      # SafePath traversal guard, PBKDF2 hashing, SafeHTTPClient (SSRF), headers, CORS, CSRF
 │   ├── auth/     # Authentication & token verification primitives (Basic Auth, JWT)
 │   ├── assets/   # Asset management, pipeline, bundling, and hash busting
 │   ├── cloud/    # Runner, service, worker, storage, infra, deploy targets
@@ -37,16 +37,15 @@ krewire/
 │   ├── kiw/      # .kiw DSL compiler, parser, AST desugaring, component engine
 │   ├── markdown/ # Markdown parsing & rendering with link prefixing
 │   ├── book/     # Markdown content compiler (chapters, TOC, search, book sites)
-│   ├── resilience/ # Retry policies with exponential backoff & circuit breakers
+│   ├── resilience/ # Bulkhead concurrency bounds, RateLimiter token bucket, retry with jitter, circuit breaker
 │   ├── term/     # Terminal detection, ANSI colors, and output formatting
 │   ├── testing/  # Test harnesses and browser automation utilities
 │   ├── boost/    # Boost coordination package & embedded AI agent template
 │   ├── cache/    # Multi-driver cache (memory, file, Redis, Memcached)
 │   ├── redis/    # Pure-Go Redis client (RESP protocol)
-│   ├── orm/      # Pure-Go multi-driver ORM & SQL query builder
+│   ├── orm/      # Pure-Go multi-driver ORM, SQL builder, bounded pool defaults, migrations engine
 │   ├── mail/     # Multi-driver email delivery (SMTP, Resend, SendGrid, Postmark)
-│   ├── commerce/ # Payment gateway integration (Midtrans)
-│   └── collab/   # Team roles and per-environment collaboration policies
+│   ├── commerce/ # Payment gateway integration (Midtrans) with constant-time webhook verification│   └── collab/   # Team roles and per-environment collaboration policies
 ├── apps/         # Deployable services and applications
 ├── tools/        # Developer tooling
 │   └── kiw/      # Unified developer CLI for project scaffolding, build, and deploy
@@ -80,9 +79,9 @@ Krewire is the core monorepo in the 10-repository ecosystem:
 ## The 3S Pillars (Secure, Sustainable, Scalable)
 
 Every library, tool, and service in Krewire is engineered to pass the **Three Pillars**:
-- **Secure (S1)**: Standard library first to eliminate supply-chain vulnerabilities, secure-by-default HTTP primitives (OWASP/CWE-aligned), context-aware template auto-escaping, CSRF/CORS protection, and secrets referenced via `${env:NAME}` without hardcoding.
-- **Sustainable (S2)**: Modular packages where you only pay for what you import, single static binaries with embedded assets, boring proven technology, a permanent MIT-licensed open-core foundation, and near-zero operational costs allowing workloads to run on a $5 VPS.
-- **Scalable (S3)**: Progressive pipeline from static sites to distributed cloud mesh without rewrites, reversible provider swapping (SQLite to Postgres, Memory to Redis), and 6-tier Pyramid architecture with Bridge/Gateway decoupling.
+- **Secure (S1)**: Standard library first to eliminate supply-chain vulnerabilities, `SafePath` directory traversal guards, PBKDF2 password hashing, `SafeHTTPClient` SSRF defense, constant-time secret checks, secure-by-default HTTP primitives (OWASP/CWE-aligned), context-aware template auto-escaping, CSRF/CORS protection, and secrets referenced via `${env:NAME}` without hardcoding.
+- **Sustainable (S2)**: Bounded database connection pools and bulkhead concurrency limits to maintain a 10–30 MB lean RAM footprint, modular packages where you only pay for what you import, single static binaries with embedded assets, boring proven technology, a permanent MIT-licensed open-core foundation, and near-zero operational costs allowing production workloads to run on a $5 VPS.
+- **Scalable (S3)**: Progressive pipeline from static sites to distributed cloud mesh without rewrites, reversible provider swapping (SQLite to Postgres, Memory to Redis), 6-layer Pyramid architecture with Bridge/Gateway decoupling, and Zero Peer Coupling between lateral engines.
 
 ## Prerequisites
 
