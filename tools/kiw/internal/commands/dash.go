@@ -10,7 +10,6 @@ import (
 
 	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/pkg/term"
-	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
 
@@ -137,101 +136,5 @@ func runDashServer(fs *flag.FlagSet) errs.ExitCode {
 	<-sigChan
 
 	fmt.Println("\nShutting down dev dashboard...")
-	return errs.ExitCodeSuccess
-}
-
-func runDashStart(fs *flag.FlagSet) errs.ExitCode {
-	subFs := flag.NewFlagSet("dash start", flag.ContinueOnError)
-	sandboxFlag := subFs.String("sandbox", "go-1.27", "sandbox image/runtime environment")
-	dryRunFlag := subFs.Bool("dry-run", false, "simulate sandbox execution without mounting")
-	portFlag := subFs.Int("port", 9000, "dash server / console HTTP port")
-	hostFlag := subFs.String("host", "127.0.0.1", "dash server host address")
-	_ = subFs.Bool("pty", true, "attach interactive pseudo-terminal WebSocket")
-
-	// Inherit parent flags if present
-	if s := flagValue(fs, "sandbox"); s != "" {
-		*sandboxFlag = s
-	}
-	if flagValue(fs, "dry-run") == "true" {
-		*dryRunFlag = true
-	}
-	if p := flagInt(fs, "port"); p != 0 {
-		*portFlag = p
-	}
-	if h := flagValue(fs, "host"); h != "" {
-		*hostFlag = h
-	}
-
-	// Parse remaining flags if passed after "start"
-	if fs != nil && len(fs.Args()) > 1 {
-		_ = subFs.Parse(fs.Args()[1:])
-	}
-
-	sandbox := *sandboxFlag
-	dryRun := *dryRunFlag
-	port := *portFlag
-	host := *hostFlag
-
-	if dryRun {
-		fmt.Printf("[dry-run] would provision isolated sandbox %q on %s:%d\n", sandbox, host, port)
-		fmt.Println("[dry-run] would attach PTY terminal and initialize embedded krew agent")
-		return errs.ExitCodeSuccess
-	}
-
-	fmt.Printf("✓ Isolated micro-container mounted (14ms) [sandbox: %s]\n", sandbox)
-	fmt.Printf("✓ PTY terminal attached on ws://%s:%d/pty\n", host, port)
-	fmt.Println("⚡ Autonomous ReAct Agent active (krew engine)")
-	return errs.ExitCodeSuccess
-}
-
-func runDashStop(fs *flag.FlagSet) errs.ExitCode {
-	id := "default"
-	if fs != nil && len(fs.Args()) > 1 {
-		id = fs.Arg(1)
-	}
-	fmt.Printf("✓ Stopped virtual workspace sandbox %q\n", id)
-	return errs.ExitCodeSuccess
-}
-
-func runDashList(fs *flag.FlagSet) errs.ExitCode {
-	fmt.Println("Active Krewire Dash Workspaces:")
-	fmt.Printf("  %-16s %-12s %-10s %s\n", "WORKSPACE ID", "SANDBOX", "STATUS", "ENDPOINT")
-	fmt.Printf("  %-16s %-12s %-10s %s\n", "ws-default", "go-1.27", "active", "http://127.0.0.1:9000")
-	return errs.ExitCodeSuccess
-}
-
-func runDashStatus(fs *flag.FlagSet) errs.ExitCode {
-	endpoint := config.DefaultDashAPIURL
-	if cfg, err := config.Load("."); err == nil && cfg != nil && cfg.DashURL() != "" {
-		endpoint = cfg.DashURL()
-	}
-	fmt.Printf("Krewire Dash Status:\n")
-	fmt.Printf("  Endpoint:    %s\n", endpoint)
-	fmt.Printf("  Isolation:   bwrap (cgroup v2)\n")
-	fmt.Printf("  Agent:       krew (CodingAssistant persona)\n")
-	fmt.Printf("  Health:      operational\n")
-	return errs.ExitCodeSuccess
-}
-
-func runDashConsole(fs *flag.FlagSet) errs.ExitCode {
-	subFs := flag.NewFlagSet("dash console", flag.ContinueOnError)
-	portFlag := subFs.Int("port", 9000, "console port")
-	hostFlag := subFs.String("host", "127.0.0.1", "console host")
-
-	if p := flagInt(fs, "port"); p != 0 && p != 4000 {
-		*portFlag = p
-	}
-	if h := flagValue(fs, "host"); h != "" && h != DefaultDashboardHost {
-		*hostFlag = h
-	}
-
-	if fs != nil && len(fs.Args()) > 1 {
-		_ = subFs.Parse(fs.Args()[1:])
-	}
-
-	port := *portFlag
-	host := *hostFlag
-	url := fmt.Sprintf("http://%s:%d/console", host, port)
-	fmt.Printf("Opening Krewire Dash Web IDE Console: %s\n", url)
 	return errs.ExitCodeSuccess
 }
