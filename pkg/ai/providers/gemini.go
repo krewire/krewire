@@ -13,6 +13,11 @@ import (
 	"github.com/krewire/krewire/pkg/ai"
 )
 
+const (
+	// DefaultGeminiBaseURL is the standard API base endpoint for Google Gemini.
+	DefaultGeminiBaseURL = "https://generativelanguage.googleapis.com/v1beta"
+)
+
 // GeminiProvider implements the Google Gemini / Vertex AI REST API.
 type GeminiProvider struct {
 	BaseURL    string
@@ -23,7 +28,7 @@ type GeminiProvider struct {
 // NewGemini creates a Google Gemini provider.
 func NewGemini(apiKey string, opts ...func(*GeminiProvider)) *GeminiProvider {
 	p := &GeminiProvider{
-		BaseURL:    "https://generativelanguage.googleapis.com/v1beta",
+		BaseURL:    DefaultGeminiBaseURL,
 		APIKey:     apiKey,
 		HTTPClient: http.DefaultClient,
 	}

@@ -12,16 +12,21 @@ import (
 	"github.com/krewire/krewire/pkg/ai"
 )
 
+const (
+	// DefaultOllamaBaseURL is the default local HTTP endpoint for Ollama daemon.
+	DefaultOllamaBaseURL = "http://localhost:11434"
+)
+
 // OllamaProvider integrates local LLMs running via Ollama.
 type OllamaProvider struct {
 	BaseURL    string
 	HTTPClient *http.Client
 }
 
-// NewOllama creates an Ollama provider pointing to localhost:11434 by default.
+// NewOllama creates an Ollama provider pointing to DefaultOllamaBaseURL by default.
 func NewOllama(opts ...func(*OllamaProvider)) *OllamaProvider {
 	p := &OllamaProvider{
-		BaseURL:    "http://localhost:11434",
+		BaseURL:    DefaultOllamaBaseURL,
 		HTTPClient: http.DefaultClient,
 	}
 	for _, opt := range opts {

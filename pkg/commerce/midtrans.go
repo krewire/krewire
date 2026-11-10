@@ -21,6 +21,9 @@ const (
 	// Midtrans Provider Name
 	ProviderMidtrans = "midtrans"
 
+	// DefaultMidtransTimeout is the standard HTTP request timeout for Midtrans API.
+	DefaultMidtransTimeout = 30 * time.Second
+
 	midtransSandboxSnapURL    = "https://app.sandbox.midtrans.com/snap/v1/transactions"
 	midtransProductionSnapURL = "https://app.midtrans.com/snap/v1/transactions"
 
@@ -49,7 +52,7 @@ type MidtransProvider struct {
 // NewMidtransProvider creates a new Midtrans payment provider.
 func NewMidtransProvider(cfg MidtransConfig) (*MidtransProvider, error) {
 	if cfg.HTTPClient == nil {
-		cfg.HTTPClient = &http.Client{Timeout: 30 * time.Second}
+		cfg.HTTPClient = &http.Client{Timeout: DefaultMidtransTimeout}
 	}
 
 	snapURL := midtransSandboxSnapURL

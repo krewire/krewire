@@ -14,11 +14,22 @@ import (
 	"time"
 )
 
+const (
+	// DefaultS3Endpoint is the default AWS S3 REST API endpoint.
+	DefaultS3Endpoint = "https://s3.amazonaws.com"
+
+	// DefaultS3Region is the default standard AWS region.
+	DefaultS3Region = "us-east-1"
+
+	// DefaultS3Timeout is the default HTTP request timeout for S3 operations.
+	DefaultS3Timeout = 30 * time.Second
+)
+
 // S3Config contains options for connecting to AWS S3, MinIO, or Cloudflare R2.
 type S3Config struct {
-	Endpoint        string // e.g. "https://s3.amazonaws.com" or "http://localhost:9000"
+	Endpoint        string // e.g. DefaultS3Endpoint ("https://s3.amazonaws.com") or "http://localhost:9000"
 	Bucket          string
-	Region          string // default: "us-east-1"
+	Region          string // default: DefaultS3Region ("us-east-1")
 	AccessKeyID     string
 	SecretAccessKey string
 	UsePathStyle    bool // set true for MinIO or local emulators
@@ -44,7 +55,7 @@ func NewS3Store(cfg S3Config) (*S3Store, error) {
 
 	endpoint := strings.TrimRight(strings.TrimSpace(cfg.Endpoint), "/")
 	if endpoint == "" {
-		endpoint = "https://s3.amazonaws.com"
+		endpoint = DefaultS3Endpoint
 	}
 	if !strings.HasPrefix(endpoint, "http://") && !strings.HasPrefix(endpoint, "https://") {
 		endpoint = "https://" + endpoint
@@ -52,12 +63,12 @@ func NewS3Store(cfg S3Config) (*S3Store, error) {
 
 	region := strings.TrimSpace(cfg.Region)
 	if region == "" {
-		region = "us-east-1"
+		region = DefaultS3Region
 	}
 
 	client := cfg.HTTPClient
 	if client == nil {
-		client = &http.Client{Timeout: 30 * time.Second}
+		client = &http.Client{Timeout: DefaultS3Timeout}
 	}
 
 	return &S3Store{

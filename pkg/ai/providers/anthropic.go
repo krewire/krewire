@@ -14,6 +14,14 @@ import (
 	"github.com/krewire/krewire/pkg/ai"
 )
 
+const (
+	// DefaultAnthropicBaseURL is the standard API base endpoint for Anthropic Claude.
+	DefaultAnthropicBaseURL = "https://api.anthropic.com/v1"
+
+	// DefaultAnthropicVersion is the Anthropic protocol version header.
+	DefaultAnthropicVersion = "2023-06-01"
+)
+
 // AnthropicProvider implements the Anthropic Claude Messages API.
 type AnthropicProvider struct {
 	BaseURL    string
@@ -25,9 +33,9 @@ type AnthropicProvider struct {
 // NewAnthropic creates a new Anthropic provider.
 func NewAnthropic(apiKey string, opts ...func(*AnthropicProvider)) *AnthropicProvider {
 	p := &AnthropicProvider{
-		BaseURL:    "https://api.anthropic.com/v1",
+		BaseURL:    DefaultAnthropicBaseURL,
 		APIKey:     apiKey,
-		Version:    "2023-06-01",
+		Version:    DefaultAnthropicVersion,
 		HTTPClient: http.DefaultClient,
 	}
 	for _, opt := range opts {

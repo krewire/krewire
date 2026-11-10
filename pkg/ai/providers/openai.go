@@ -14,6 +14,11 @@ import (
 	"github.com/krewire/krewire/pkg/ai"
 )
 
+const (
+	// DefaultOpenAIBaseURL is the standard API base endpoint for OpenAI.
+	DefaultOpenAIBaseURL = "https://api.openai.com/v1"
+)
+
 // OpenAIProvider interacts with OpenAI-compatible chat completion APIs
 // (OpenAI, Groq, DeepSeek, Together, vLLM, local proxies).
 type OpenAIProvider struct {
@@ -25,7 +30,7 @@ type OpenAIProvider struct {
 // NewOpenAI creates an OpenAI provider with optional custom base URL.
 func NewOpenAI(apiKey string, opts ...func(*OpenAIProvider)) *OpenAIProvider {
 	p := &OpenAIProvider{
-		BaseURL:    "https://api.openai.com/v1",
+		BaseURL:    DefaultOpenAIBaseURL,
 		APIKey:     apiKey,
 		HTTPClient: http.DefaultClient,
 	}
