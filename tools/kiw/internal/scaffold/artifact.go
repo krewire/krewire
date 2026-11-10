@@ -492,7 +492,8 @@ func isNumeric(s string) bool {
 	return len(s) > 0
 }
 
-func toPascal(s string) string {
+// ToPascal converts strings like "user-profile" or "user_profile" to "UserProfile".
+func ToPascal(s string) string {
 	parts := strings.FieldsFunc(s, func(r rune) bool {
 		return r == '-' || r == '_' || r == ' ' || r == '.'
 	})
@@ -511,7 +512,10 @@ func toPascal(s string) string {
 	return b.String()
 }
 
-func toSlug(s string) string {
+func toPascal(s string) string { return ToPascal(s) }
+
+// ToSlug converts strings like "UserProfile" to "user-profile".
+func ToSlug(s string) string {
 	var b strings.Builder
 	prevDash := false
 	for i, r := range s {
@@ -536,8 +540,11 @@ func toSlug(s string) string {
 	return res
 }
 
-func toTitle(s string) string {
-	slug := toSlug(s)
+func toSlug(s string) string { return ToSlug(s) }
+
+// ToTitle converts strings like "user-profile" to "User Profile".
+func ToTitle(s string) string {
+	slug := ToSlug(s)
 	words := strings.Split(slug, "-")
 	for i, w := range words {
 		if len(w) > 0 {
@@ -548,3 +555,5 @@ func toTitle(s string) string {
 	}
 	return strings.Join(words, " ")
 }
+
+func toTitle(s string) string { return ToTitle(s) }
