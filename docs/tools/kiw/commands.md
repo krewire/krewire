@@ -12,13 +12,13 @@ in full, everything else is listed by name under its group. `kiw help --all`
 
 ```text
 CORE WORKFLOW
-  new · dev · build · test · add · make
+  new · dev · build · test · add · dash · make · forge
 
 ADVANCED CAPABILITIES
   project   init · remove · update · migrate · ui
   inspect   version · info · compat · tier · config · doctor · self-update
   build     bundle · serve
-  develop   run · vet · fmt · worker · dashboard · gateway · mcp
+  develop   run · vet · fmt · worker · gateway · mcp
   ship      deploy · ws · boost · release
 ```
 
@@ -134,7 +134,7 @@ kiw ui diff Card
 ```
 
 ### `kiw make <kind> <name>`
-Scaffolds code boilerplate (components, pages, handlers, migrations, models, middleware, services, jobs, chapters, docs). `kiw make component <Name>` creates a blank component; to start from a ready-made one, use `kiw add ui/<name>`.
+Scaffolds code boilerplate (components, pages, handlers, migrations, models, middleware, services, jobs, chapters, docs). All paths are bounded and validated with `sec.SafePath` to prevent directory traversal escapes. `kiw make component <Name>` creates a blank component; to start from a ready-made one, use `kiw add ui/<name>`.
 ```bash
 kiw make component Card
 kiw make page about
@@ -414,10 +414,17 @@ kiw release --all --bump patch
 ```
 
 ### `kiw forge <subcommand>`
-Declarative web, form, and admin panel builder for Go and `.kiw`.
+Declarative web, form, resource, and admin panel builder for Go and `.kiw`.
 ```bash
 kiw forge panel admin
 kiw forge resource product --model=Product
 kiw forge form contact --fields="name:string,email:string,message:textarea"
 kiw forge studio --port=8089
 ```
+
+**Options & Subcommands:**
+- `panel <name>`: Scaffolds a full administrative dashboard panel with navigation, layout, and overview metrics.
+- `resource <name> [--model=<Model>]`: Scaffolds a CRUD resource with data table views, detail panels, and edit forms.
+- `form <name> [--fields=<field:type,...>]`: Generates a declarative `.kiw` component form backed by typed validation struct rules.
+- `studio [--port=8089]`: Launches the interactive local visual builder studio for panels and forms.
+- `--dry-run`: Previews generated scaffold files without writing to disk.
