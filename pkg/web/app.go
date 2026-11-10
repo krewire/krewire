@@ -67,8 +67,9 @@ type PageSpec struct {
 }
 
 // NewApp returns an App pre-loaded with the default component registry, a
-// trusted-HTML template helper, and the default middleware stack: recovery
-// outermost, then access logging (KWL-P8W2N KWF-HTTPV-006). Explicit Use
+// trusted-HTML template helper, and the baseline security and telemetry middleware stack:
+// recovery outermost, access logging, and defense-in-depth security headers (CSP, HSTS,
+// X-Content-Type-Options, X-Frame-Options, Referrer-Policy per Pillar 1). Explicit Use
 // calls compose outside these.
 func NewApp() *App {
 	a := &App{
@@ -77,7 +78,7 @@ func NewApp() *App {
 		registry: ui.Default(),
 		funcs:    template.FuncMap{},
 	}
-	a.router.Use(RecoverMiddleware(nil), AccessLogMiddleware(nil))
+	a.router.Use(RecoverMiddleware(nil), AccessLogMiddleware(nil), SecurityHeaders())
 	a.funcs = template.FuncMap{
 		"html": func(v any) template.HTML {
 			return template.HTML(fmt.Sprint(v))
@@ -118,6 +119,12 @@ func (a *App) DebugString() string { return a.router.DebugString() }
 
 // Use registers middleware applied to every route.
 func (a *App) Use(mw ...Middleware) { a.router.Use(mw...) }
+
+// WithSecurity configures custom security header options on the App.
+func (a *App) WithSecurity(opts ...func(*SecurityOptions)) *App {
+	a.router.Use(SecurityHeaders(opts...))
+	return a
+}
 
 // Method registers an API or HTML handler on the router.
 func (a *App) Method(method, pattern string, h HandlerFunc) {

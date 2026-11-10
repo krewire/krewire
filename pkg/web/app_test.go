@@ -37,6 +37,15 @@ func TestAppServesStaticPage(t *testing.T) {
 	if !strings.Contains(body, "<title>Home</title>") {
 		t.Errorf("body missing layout title: %q", body)
 	}
+	if rec.Header().Get("X-Content-Type-Options") != "nosniff" {
+		t.Errorf("expected X-Content-Type-Options: nosniff, got %q", rec.Header().Get("X-Content-Type-Options"))
+	}
+	if rec.Header().Get("X-Frame-Options") != "DENY" {
+		t.Errorf("expected X-Frame-Options: DENY, got %q", rec.Header().Get("X-Frame-Options"))
+	}
+	if !strings.Contains(rec.Header().Get("Content-Security-Policy"), "default-src") {
+		t.Errorf("expected default CSP, got %q", rec.Header().Get("Content-Security-Policy"))
+	}
 }
 
 func TestAppDynamicPageUsesRequestData(t *testing.T) {
