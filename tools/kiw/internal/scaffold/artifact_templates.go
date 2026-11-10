@@ -1,6 +1,14 @@
 package scaffold
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+)
+
+var (
+	reCreate = regexp.MustCompile(`^create_(.+?)(?:_table)?$`)
+	reAdd    = regexp.MustCompile(`^(?:add|update|remove|change|alter)_(.+)_(?:to|from|in)_(.+?)(?:_table)?$`)
+)
 
 func chapterTemplate(title string, nextOrder int) string {
 	return fmt.Sprintf(`---
@@ -86,6 +94,112 @@ func migrationTemplate(name, createdAt string) string {
 -- Write your DOWN migration SQL here:
 
 `, name, createdAt)
+}
+
+func goMigrationTemplate(pkgName, version, slug string) string {
+	if m := reCreate.FindStringSubmatch(slug); len(m) == 2 {
+		table := m[1]
+		return fmt.Sprintf(`package %s
+
+import (
+	"context"
+
+	"github.com/krewire/krewire/pkg/orm/migrate"
+	"github.com/krewire/krewire/pkg/orm/schema"
+)
+
+func init() {
+	migrate.Register(&migrate.GoMigration{
+		Version: "%s",
+		Name:    "%s",
+		Up: func(ctx context.Context, s *schema.Builder) error {
+			return s.Create("%s", func(table *schema.Blueprint) {
+				table.ID()
+				// Add columns here (e.g. table.String("name", 255).NotNull())...
+				table.Timestamps()
+			})
+		},
+		Down: func(ctx context.Context, s *schema.Builder) error {
+			return s.DropIfExists("%s")
+		},
+	})
+}
+`, pkgName, version, slug, table, table)
+	}
+
+	if m := reAdd.FindStringSubmatch(slug); len(m) == 3 {
+		col := m[1]
+		table := m[2]
+		return fmt.Sprintf(`package %s
+
+import (
+	"context"
+
+	"github.com/krewire/krewire/pkg/orm/migrate"
+	"github.com/krewire/krewire/pkg/orm/schema"
+)
+
+func init() {
+	migrate.Register(&migrate.GoMigration{
+		Version: "%s",
+		Name:    "%s",
+		Up: func(ctx context.Context, s *schema.Builder) error {
+			return s.Table("%s", func(table *schema.Blueprint) {
+				// Modify table schema here (e.g. table.String("%s", 255).Nullable())...
+			})
+		},
+		Down: func(ctx context.Context, s *schema.Builder) error {
+			return s.Table("%s", func(table *schema.Blueprint) {
+				// Revert schema changes here (e.g. table.DropColumn("%s"))...
+			})
+		},
+	})
+}
+`, pkgName, version, slug, table, col, table, col)
+	}
+
+	return fmt.Sprintf(`package %s
+
+import (
+	"context"
+
+	"github.com/krewire/krewire/pkg/orm/migrate"
+	"github.com/krewire/krewire/pkg/orm/schema"
+)
+
+func init() {
+	migrate.Register(&migrate.GoMigration{
+		Version: "%s",
+		Name:    "%s",
+		Up: func(ctx context.Context, s *schema.Builder) error {
+			// Write forward schema changes here:
+			return nil
+		},
+		Down: func(ctx context.Context, s *schema.Builder) error {
+			// Write rollback schema changes here:
+			return nil
+		},
+	})
+}
+`, pkgName, version, slug)
+}
+
+func migrationsPackageTemplate(pkgName string) string {
+	return fmt.Sprintf(`// Package %s contains database schema migrations.
+package %s
+
+import (
+	"context"
+
+	"github.com/krewire/krewire/pkg/orm"
+	"github.com/krewire/krewire/pkg/orm/migrate"
+)
+
+// Up applies all registered Go migrations to db.
+func Up(ctx context.Context, db *orm.DB) error {
+	return migrate.UpGo(ctx, db)
+}
+`, pkgName, pkgName)
 }
 
 func modelTemplate(pascal string) string {

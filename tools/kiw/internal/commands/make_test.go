@@ -161,11 +161,57 @@ func TestMake_Migration(t *testing.T) {
 	if err != nil || len(entries) == 0 {
 		t.Fatalf("expected migrations/ directory with created file: %v", err)
 	}
-	name := entries[0].Name()
-	if !strings.HasSuffix(name, "_create_teams.sql") {
-		t.Errorf("expected migration filename suffix _create_teams.sql, got: %s", name)
+
+	var foundGo string
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), "_create_teams.go") {
+			foundGo = e.Name()
+			break
+		}
 	}
-	b, _ := os.ReadFile(filepath.Join(root, "migrations", name))
+	if foundGo == "" {
+		t.Fatalf("expected migration filename suffix _create_teams.go in %v", entries)
+	}
+
+	b, _ := os.ReadFile(filepath.Join(root, "migrations", foundGo))
+	content := string(b)
+	if !strings.Contains(content, "s.Create(\"teams\"") || !strings.Contains(content, "s.DropIfExists(\"teams\")") {
+		t.Errorf("expected Laravel-style schema builder syntax in: %s", content)
+	}
+}
+
+func TestMake_MigrationSQL(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"--kind", "migration", "--name", "create_items.sql"})
+
+	code := RunMake(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunMake migration failed with code %v", code)
+	}
+
+	entries, err := os.ReadDir(filepath.Join(root, "migrations"))
+	if err != nil || len(entries) == 0 {
+		t.Fatalf("expected migrations/ directory with created file: %v", err)
+	}
+
+	var foundSQL string
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), "_create_items.sql") {
+			foundSQL = e.Name()
+			break
+		}
+	}
+	if foundSQL == "" {
+		t.Fatalf("expected migration filename suffix _create_items.sql in %v", entries)
+	}
+
+	b, _ := os.ReadFile(filepath.Join(root, "migrations", foundSQL))
 	content := string(b)
 	if !strings.Contains(content, "-- +up") || !strings.Contains(content, "-- +down") {
 		t.Errorf("expected SQL migration markers in: %s", content)

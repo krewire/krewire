@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -73,10 +74,10 @@ func TestMigrate_EndToEndInNewApp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if out, code := runMigrate(t, "create", "create_products"); code != errs.ExitCodeSuccess || !strings.Contains(out, "created migrations/") {
+	if out, code := runMigrate(t, "create", "create_products.sql"); code != errs.ExitCodeSuccess || !strings.Contains(out, "created migrations/") {
 		t.Fatalf("create = %v %q", code, out)
 	}
-	if _, code := runMigrate(t, "create", "add_price"); code != errs.ExitCodeSuccess {
+	if _, code := runMigrate(t, "create", "add_price.sql"); code != errs.ExitCodeSuccess {
 		t.Fatalf("second create = %v", code)
 	}
 	migrations := filepath.Join(project, "migrations")
@@ -127,6 +128,114 @@ func TestMigrate_EndToEndInNewApp(t *testing.T) {
 	}
 }
 
+func findLocalMonorepo() string {
+	cur, _ := os.Getwd()
+	for {
+		if data, err := os.ReadFile(filepath.Join(cur, "go.mod")); err == nil {
+			if strings.Contains(string(data), "module github.com/krewire/krewire") {
+				return cur
+			}
+		}
+		parent := filepath.Dir(cur)
+		if parent == cur {
+			break
+		}
+		cur = parent
+	}
+	return ""
+}
+
+func TestMigrate_GoMigrations_EndToEnd(t *testing.T) {
+	monorepo := findLocalMonorepo()
+	dir := t.TempDir()
+	chdir(t, dir)
+	fsNew := flag.NewFlagSet("new", flag.ContinueOnError)
+	RegisterNew(fsNew)
+	_ = fsNew.Parse([]string{"--app", "--no-input", "blog"})
+	if _, code := captureStdout(t, func() errs.ExitCode { return RunNew(fsNew) }); code != errs.ExitCodeSuccess {
+		t.Fatalf("kiw new --app = %v", code)
+	}
+	project := filepath.Join(dir, "blog")
+	chdir(t, project)
+
+	if monorepo != "" {
+		goModPath := filepath.Join(project, "go.mod")
+		data, _ := os.ReadFile(goModPath)
+		writeFile(t, goModPath, string(data)+fmt.Sprintf("\nreplace github.com/krewire/krewire => %s\n", monorepo))
+
+		// Copy monorepo go.sum so dependencies are resolved without network in tests
+		if sumData, err := os.ReadFile(filepath.Join(monorepo, "go.sum")); err == nil {
+			writeFile(t, filepath.Join(project, "go.sum"), string(sumData))
+		}
+	}
+
+	yaml, err := os.ReadFile(filepath.Join(project, "krewire.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeFile(t, filepath.Join(project, "krewire.yaml"), string(yaml)+"\ndatabase:\n  driver: sqlite\n  dsn: data/blog.db\n")
+	if err := os.MkdirAll(filepath.Join(project, "data"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create Laravel-style Go migration by default (no .sql extension)
+	if out, code := runMigrate(t, "create", "create_posts_table"); code != errs.ExitCodeSuccess || !strings.Contains(out, "created migrations/") {
+		t.Fatalf("create = %v %q", code, out)
+	}
+
+	matches, _ := filepath.Glob(filepath.Join(project, "migrations", "*_create_posts_table.go"))
+	if len(matches) != 1 {
+		t.Fatalf("expected one *_create_posts_table.go, got: %v", matches)
+	}
+
+	content, err := os.ReadFile(matches[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(content), "s.Create(\"posts\"") {
+		t.Fatalf("generated Go migration lacks s.Create: %s", string(content))
+	}
+
+	// Status before up: pending
+	out, code := runMigrate(t, "status")
+	if code != errs.ExitCodeSuccess || !strings.Contains(out, "pending") {
+		t.Fatalf("status before up = %v\n%s", code, out)
+	}
+
+	// Up: apply Go migration
+	out, code = runMigrate(t, "up")
+	if code != errs.ExitCodeSuccess || !strings.Contains(out, "applied ") {
+		t.Fatalf("up = %v\n%s", code, out)
+	}
+
+	// Verify table exists and can be queried
+	db, err := sqlite.Open(filepath.Join(project, "data", "blog.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	if _, err := db.Exec(context.Background(), "INSERT INTO posts (created_at, updated_at) VALUES (datetime('now'), datetime('now'))"); err != nil {
+		t.Fatalf("table created by Go migration is not usable: %v", err)
+	}
+
+	// Down: rollback Go migration
+	out, code = runMigrate(t, "down")
+	if code != errs.ExitCodeSuccess || !strings.Contains(out, "rolled back") {
+		t.Fatalf("down = %v\n%s", code, out)
+	}
+
+	// Redo: rollback and re-apply
+	out, code = runMigrate(t, "up")
+	if code != errs.ExitCodeSuccess || !strings.Contains(out, "applied") {
+		t.Fatalf("re-up = %v\n%s", code, out)
+	}
+	out, code = runMigrate(t, "redo")
+	if code != errs.ExitCodeSuccess || !strings.Contains(out, "rolled back") || !strings.Contains(out, "applied") {
+		t.Fatalf("redo = %v\n%s", code, out)
+	}
+}
+
 func TestMigrate_ConfigPrecedenceAndErrors(t *testing.T) {
 	dir := t.TempDir()
 	chdir(t, dir)
@@ -135,7 +244,7 @@ func TestMigrate_ConfigPrecedenceAndErrors(t *testing.T) {
 	t.Setenv("APP_DATABASE_DSN", "")
 	_ = os.Unsetenv("APP_DATABASE_DSN")
 
-	if out, code := runMigrate(t, "create", "init"); code != errs.ExitCodeSuccess || !strings.Contains(out, "db/migrations/") {
+	if out, code := runMigrate(t, "create", "init.sql"); code != errs.ExitCodeSuccess || !strings.Contains(out, "db/migrations/") {
 		t.Fatalf("create must honor database.migrations: %v %q", code, out)
 	}
 	fillMigration(t, filepath.Join(dir, "db", "migrations"), "init", "CREATE TABLE t (id INTEGER);", "DROP TABLE t;")

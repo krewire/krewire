@@ -44,7 +44,7 @@ func TestMakeArtifact(t *testing.T) {
 		})
 	}
 
-	// Test migration
+	// Test migration (Go Laravel-style by default)
 	t.Run("migration", func(t *testing.T) {
 		if err := MakeArtifact(tmpDir, "migration", "create_users"); err != nil {
 			t.Fatalf("MakeArtifact migration failed: %v", err)
@@ -53,8 +53,36 @@ func TestMakeArtifact(t *testing.T) {
 		if err != nil || len(files) == 0 {
 			t.Fatalf("expected migration file in migrations dir, got %v", files)
 		}
-		if !strings.HasSuffix(files[0].Name(), "_create_users.sql") {
-			t.Errorf("migration filename mismatch: %s", files[0].Name())
+		var foundGo bool
+		for _, f := range files {
+			if strings.HasSuffix(f.Name(), "_create_users.go") {
+				foundGo = true
+				break
+			}
+		}
+		if !foundGo {
+			t.Errorf("migration filename mismatch, expected *_create_users.go in %v", files)
+		}
+	})
+
+	// Test SQL migration when .sql extension is explicitly provided
+	t.Run("migration_sql", func(t *testing.T) {
+		if err := MakeArtifact(tmpDir, "migration", "create_orders.sql"); err != nil {
+			t.Fatalf("MakeArtifact migration with .sql failed: %v", err)
+		}
+		files, err := os.ReadDir(filepath.Join(tmpDir, "migrations"))
+		if err != nil || len(files) == 0 {
+			t.Fatalf("expected migration file in migrations dir, got %v", files)
+		}
+		var foundSQL bool
+		for _, f := range files {
+			if strings.HasSuffix(f.Name(), "_create_orders.sql") {
+				foundSQL = true
+				break
+			}
+		}
+		if !foundSQL {
+			t.Errorf("migration filename mismatch, expected *_create_orders.sql in %v", files)
 		}
 	})
 

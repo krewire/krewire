@@ -5,6 +5,8 @@ package main
 import (
 	"os"
 
+	_ "github.com/krewire/krewire/pkg/orm/mysql"
+	_ "github.com/krewire/krewire/pkg/orm/postgres"
 	"github.com/krewire/krewire/pkg/tui"
 	"github.com/krewire/krewire/pkg/version"
 	"github.com/krewire/krewire/tools/kiw/internal/commands"
@@ -47,7 +49,7 @@ func main() {
 		Command(tui.NewCommand("boost", "manage Boost AI agent template (install, status)", commands.RegisterBoost, commands.RunBoost).WithGroup("ship").WithExample("kiw boost status")).
 		Command(tui.NewCommand("release", "bump versions and stage a release across modules", commands.RegisterRelease, commands.RunRelease).WithGroup("ship").WithExample("kiw release framework --bump minor --apply")).
 		Command(tui.NewCommand("make", "generate a new component, page, handler, migration, model, service, job, or chapter", commands.RegisterMake, commands.RunMake).WithGroup("project").WithCore().WithExample("kiw make component Card")).
-		Command(tui.NewCommand("migrate", "apply, roll back, or list SQL migrations: up [n], down [n], redo, status, create <name>", commands.RegisterMigrate, commands.RunMigrate).WithGroup("project").WithExample("kiw migrate up")).
+		Command(tui.NewCommand("migrate", "apply, roll back, or list migrations: up [n], down [n], redo, status, create <name>", commands.RegisterMigrate, commands.RunMigrate).WithGroup("project").WithExample("kiw migrate up")).
 		Command(tui.NewCommand("ui", "browse, install, and diff kui components: list, info <name>, add <name|pack:x>, diff <name>", commands.RegisterUI, commands.RunUI).WithGroup("project").WithExample("kiw ui list")).
 		Command(tui.NewCommand("forge", "declarative web, form, and admin panel builder: panel <name>, resource <name>, form <name>, studio", commands.RegisterForge, commands.RunForge).WithGroup("project").WithCore().WithExample("kiw forge panel admin")).
 		Command(tui.NewCommand("kiw", "easter egg: playful client catcalls to developers", commands.RegisterKiw, commands.RunKiw).WithHidden(true).WithExample("kiw kiw"))

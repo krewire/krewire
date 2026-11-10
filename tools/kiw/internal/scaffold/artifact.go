@@ -179,12 +179,17 @@ func generateMigration(root, name string) error {
 	return err
 }
 
-// MakeMigration writes an empty timestamped migration with "-- +up" and
-// "-- +down" sections into dir (relative to root) and returns its path
-// relative to root. When another migration already uses the current second,
-// the timestamp moves forward so versions stay unique.
+// MakeMigration writes a timestamped migration into dir (relative to root)
+// and returns its path relative to root. By default, it generates a programmatic
+// Go migration (.go) with fluent schema.Builder syntax identical to Laravel.
+// If name has a ".sql" extension, it creates a raw SQL migration with "-- +up"
+// and "-- +down" sections.
+// When another migration already uses the current second, the timestamp moves
+// forward so versions stay unique.
 func MakeMigration(root, dir, name string) (string, error) {
+	isSQL := strings.HasSuffix(name, ".sql")
 	name = strings.TrimSuffix(name, ".sql")
+	name = strings.TrimSuffix(name, ".go")
 	slug := strings.ReplaceAll(toSlug(name), "-", "_")
 	if slug == "" {
 		return "", fmt.Errorf("migration name %q has no letters or digits", name)
@@ -194,21 +199,50 @@ func MakeMigration(root, dir, name string) (string, error) {
 		return "", err
 	}
 
+	ext := ".go"
+	if isSQL {
+		ext = ".sql"
+	}
+
 	now := time.Now().UTC()
 	for {
-		taken, err := filepath.Glob(filepath.Join(full, now.Format("20060102150405")+"_*.sql"))
+		takenGo, err := filepath.Glob(filepath.Join(full, now.Format("20060102150405")+"_*.go"))
 		if err != nil {
 			return "", err
 		}
-		if len(taken) == 0 {
+		takenSQL, err := filepath.Glob(filepath.Join(full, now.Format("20060102150405")+"_*.sql"))
+		if err != nil {
+			return "", err
+		}
+		if len(takenGo) == 0 && len(takenSQL) == 0 {
 			break
 		}
 		now = now.Add(time.Second)
 	}
-	fileName := fmt.Sprintf("%s_%s.sql", now.Format("20060102150405"), slug)
+	version := now.Format("20060102150405")
+	fileName := fmt.Sprintf("%s_%s%s", version, slug, ext)
 	target := filepath.Join(full, fileName)
 
-	content := migrationTemplate(name, now.Format(time.RFC3339))
+	var content string
+	if isSQL {
+		content = migrationTemplate(name, now.Format(time.RFC3339))
+	} else {
+		pkgName := "migrations"
+		if base := filepath.Base(dir); base != "" && base != "." {
+			cleanBase := strings.ReplaceAll(toSlug(base), "-", "_")
+			if cleanBase != "" {
+				pkgName = cleanBase
+			}
+		}
+
+		// Ensure a package entry point exists if dir has no other Go files
+		entryFile := filepath.Join(full, pkgName+".go")
+		if _, err := os.Stat(entryFile); os.IsNotExist(err) {
+			_ = safeWriteArtifact(root, entryFile, []byte(migrationsPackageTemplate(pkgName)))
+		}
+
+		content = goMigrationTemplate(pkgName, version, slug)
+	}
 
 	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return "", err
