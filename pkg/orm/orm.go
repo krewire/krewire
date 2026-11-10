@@ -10,6 +10,21 @@ import (
 	"github.com/krewire/krewire/pkg/errs"
 )
 
+// Default pool limits enforce bounded resource usage (Pillar 2: Sustainable).
+const (
+	// DefaultMaxOpenConns is the default ceiling on open connections in the pool.
+	DefaultMaxOpenConns = 25
+
+	// DefaultMaxIdleConns is the default number of idle connections maintained.
+	DefaultMaxIdleConns = 5
+
+	// DefaultConnMaxLifetime is the default maximum duration a connection may be reused.
+	DefaultConnMaxLifetime = 5 * time.Minute
+
+	// DefaultConnMaxIdleTime is the default maximum idle time before closing an idle connection.
+	DefaultConnMaxIdleTime = 1 * time.Minute
+)
+
 // Config defines connection pool parameters and driver configuration.
 type Config struct {
 	DriverName      string
@@ -47,18 +62,29 @@ func OpenWithConfig(cfg Config) (*DB, error) {
 		return nil, errs.FailureError(fmt.Sprintf("orm: failed to open driver %s: %v", driverName, err))
 	}
 
-	if cfg.MaxOpenConns > 0 {
-		sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
+	maxOpen := cfg.MaxOpenConns
+	if maxOpen <= 0 {
+		maxOpen = DefaultMaxOpenConns
 	}
-	if cfg.MaxIdleConns > 0 {
-		sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(maxOpen)
+
+	maxIdle := cfg.MaxIdleConns
+	if maxIdle <= 0 {
+		maxIdle = DefaultMaxIdleConns
 	}
-	if cfg.ConnMaxLifetime > 0 {
-		sqlDB.SetConnMaxLifetime(cfg.ConnMaxLifetime)
+	sqlDB.SetMaxIdleConns(maxIdle)
+
+	connMaxLifetime := cfg.ConnMaxLifetime
+	if connMaxLifetime <= 0 {
+		connMaxLifetime = DefaultConnMaxLifetime
 	}
-	if cfg.ConnMaxIdleTime > 0 {
-		sqlDB.SetConnMaxIdleTime(cfg.ConnMaxIdleTime)
+	sqlDB.SetConnMaxLifetime(connMaxLifetime)
+
+	connMaxIdleTime := cfg.ConnMaxIdleTime
+	if connMaxIdleTime <= 0 {
+		connMaxIdleTime = DefaultConnMaxIdleTime
 	}
+	sqlDB.SetConnMaxIdleTime(connMaxIdleTime)
 
 	dialect := GetDialect(driverName)
 
