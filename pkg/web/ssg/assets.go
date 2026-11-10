@@ -43,22 +43,26 @@ func (i fi) Sys() any           { return nil }
 
 // pageRelPath maps a page route to a sibling .html file: "/" -> "index.html",
 // "/about" -> "about.html", "/docs/quickstart" -> "docs/quickstart.html".
+// Traversal sequences (e.g. "../" or backslashes) are strictly bounded to prevent path escape.
 func pageRelPath(p string) string {
-	p = strings.TrimPrefix(p, "/")
-	if p == "" {
+	p = strings.ReplaceAll(p, "\\", "/")
+	cleaned := path.Clean("/" + strings.TrimPrefix(p, "/"))
+	cleaned = strings.TrimPrefix(cleaned, "/")
+	if cleaned == "" || cleaned == "." || strings.HasPrefix(cleaned, "..") {
 		return "index.html"
 	}
-	if strings.HasSuffix(p, ".html") {
-		return p
+	if strings.HasSuffix(cleaned, ".html") {
+		return filepath.FromSlash(cleaned)
 	}
-	return filepath.FromSlash(p) + ".html"
+	return filepath.FromSlash(cleaned) + ".html"
 }
 
 // cleanAssetPath normalizes an asset path, refusing directory traversal.
 func cleanAssetPath(name string) string {
+	name = strings.ReplaceAll(name, "\\", "/")
 	name = strings.TrimPrefix(name, "/")
 	cleaned := path.Clean(name)
-	if cleaned == "." || strings.HasPrefix(cleaned, "..") {
+	if cleaned == "" || cleaned == "." || strings.HasPrefix(cleaned, "..") {
 		return "assets/_"
 	}
 	return cleaned

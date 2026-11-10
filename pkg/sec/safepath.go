@@ -33,8 +33,15 @@ func SafePath(baseDir, untrustedPath string) (string, error) {
 
 	normalized := strings.ReplaceAll(untrustedPath, "\\", "/")
 	cleanedInput := filepath.Clean(filepath.FromSlash(normalized))
-	// Join baseDir with cleaned relative path
-	target := filepath.Clean(filepath.Join(absBase, cleanedInput))
+
+	var target string
+	if strings.HasPrefix(cleanedInput, absBase) {
+		target = cleanedInput
+	} else {
+		// Treat leading slash as relative to baseDir root
+		relInput := strings.TrimPrefix(cleanedInput, string(filepath.Separator))
+		target = filepath.Clean(filepath.Join(absBase, relInput))
+	}
 
 	rel, err := filepath.Rel(absBase, target)
 	if err != nil {
