@@ -19,6 +19,18 @@ const (
 	SMTPEncryptionNone     SMTPEncryption = "none"
 	SMTPEncryptionSTARTTLS SMTPEncryption = "starttls"
 	SMTPEncryptionTLS      SMTPEncryption = "tls"
+
+	// DefaultSMTPPortSTARTTLS is the standard submission port with STARTTLS.
+	DefaultSMTPPortSTARTTLS = 587
+
+	// DefaultSMTPPortTLS is the standard SMTPS port with explicit TLS.
+	DefaultSMTPPortTLS = 465
+
+	// DefaultSMTPPortPlain is the standard unencrypted SMTP relay port.
+	DefaultSMTPPortPlain = 25
+
+	// DefaultSMTPTimeout is the default network I/O timeout for SMTP sessions.
+	DefaultSMTPTimeout = 30 * time.Second
 )
 
 // SMTPConfig contains connection and authentication options for SMTP servers.
@@ -41,13 +53,13 @@ type SMTPDriver struct {
 func NewSMTPDriver(cfg SMTPConfig) *SMTPDriver {
 	if cfg.Port <= 0 {
 		if cfg.Encryption == SMTPEncryptionTLS {
-			cfg.Port = 465
+			cfg.Port = DefaultSMTPPortTLS
 		} else {
-			cfg.Port = 587
+			cfg.Port = DefaultSMTPPortSTARTTLS
 		}
 	}
 	if cfg.Timeout <= 0 {
-		cfg.Timeout = 30 * time.Second
+		cfg.Timeout = DefaultSMTPTimeout
 	}
 	return &SMTPDriver{cfg: cfg}
 }

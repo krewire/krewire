@@ -14,10 +14,18 @@ import (
 	"github.com/krewire/krewire/pkg/errs"
 )
 
+const (
+	// DefaultSendGridEndpoint is the production REST API endpoint for SendGrid mail send.
+	DefaultSendGridEndpoint = "https://api.sendgrid.com/v3/mail/send"
+
+	// DefaultSendGridTimeout is the default HTTP client request timeout.
+	DefaultSendGridTimeout = 30 * time.Second
+)
+
 // SendGridConfig contains options for SendGrid v3 API.
 type SendGridConfig struct {
 	APIKey     string
-	Endpoint   string // default: "https://api.sendgrid.com/v3/mail/send"
+	Endpoint   string // default: DefaultSendGridEndpoint ("https://api.sendgrid.com/v3/mail/send")
 	HTTPClient *http.Client
 }
 
@@ -36,12 +44,12 @@ func NewSendGridDriver(cfg SendGridConfig) (*SendGridDriver, error) {
 
 	endpoint := strings.TrimSpace(cfg.Endpoint)
 	if endpoint == "" {
-		endpoint = "https://api.sendgrid.com/v3/mail/send"
+		endpoint = DefaultSendGridEndpoint
 	}
 
 	client := cfg.HTTPClient
 	if client == nil {
-		client = &http.Client{Timeout: 30 * time.Second}
+		client = &http.Client{Timeout: DefaultSendGridTimeout}
 	}
 
 	return &SendGridDriver{

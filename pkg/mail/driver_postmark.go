@@ -14,10 +14,18 @@ import (
 	"github.com/krewire/krewire/pkg/errs"
 )
 
+const (
+	// DefaultPostmarkEndpoint is the production REST API endpoint for Postmark.
+	DefaultPostmarkEndpoint = "https://api.postmarkapp.com/email"
+
+	// DefaultPostmarkTimeout is the default HTTP client request timeout.
+	DefaultPostmarkTimeout = 30 * time.Second
+)
+
 // PostmarkConfig contains options for Postmark transactional email delivery.
 type PostmarkConfig struct {
 	ServerToken string
-	Endpoint    string // default: "https://api.postmarkapp.com/email"
+	Endpoint    string // default: DefaultPostmarkEndpoint ("https://api.postmarkapp.com/email")
 	HTTPClient  *http.Client
 }
 
@@ -36,12 +44,12 @@ func NewPostmarkDriver(cfg PostmarkConfig) (*PostmarkDriver, error) {
 
 	endpoint := strings.TrimSpace(cfg.Endpoint)
 	if endpoint == "" {
-		endpoint = "https://api.postmarkapp.com/email"
+		endpoint = DefaultPostmarkEndpoint
 	}
 
 	client := cfg.HTTPClient
 	if client == nil {
-		client = &http.Client{Timeout: 30 * time.Second}
+		client = &http.Client{Timeout: DefaultPostmarkTimeout}
 	}
 
 	return &PostmarkDriver{

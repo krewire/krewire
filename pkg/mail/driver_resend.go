@@ -14,10 +14,18 @@ import (
 	"github.com/krewire/krewire/pkg/errs"
 )
 
+const (
+	// DefaultResendEndpoint is the production REST API endpoint for Resend.
+	DefaultResendEndpoint = "https://api.resend.com/emails"
+
+	// DefaultResendTimeout is the default HTTP client request timeout.
+	DefaultResendTimeout = 30 * time.Second
+)
+
 // ResendConfig contains options for the Resend email platform.
 type ResendConfig struct {
 	APIKey     string
-	Endpoint   string // default: "https://api.resend.com/emails"
+	Endpoint   string // default: DefaultResendEndpoint ("https://api.resend.com/emails")
 	HTTPClient *http.Client
 }
 
@@ -36,12 +44,12 @@ func NewResendDriver(cfg ResendConfig) (*ResendDriver, error) {
 
 	endpoint := strings.TrimSpace(cfg.Endpoint)
 	if endpoint == "" {
-		endpoint = "https://api.resend.com/emails"
+		endpoint = DefaultResendEndpoint
 	}
 
 	client := cfg.HTTPClient
 	if client == nil {
-		client = &http.Client{Timeout: 30 * time.Second}
+		client = &http.Client{Timeout: DefaultResendTimeout}
 	}
 
 	return &ResendDriver{
