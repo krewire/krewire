@@ -11,7 +11,9 @@ A catalog of focused, single-purpose utility packages supporting the Krewire eco
 ---
 
 ## 2. Resilience (`pkg/resilience`)
-- **Retry**: Exponential backoff with jitter.
+- **Bulkhead**: Bounds concurrent execution slots (`NewBulkhead`) to prevent thread and goroutine exhaustion.
+- **Rate Limiter**: Token-bucket frequency limiter (`NewRateLimiter`) with burst capacity and blocking wait (`Wait(ctx)`).
+- **Retry**: Exponential backoff with jitter and context cancellation.
 - **Circuit Breaker**: Three-state circuit breaker (`Closed`, `Open`, `HalfOpen`) preventing cascading service outages.
 
 ---
