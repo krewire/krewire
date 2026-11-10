@@ -157,17 +157,14 @@ func (d *dashboardServer) handleHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.New("dashboard").Parse(dashboardHTML)
-	if err != nil {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := dashboardTemplate.Execute(w, map[string]any{
+		"Title":       info.Name,
+		"InitialJSON": template.JS(initialJSON),
+	}); err != nil {
 		http.Error(w, "Template Render Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_ = tmpl.Execute(w, map[string]any{
-		"Title":       info.Name,
-		"InitialJSON": template.JS(initialJSON),
-	})
 }
 
 func (d *dashboardServer) handleInfo(w http.ResponseWriter, r *http.Request) {
