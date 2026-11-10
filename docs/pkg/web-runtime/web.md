@@ -71,6 +71,34 @@ Used by the `site` workload kind:
 
 ---
 
+## Application Assembly & Security-First Defaults (`web.NewApp`)
+
+`web.NewApp()` provides an all-in-one monolith application container with defense-in-depth security defaults enabled out of the box (Pillar 1: Secure):
+- **Outermost Recovery**: `RecoverMiddleware` catches panics and serves fallback 500 responses without crashing the runtime.
+- **Access Logging**: `AccessLogMiddleware` produces structured slog access logs.
+- **Baseline Security Headers**: Automatically applies:
+  - `X-Content-Type-Options: nosniff` (prevents MIME sniffing)
+  - `X-Frame-Options: SAMEORIGIN` (prevents clickjacking)
+  - `Referrer-Policy: strict-origin-when-cross-origin` (safeguards referrers)
+  - `Content-Security-Policy` baseline headers
+
+```go
+package main
+
+import (
+    "net/http"
+    "github.com/krewire/krewire/pkg/web"
+)
+
+func main() {
+    app := web.NewApp()
+    // Routes, pages, and components registered with security defaults active
+    http.ListenAndServe(":8080", app.Router())
+}
+```
+
+---
+
 ## Quick References
 
 - [Multi-Runtime Coexistence Guide](../../guides/multi-runtime-coexistence.md) — Node.js and Laravel trace propagation.

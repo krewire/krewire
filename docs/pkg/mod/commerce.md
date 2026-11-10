@@ -66,4 +66,6 @@ func main() {
 
 ## Security & Verification
 
-All incoming webhook payloads are verified using HMAC SHA-512 with the merchant's `ServerKey` before processing (`SHA512(order_id + status_code + gross_amount + server_key)`). Never disable signature checks in production.
+All incoming webhook payloads are verified using SHA-512 with the merchant's `ServerKey` before processing (`SHA512(order_id + status_code + gross_amount + server_key)`).
+- **Constant-Time Verification (Pillar S1: Secure)**: Signatures are compared using `crypto/subtle.ConstantTimeCompare` to guarantee immunity against timing side-channel attacks.
+- **Fail-Closed Policy**: If the signature header is missing or does not match exactly, the webhook returns an unauthorized error immediately. Never disable signature checks in production.

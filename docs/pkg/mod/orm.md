@@ -22,9 +22,9 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
   - `SQLiteDialect`, `PostgresDialect`, `MySQLDialect`
   - `RegisterDialect(driverName string, dialect Dialect)`
   - `GetDialect(driverName string) Dialect`
-- **Database Connection Pool**:
-  - `Open(driverName, dsn string) (*DB, error)`
-  - `OpenWithConfig(cfg Config) (*DB, error)`
+- **Database Connection Pool (Pillar S2: Sustainable)**:
+  - `Open(driverName, dsn string) (*DB, error)` — Opens with bounded defaults (`MaxOpenConns=25`, `MaxIdleConns=10`, `ConnMaxLifetime=1h`, `ConnMaxIdleTime=15m`).
+  - `OpenWithConfig(cfg Config) (*DB, error)` — Configurable connection pool parameters.
   - `New(sqlDB *sql.DB, driverName string) *DB`
   - `DB.Close() error`, `DB.Ping(ctx context.Context) error`
   - `DB.Table(name string) *Query`, `DB.Model(v interface{}) *Query`
@@ -173,6 +173,14 @@ Guarantees:
 
 ## Security & Architecture Boundaries
 
+- **Connection Pool Bounding (Pillar S2: Sustainable)**:
+  - Enforces bounded connection pools to prevent file descriptor leaks and memory exhaustion:
+    - `MaxOpenConns`: 25 (prevents database connection floods)
+    - `MaxIdleConns`: 10 (retains ready connections without excessive idle overhead)
+    - `ConnMaxLifetime`: 1 hour (recycles aged connections cleanly)
+    - `ConnMaxIdleTime`: 15 minutes (prunes unused idle connections)
+    - `BusyTimeout`: 5,000 ms (5 seconds wait for locks in SQLite WAL mode)
+  - Custom limits can be specified via `orm.Config{MaxOpenConns, MaxIdleConns, ConnMaxLifetime, ConnMaxIdleTime}` passed to `orm.OpenWithConfig`.
 - **Parameterized Queries**: All dynamic criteria pass through dialect-specific placeholders (`$1, $2` for PostgreSQL; `?` for SQLite/MySQL) preventing SQL injection vulnerabilities.
 - **Pure-Go Architecture**: No CGO dependencies required. Fully cross-compilable across Linux, macOS, and Windows.
 - **Downward Dependency Pyramid**: Depends only on Level 1 (`pkg/errs`, `pkg/model`) and standard library `database/sql`. `pkg/orm/migrate` adds only `pkg/orm`; `pkg/orm/sqlite` is the one package that links a driver.
