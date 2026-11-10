@@ -303,3 +303,41 @@ func TestSQLiteDriverIsOptIn(t *testing.T) {
 		t.Fatal("no pkg files checked; the driver opt-in guard did not run")
 	}
 }
+
+// TestWebDoesNotImportORMOrCloud asserts that the core web package (pkg/web)
+// never depends on pkg/orm or pkg/cloud. Web consumers must pay only for what
+// they import without transitively pulling database or cloud infrastructure
+// (Pillar 2: Sustainable).
+func TestWebDoesNotImportORMOrCloud(t *testing.T) {
+	root := repoRoot(t)
+	mod := modulePath(t, root)
+	webDir := filepath.Join(root, "pkg", "web")
+	ormPrefix := mod + "/pkg/orm"
+	cloudPrefix := mod + "/pkg/cloud"
+
+	checked := 0
+	entries, err := os.ReadDir(webDir)
+	if err != nil {
+		t.Fatalf("read %s: %v", webDir, err)
+	}
+
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") || strings.HasSuffix(e.Name(), "_test.go") {
+			continue
+		}
+		path := filepath.Join(webDir, e.Name())
+		for _, imp := range parseImports(t, path) {
+			if imp == ormPrefix || strings.HasPrefix(imp, ormPrefix+"/") {
+				t.Errorf("%s imports %q: pkg/web must not depend on pkg/orm", e.Name(), imp)
+			}
+			if imp == cloudPrefix || strings.HasPrefix(imp, cloudPrefix+"/") {
+				t.Errorf("%s imports %q: pkg/web must not depend on pkg/cloud", e.Name(), imp)
+			}
+		}
+		checked++
+	}
+
+	if checked == 0 {
+		t.Fatal("no pkg/web files checked; the web isolation guard did not run")
+	}
+}
