@@ -65,3 +65,23 @@ func TestMakeArtifact(t *testing.T) {
 		}
 	})
 }
+
+func TestMakeArtifact_PathTraversalSanitization(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Attempt path traversal when generating an artifact
+	err := MakeArtifact(tmpDir, "component", "../../evil")
+	if err == nil {
+		// If it succeeded, verify it was normalized and contained inside tmpDir/components/
+		target := filepath.Join(tmpDir, "components", "Evil.kiw")
+		if _, err := os.Stat(target); os.IsNotExist(err) {
+			t.Errorf("expected sanitized file inside components/, got: %v", err)
+		}
+	}
+
+	// Verify nothing escaped outside tmpDir
+	parent := filepath.Dir(tmpDir)
+	if _, err := os.Stat(filepath.Join(parent, "evil.kiw")); err == nil {
+		t.Fatal("CRITICAL: file written outside project root via path traversal!")
+	}
+}

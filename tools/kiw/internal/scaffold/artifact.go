@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/krewire/krewire/pkg/sec"
 )
 
 // ErrUnknownKind is returned when an unsupported artifact kind is requested.
@@ -89,7 +91,7 @@ func generateChapter(root, name string) error {
 
 	content := chapterTemplate(title, nextOrder)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	fmt.Printf("created %s\n", filepath.ToSlash(filepath.Join(destDir, fileName)))
@@ -112,7 +114,7 @@ func generateComponent(root, name string) error {
 
 	content := componentTemplate(pascal, slug)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	fmt.Printf("created components/%s.kiw\n", pascal)
@@ -135,7 +137,7 @@ func generatePage(root, name string) error {
 
 	content := pageTemplate(title, slug)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	fmt.Printf("created pages/%s.kiw\n", slug)
@@ -164,7 +166,7 @@ func generateHandler(root, name string) error {
 
 	content := handlerTemplate(pascal, name)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	rel, _ := filepath.Rel(root, target)
@@ -208,7 +210,7 @@ func MakeMigration(root, dir, name string) (string, error) {
 
 	content := migrationTemplate(name, now.Format(time.RFC3339))
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return "", err
 	}
 	rel, _ := filepath.Rel(root, target)
@@ -239,7 +241,7 @@ func generateModel(root, name string) error {
 
 	content := modelTemplate(pascal)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	rel, _ := filepath.Rel(root, target)
@@ -269,7 +271,7 @@ func generateMiddleware(root, name string) error {
 
 	content := middlewareTemplate(pascal)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	rel, _ := filepath.Rel(root, target)
@@ -300,7 +302,7 @@ func generateService(root, name string) error {
 
 	content := serviceTemplate(pascal, lowerFirst)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	rel, _ := filepath.Rel(root, target)
@@ -332,7 +334,7 @@ func generateJob(root, name string) error {
 
 	content := jobTemplate(pascal)
 
-	if err := os.WriteFile(target, []byte(content), 0o644); err != nil {
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}
 	rel, _ := filepath.Rel(root, target)
@@ -345,6 +347,15 @@ func hasDir(root, path string) bool {
 	return err == nil && info.IsDir()
 }
 
+// safeWriteArtifact validates that target resides strictly within root using sec.SafePath before writing.
+func safeWriteArtifact(root, target string, content []byte) error {
+	safe, err := sec.SafePath(root, target)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(safe, content, 0o644)
+}
+
 func isNumeric(s string) bool {
 	for _, r := range s {
 		if !unicode.IsDigit(r) {
@@ -354,10 +365,10 @@ func isNumeric(s string) bool {
 	return len(s) > 0
 }
 
-// ToPascal converts strings like "user-profile" or "user_profile" to "UserProfile".
+// ToPascal converts strings like "user-profile", "user_profile", or "user/profile" to "UserProfile".
 func ToPascal(s string) string {
 	parts := strings.FieldsFunc(s, func(r rune) bool {
-		return r == '-' || r == '_' || r == ' ' || r == '.'
+		return r == '-' || r == '_' || r == ' ' || r == '.' || r == '/' || r == '\\'
 	})
 	var b strings.Builder
 	for _, p := range parts {

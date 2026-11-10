@@ -29,10 +29,10 @@ func ForgePanel(root, name string, dryRun bool) error {
 	if err := os.MkdirAll(panelDir, 0o755); err != nil {
 		return err
 	}
-	if err := os.WriteFile(goFile, []byte(goContent), 0o644); err != nil {
+	if err := safeWriteArtifact(root, goFile, []byte(goContent)); err != nil {
 		return err
 	}
-	if err := os.WriteFile(kiwFile, []byte(kiwContent), 0o644); err != nil {
+	if err := safeWriteArtifact(root, kiwFile, []byte(kiwContent)); err != nil {
 		return err
 	}
 
@@ -73,13 +73,13 @@ func ForgeResource(root, name, model string, dryRun bool) error {
 	if err := os.MkdirAll(resDir, 0o755); err != nil {
 		return err
 	}
-	if err := os.WriteFile(goFile, []byte(goContent), 0o644); err != nil {
+	if err := safeWriteArtifact(root, goFile, []byte(goContent)); err != nil {
 		return err
 	}
-	if err := os.WriteFile(indexKiw, []byte(indexContent), 0o644); err != nil {
+	if err := safeWriteArtifact(root, indexKiw, []byte(indexContent)); err != nil {
 		return err
 	}
-	if err := os.WriteFile(formKiw, []byte(formContent), 0o644); err != nil {
+	if err := safeWriteArtifact(root, formKiw, []byte(formContent)); err != nil {
 		return err
 	}
 
@@ -153,10 +153,10 @@ func ForgeForm(root, name, fieldsSpec string, dryRun bool) error {
 	if err := os.MkdirAll(compDir, 0o755); err != nil {
 		return err
 	}
-	if err := os.WriteFile(goFile, []byte(goContent), 0o644); err != nil {
+	if err := safeWriteArtifact(root, goFile, []byte(goContent)); err != nil {
 		return err
 	}
-	if err := os.WriteFile(kiwFile, []byte(kiwContent), 0o644); err != nil {
+	if err := safeWriteArtifact(root, kiwFile, []byte(kiwContent)); err != nil {
 		return err
 	}
 
