@@ -31,7 +31,32 @@ Krewire adheres strictly to [Semantic Versioning 2.0.0](https://semver.org/):
 
 ---
 
-## 3. Automated Release Quality Gates
+## 3. The Six Version Release Tracks
+
+Every module in the ecosystem releases across six designated tracks ([ADR-R7P3K](../../../internal/docs/adr/ADR-R7P3K-multi-track-release-hotfix-deploy-pipelines.md)):
+
+1. **`lts` (Long-Term Support)**: Extended enterprise lifecycle (`vX.Y.Z-lts` or `lts/vX.Y` branch). Strict bug fixes and security patches only.
+2. **`stable` (General Availability)**: Production baseline (`vX.Y.Z`), tagged directly from `main` after passing 100% of quality gates.
+3. **`pre-release` (RC, Beta, Alpha)**:
+   - `rc`: Release Candidate (`vX.Y.Z-rc.N`), feature-complete, frozen for production evaluation.
+   - `beta`: Community preview (`vX.Y.Z-beta.N`), feature-complete for external integration testing.
+   - `alpha`: Early preview (`vX.Y.Z-alpha.N`), experimental architecture validation.
+4. **`nightly` (Daily Automated Builds)**: Bleeding-edge automated builds (`vX.Y.Z-nightly.YYYYMMDD`), published daily from `main`.
+5. **`experimental` (Architecture Spikes & Canary)**: Exploratory features on `exp/*` or `experimental/*` branches (`vX.Y.Z-exp.<feature>`).
+6. **`development` (`dev`)**: Continuous integration verification on active `main` and feature branches (`vX.Y.Z-dev.<sha>`).
+
+---
+
+## 4. Automated Release, Hotfix, and Deploy Pipelines
+
+Each repository operates three automated pipelines:
+- **Release Pipeline (`release.yaml`)**: Handles multi-track tagging, multi-platform cross-compilation (`linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, `windows/amd64`), SHA-256 checksums, and Docker image publishing.
+- **Hotfix Pipeline (`hotfix.yaml`)**: Fast-track emergency patch pipeline with automatic fallback to `:stable` on failure, patch tagging, and automated back-merge to development branches.
+- **Deploy Pipeline (`deploy.yaml`)**: Multi-environment deployment targeting production (`stable`, `lts`), staging (`pre-release`), and canary (`nightly`, `experimental`) with atomic rolling updates and live health polling.
+
+---
+
+## 5. Automated Release Quality Gates
 
 Before any tag or release artifact is published, the codebase must pass all 6 verification gates:
 

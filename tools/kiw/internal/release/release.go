@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	krewire "github.com/krewire/krewire"
 	"github.com/krewire/krewire/pkg/model"
@@ -236,6 +237,44 @@ const (
 	BumpMajor BumpType = "major"
 )
 
+// Track represents an ecosystem version release track.
+type Track string
+
+const (
+	TrackStable       Track = "stable"
+	TrackLTS          Track = "lts"
+	TrackRC           Track = "rc"
+	TrackBeta         Track = "beta"
+	TrackAlpha        Track = "alpha"
+	TrackNightly      Track = "nightly"
+	TrackExperimental Track = "experimental"
+	TrackDev          Track = "dev"
+)
+
+// ParseTrack parses a string into a release Track.
+func ParseTrack(s string) (Track, error) {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "stable", "ga", "":
+		return TrackStable, nil
+	case "lts":
+		return TrackLTS, nil
+	case "rc":
+		return TrackRC, nil
+	case "beta":
+		return TrackBeta, nil
+	case "alpha":
+		return TrackAlpha, nil
+	case "nightly":
+		return TrackNightly, nil
+	case "experimental", "exp":
+		return TrackExperimental, nil
+	case "development", "dev":
+		return TrackDev, nil
+	default:
+		return "", fmt.Errorf("invalid release track %q: want lts, stable, rc, beta, alpha, nightly, experimental, or dev", s)
+	}
+}
+
 // ParseBump parses a string into a BumpType.
 func ParseBump(s string) (BumpType, error) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
@@ -334,16 +373,42 @@ func RequiredVersion(dependent, name string) (version.Version, bool) {
 
 // Bump returns a new Version with the chosen semver component incremented.
 func Bump(v version.Version, b BumpType) version.Version {
+	return BumpTrack(v, b, TrackStable)
+}
+
+// BumpTrack returns a new Version with the chosen semver bump and release track applied.
+func BumpTrack(v version.Version, b BumpType, t Track) version.Version {
+	var next version.Version
 	switch b {
 	case BumpMajor:
-		return version.Version{Major: v.Major + 1, Minor: 0, Patch: 0}
+		next = version.Version{Major: v.Major + 1, Minor: 0, Patch: 0}
 	case BumpMinor:
-		return version.Version{Major: v.Major, Minor: v.Minor + 1, Patch: 0}
+		next = version.Version{Major: v.Major, Minor: v.Minor + 1, Patch: 0}
 	case BumpPatch:
-		return version.Version{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}
+		next = version.Version{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}
 	default:
-		return v
+		next = v
 	}
+
+	switch t {
+	case TrackLTS:
+		next.PreRelease = "lts"
+	case TrackRC:
+		next.PreRelease = "rc.1"
+	case TrackBeta:
+		next.PreRelease = "beta.1"
+	case TrackAlpha:
+		next.PreRelease = "alpha.1"
+	case TrackNightly:
+		next.PreRelease = fmt.Sprintf("nightly.%s", time.Now().UTC().Format("20060102"))
+	case TrackExperimental:
+		next.PreRelease = "exp"
+	case TrackDev:
+		next.PreRelease = "dev"
+	case TrackStable:
+		next.PreRelease = ""
+	}
+	return next
 }
 
 // Edit describes one replacement to be made in a version file.
@@ -355,8 +420,13 @@ type Edit struct {
 	To      string
 }
 
-// Plan computes the exact file edits required to release the named modules.
+// Plan computes the exact file edits required to release the named modules on the stable track.
 func Plan(targets []string, b BumpType) ([]Edit, error) {
+	return PlanTrack(targets, b, TrackStable)
+}
+
+// PlanTrack computes the exact file edits required to release the named modules on the specified release track.
+func PlanTrack(targets []string, b BumpType, t Track) ([]Edit, error) {
 	var edits []Edit
 	seen := map[string]bool{}
 
@@ -365,7 +435,7 @@ func Plan(targets []string, b BumpType) ([]Edit, error) {
 		if err != nil {
 			return nil, err
 		}
-		next := Bump(cur, b)
+		next := BumpTrack(cur, b, t)
 
 		m := manifest(name)
 		if m.Name == "" {
@@ -376,7 +446,7 @@ func Plan(targets []string, b BumpType) ([]Edit, error) {
 		edits = append(edits, Edit{
 			Module:  name,
 			File:    m.VersionFile,
-			Summary: fmt.Sprintf("bump %s %s -> %s", name, cur, next),
+			Summary: fmt.Sprintf("bump %s %s -> %s [%s]", name, cur, next, t),
 			From:    from,
 			To:      to,
 		})

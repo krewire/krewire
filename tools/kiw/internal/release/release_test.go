@@ -22,6 +22,51 @@ func TestBump(t *testing.T) {
 	}
 }
 
+func TestBumpTrack(t *testing.T) {
+	v := version.MustParseVersion("1.0.0")
+
+	// LTS
+	if got := BumpTrack(v, BumpPatch, TrackLTS); got.String() != "1.0.1-lts" {
+		t.Errorf("BumpTrack LTS = %s, want 1.0.1-lts", got)
+	}
+
+	// Stable
+	if got := BumpTrack(v, BumpMinor, TrackStable); got.String() != "1.1.0" {
+		t.Errorf("BumpTrack Stable = %s, want 1.1.0", got)
+	}
+
+	// Pre-release: RC
+	if got := BumpTrack(v, BumpMinor, TrackRC); got.String() != "1.1.0-rc.1" {
+		t.Errorf("BumpTrack RC = %s, want 1.1.0-rc.1", got)
+	}
+
+	// Pre-release: Beta
+	if got := BumpTrack(v, BumpMinor, TrackBeta); got.String() != "1.1.0-beta.1" {
+		t.Errorf("BumpTrack Beta = %s, want 1.1.0-beta.1", got)
+	}
+
+	// Pre-release: Alpha
+	if got := BumpTrack(v, BumpMajor, TrackAlpha); got.String() != "2.0.0-alpha.1" {
+		t.Errorf("BumpTrack Alpha = %s, want 2.0.0-alpha.1", got)
+	}
+
+	// Experimental
+	if got := BumpTrack(v, BumpMinor, TrackExperimental); got.String() != "1.1.0-exp" {
+		t.Errorf("BumpTrack Experimental = %s, want 1.1.0-exp", got)
+	}
+
+	// Dev
+	if got := BumpTrack(v, BumpPatch, TrackDev); got.String() != "1.0.1-dev" {
+		t.Errorf("BumpTrack Dev = %s, want 1.0.1-dev", got)
+	}
+
+	// Nightly
+	nightly := BumpTrack(v, BumpMinor, TrackNightly)
+	if nightly.PreRelease == "" || nightly.Major != 1 || nightly.Minor != 1 {
+		t.Errorf("BumpTrack Nightly invalid: %s", nightly)
+	}
+}
+
 func TestPlanReleasingKrewire(t *testing.T) {
 	edits, err := Plan([]string{string(ModuleKrewire)}, BumpPatch)
 	if err != nil {

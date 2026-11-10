@@ -29,6 +29,7 @@ var (
 	releaseModules releaseModuleSlice
 	releaseAll     bool
 	releaseBump    string
+	releaseTrack   string
 	releaseApply   bool
 	releaseNotes   bool
 )
@@ -38,6 +39,7 @@ func RegisterRelease(fs *flag.FlagSet) {
 	fs.Var(&releaseModules, "module", "module to release; repeatable ("+releaseModuleNames()+"); use with --all for every module")
 	fs.BoolVar(&releaseAll, "all", false, "release every Krewire module (maintainer mode, run inside the workspace)")
 	fs.StringVar(&releaseBump, "bump", "patch", "version component to increment: patch|minor|major")
+	fs.StringVar(&releaseTrack, "track", "stable", "release track: lts, stable, rc, beta, alpha, nightly, experimental, dev")
 	fs.BoolVar(&releaseApply, "apply", false, "write the changes (default is a dry run)")
 	fs.BoolVar(&releaseNotes, "notes", false, "print release notes from git log since the last tag")
 }
@@ -59,14 +61,20 @@ func RunRelease(fs *flag.FlagSet) errs.ExitCode {
 		return errs.ExitCodeUsage
 	}
 
-	if releaseAll || len(releaseModules) > 0 {
-		return runModuleRelease(bump)
+	track, err := release.ParseTrack(releaseTrack)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return errs.ExitCodeUsage
 	}
-	return runProjectRelease(bump)
+
+	if releaseAll || len(releaseModules) > 0 {
+		return runModuleRelease(bump, track)
+	}
+	return runProjectRelease(bump, track)
 }
 
 // runModuleRelease implements maintainer mode (Krewire's own modules).
-func runModuleRelease(bump release.BumpKind) errs.ExitCode {
+func runModuleRelease(bump release.BumpKind, track release.Track) errs.ExitCode {
 	var names []string
 	if releaseAll {
 		for _, m := range release.Modules {
@@ -82,7 +90,7 @@ func runModuleRelease(bump release.BumpKind) errs.ExitCode {
 		}
 	}
 
-	edits, err := release.Plan(names, bump)
+	edits, err := release.PlanTrack(names, bump, track)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return errs.ExitCodeFailure
@@ -143,7 +151,7 @@ func runModuleRelease(bump release.BumpKind) errs.ExitCode {
 
 // runProjectRelease implements developer mode: release the Krewire project in
 // the current directory by bumping its version in krewire.yaml and building it.
-func runProjectRelease(bump release.BumpKind) errs.ExitCode {
+func runProjectRelease(bump release.BumpKind, track release.Track) errs.ExitCode {
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -173,7 +181,7 @@ func runProjectRelease(bump release.BumpKind) errs.ExitCode {
 		fmt.Fprintf(os.Stderr, "release: invalid project version %q in krewire.yaml: %v\n", cur, err)
 		return errs.ExitCodeUsage
 	}
-	nv := release.Bump(cv, bump)
+	nv := release.BumpTrack(cv, bump, track)
 	newVer := prefix + nv.String()
 
 	tm := term.NewTerminal()
