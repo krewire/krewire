@@ -1,0 +1,143 @@
+name: Hotfix Pipeline (Fast-Track)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Krewire Emergency Hotfix Pipeline (ADR-R7P3K)
+# Expedited patching for stable and lts releases with automated back-merge
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches:
+      - 'hotfix'
+      - 'hotfix/**'
+      - 'hotfix-*'
+  workflow_dispatch:
+    inputs:
+      base_track:
+        description: 'Target track to base hotfix upon'
+        required: true
+        type: choice
+        default: 'stable'
+        options:
+          - 'stable'
+          - 'lts'
+      description:
+        description: 'Hotfix patch summary'
+        required: false
+        default: 'Emergency vulnerability/bug patch'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: hotfix-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Fast-Track Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Hotfix Branch
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.x"
+          cache: true
+
+      - name: Formatting & Static Analysis
+        run: |
+          gofmt -l .
+          go vet ./...
+
+      - name: Fast Unit Tests
+        run: go test -v ./...
+
+      - name: Pure-Go Compilation
+        run: CGO_ENABLED=0 go build ./...
+
+  build-and-tag:
+    name: Build Patch & Tag Hotfix
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.x"
+
+      - name: Compute Patch Version
+        id: patch
+        run: |
+          TRACK="${{ inputs.base_track }}"
+          if [ -z "$TRACK" ]; then TRACK="stable"; fi
+          
+          # Fetch recent tags
+          git fetch --tags
+          LAST_TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo 'v0.2.0')"
+          echo "Last tag: ${LAST_TAG}"
+          
+          # Increment patch
+          BASE_VER="$(echo "$LAST_TAG" | sed -E 's/-.*//')"
+          MAJOR="$(echo "$BASE_VER" | cut -d. -f1)"
+          MINOR="$(echo "$BASE_VER" | cut -d. -f2)"
+          PATCH="$(echo "$BASE_VER" | cut -d. -f3)"
+          NEXT_PATCH=$((PATCH + 1))
+          
+          if [ "$TRACK" = "lts" ]; then
+            HOTFIX_VER="${MAJOR}.${MINOR}.${NEXT_PATCH}-lts.1"
+          else
+            HOTFIX_VER="${MAJOR}.${MINOR}.${NEXT_PATCH}"
+          fi
+          
+          echo "version=${HOTFIX_VER}" >> "$GITHUB_OUTPUT"
+          echo "tag=${HOTFIX_VER}" >> "$GITHUB_OUTPUT"
+          echo "▶ Prepared Hotfix Release: ${HOTFIX_VER}"
+
+      - name: Compile Hotfix Binaries
+        env:
+          VER: ${{ steps.patch.outputs.version }}
+        run: |
+          mkdir -p dist
+          LDFLAGS="-s -w -X 'github.com/krewire/krewire/tools/kiw/internal/buildinfo.Version=${VER}' -X 'github.com/krewire/krewire/tools/kiw/internal/buildinfo.Track=hotfix'"
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="$LDFLAGS" -o dist/kiw-linux-amd64 ./tools/kiw/cmd/kiw
+          GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="$LDFLAGS" -o dist/kiw-darwin-arm64 ./tools/kiw/cmd/kiw
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="$LDFLAGS" -o dist/kiw-windows-amd64.exe ./tools/kiw/cmd/kiw
+          cd dist && sha256sum * > checksums.txt
+
+      - name: Push Git Tag
+        run: |
+          TAG="${{ steps.patch.outputs.tag }}"
+          git config user.name "krewire-bot"
+          git config user.email "bot@krewire.com"
+          git tag -a "${TAG}" -m "hotfix: ${TAG} [${{ inputs.description }}]"
+          git push origin "${TAG}" || true
+
+      - name: Publish Emergency Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.patch.outputs.tag }}
+          name: "[HOTFIX] Krewire ${{ steps.patch.outputs.version }}"
+          body: |
+            ## Emergency Hotfix Release — ${{ steps.patch.outputs.version }}
+            
+            **Triggered by**: `${{ github.actor }}`
+            **Branch**: `${{ github.ref_name }}`
+            **Description**: ${{ inputs.description }}
+            
+            ```
+            $(cat dist/checksums.txt)
+            ```
+          prerelease: false
+          draft: false
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
