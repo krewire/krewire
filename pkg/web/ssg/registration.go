@@ -94,6 +94,36 @@ func (s *Site) Registry(reg *ui.Registry) *Site {
 	return s
 }
 
+// GetRegistry returns the current component registry, creating a default one if nil.
+func (s *Site) GetRegistry() *ui.Registry {
+	if s.reg == nil {
+		s.reg = ui.Default()
+	}
+	return s.reg
+}
+
+// BridgeComponentsToRegistry registers all template components defined on the site into the ui.Registry.
+func (s *Site) BridgeComponentsToRegistry() {
+	reg := s.GetRegistry()
+	for name, c := range s.comps {
+		compName := name
+		comp := c
+		reg.RegisterWithMeta(compName, ui.ComponentFunc(func(props any) (template.HTML, error) {
+			return s.renderComponent(compName, props)
+		}), ui.ComponentMeta{
+			Name:         compName,
+			SourceOrigin: "kiw",
+			SourceFile:   comp.Source,
+		})
+	}
+}
+
+// BridgeToNode bridges both site template components and registered Go components to pkg/ui/node.
+func (s *Site) BridgeToNode() {
+	s.BridgeComponentsToRegistry()
+	s.GetRegistry().BridgeToNode()
+}
+
 // EmitProps enables serializing a page's Props to a data-props attribute on
 // the page's root element, providing a stable mount point for client-side
 // frameworks. Off by default; pages with a nil Props are left untouched.

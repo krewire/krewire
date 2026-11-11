@@ -12,9 +12,13 @@ import (
 // KiwRendererFunc represents a function capable of rendering a .kiw DSL component.
 type KiwRendererFunc func(ctx context.Context, props map[string]any, children []Node, w io.Writer) error
 
+// KiwFallbackResolver resolves any unregistered component names dynamically.
+type KiwFallbackResolver func(ctx context.Context, name string, props map[string]any, children []Node, w io.Writer) error
+
 var (
-	kiwRegistryMu sync.RWMutex
-	kiwRegistry   = make(map[string]KiwRendererFunc)
+	kiwRegistryMu       sync.RWMutex
+	kiwRegistry         = make(map[string]KiwRendererFunc)
+	kiwFallbackResolver KiwFallbackResolver
 )
 
 // RegisterKiwComponent registers a .kiw component renderer under a given component name.
@@ -22,6 +26,13 @@ func RegisterKiwComponent(name string, fn KiwRendererFunc) {
 	kiwRegistryMu.Lock()
 	defer kiwRegistryMu.Unlock()
 	kiwRegistry[name] = fn
+}
+
+// SetKiwFallbackResolver sets a dynamic resolver for component lookups (e.g. from a shared registry).
+func SetKiwFallbackResolver(resolver KiwFallbackResolver) {
+	kiwRegistryMu.Lock()
+	defer kiwRegistryMu.Unlock()
+	kiwFallbackResolver = resolver
 }
 
 // kiwComponentNode invokes a registered .kiw component template within a Go Node tree.
@@ -58,6 +69,16 @@ func (k *kiwComponentNode) Render(ctx context.Context, w io.Writer) error {
 
 	if found && fn != nil {
 		return fn(ctx, k.props, k.children, w)
+	}
+
+	kiwRegistryMu.RLock()
+	fallbackResolver := kiwFallbackResolver
+	kiwRegistryMu.RUnlock()
+
+	if fallbackResolver != nil {
+		if err := fallbackResolver(ctx, k.name, k.props, k.children, w); err == nil {
+			return nil
+		}
 	}
 
 	// Graceful fallback for unresolved .kiw components during development / SSG
