@@ -22,11 +22,11 @@ func RunAdd(fs *flag.FlagSet) errs.ExitCode {
 	args := fs.Args()
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stderr, "usage: kiw add <package[@version]|ui/<component>|ui:<pack>> ...")
-		fmt.Fprintln(os.Stderr, "  package@latest  latest version")
+		fmt.Fprintln(os.Stderr, "  package@latest  latest version (e.g. github.com/krewire/ui, twcss)")
 		fmt.Fprintln(os.Stderr, "  package@1.2.3   specific version")
 		fmt.Fprintln(os.Stderr, "  ui/<component>  copy a kui component into ./components (e.g. ui/button)")
 		fmt.Fprintln(os.Stderr, "  ui:<pack>       copy a starter pack (ui:minimal, ui:base, ui:dashboard)")
-		fmt.Fprintln(os.Stderr, "examples: kiw add twcss, kiw add github.com/foo/bar@v1.2.3, kiw add ui/card")
+		fmt.Fprintln(os.Stderr, "examples: kiw add github.com/krewire/ui, kiw add twcss, kiw add ui/card")
 		fmt.Fprintln(os.Stderr, "hint: browse components with 'kiw ui list'")
 		return errs.ExitCodeUsage
 	}

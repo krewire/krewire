@@ -109,4 +109,16 @@ func TestResolverChainOrder(t *testing.T) {
 	if resNpm.Kind != "npm" {
 		t.Errorf("npm package kind = %q, want npm", resNpm.Kind)
 	}
+
+	// 4. Krewire UI shortcut resolves to gomod (github.com/krewire/ui)
+	resUI, err := chain.Resolve(resolver.Spec{Name: "@krewire/ui", Raw: "@krewire/ui"})
+	if err != nil {
+		t.Fatalf("resolve @krewire/ui: %v", err)
+	}
+	if resUI.Kind != "gomod" {
+		t.Errorf("@krewire/ui kind = %q, want gomod", resUI.Kind)
+	}
+	if resUI.Installer.Describe() != "go:github.com/krewire/ui" {
+		t.Errorf("@krewire/ui describe = %q, want go:github.com/krewire/ui", resUI.Installer.Describe())
+	}
 }

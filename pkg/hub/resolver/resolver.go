@@ -97,11 +97,14 @@ func (p *pluginAdapter) Describe() string               { return "plugin:" + p.i
 func (p *pluginAdapter) Add(root, version string) error { return p.ins.Add(root, version) }
 func (p *pluginAdapter) Remove(root string) error       { return p.ins.Remove(root) }
 
-// GoResolver handles Go module paths (contains "/" and a dot in first segment).
+// GoResolver handles Go module paths (contains "/" and a dot in first segment, or @krewire/ alias).
 type GoResolver struct{}
 
 func (r *GoResolver) Resolve(spec Spec) (Installer, string, error) {
 	name := spec.Name
+	if strings.HasPrefix(name, "@krewire/") {
+		name = "github.com/krewire/" + strings.TrimPrefix(name, "@krewire/")
+	}
 	if !strings.Contains(name, "/") {
 		return nil, "", nil
 	}

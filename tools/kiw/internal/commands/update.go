@@ -174,19 +174,19 @@ func RunUpdate(fs *flag.FlagSet) errs.ExitCode {
 func expandKrewireShortcut(pkg string) string {
 	lower := strings.ToLower(pkg)
 	switch lower {
-	case "krewire", "core":
+	case "krewire", "core", "@krewire/core":
 		return "github.com/krewire/krewire"
-	case "ui":
+	case "ui", "@krewire/ui":
 		return "github.com/krewire/ui"
-	case "krew":
+	case "krew", "@krewire/krew":
 		return "github.com/krewire/krew"
-	case "auth":
+	case "auth", "@krewire/auth":
 		return "github.com/krewire/auth"
-	case "cloud":
+	case "cloud", "@krewire/cloud":
 		return "github.com/krewire/cloud"
-	case "dash":
+	case "dash", "@krewire/dash":
 		return "github.com/krewire/dash"
-	case "forge", "panel":
+	case "forge", "panel", "@krewire/forge":
 		return "github.com/krewire/forge"
 	default:
 		return pkg

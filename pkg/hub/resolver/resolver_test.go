@@ -234,6 +234,7 @@ func TestGoResolver(t *testing.T) {
 		{"slash without dot is not Go", "foo/bar", ""},
 		{"bare name is not Go", "twcss", ""},
 		{"scoped npm is not Go", "@scope/pkg", ""},
+		{"krewire scope maps to Go module", "@krewire/ui", "gomod"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

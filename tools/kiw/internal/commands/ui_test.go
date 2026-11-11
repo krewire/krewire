@@ -45,10 +45,16 @@ func TestAddUIComponentsAndPacks(t *testing.T) {
 		t.Errorf("forced add: code %v", code)
 	}
 
-	for _, args := range [][]string{{"list"}, {"--json", "list"}, {"info", "card"}, {"diff", "Button"}} {
+	for _, args := range [][]string{{"list"}, {"--json", "list"}, {"info", "card"}, {"diff", "Button"}, {"vendor", "badge"}, {"eject", "alert"}} {
 		if code := runWith(t, RegisterUI, RunUI, args...); code != errs.ExitCodeSuccess {
 			t.Errorf("kiw ui %v: code %v", args, code)
 		}
+	}
+	if _, err := os.Stat(filepath.Join(dir, "components", "Badge.kiw")); err != nil {
+		t.Errorf("Badge.kiw not vendored: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "components", "Alert.kiw")); err != nil {
+		t.Errorf("Alert.kiw not ejected: %v", err)
 	}
 	if code := runWith(t, RegisterUI, RunUI, "info", "nope"); code != errs.ExitCodeUsage {
 		t.Errorf("unknown component: code %v, want usage", code)

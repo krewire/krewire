@@ -26,6 +26,8 @@ func RegisterUI(fs *flag.FlagSet) {
 const uiUsage = `usage:
   kiw ui list                      catalog, starter packs, and installed state
   kiw ui info <name>               props, defaults, dependencies, preview
+  kiw ui vendor <name|ui:pack> ... copy into ./components (explicit local ownership)
+  kiw ui eject <name|ui:pack> ...  alias for vendor
   kiw ui add <name|ui:pack> ...    copy into ./components (same as kiw add ui/<name>)
   kiw ui diff <name>               diff upstream kui -> your local copy`
 
@@ -48,7 +50,7 @@ func RunUI(fs *flag.FlagSet) errs.ExitCode {
 			return errs.ExitCodeUsage
 		}
 		return uiInfo(root, args[1], flagBool(fs, "json"))
-	case "add", "install":
+	case "add", "install", "vendor", "eject":
 		return uiAdd(root, args[1:], flagBool(fs, "force"), flagBool(fs, "dry-run"))
 	case "diff":
 		if len(args) < 2 {
