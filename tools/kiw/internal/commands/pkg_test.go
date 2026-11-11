@@ -53,7 +53,7 @@ func TestPkgCommandLifecycle(t *testing.T) {
 		t.Fatalf("kiw pkg pack failed with code %v", code)
 	}
 
-	archiveName := "components-my-ui-0.1.0.kpk"
+	archiveName := "components-my-ui-0.1.0.kpkg"
 	archivePath := filepath.Join(tempDir, archiveName)
 	if _, err := os.Stat(archivePath); err != nil {
 		t.Fatalf("expected packed archive %s to exist: %v", archivePath, err)
@@ -75,7 +75,7 @@ func TestPkgCommandLifecycle(t *testing.T) {
 		t.Fatalf("kiw pkg add failed with code %v", code)
 	}
 
-	installedManifestPath := filepath.Join(projectDir, "kiw_modules", "components-my-ui", kiwdsl.PackageManifestFile)
+	installedManifestPath := filepath.Join(projectDir, ".krewire", "pkg", "components-my-ui", kiwdsl.PackageManifestFile)
 	if _, err := os.Stat(installedManifestPath); err != nil {
 		t.Fatalf("expected installed manifest at %s: %v", installedManifestPath, err)
 	}

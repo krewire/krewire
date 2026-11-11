@@ -225,7 +225,7 @@ func TestStandalonePackage_PackAndUnpack(t *testing.T) {
 	}
 
 	// Pack package
-	archivePath := filepath.Join(tempDir, "acme-my-ui-1.2.0.kpk")
+	archivePath := filepath.Join(tempDir, "acme-my-ui-1.2.0.kpkg")
 	outPath, sha, err := PackPackage(pkgSrcDir, archivePath)
 	if err != nil {
 		t.Fatalf("PackPackage error: %v", err)

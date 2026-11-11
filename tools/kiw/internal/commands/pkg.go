@@ -15,15 +15,15 @@ import (
 
 // RegisterPkg registers command-line flags for the pkg command.
 func RegisterPkg(fs *flag.FlagSet) {
-	fs.String("out", "", "pack: custom output archive path (.kpk)")
+	fs.String("out", "", "pack: custom output archive path (.kpkg)")
 	fs.Bool("json", false, "list: output installed packages in JSON format")
 }
 
 const pkgUsage = `usage:
   kiw pkg init <name>               scaffold a new standalone component package
-  kiw pkg pack [dir]                bundle package into a distributable .kpk archive
-  kiw pkg add <source>              install package from local dir or .kpk archive
-  kiw pkg list                      list installed component packages in ./kiw_modules
+  kiw pkg pack [dir]                bundle package into a distributable .kpkg archive
+  kiw pkg add <source>              install package from local dir or .kpkg archive
+  kiw pkg list                      list installed component packages in ./.krewire/pkg
   kiw pkg export <comp|dir>         export standalone component or package`
 
 // RunPkg dispatches standalone component package commands.
@@ -164,7 +164,7 @@ func pkgInit(root, name string) errs.ExitCode {
 	fmt.Printf("  • Manifest:   %s\n", filepath.Join(targetDir, kiwdsl.PackageManifestFile))
 	fmt.Printf("  • Component:  %s\n", filepath.Join(compsDir, "Button.kiw"))
 	fmt.Printf("  • Stylesheet: %s\n", filepath.Join(stylesDir, "theme.css"))
-	fmt.Println("hint: run 'kiw pkg pack' inside this directory to create a distributable .kpk archive")
+	fmt.Printf("hint: run 'kiw pkg pack' inside this directory to create a distributable %s archive\n", kiwdsl.PackageExtension)
 	return errs.ExitCodeSuccess
 }
 
@@ -182,7 +182,7 @@ func pkgPack(dir, outPath string) errs.ExitCode {
 }
 
 func pkgAdd(root, source string) errs.ExitCode {
-	modulesDir := filepath.Join(root, "kiw_modules")
+	modulesDir := filepath.Join(root, kiwdsl.DefaultPackageDir)
 	if err := os.MkdirAll(modulesDir, 0o755); err != nil {
 		return fail(err)
 	}
@@ -235,7 +235,7 @@ func pkgAdd(root, source string) errs.ExitCode {
 			return fail(err)
 		}
 	} else {
-		return fail(fmt.Errorf("unsupported package source %q; expected .kpk archive or directory with kiw.pkg.json", source))
+		return fail(fmt.Errorf("unsupported package source %q; expected %s archive or directory with kiw.pkg.json", source, kiwdsl.PackageExtension))
 	}
 
 	var compList []string
@@ -244,9 +244,10 @@ func pkgAdd(root, source string) errs.ExitCode {
 	}
 	sort.Strings(compList)
 
-	fmt.Printf("✓ installed component package %s@%s into ./kiw_modules/%s\n",
+	fmt.Printf("✓ installed component package %s@%s into ./%s/%s\n",
 		manifest.Name,
 		manifest.Version,
+		kiwdsl.DefaultPackageDir,
 		strings.ReplaceAll(strings.TrimPrefix(manifest.Name, "@"), "/", "-"),
 	)
 	fmt.Printf("  • Components: %s\n", strings.Join(compList, ", "))
@@ -257,20 +258,38 @@ func pkgAdd(root, source string) errs.ExitCode {
 }
 
 func pkgList(root string, printJSON bool) errs.ExitCode {
-	modulesDir := filepath.Join(root, "kiw_modules")
+	modulesDir := filepath.Join(root, kiwdsl.DefaultPackageDir)
 	var packages []*kiwdsl.PackageManifest
 
-	entries, err := os.ReadDir(modulesDir)
-	if err == nil {
+	scanDir := func(dir string) {
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			return
+		}
 		for _, e := range entries {
 			if !e.IsDir() {
 				continue
 			}
-			pManifest := filepath.Join(modulesDir, e.Name(), kiwdsl.PackageManifestFile)
+			pManifest := filepath.Join(dir, e.Name(), kiwdsl.PackageManifestFile)
 			if m, err := kiwdsl.LoadPackageManifest(pManifest); err == nil {
-				packages = append(packages, m)
+				duplicate := false
+				for _, existing := range packages {
+					if existing.Name == m.Name {
+						duplicate = true
+						break
+					}
+				}
+				if !duplicate {
+					packages = append(packages, m)
+				}
 			}
 		}
+	}
+
+	scanDir(modulesDir)
+	// Fallback check for legacy kiw_modules directory if distinct
+	if modulesDir != filepath.Join(root, "kiw_modules") {
+		scanDir(filepath.Join(root, "kiw_modules"))
 	}
 
 	if printJSON {
@@ -281,8 +300,8 @@ func pkgList(root string, printJSON bool) errs.ExitCode {
 	}
 
 	if len(packages) == 0 {
-		fmt.Println("no standalone component packages installed in ./kiw_modules")
-		fmt.Println("hint: install with 'kiw pkg add <dir|.kpk>'")
+		fmt.Printf("no standalone component packages installed in ./%s\n", kiwdsl.DefaultPackageDir)
+		fmt.Printf("hint: install with 'kiw pkg add <dir|%s>'\n", kiwdsl.PackageExtension)
 		return errs.ExitCodeSuccess
 	}
 

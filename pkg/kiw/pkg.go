@@ -18,7 +18,10 @@ import (
 const PackageManifestFile = "kiw.pkg.json"
 
 // PackageExtension is the standard file extension for distributed .kiw component packages.
-const PackageExtension = ".kpk"
+const PackageExtension = ".kpkg"
+
+// DefaultPackageDir is the canonical relative directory where standalone component packages are installed.
+const DefaultPackageDir = ".krewire/pkg"
 
 // PackageManifest defines the metadata and component export catalog of an independently distributable .kiw component package.
 type PackageManifest struct {
@@ -96,7 +99,7 @@ func ValidatePackageManifest(m *PackageManifest) error {
 	return nil
 }
 
-// PackPackage bundles a component package directory into a standalone .kpk archive.
+// PackPackage bundles a component package directory into a standalone .kpkg archive.
 // Returns the written archive path and its SHA-256 integrity hash.
 func PackPackage(dir, outPath string) (archivePath string, sha256Hex string, err error) {
 	manifestPath := filepath.Join(dir, PackageManifestFile)
@@ -190,7 +193,7 @@ func PackPackage(dir, outPath string) (archivePath string, sha256Hex string, err
 	return outPath, hashStr, nil
 }
 
-// UnpackPackage unpacks a .kpk component archive into destDir with SafePath traversal guards.
+// UnpackPackage unpacks a .kpkg component archive into destDir with SafePath traversal guards.
 func UnpackPackage(archivePath, destDir string) (*PackageManifest, error) {
 	f, err := os.Open(archivePath)
 	if err != nil {

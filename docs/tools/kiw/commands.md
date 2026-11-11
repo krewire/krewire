@@ -163,13 +163,13 @@ kiw migrate redo                  # roll back the last migration and apply it ag
 - **Safety**: each migration runs in a transaction with its `schema_migrations` row; concurrent runners wait for one another (`--lock-timeout`, default 30s); an applied file that was edited stops `up` and `down`, and `status` exits 1 when an applied file was edited (`modified`) or deleted (`missing`).
 
 ### `kiw pkg <init <name> | pack [dir] | add <src> | list | export <comp|dir>>`
-Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpk`) archiving with SHA-256 integrity verification, local installation into `./kiw_modules/`, and automated style injection with zero npm dependencies.
+Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/pkg/`, and automated style injection with zero npm dependencies.
 ```bash
-kiw pkg init @acme/ui            # Scaffolds standalone package with kiw.pkg.json
-kiw pkg pack ./my-kit             # Packs package into .kpk distributable archive
-kiw pkg add ./dist/ui-1.0.0.kpk   # Installs package into ./kiw_modules/
-kiw pkg list                      # Lists installed component packages
-kiw pkg export Card               # Validates and exports self-contained component
+kiw pkg init @acme/ui             # Scaffolds standalone package with kiw.pkg.json
+kiw pkg pack ./my-kit              # Packs package into .kpkg distributable archive
+kiw pkg add ./dist/ui-1.0.0.kpkg   # Installs package into ./.krewire/pkg/
+kiw pkg list                       # Lists installed component packages
+kiw pkg export Card                # Validates and exports self-contained component
 ```
 - **Manifest (`kiw.pkg.json`)**: Declares package metadata, exported component paths, and package stylesheets (`styles`).
 - **Namespace & Aliasing**: Components from installed packages can be invoked using their package namespace (e.g. `<acme:Button />`) or imported directly via `<script> import Button from '@acme/ui'; </script>`.

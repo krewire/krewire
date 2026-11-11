@@ -81,10 +81,11 @@ func LoadFromDir(root string) (*Site, error) {
 		}
 	}
 
-	// 2. Standalone installed component packages from kiw_modules/
-	modulesDir := filepath.Join(root, "kiw_modules")
-	if st, err := os.Stat(modulesDir); err == nil && st.IsDir() {
-		loadKiwModules(site, root, modulesDir)
+	// 2. Standalone installed component packages from .krewire/pkg/ (or legacy kiw_modules/)
+	for _, pkgDir := range []string{filepath.Join(root, ".krewire", "pkg"), filepath.Join(root, "kiw_modules")} {
+		if st, err := os.Stat(pkgDir); err == nil && st.IsDir() {
+			loadKiwPackages(site, root, pkgDir)
+		}
 	}
 
 	// 3. Project-specific components (overrides built-in UI components if same name)
@@ -565,7 +566,7 @@ func resolveImports(site *Site, root, filePath string, imports []kiwdsl.ImportDe
 	}
 }
 
-func loadKiwModules(site *Site, root, modulesDir string) {
+func loadKiwPackages(site *Site, root, modulesDir string) {
 	_ = filepath.WalkDir(modulesDir, func(p string, d os.DirEntry, err error) error {
 		if err != nil || !d.IsDir() {
 			return nil

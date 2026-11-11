@@ -23,8 +23,8 @@ func TestModularComponentsAndPackages(t *testing.T) {
 		"components/marketing",
 		"layouts",
 		"pages",
-		"kiw_modules/acme-ui/components",
-		"kiw_modules/acme-ui/styles",
+		".krewire/pkg/acme-ui/components",
+		".krewire/pkg/acme-ui/styles",
 	}
 	for _, d := range dirs {
 		if err := os.MkdirAll(filepath.Join(tempDir, d), 0o755); err != nil {
@@ -38,7 +38,7 @@ func TestModularComponentsAndPackages(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 2. Create standalone package manifest & component in kiw_modules/acme-ui
+	// 2. Create standalone package manifest & component in .krewire/pkg/acme-ui
 	manifest := &kiwdsl.PackageManifest{
 		Name:        "@acme/ui",
 		Version:     "1.0.0",
@@ -48,18 +48,18 @@ func TestModularComponentsAndPackages(t *testing.T) {
 		},
 		Styles: "./styles/acme.css",
 	}
-	if err := kiwdsl.SavePackageManifest(filepath.Join(tempDir, "kiw_modules", "acme-ui", kiwdsl.PackageManifestFile), manifest); err != nil {
+	if err := kiwdsl.SavePackageManifest(filepath.Join(tempDir, ".krewire", "pkg", "acme-ui", kiwdsl.PackageManifestFile), manifest); err != nil {
 		t.Fatal(err)
 	}
 	btnKiw := `<button class="acme-btn" class:primary={variant == 'primary'}><slot>Default Acme Button</slot></button>
 <script>
   export let variant: string = "primary";
 </script>`
-	if err := os.WriteFile(filepath.Join(tempDir, "kiw_modules", "acme-ui", "components", "Button.kiw"), []byte(btnKiw), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tempDir, ".krewire", "pkg", "acme-ui", "components", "Button.kiw"), []byte(btnKiw), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	acmeCSS := `.acme-btn { padding: 8px 16px; }`
-	if err := os.WriteFile(filepath.Join(tempDir, "kiw_modules", "acme-ui", "styles", "acme.css"), []byte(acmeCSS), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tempDir, ".krewire", "pkg", "acme-ui", "styles", "acme.css"), []byte(acmeCSS), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
