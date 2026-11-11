@@ -100,6 +100,43 @@ func generateChapter(root, name string) error {
 
 func generateComponent(root, name string) error {
 	name = strings.TrimSuffix(name, ".kiw")
+	name = strings.ReplaceAll(name, "\\", "/")
+
+	// Support compound and nested components e.g. "Card.Header" or "Card/Header"
+	if strings.Contains(name, "/") || strings.Contains(name, ".") {
+		normalized := strings.ReplaceAll(name, ".", "/")
+		parts := strings.Split(normalized, "/")
+		var pascalParts []string
+		for _, p := range parts {
+			if trimmed := strings.TrimSpace(p); trimmed != "" {
+				pascalParts = append(pascalParts, toPascal(trimmed))
+			}
+		}
+		if len(pascalParts) > 1 {
+			parentSegments := pascalParts[:len(pascalParts)-1]
+			basePascal := pascalParts[len(pascalParts)-1]
+			dirParts := append([]string{root, "components"}, parentSegments...)
+			dir := filepath.Join(dirParts...)
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				return err
+			}
+			target := filepath.Join(dir, basePascal+".kiw")
+			if _, err := os.Stat(target); err == nil {
+				rel, _ := filepath.Rel(root, target)
+				return fmt.Errorf("component already exists at %s", filepath.ToSlash(rel))
+			}
+			pascal := strings.Join(pascalParts, ".")
+			slug := toSlug(basePascal)
+			content := componentTemplate(pascal, slug)
+			if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
+				return err
+			}
+			rel, _ := filepath.Rel(root, target)
+			fmt.Printf("created %s\n", filepath.ToSlash(rel))
+			return nil
+		}
+	}
+
 	pascal := toPascal(name)
 	slug := toSlug(name)
 	dir := filepath.Join(root, "components")

@@ -26,13 +26,23 @@ func (s *Site) resolveComponentName(name string) (string, *Component, bool) {
 		return target, c, true
 	}
 
-	// Try normalized alternatives: Card.Header -> Card_Header, ui:Button -> ui_Button or Button
+	// Try normalized alternatives: Card.Header -> Card_Header, Card/Header, Card:Header, ui:Button -> ui_Button or Button
 	candidates := []string{
 		strings.ReplaceAll(target, ".", "_"),
+		strings.ReplaceAll(target, ".", "/"),
+		strings.ReplaceAll(target, ".", ":"),
+		strings.ReplaceAll(target, ".", ""),
 		strings.ReplaceAll(target, ":", "_"),
 		strings.ReplaceAll(target, ":", "/"),
+		strings.ReplaceAll(target, ":", "."),
+		strings.ReplaceAll(target, "/", "."),
+		strings.ReplaceAll(target, "/", ":"),
+		strings.ReplaceAll(target, "/", "_"),
 	}
 	if idx := strings.Index(target, ":"); idx >= 0 {
+		candidates = append(candidates, target[idx+1:])
+	}
+	if idx := strings.Index(target, "/"); idx >= 0 {
 		candidates = append(candidates, target[idx+1:])
 	}
 	for _, cand := range candidates {

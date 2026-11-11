@@ -1,6 +1,7 @@
 # Binaries and build artifacts
 /bin/
 /dist/
+/tools/bin/
 *.exe
 *.exe~
 *.dll

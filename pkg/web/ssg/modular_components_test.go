@@ -19,6 +19,7 @@ func TestModularComponentsAndPackages(t *testing.T) {
 	// Create directories
 	dirs := []string{
 		"components",
+		"components/Card",
 		"components/marketing",
 		"layouts",
 		"pages",
@@ -62,12 +63,17 @@ func TestModularComponentsAndPackages(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 3. Create project-specific nested component in components/marketing/Hero.kiw
+	// 3. Create project-specific nested component in components/marketing/Hero.kiw and components/Card/Header.kiw
 	heroKiw := `<div class="hero">
   <h1><slot name="title">Hero Title</slot></h1>
   <p><slot>Hero Content</slot></p>
 </div>`
 	if err := os.WriteFile(filepath.Join(tempDir, "components", "marketing", "Hero.kiw"), []byte(heroKiw), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	cardHeaderKiw := `<div class="card-header"><h3><slot>Default Header</slot></h3></div>`
+	if err := os.WriteFile(filepath.Join(tempDir, "components", "Card", "Header.kiw"), []byte(cardHeaderKiw), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -92,6 +98,7 @@ title: Modular Home
   <template slot="title">Welcome to Modular Kiw</template>
   <LocalBadge />
   <acme:Button />
+  <Card.Header>Dotted Compound Header</Card.Header>
 </marketing:Hero>
 `
 	if err := os.WriteFile(filepath.Join(tempDir, "pages", "index.kiw"), []byte(indexPage), 0o644); err != nil {
@@ -123,6 +130,9 @@ title: Modular Home
 	}
 	if !strings.Contains(htmlStr, "Default Acme Button") {
 		t.Errorf("expected fallback slot in acme button rendered, got:\n%s", htmlStr)
+	}
+	if !strings.Contains(htmlStr, "Dotted Compound Header") {
+		t.Errorf("expected dotted compound Card.Header rendered, got:\n%s", htmlStr)
 	}
 	if !strings.Contains(htmlStr, `class="badge"`) {
 		t.Errorf("expected LocalBadge rendered, got:\n%s", htmlStr)

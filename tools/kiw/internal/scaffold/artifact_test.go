@@ -16,6 +16,8 @@ func TestMakeArtifact(t *testing.T) {
 		expected string
 	}{
 		{"component", "Button", filepath.Join("components", "Button.kiw")},
+		{"component", "Card.Header", filepath.Join("components", "Card", "Header.kiw")},
+		{"component", "Card/Footer", filepath.Join("components", "Card", "Footer.kiw")},
 		{"page", "about-us", filepath.Join("pages", "about-us.kiw")},
 		{"handler", "User", filepath.Join("internal", "handlers", "user.go")},
 		{"model", "Account", filepath.Join("internal", "models", "account.go")},

@@ -113,11 +113,15 @@ func LoadFromDir(root string) (*Site, error) {
 			Raw:      mod.Raw,
 		})
 
-		// Also register namespaced and slash paths (e.g. marketing:Hero, marketing/Hero)
+		// Also register namespaced, dotted, and slash paths (e.g. marketing:Hero, marketing.Hero, marketing/Hero)
 		if strings.Contains(relNoExt, "/") {
 			colonName := strings.ReplaceAll(relNoExt, "/", ":")
+			dotName := strings.ReplaceAll(relNoExt, "/", ".")
+			underscoreName := strings.ReplaceAll(relNoExt, "/", "_")
 			site.Component(Component{Name: relNoExt, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, p), Raw: mod.Raw})
 			site.Component(Component{Name: colonName, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, p), Raw: mod.Raw})
+			site.Component(Component{Name: dotName, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, p), Raw: mod.Raw})
+			site.Component(Component{Name: underscoreName, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, p), Raw: mod.Raw})
 		}
 
 		// Resolve component imports if declared
