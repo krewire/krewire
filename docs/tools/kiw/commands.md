@@ -134,9 +134,10 @@ kiw ui diff Card
 ```
 
 ### `kiw make <kind> <name>`
-Scaffolds code boilerplate (components, pages, handlers, migrations, models, middleware, services, jobs, chapters, docs). All paths are bounded and validated with `sec.SafePath` to prevent directory traversal escapes. `kiw make component <Name>` creates a blank component; to start from a ready-made one, use `kiw add ui/<name>`.
+Scaffolds code boilerplate (components, pages, handlers, migrations, models, middleware, services, jobs, chapters, docs). All paths are bounded and validated with `sec.SafePath` to prevent directory traversal escapes. `kiw make component <Name>` creates a blank component; to start from a ready-made one, use `kiw add ui/<name>`. Compound dotted names (`Card.Header`) scaffold nested subdirectories (`components/Card/Header.kiw`) for seamless `<Card.Header />` compound component invocation.
 ```bash
-kiw make component Card
+kiw make component Card            # creates components/Card.kiw
+kiw make component Card.Header     # creates components/Card/Header.kiw
 kiw make page about
 kiw make handler CreateUser
 kiw make migration create_users_table
