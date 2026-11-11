@@ -825,6 +825,11 @@
           "type": "string",
           "description": "Migrations directory, relative to the project root (where `kiw make migration` writes).",
           "default": "migrations"
+        },
+        "seeds": {
+          "type": "string",
+          "description": "Seeds directory, relative to the project root (where `kiw make seeder` writes).",
+          "default": "seeds"
         }
       }
     }

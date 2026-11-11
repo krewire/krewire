@@ -232,6 +232,29 @@ func (tx *Tx) Rollback() error {
 	return tx.sqlTx.Rollback()
 }
 
+// Table creates a Query scoped to a table name within this transaction.
+func (tx *Tx) Table(name string) *Query {
+	q := newQuery(nil, name, nil)
+	q.tx = tx
+	if tx != nil && tx.dialect != nil {
+		q.builder = NewQueryBuilder(tx.dialect).Table(name)
+	}
+	return q
+}
+
+// Model creates a Query scoped to a Go model struct within this transaction.
+func (tx *Tx) Model(v interface{}) *Query {
+	tm, _ := ParseModel(v)
+	tableName := ""
+	if tm != nil {
+		tableName = tm.TableName
+	}
+	q := tx.Table(tableName)
+	q.model = v
+	q.tm = tm
+	return q
+}
+
 // Transaction runs a closure within a transaction, committing on success or rolling back on error/panic.
 func (db *DB) Transaction(ctx context.Context, fn func(tx *Tx) error) (err error) {
 	tx, err := db.Begin(ctx)

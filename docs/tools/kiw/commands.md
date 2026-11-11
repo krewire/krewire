@@ -15,7 +15,7 @@ CORE WORKFLOW
   new · dev · build · test · add · dash · make · forge
 
 ADVANCED CAPABILITIES
-  project   init · remove · update · migrate · ui
+  project   init · remove · update · migrate · seed · ui
   inspect   version · info · compat · tier · config · doctor · self-update
   build     bundle · serve
   develop   run · vet · fmt · worker · gateway · mcp
@@ -142,6 +142,9 @@ kiw make page about
 kiw make handler CreateUser
 kiw make migration create_users_table
 kiw make model Account
+kiw make seeder User
+kiw make factory User
+kiw make repository User
 kiw make middleware Auth
 kiw make service Billing
 kiw make job SendInvoice
@@ -162,6 +165,18 @@ kiw migrate redo                  # roll back the last migration and apply it ag
 - **Database**: `--dsn`, `--driver`, and `--dir` win over `APP_DATABASE_DSN`, `APP_DATABASE_DRIVER`, and `APP_DATABASE_MIGRATIONS` (`.env` is loaded), which win over the [`database:` section](./configuration.md#database-database) of `krewire.yaml`. The driver defaults to `sqlite` and the directory to `migrations`; a relative SQLite path is resolved from the project root.
 - **Drivers**: `kiw` links only the pure-Go SQLite driver ([`pkg/orm/sqlite`](../../pkg/mod/orm.md#sqlite-driver-pkgormsqlite)). For PostgreSQL, import a driver in your app and call `migrate.Up` from it.
 - **Safety**: each migration runs in a transaction with its `schema_migrations` row; concurrent runners wait for one another (`--lock-timeout`, default 30s); an applied file that was edited stops `up` and `down`, and `status` exits 1 when an applied file was edited (`modified`) or deleted (`missing`).
+
+### `kiw seed [--class <name>] [--dsn <dsn>] [--driver <driver>] [--dir <dir>]`
+Alias: `kiw db:seed`
+Seeds the database with records via Go seeders and model factories using [`pkg/orm/seeder`](../../pkg/mod/orm.md#seeder--model-factory-engine-pkgormseeder).
+```bash
+kiw seed                       # runs DatabaseSeeder (default)
+kiw seed --class UserSeeder    # runs a specific seeder class
+kiw db:seed                    # Laravel-like alias
+kiw seed --dsn test.db         # override target database DSN
+```
+- **Database**: Inherits settings from `krewire.yaml` (`database:` section), environment variables (`APP_DATABASE_DSN`, `APP_DATABASE_DRIVER`), or explicit CLI flags.
+- **Directory**: Resolves from `seeds/` or `database/seeds/` (overridable via `database.seeds` in `krewire.yaml` or `--dir`).
 
 ### `kiw pkg <init <name> | pack [dir] | add <src> | list | export <comp|dir>>`
 Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/pkg/`, and automated style injection with zero npm dependencies.

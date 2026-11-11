@@ -15,6 +15,9 @@ const DefaultDatabaseDriver = "sqlite"
 // DefaultMigrationsDir is where `kiw make migration` writes migration files.
 const DefaultMigrationsDir = "migrations"
 
+// DefaultSeedsDir is where `kiw make seeder` writes seed files.
+const DefaultSeedsDir = "seeds"
+
 // DatabaseConfig is the `database:` section of krewire.yaml.
 type DatabaseConfig struct {
 	// Driver is the database/sql driver name, e.g. "sqlite" or "postgres".
@@ -24,6 +27,8 @@ type DatabaseConfig struct {
 	DSN string `yaml:"dsn"`
 	// Migrations is the migrations directory, relative to the project root.
 	Migrations string `yaml:"migrations"`
+	// Seeds is the seeds directory, relative to the project root.
+	Seeds string `yaml:"seeds"`
 }
 
 // ResolveDatabase returns the effective database settings with the same
@@ -48,6 +53,7 @@ func (c *Config) ResolveDatabase(lookup func(string) (string, bool), override Da
 	db.Driver = firstNonEmpty(strings.TrimSpace(override.Driver), strings.TrimSpace(db.Driver), DefaultDatabaseDriver)
 	db.DSN = firstNonEmpty(strings.TrimSpace(override.DSN), strings.TrimSpace(db.DSN))
 	db.Migrations = firstNonEmpty(strings.TrimSpace(override.Migrations), strings.TrimSpace(db.Migrations), DefaultMigrationsDir)
+	db.Seeds = firstNonEmpty(strings.TrimSpace(override.Seeds), strings.TrimSpace(db.Seeds), DefaultSeedsDir)
 	return db, nil
 }
 

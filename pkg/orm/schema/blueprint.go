@@ -299,6 +299,20 @@ func (b *Blueprint) SoftDeletes() *ColumnDefinition {
 	return b.Timestamp("deleted_at").Nullable()
 }
 
+// Morphs creates <name>_id BIGINT and <name>_type VARCHAR(255) columns with a composite index.
+func (b *Blueprint) Morphs(name string) {
+	b.BigInteger(name + "_id")
+	b.String(name+"_type", 255)
+	b.Index(b.TableName+"_"+name+"_morphs_index", name+"_id", name+"_type")
+}
+
+// NullableMorphs creates nullable <name>_id BIGINT and <name>_type VARCHAR(255) columns with an index.
+func (b *Blueprint) NullableMorphs(name string) {
+	b.BigInteger(name + "_id").Nullable()
+	b.String(name+"_type", 255).Nullable()
+	b.Index(b.TableName+"_"+name+"_morphs_index", name+"_id", name+"_type")
+}
+
 // RememberToken creates a nullable remember_token VARCHAR(100) column (like Laravel).
 func (b *Blueprint) RememberToken() *ColumnDefinition {
 	return b.String("remember_token", 100).Nullable()

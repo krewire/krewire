@@ -239,8 +239,86 @@ func TestMake_Model(t *testing.T) {
 		t.Fatalf("expected internal/models/account.go to exist: %v", err)
 	}
 	content := string(b)
-	if !strings.Contains(content, "type Account struct") || !strings.Contains(content, `json:"created_at"`) {
-		t.Errorf("expected Account struct with timestamps, got: %s", content)
+	if !strings.Contains(content, "type Account struct") || (!strings.Contains(content, "orm.BaseModel") && !strings.Contains(content, `json:"created_at"`)) {
+		t.Errorf("expected Account struct with BaseModel or timestamps, got: %s", content)
+	}
+}
+
+func TestMake_Seeder(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"seeder", "User"})
+
+	code := RunMake(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunMake seeder failed with code %v", code)
+	}
+
+	target := filepath.Join(root, "seeds", "user_seeder.go")
+	b, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("expected seeds/user_seeder.go to exist: %v", err)
+	}
+	content := string(b)
+	if !strings.Contains(content, "seeder.Register") || !strings.Contains(content, "UserSeeder") {
+		t.Errorf("expected UserSeeder content, got: %s", content)
+	}
+}
+
+func TestMake_Factory(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"factory", "User"})
+
+	code := RunMake(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunMake factory failed with code %v", code)
+	}
+
+	target := filepath.Join(root, "factories", "user_factory.go")
+	b, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("expected factories/user_factory.go to exist: %v", err)
+	}
+	content := string(b)
+	if !strings.Contains(content, "UserFactory") || !strings.Contains(content, "seeder.NewFactory") {
+		t.Errorf("expected UserFactory content, got: %s", content)
+	}
+}
+
+func TestMake_Repository(t *testing.T) {
+	root := setupTestRoot(t)
+	oldWd, _ := os.Getwd()
+	defer os.Chdir(oldWd)
+	_ = os.Chdir(root)
+
+	fs := flag.NewFlagSet("make", flag.ContinueOnError)
+	RegisterMake(fs)
+	_ = fs.Parse([]string{"repository", "User"})
+
+	code := RunMake(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunMake repository failed with code %v", code)
+	}
+
+	target := filepath.Join(root, "internal", "repositories", "user_repository.go")
+	b, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("expected internal/repositories/user_repository.go to exist: %v", err)
+	}
+	content := string(b)
+	if !strings.Contains(content, "UserRepository") || !strings.Contains(content, "repository.Repository") {
+		t.Errorf("expected UserRepository content, got: %s", content)
 	}
 }
 

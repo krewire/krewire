@@ -29,6 +29,12 @@ func MakeArtifact(root, kind, name string) error {
 		return generateMigration(root, name)
 	case "model":
 		return generateModel(root, name)
+	case "seeder", "seed":
+		return generateSeeder(root, name)
+	case "factory":
+		return generateFactory(root, name)
+	case "repository", "repo":
+		return generateRepository(root, name)
 	case "middleware":
 		return generateMiddleware(root, name)
 	case "service":
@@ -38,7 +44,7 @@ func MakeArtifact(root, kind, name string) error {
 	case "chapter", "doc", "docs":
 		return generateChapter(root, name)
 	default:
-		return fmt.Errorf("%w %q — supported: component, page, handler, migration, model, middleware, service, job, chapter, doc", ErrUnknownKind, kind)
+		return fmt.Errorf("%w %q — supported: component, page, handler, migration, model, seeder, factory, repository, middleware, service, job, chapter, doc", ErrUnknownKind, kind)
 	}
 }
 
@@ -312,6 +318,104 @@ func generateModel(root, name string) error {
 
 	content := modelTemplate(pascal)
 
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(root, target)
+	fmt.Printf("created %s\n", filepath.ToSlash(rel))
+	return nil
+}
+
+func generateSeeder(root, name string) error {
+	name = strings.TrimSuffix(name, ".go")
+	pascal := toPascal(name)
+	if !strings.HasSuffix(pascal, "Seeder") {
+		pascal += "Seeder"
+	}
+	slug := toSlug(pascal)
+
+	destDir := filepath.Join(root, "seeds")
+	if hasDir(root, filepath.Join("database", "seeds")) {
+		destDir = filepath.Join(root, "database", "seeds")
+	} else if hasDir(root, "database") {
+		destDir = filepath.Join(root, "database", "seeds")
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return err
+	}
+
+	fileName := strings.ReplaceAll(slug, "-", "_") + ".go"
+	target := filepath.Join(destDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		rel, _ := filepath.Rel(root, target)
+		return fmt.Errorf("seeder already exists at %s", rel)
+	}
+
+	content := seederTemplate(pascal)
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(root, target)
+	fmt.Printf("created %s\n", filepath.ToSlash(rel))
+	return nil
+}
+
+func generateFactory(root, name string) error {
+	name = strings.TrimSuffix(name, ".go")
+	pascal := toPascal(name)
+	if !strings.HasSuffix(pascal, "Factory") {
+		pascal += "Factory"
+	}
+	slug := toSlug(pascal)
+
+	destDir := filepath.Join(root, "database", "factories")
+	if !hasDir(root, "database") {
+		destDir = filepath.Join(root, "factories")
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return err
+	}
+
+	fileName := strings.ReplaceAll(slug, "-", "_") + ".go"
+	target := filepath.Join(destDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		rel, _ := filepath.Rel(root, target)
+		return fmt.Errorf("factory already exists at %s", rel)
+	}
+
+	content := factoryTemplate(pascal)
+	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(root, target)
+	fmt.Printf("created %s\n", filepath.ToSlash(rel))
+	return nil
+}
+
+func generateRepository(root, name string) error {
+	name = strings.TrimSuffix(name, ".go")
+	pascal := toPascal(name)
+	if strings.HasSuffix(pascal, "Repository") {
+		pascal = strings.TrimSuffix(pascal, "Repository")
+	}
+	slug := toSlug(pascal) + "_repository"
+
+	destDir := filepath.Join(root, "internal", "repositories")
+	if hasDir(root, "repositories") {
+		destDir = filepath.Join(root, "repositories")
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return err
+	}
+
+	fileName := strings.ReplaceAll(slug, "-", "_") + ".go"
+	target := filepath.Join(destDir, fileName)
+	if _, err := os.Stat(target); err == nil {
+		rel, _ := filepath.Rel(root, target)
+		return fmt.Errorf("repository already exists at %s", rel)
+	}
+
+	content := repositoryTemplate(pascal)
 	if err := safeWriteArtifact(root, target, []byte(content)); err != nil {
 		return err
 	}

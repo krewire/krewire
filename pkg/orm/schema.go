@@ -19,15 +19,20 @@ type Column struct {
 	IsNullable   bool
 	DefaultValue string
 	Unique       bool
+	IsSoftDelete bool
 }
 
 // TableModel represents the introspection metadata of a database table model.
 type TableModel struct {
-	TableName  string
-	ModelType  reflect.Type
-	Columns    []*Column
-	ColumnMap  map[string]*Column // key: column name lowercased
-	PrimaryKey *Column
+	TableName       string
+	ModelType       reflect.Type
+	Columns         []*Column
+	ColumnMap       map[string]*Column // key: column name lowercased
+	PrimaryKey      *Column
+	CreatedAtCol    *Column
+	UpdatedAtCol    *Column
+	DeletedAtCol    *Column
+	IsSoftDeletable bool
 }
 
 var (
@@ -69,33 +74,59 @@ func ParseModel(v interface{}) (*TableModel, error) {
 		ColumnMap: make(map[string]*Column),
 	}
 
-	for i := 0; i < typ.NumField(); i++ {
-		field := typ.Field(i)
+	var inspectStruct func(t reflect.Type)
+	inspectStruct = func(t reflect.Type) {
+		for i := 0; i < t.NumField(); i++ {
+			field := t.Field(i)
 
-		// Ignore unexported fields
-		if field.PkgPath != "" {
-			continue
-		}
+			// Ignore unexported fields
+			if field.PkgPath != "" {
+				continue
+			}
 
-		tag := field.Tag.Get("orm")
-		if tag == "-" {
-			continue
-		}
-		if tag == "" {
-			tag = field.Tag.Get("db")
+			// If embedded anonymous struct, flatten its fields into the model
+			if field.Anonymous && field.Type.Kind() == reflect.Struct {
+				inspectStruct(field.Type)
+				continue
+			}
+
+			tag := field.Tag.Get("orm")
 			if tag == "-" {
 				continue
 			}
-		}
+			if tag == "" {
+				tag = field.Tag.Get("db")
+				if tag == "-" {
+					continue
+				}
+			}
 
-		col := parseColumnTag(field, tag)
-		tm.Columns = append(tm.Columns, col)
-		tm.ColumnMap[strings.ToLower(col.Name)] = col
+			col := parseColumnTag(field, tag)
+			tm.Columns = append(tm.Columns, col)
+			tm.ColumnMap[strings.ToLower(col.Name)] = col
 
-		if col.IsPrimaryKey && tm.PrimaryKey == nil {
-			tm.PrimaryKey = col
+			if col.IsPrimaryKey && tm.PrimaryKey == nil {
+				tm.PrimaryKey = col
+			}
+
+			// Detect timestamps and soft deletes
+			lowerName := strings.ToLower(col.Name)
+			if (lowerName == "created_at" || col.FieldName == "CreatedAt") && tm.CreatedAtCol == nil {
+				tm.CreatedAtCol = col
+			}
+			if (lowerName == "updated_at" || col.FieldName == "UpdatedAt") && tm.UpdatedAtCol == nil {
+				tm.UpdatedAtCol = col
+			}
+			if col.IsSoftDelete || lowerName == "deleted_at" || col.FieldName == "DeletedAt" {
+				if tm.DeletedAtCol == nil {
+					col.IsSoftDelete = true
+					tm.DeletedAtCol = col
+					tm.IsSoftDeletable = true
+				}
+			}
 		}
 	}
+	inspectStruct(typ)
 
 	// If no PK was explicitly declared, look for field named "ID"
 	if tm.PrimaryKey == nil {
@@ -159,6 +190,8 @@ func parseColumnTag(field reflect.StructField, tag string) *Column {
 			col.IsNullable = true
 		case "default":
 			col.DefaultValue = val
+		case "soft_delete", "deleted_at":
+			col.IsSoftDelete = true
 		default:
 			// If tag is just a bare name like `db:"user_id"`
 			if len(kv) == 1 && !strings.Contains(part, "=") {
