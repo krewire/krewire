@@ -599,3 +599,186 @@ func (p *exprParser) parsePrimary() astNode {
 		return nil
 	}
 }
+
+var (
+	slotFallbackRe = regexp.MustCompile(`(?s)<slot(?:\s+name=["']([a-zA-Z0-9_-]+)["'])?\s*>(.*?)</slot>`)
+	slotEmptyRe    = regexp.MustCompile(`<slot(?:\s+name=["']([a-zA-Z0-9_-]+)["'])?\s*/>`)
+	snippetDefRe   = regexp.MustCompile(`(?s)\{#snippet\s+([a-zA-Z0-9_$]+)\s*(?:\(([^)]*)\))?\s*\}([\s\S]*?)\{/snippet\}`)
+	renderCallRe   = regexp.MustCompile(`\{@render\s+([a-zA-Z0-9_$]+)\s*(?:\(([^)]*)\))?\s*\}`)
+)
+
+func desugarSlots(src string, pad bool) string {
+	res := slotFallbackRe.ReplaceAllStringFunc(src, func(m string) string {
+		sub := slotFallbackRe.FindStringSubmatch(m)
+		if len(sub) < 3 {
+			return m
+		}
+		slotName := sub[1]
+		fallback := sub[2]
+		targetField := ".Body"
+		if slotName != "" {
+			targetField = "." + capitalize(slotName)
+			if strings.ContainsAny(slotName, "-_") {
+				parts := strings.FieldsFunc(slotName, func(r rune) bool { return r == '-' || r == '_' })
+				for i := range parts {
+					parts[i] = capitalize(parts[i])
+				}
+				targetField = "." + strings.Join(parts, "")
+			}
+		}
+
+		trimmedFallback := strings.TrimSpace(fallback)
+		if trimmedFallback == "" {
+			return keepLines(m, fmt.Sprintf("{{%s}}", targetField), pad)
+		}
+		return keepLines(m, fmt.Sprintf("{{if %s}}{{%s}}{{else}}%s{{end}}", targetField, targetField, fallback), pad)
+	})
+
+	res = slotEmptyRe.ReplaceAllStringFunc(res, func(m string) string {
+		sub := slotEmptyRe.FindStringSubmatch(m)
+		if len(sub) < 2 {
+			return m
+		}
+		slotName := sub[1]
+		targetField := ".Body"
+		if slotName != "" {
+			targetField = "." + capitalize(slotName)
+			if strings.ContainsAny(slotName, "-_") {
+				parts := strings.FieldsFunc(slotName, func(r rune) bool { return r == '-' || r == '_' })
+				for i := range parts {
+					parts[i] = capitalize(parts[i])
+				}
+				targetField = "." + strings.Join(parts, "")
+			}
+		}
+		return keepLines(m, fmt.Sprintf("{{%s}}", targetField), pad)
+	})
+
+	return res
+}
+
+func desugarSnippets(src string, loopVars map[string]bool, pad bool) string {
+	snippetParams := make(map[string][]string)
+
+	res := snippetDefRe.ReplaceAllStringFunc(src, func(m string) string {
+		sub := snippetDefRe.FindStringSubmatch(m)
+		if len(sub) < 4 {
+			return m
+		}
+		name := sub[1]
+		paramsRaw := sub[2]
+		body := sub[3]
+
+		var paramList []string
+		scope := make(map[string]bool, len(loopVars))
+		for k, v := range loopVars {
+			scope[k] = v
+		}
+
+		if strings.TrimSpace(paramsRaw) != "" {
+			for _, p := range strings.Split(paramsRaw, ",") {
+				p = strings.TrimSpace(p)
+				if p != "" {
+					paramList = append(paramList, p)
+					scope[p] = true
+				}
+			}
+		}
+		snippetParams[name] = paramList
+
+		// Desugar snippet body
+		desugaredBody := desugar(body, scope, pad)
+		replacement := fmt.Sprintf(`{{define %q}}%s{{end}}`, name, desugaredBody)
+		return keepLines(m, replacement, pad)
+	})
+
+	res = renderCallRe.ReplaceAllStringFunc(res, func(m string) string {
+		sub := renderCallRe.FindStringSubmatch(m)
+		if len(sub) < 2 {
+			return m
+		}
+		name := sub[1]
+		argsRaw := ""
+		if len(sub) > 2 {
+			argsRaw = strings.TrimSpace(sub[2])
+		}
+
+		if argsRaw == "" {
+			return keepLines(m, fmt.Sprintf(`{{template %q .}}`, name), pad)
+		}
+
+		params := snippetParams[name]
+		args := splitArgs(argsRaw)
+		var pairs []string
+
+		for i, arg := range args {
+			arg = strings.TrimSpace(arg)
+			if arg == "" {
+				continue
+			}
+			key := ""
+			val := arg
+			if strings.Contains(arg, "=") {
+				kv := strings.SplitN(arg, "=", 2)
+				key = capitalize(strings.TrimSpace(kv[0]))
+				val = strings.TrimSpace(kv[1])
+			} else if i < len(params) {
+				key = capitalize(params[i])
+			} else {
+				key = fmt.Sprintf("Arg%d", i)
+			}
+
+			// Format val for dict
+			if identPathRe.MatchString(val) && val != "true" && val != "false" && !strings.HasPrefix(val, ".") && !strings.HasPrefix(val, "$") && !isNumeric(val) {
+				val = toGoField(val, loopVars)
+			} else if !strings.HasPrefix(val, `"`) && !strings.HasPrefix(val, `'`) && !isNumeric(val) && val != "true" && val != "false" && !strings.HasPrefix(val, ".") && !strings.HasPrefix(val, "$") {
+				val = fmt.Sprintf("%q", val)
+			}
+			pairs = append(pairs, fmt.Sprintf("%q %s", key, val))
+		}
+
+		if len(pairs) == 0 {
+			return keepLines(m, fmt.Sprintf(`{{template %q .}}`, name), pad)
+		}
+		return keepLines(m, fmt.Sprintf(`{{template %q (dict %s)}}`, name, strings.Join(pairs, " ")), pad)
+	})
+
+	return res
+}
+
+func splitArgs(s string) []string {
+	var args []string
+	var cur strings.Builder
+	depth := 0
+	inQuote := rune(0)
+
+	for _, r := range s {
+		switch {
+		case inQuote != 0:
+			if r == inQuote {
+				inQuote = 0
+			}
+			cur.WriteRune(r)
+		case r == '"' || r == '\'':
+			inQuote = r
+			cur.WriteRune(r)
+		case r == '(' || r == '{' || r == '[':
+			depth++
+			cur.WriteRune(r)
+		case r == ')' || r == '}' || r == ']':
+			if depth > 0 {
+				depth--
+			}
+			cur.WriteRune(r)
+		case r == ',' && depth == 0:
+			args = append(args, strings.TrimSpace(cur.String()))
+			cur.Reset()
+		default:
+			cur.WriteRune(r)
+		}
+	}
+	if cur.Len() > 0 {
+		args = append(args, strings.TrimSpace(cur.String()))
+	}
+	return args
+}

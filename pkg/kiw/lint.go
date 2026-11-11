@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	blockTokRe   = regexp.MustCompile(`\{(#if|#each|:else\s+if|:else|/if|/each)\b[^}]*\}`)
-	compStartRe  = regexp.MustCompile(`<[A-Z][a-zA-Z0-9_]*`)
+	blockTokRe   = regexp.MustCompile(`\{(#if|#each|#snippet|:else\s+if|:else|/if|/each|/snippet)\b[^}]*\}`)
+	compStartRe  = regexp.MustCompile(`<` + compNamePattern)
 	rawBlockRe   = regexp.MustCompile(`(?is)<(style|script)[^>]*>.*?</(?:style|script)>`)
 	yamlLineErrR = regexp.MustCompile(`line (\d+): (.*)`)
 )
@@ -81,7 +81,7 @@ func Lint(file, src string) []Diagnostic {
 	for _, loc := range blockTokRe.FindAllStringSubmatchIndex(markup, -1) {
 		tok := markup[loc[2]:loc[3]]
 		switch {
-		case tok == "#if" || tok == "#each":
+		case tok == "#if" || tok == "#each" || tok == "#snippet":
 			stack = append(stack, open{tok[1:], loc[0]})
 		case strings.HasPrefix(tok, ":else"):
 			isElseIf := tok != ":else"

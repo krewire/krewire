@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/krewire/krewire/pkg/errs"
 	"github.com/krewire/krewire/pkg/hub/resolver"
+	kiwdsl "github.com/krewire/krewire/pkg/kiw"
 )
 
 func RegisterAdd(fs *flag.FlagSet) {
@@ -34,6 +36,12 @@ func RunAdd(fs *flag.FlagSet) errs.ExitCode {
 	}
 	var uiRefs, pkgs []string
 	for _, a := range args {
+		if strings.HasSuffix(a, kiwdsl.PackageExtension) || strings.HasPrefix(a, "pkg:") {
+			if code := pkgAdd(root, strings.TrimPrefix(a, "pkg:")); code != errs.ExitCodeSuccess {
+				return code
+			}
+			continue
+		}
 		if isUIRef(a) {
 			uiRefs = append(uiRefs, a)
 		} else {

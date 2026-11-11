@@ -77,22 +77,53 @@ func LoadFromDir(root string) (*Site, error) {
 			}
 			name := strings.TrimSuffix(e.Name(), ".kiw")
 			style := strings.Join(mod.Styles, "\n")
-			site.Component(Component{Name: name, Body: mod.Body, Style: style, Source: "kui/" + e.Name(), Raw: mod.Raw})
+			site.Component(Component{Name: name, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: "kui/" + e.Name(), Raw: mod.Raw})
 		}
 	}
 
-	// 2. Project-specific components (overrides built-in UI components if same name)
-	for _, p := range findKiwFiles(filepath.Join(root, "components")) {
+	// 2. Standalone installed component packages from kiw_modules/
+	modulesDir := filepath.Join(root, "kiw_modules")
+	if st, err := os.Stat(modulesDir); err == nil && st.IsDir() {
+		loadKiwModules(site, root, modulesDir)
+	}
+
+	// 3. Project-specific components (overrides built-in UI components if same name)
+	compsDir := filepath.Join(root, "components")
+	for _, p := range findKiwFiles(compsDir) {
 		mod, err := kiwdsl.ParseKiwFile(p)
 		if err != nil {
 			continue
 		}
-		name := strings.TrimSuffix(filepath.Base(p), ".kiw")
-		if strings.HasPrefix(name, "_") {
+		rel, _ := filepath.Rel(compsDir, p)
+		rel = filepath.ToSlash(rel)
+		relNoExt := strings.TrimSuffix(rel, ".kiw")
+		baseName := filepath.Base(relNoExt)
+		if strings.HasPrefix(baseName, "_") {
 			continue
 		}
 		style := strings.Join(mod.Styles, "\n")
-		site.Component(Component{Name: name, Body: mod.Body, Style: style, Source: relSource(root, p), Raw: mod.Raw})
+
+		// Register default/base name
+		site.Component(Component{
+			Name:     baseName,
+			Body:     mod.Body,
+			Style:    style,
+			Defaults: mod.Defaults,
+			Source:   relSource(root, p),
+			Raw:      mod.Raw,
+		})
+
+		// Also register namespaced and slash paths (e.g. marketing:Hero, marketing/Hero)
+		if strings.Contains(relNoExt, "/") {
+			colonName := strings.ReplaceAll(relNoExt, "/", ":")
+			site.Component(Component{Name: relNoExt, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, p), Raw: mod.Raw})
+			site.Component(Component{Name: colonName, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, p), Raw: mod.Raw})
+		}
+
+		// Resolve component imports if declared
+		if len(mod.Imports) > 0 {
+			resolveImports(site, root, p, mod.Imports)
+		}
 	}
 
 	for _, p := range findKiwFiles(filepath.Join(root, "layouts")) {
@@ -103,6 +134,9 @@ func LoadFromDir(root string) (*Site, error) {
 		name := strings.TrimSuffix(filepath.Base(p), ".kiw")
 		if strings.HasPrefix(name, "_") {
 			continue
+		}
+		if len(mod.Imports) > 0 {
+			resolveImports(site, root, p, mod.Imports)
 		}
 		style := strings.Join(mod.Styles, "\n")
 		var scripts []string
@@ -250,6 +284,9 @@ func LoadFromDir(root string) (*Site, error) {
 		}
 
 		route := routeFromRel(rel)
+		if len(mod.Imports) > 0 {
+			resolveImports(site, root, p, mod.Imports)
+		}
 		title := strFromFM(mod.Frontmatter, "title", meta.Title)
 		layout := strFromFM(mod.Frontmatter, "layout", "")
 		if layout == "" {
@@ -490,4 +527,93 @@ func routeFromRel(rel string) string {
 		rel = strings.TrimSuffix(rel, "/index")
 	}
 	return "/" + rel
+}
+
+func resolveImports(site *Site, root, filePath string, imports []kiwdsl.ImportDecl) {
+	for _, imp := range imports {
+		if strings.HasPrefix(imp.Source, "./") || strings.HasPrefix(imp.Source, "../") {
+			target := filepath.Join(filepath.Dir(filePath), filepath.FromSlash(imp.Source))
+			if !strings.HasSuffix(target, ".kiw") {
+				target += ".kiw"
+			}
+			if st, err := os.Stat(target); err == nil && !st.IsDir() {
+				mod, err := kiwdsl.ParseKiwFile(target)
+				if err == nil {
+					style := strings.Join(mod.Styles, "\n")
+					site.Component(Component{
+						Name:     imp.LocalName,
+						Body:     mod.Body,
+						Style:    style,
+						Defaults: mod.Defaults,
+						Source:   relSource(root, target),
+						Raw:      mod.Raw,
+					})
+				}
+			}
+		} else {
+			// Package reference: e.g. @ui/Card or @acme/ui
+			targetName := imp.ImportedName
+			if targetName == "" {
+				targetName = imp.LocalName
+			}
+			site.Alias(imp.LocalName, targetName)
+		}
+	}
+}
+
+func loadKiwModules(site *Site, root, modulesDir string) {
+	_ = filepath.WalkDir(modulesDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || !d.IsDir() {
+			return nil
+		}
+		manifestPath := filepath.Join(p, kiwdsl.PackageManifestFile)
+		if st, err := os.Stat(manifestPath); err == nil && !st.IsDir() {
+			manifest, err := kiwdsl.LoadPackageManifest(manifestPath)
+			if err != nil {
+				return nil
+			}
+			// Derive clean namespace (e.g. @acme/ui -> acme, my-cards -> my_cards)
+			ns := strings.TrimPrefix(manifest.Name, "@")
+			if idx := strings.Index(ns, "/"); idx >= 0 {
+				ns = ns[:idx]
+			}
+			ns = strings.ReplaceAll(ns, "-", "_")
+
+			for compName, compRel := range manifest.Components {
+				compPath := filepath.Join(p, filepath.FromSlash(compRel))
+				mod, err := kiwdsl.ParseKiwFile(compPath)
+				if err != nil {
+					continue
+				}
+				style := strings.Join(mod.Styles, "\n")
+				namespaced := ns + ":" + compName
+				pkgNamespaced := manifest.Name + ":" + compName
+				compObj := Component{
+					Name:     namespaced,
+					Body:     mod.Body,
+					Style:    style,
+					Defaults: mod.Defaults,
+					Source:   relSource(root, compPath),
+					Raw:      mod.Raw,
+				}
+				site.Component(compObj)
+				site.Component(Component{Name: pkgNamespaced, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, compPath), Raw: mod.Raw})
+				// Also register under compName if not already present
+				if _, exists := site.comps[compName]; !exists {
+					site.Component(Component{Name: compName, Body: mod.Body, Style: style, Defaults: mod.Defaults, Source: relSource(root, compPath), Raw: mod.Raw})
+				}
+			}
+
+			if manifest.Styles != "" {
+				stylePath := filepath.Join(p, filepath.FromSlash(manifest.Styles))
+				if b, err := os.ReadFile(stylePath); err == nil {
+					assetName := fmt.Sprintf("pkg-%s.css", strings.ReplaceAll(ns, "/", "-"))
+					site.DeclareAsset("/assets/" + assetName)
+					site.Asset(assetName, string(b))
+				}
+			}
+			return filepath.SkipDir
+		}
+		return nil
+	})
 }

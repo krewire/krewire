@@ -43,18 +43,21 @@ func PutBuffer(buf *bytes.Buffer) {
 	}
 }
 
+const compNamePattern = `(?:[a-zA-Z_][a-zA-Z0-9_-]*:)?[A-Z][a-zA-Z0-9_]*(?:\.[A-Z][a-zA-Z0-9_]*)*`
+
 var (
 	styleRe           = regexp.MustCompile(`(?is)<style([^>]*)>(.*?)</style>`)
 	scriptRe          = regexp.MustCompile(`(?is)<script([^>]*)>(.*?)</script>`)
 	markdownRe        = regexp.MustCompile(`(?is)<markdown[^>]*>(.*?)</markdown>`)
 	attrRe            = regexp.MustCompile("([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|([^\\s\"'=<>`]+)))?")
-	selfClosingCompRe = regexp.MustCompile(`(?s)<([A-Z][a-zA-Z0-9_]*)([^>]*?)\s*/>`)
-	openCompTagRe     = regexp.MustCompile(`<([A-Z][a-zA-Z0-9_]*)([^>]*)>`)
+	selfClosingCompRe = regexp.MustCompile(`(?s)<(` + compNamePattern + `)([^>]*?)\s*/>`)
+	openCompTagRe     = regexp.MustCompile(`<(` + compNamePattern + `)([^>]*)>`)
 	mustacheCompRe    = regexp.MustCompile(`{{\s*component\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
 	mustacheMountRe   = regexp.MustCompile(`{{\s*mount\s+"([^"]+)"\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
 	compAttrRe        = regexp.MustCompile("([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|\\{([^}]*)\\}|([^\\s\"'=<>`]+)))?")
-	namedSlotRe       = regexp.MustCompile(`(?s)<(?:template|div|section)\s+slot=["']([a-zA-Z0-9_-]+)["']>([\s\S]*?)</(?:template|div|section)>`)
+	namedSlotRe       = regexp.MustCompile(`(?s)<(?:template|div|section|svelte:fragment)\s+slot=["']([a-zA-Z0-9_-]+)["']>([\s\S]*?)</(?:template|div|section|svelte:fragment)>`)
 	namedSlotTagRe    = regexp.MustCompile(`(?s)<slot\s+name=["']([a-zA-Z0-9_-]+)["']>([\s\S]*?)</slot>`)
+	namedSlotElemRe   = regexp.MustCompile(`(?s)<slot:([a-zA-Z0-9_-]+)>([\s\S]*?)</slot:([a-zA-Z0-9_-]+)>`)
 )
 
 // StyleBlock holds a scoped style block with its attributes.
@@ -89,16 +92,21 @@ type ComponentCall struct {
 // so the same .kiw file can be consumed from Go (html/template) and from
 // JS/TS (string templates) without a custom toolchain.
 type KiwModule struct {
-	Frontmatter    map[string]any  `yaml:",inline" json:"frontmatter"`
-	Body           string          `json:"body"`
-	Styles         []string        `json:"styles"`
-	Scripts        []string        `json:"scripts"`
-	StyleBlocks    []StyleBlock    `json:"styleBlocks"`
-	ScriptBlocks   []ScriptBlock   `json:"scriptBlocks"`
-	Markdown       []string        `json:"markdown"`
-	Components     []ComponentCall `json:"components,omitempty"`
-	ComponentNames []string        `json:"componentNames,omitempty"`
-	Raw            string          `json:"-"`
+	Frontmatter    map[string]any      `yaml:",inline" json:"frontmatter"`
+	Body           string              `json:"body"`
+	Styles         []string            `json:"styles"`
+	Scripts        []string            `json:"scripts"`
+	StyleBlocks    []StyleBlock        `json:"styleBlocks"`
+	ScriptBlocks   []ScriptBlock       `json:"scriptBlocks"`
+	Markdown       []string            `json:"markdown"`
+	Components     []ComponentCall     `json:"components,omitempty"`
+	ComponentNames []string            `json:"componentNames,omitempty"`
+	Imports        []ImportDecl        `json:"imports,omitempty"`
+	Exports        []ExportDecl        `json:"exports,omitempty"`
+	Props          map[string]PropSpec `json:"props,omitempty"`
+	Defaults       map[string]any      `json:"defaults,omitempty"`
+	Slots          []SlotSpec          `json:"slots,omitempty"`
+	Raw            string              `json:"-"`
 }
 
 func parseAttrs(tag string) map[string]string {
@@ -259,10 +267,13 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 	}
 
 	if trimmedBody != "" {
-		// Extract named slots (<div slot="xyz">...</div>, <slot name="xyz">...</slot>)
-		for _, re := range []*regexp.Regexp{namedSlotRe, namedSlotTagRe} {
+		// Extract named slots (<div slot="xyz">...</div>, <slot name="xyz">...</slot>, <slot:xyz>...</slot:xyz>)
+		for _, re := range []*regexp.Regexp{namedSlotRe, namedSlotTagRe, namedSlotElemRe} {
 			matches := re.FindAllStringSubmatch(trimmedBody, -1)
 			for _, ns := range matches {
+				if re == namedSlotElemRe && len(ns) > 3 && ns[1] != ns[3] {
+					continue
+				}
 				slotName := capitalize(ns[1])
 				slotContent := strings.TrimSpace(ns[2])
 				if desugared, _ := DesugarTemplate(slotContent); desugared != "" {
@@ -325,6 +336,9 @@ func desugar(src string, loopVars map[string]bool, pad bool) string {
 	// 3. Desugar conditionals: {#if ...}, {:else if ...}, {:else}, {/if}
 	res = desugarConditionals(res, loopVars, pad)
 
+	// 3.5. Desugar inline snippets and render invocations
+	res = desugarSnippets(res, loopVars, pad)
+
 	// 4. Desugar self-closing components: <Navbar ... />
 	res = selfClosingCompRe.ReplaceAllStringFunc(res, func(match string) string {
 		sm := selfClosingCompRe.FindStringSubmatch(match)
@@ -340,8 +354,50 @@ func desugar(src string, loopVars map[string]bool, pad bool) string {
 	// 5. Desugar paired components: <Card ...>...</Card>
 	res = desugarPairedComponents(res, pad)
 
+	// 5.5. Desugar component slot outlets with fallbacks (<slot>, <slot name="xyz">)
+	res = desugarSlots(res, pad)
+
 	// 6. Desugar clean expression interpolation: {var} -> {{.Var}}
 	return desugarInterpolation(res, loopVars)
+}
+
+func findMatchingCloseTag(s, tagName string) int {
+	closeTag := "</" + tagName + ">"
+	openTagPrefix := "<" + tagName
+	depth := 1
+	idx := 0
+	for depth > 0 && idx < len(s) {
+		nextClose := strings.Index(s[idx:], closeTag)
+		if nextClose == -1 {
+			return -1
+		}
+		nextOpen := strings.Index(s[idx:], openTagPrefix)
+		if nextOpen != -1 && nextOpen < nextClose {
+			afterOpen := idx + nextOpen + len(openTagPrefix)
+			if afterOpen < len(s) {
+				c := s[afterOpen]
+				if c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '>' || c == '/' {
+					gtIdx := strings.IndexByte(s[afterOpen:], '>')
+					if gtIdx != -1 {
+						insideTag := strings.TrimSpace(s[afterOpen : afterOpen+gtIdx])
+						if !strings.HasSuffix(insideTag, "/") {
+							depth++
+						}
+						idx = afterOpen + gtIdx + 1
+						continue
+					}
+				}
+			}
+			idx += nextOpen + len(openTagPrefix)
+			continue
+		}
+		depth--
+		if depth == 0 {
+			return idx + nextClose
+		}
+		idx += nextClose + len(closeTag)
+	}
+	return -1
 }
 
 func desugarPairedComponents(src string, pad bool) string {
@@ -365,7 +421,7 @@ func desugarPairedComponents(src string, pad bool) string {
 		}
 
 		closeTag := "</" + tagName + ">"
-		closeIdx := strings.Index(res[m[1]:], closeTag)
+		closeIdx := findMatchingCloseTag(res[m[1]:], tagName)
 		if closeIdx == -1 {
 			// No matching closing tag, treat as self-closing
 			fullTag := res[m[0]:m[1]]
@@ -525,6 +581,19 @@ func parseKiw(src string, pad bool) *KiwModule {
 		}
 		return "\n" + strings.TrimSpace(rendered) + "\n"
 	})
+
+	// Extract and parse imports, exports, props, defaults, and slots
+	imports, exports, props, defaults, slots := parseImportsAndExports(src, m.Frontmatter, m.ScriptBlocks)
+	m.Imports = imports
+	m.Exports = exports
+	m.Props = props
+	m.Defaults = defaults
+	m.Slots = slots
+
+	// Strip top-level @import directives from body
+	body = directiveDefaultImportRe.ReplaceAllString(body, "")
+	body = directiveNamespaceImport.ReplaceAllString(body, "")
+	body = directiveNamedImport.ReplaceAllString(body, "")
 
 	// Desugar JSX-like component tags (<ComponentName ... />) to {{component "ComponentName" ...}}
 	body = desugar(body, nil, pad)

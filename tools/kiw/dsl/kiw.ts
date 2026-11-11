@@ -29,8 +29,36 @@ export interface ScriptBlock { lang: string; hydrate: string; server: boolean; c
 
 export interface ComponentCall {
   name: string
+  hydrate?: string
   props?: Record<string, string>
   raw: string
+}
+
+export interface ImportDecl {
+  localName: string
+  importedName?: string
+  source: string
+  isDefault?: boolean
+  isNamespace?: boolean
+}
+
+export interface ExportDecl {
+  name: string
+  source?: string
+  kind: string
+}
+
+export interface PropSpec {
+  name: string
+  type?: string
+  default?: string
+  required?: boolean
+}
+
+export interface SlotSpec {
+  name: string
+  hasFallback?: boolean
+  fallback?: string
 }
 
 export interface KiwModule {
@@ -43,6 +71,11 @@ export interface KiwModule {
   markdown: string[]
   components?: ComponentCall[]
   componentNames?: string[]
+  imports?: ImportDecl[]
+  exports?: ExportDecl[]
+  props?: Record<string, PropSpec>
+  defaults?: Record<string, any>
+  slots?: SlotSpec[]
   raw: string
 }
 
@@ -50,8 +83,10 @@ const styleRe = /<style([^>]*)>([\s\S]*?)<\/style>/gi
 const scriptRe = /<script([^>]*)>([\s\S]*?)<\/script>/gi
 const markdownRe = /<markdown[^>]*>([\s\S]*?)<\/markdown>/gi
 const attrRe = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g
-const selfClosingCompRe = /<([A-Z][a-zA-Z0-9_]*)([^>]*?)\s*\/>/g
-const pairedCompRe = /<([A-Z][a-zA-Z0-9_]*)([^>]*)>([\s\S]*?)<\/\1>/g
+
+const compNamePattern = "(?:[a-zA-Z_][a-zA-Z0-9_-]*:)?[A-Z][a-zA-Z0-9_]*(?:\\.[A-Z][a-zA-Z0-9_]*)*"
+const selfClosingCompRe = new RegExp(`<(${compNamePattern})([^>]*?)\\s*\\/>`, "g")
+const pairedCompRe = new RegExp(`<(${compNamePattern})([^>]*)>([\\s\\S]*?)<\\/\\1>`, "g")
 const mustacheCompRe = /\{\{\s*component\s+"([^"]+)"(?:\s+([^{}]+))?\s*\}\}/g
 const compAttrRe = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|\{([^}]*)\}|([^\s"'=<>`]+)))?/g
 
@@ -335,16 +370,89 @@ function desugarComponent(name: string, attrStr: string, bodyContent: string, ra
   return [`{{component "${name}" (dict ${dictPairs.join(" ")})}}`, call]
 }
 
+const slotFallbackRe = /<slot(?:\s+name=["']([a-zA-Z0-9_-]+)["'])?\s*>([\s\S]*?)<\/slot>/gi
+const slotEmptyRe = /<slot(?:\s+name=["']([a-zA-Z0-9_-]+)["'])?\s*\/>/gi
+const snippetDefRe = /\{#snippet\s+([a-zA-Z0-9_$]+)\s*(?:\(([^)]*)\))?\s*\}([\s\S]*?)\{\/snippet\}/gi
+const renderCallRe = /\{@render\s+([a-zA-Z0-9_$]+)\s*(?:\(([^)]*)\))?\s*\}/gi
+
+function desugarSlots(src: string): string {
+  let res = src.replace(slotFallbackRe, (_m, name, fallback) => {
+    const target = name ? "." + capitalize(name) : ".Body"
+    const trimmed = (fallback || "").trim()
+    if (!trimmed) return `{{${target}}}`
+    return `{{if ${target}}}{{${target}}}{{else}}${fallback}{{end}}`
+  })
+  res = res.replace(slotEmptyRe, (_m, name) => {
+    const target = name ? "." + capitalize(name) : ".Body"
+    return `{{${target}}}`
+  })
+  return res
+}
+
+function desugarSnippets(src: string, loopVars?: Set<string>): string {
+  const snippetParams: Record<string, string[]> = {}
+  let res = src.replace(snippetDefRe, (_m, name, paramsRaw, body) => {
+    const paramList: string[] = []
+    const scope = new Set<string>(loopVars)
+    if (paramsRaw && paramsRaw.trim()) {
+      for (const p of paramsRaw.split(",")) {
+        const tr = p.trim()
+        if (tr) {
+          paramList.push(tr)
+          scope.add(tr)
+        }
+      }
+    }
+    snippetParams[name] = paramList
+    const desugaredBody = desugarTemplate(body, scope)
+    return `{{define "${name}"}}${desugaredBody}{{end}}`
+  })
+
+  res = res.replace(renderCallRe, (_m, name, argsRaw) => {
+    if (!argsRaw || !argsRaw.trim()) {
+      return `{{template "${name}" .}}`
+    }
+    const params = snippetParams[name] || []
+    const args = argsRaw.split(",").map((a: string) => a.trim()).filter(Boolean)
+    const pairs: string[] = []
+    args.forEach((arg: string, i: number) => {
+      let key = ""
+      let val = arg
+      if (arg.includes("=")) {
+        const kv = arg.split("=")
+        key = capitalize(kv[0].trim())
+        val = kv.slice(1).join("=").trim()
+      } else if (i < params.length) {
+        key = capitalize(params[i])
+      } else {
+        key = `Arg${i}`
+      }
+      if (identPathRe.test(val) && val !== "true" && val !== "false" && !val.startsWith(".") && !val.startsWith("$") && isNaN(Number(val))) {
+        val = toGoField(val, loopVars)
+      } else if (!val.startsWith('"') && !val.startsWith("'") && isNaN(Number(val)) && val !== "true" && val !== "false" && !val.startsWith(".") && !val.startsWith("$")) {
+        val = JSON.stringify(val)
+      }
+      pairs.push(`"${key}" ${val}`)
+    })
+    if (pairs.length === 0) return `{{template "${name}" .}}`
+    return `{{template "${name}" (dict ${pairs.join(" ")})}}`
+  })
+
+  return res
+}
+
 export function desugarTemplate(src: string, loopVars?: Set<string>): string {
   let res = desugarClassDirectives(src)
   res = desugarLoops(res)
   res = desugarConditionals(res, loopVars)
+  res = desugarSnippets(res, loopVars)
   res = res.replace(selfClosingCompRe, (match, name, attrStr) => {
     return desugarComponent(name, attrStr || "", "", match)[0]
   })
   res = res.replace(pairedCompRe, (match, name, attrStr, body) => {
     return desugarComponent(name, attrStr || "", body || "", match)[0]
   })
+  res = desugarSlots(res)
   res = desugarInterpolation(res, loopVars)
   return res
 }
@@ -397,6 +505,64 @@ export function parseKiw(src: string): KiwModule {
     return "\n" + inner.trim() + "\n"
   })
 
+  const imports: ImportDecl[] = []
+  const exports: ExportDecl[] = []
+  const props: Record<string, PropSpec> = {}
+  const defaults: Record<string, any> = {}
+  const slots: SlotSpec[] = []
+
+  // Parse frontmatter props/imports
+  if (frontmatter.imports && typeof frontmatter.imports === "object") {
+    for (const [k, v] of Object.entries(frontmatter.imports)) {
+      const srcStr = String(v)
+      const isNS = !srcStr.endsWith(".kiw") && (srcStr.startsWith("@") || !srcStr.includes("/"))
+      imports.push({ localName: k, source: srcStr, isDefault: !isNS, isNamespace: isNS })
+    }
+  }
+
+  // Parse @import in body
+  body = body.replace(/^\s*@import\s+([A-Z][a-zA-Z0-9_]*)\s+from\s+['"]([^'"]+)['"]\s*;?/gm, (_m, name, s) => {
+    imports.push({ localName: name, source: s, isDefault: true })
+    return ""
+  })
+  body = body.replace(/^\s*@import\s+\*\s+as\s+([a-zA-Z0-9_]+)\s+from\s+['"]([^'"]+)['"]\s*;?/gm, (_m, name, s) => {
+    imports.push({ localName: name, source: s, isNamespace: true })
+    return ""
+  })
+  body = body.replace(/^\s*@import\s*\{([^}]+)\}\s*from\s+['"]([^'"]+)['"]\s*;?/gm, (_m, parts, s) => {
+    parts.split(",").forEach((p: string) => {
+      const tr = p.trim()
+      if (!tr) return
+      let imp = tr, loc = tr
+      if (tr.includes(" as ")) {
+        const sub = tr.split(" as ")
+        imp = sub[0].trim()
+        loc = sub[1].trim()
+      }
+      imports.push({ localName: loc, importedName: imp, source: s })
+    })
+    return ""
+  })
+
+  // Parse script imports / export let
+  for (const sb of scriptBlocks) {
+    const sc = sb.content
+    let m: RegExpExecArray | null
+    const defImpRe = /^\s*import\s+([A-Z][a-zA-Z0-9_]*)\s+from\s+['"]([^'"]+)['"]\s*;?/gm
+    while ((m = defImpRe.exec(sc)) !== null) {
+      imports.push({ localName: m[1], source: m[2], isDefault: true })
+    }
+    const expLetRe = /^\s*export\s+let\s+([a-zA-Z0-9_$]+)(?:\s*:\s*([^=;\n]+))?(?:\s*=\s*([^;\n]+))?\s*;?/gm
+    while ((m = expLetRe.exec(sc)) !== null) {
+      const propName = m[1]
+      const propType = (m[2] || "").trim()
+      const propDef = (m[3] || "").trim().replace(/^["']|["']$/g, "")
+      props[propName] = { name: propName, type: propType, default: propDef }
+      if (propDef) defaults[propName] = propDef
+      exports.push({ name: propName, kind: "prop" })
+    }
+  }
+
   body = desugarTemplate(body)
 
   const components: ComponentCall[] = []
@@ -419,6 +585,11 @@ export function parseKiw(src: string): KiwModule {
     markdown,
     components,
     componentNames: Array.from(nameSet).sort(),
+    imports,
+    exports,
+    props,
+    defaults,
+    slots,
     raw: src,
   }
 }

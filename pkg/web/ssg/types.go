@@ -11,9 +11,10 @@ import (
 // Component is a reusable piece of UI. Body is the html/template source;
 // Style is CSS scoped to the component's rendered root element.
 type Component struct {
-	Name  string
-	Body  string
-	Style string
+	Name     string
+	Body     string
+	Style    string
+	Defaults map[string]any
 	// Source and Raw, when set, are the .kiw path and text Body was
 	// desugared from; template errors are then reported at source positions.
 	Source string
@@ -81,6 +82,7 @@ type Site struct {
 	funcs     template.FuncMap
 	layouts   map[string]*Layout
 	comps     map[string]*Component
+	aliases   map[string]string
 	pages     []*Page
 	assets    map[string]string
 	reg       *ui.Registry
@@ -148,6 +150,7 @@ func New() *Site {
 	return &Site{
 		layouts:      map[string]*Layout{},
 		comps:        map[string]*Component{},
+		aliases:      map[string]string{},
 		assets:       map[string]string{},
 		used:         map[string]bool{},
 		manifest:     map[string]string{},
@@ -159,6 +162,15 @@ func New() *Site {
 		// so first-paint scripts such as theme bootstrapping still run early.
 		auto: autoAssets{enabled: true, jsInHead: true},
 	}
+}
+
+// Alias maps an alternative component name to an existing component target.
+func (s *Site) Alias(alias, target string) *Site {
+	if s.aliases == nil {
+		s.aliases = map[string]string{}
+	}
+	s.aliases[alias] = target
+	return s
 }
 
 // Pipeline installs asset transform rules applied at build time (KWF-DR5YU).

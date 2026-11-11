@@ -15,6 +15,39 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
+func (s *Site) resolveComponentName(name string) (string, *Component, bool) {
+	target := name
+	if s.aliases != nil {
+		if aliased, ok := s.aliases[target]; ok {
+			target = aliased
+		}
+	}
+	if c, ok := s.comps[target]; ok {
+		return target, c, true
+	}
+
+	// Try normalized alternatives: Card.Header -> Card_Header, ui:Button -> ui_Button or Button
+	candidates := []string{
+		strings.ReplaceAll(target, ".", "_"),
+		strings.ReplaceAll(target, ":", "_"),
+		strings.ReplaceAll(target, ":", "/"),
+	}
+	if idx := strings.Index(target, ":"); idx >= 0 {
+		candidates = append(candidates, target[idx+1:])
+	}
+	for _, cand := range candidates {
+		if s.aliases != nil {
+			if aliased, ok := s.aliases[cand]; ok {
+				cand = aliased
+			}
+		}
+		if c, ok := s.comps[cand]; ok {
+			return cand, c, true
+		}
+	}
+	return name, nil, false
+}
+
 // renderComponent renders a component with data, marks it used, and injects
 // its scope attribute onto the rendered root element.
 func (s *Site) renderComponent(name string, data ...any) (template.HTML, error) {
@@ -25,13 +58,31 @@ func (s *Site) renderComponent(name string, data ...any) (template.HTML, error) 
 	if len(data) > 0 {
 		d = data[0]
 	}
-	if c, ok := s.comps[name]; ok {
-		s.markUsed(name)
-		var buf bytes.Buffer
-		if err := s.set.ExecuteTemplate(&buf, name, d); err != nil {
-			return "", explain(c.Source, name, c.Raw, s.templateFns, err)
+	if resolvedName, c, ok := s.resolveComponentName(name); ok {
+		s.markUsed(resolvedName)
+
+		// Inject declared component default props if missing
+		if len(c.Defaults) > 0 {
+			if m, ok := d.(map[string]any); ok {
+				for k, defVal := range c.Defaults {
+					if _, exists := m[k]; !exists {
+						setProp(m, k, defVal)
+					}
+				}
+			} else if d == nil {
+				m := make(map[string]any, len(c.Defaults))
+				for k, defVal := range c.Defaults {
+					setProp(m, k, defVal)
+				}
+				d = m
+			}
 		}
-		return scopeFragment(name, buf.String())
+
+		var buf bytes.Buffer
+		if err := s.set.ExecuteTemplate(&buf, resolvedName, d); err != nil {
+			return "", explain(c.Source, resolvedName, c.Raw, s.templateFns, err)
+		}
+		return scopeFragment(resolvedName, buf.String())
 	}
 	if s.reg != nil {
 		if out, err := s.reg.Render(name, componentProps(d)); err == nil {
