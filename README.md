@@ -71,7 +71,7 @@ Krewire is the core monorepo in the 10-repository ecosystem:
 4. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform.
 5. **dash**: Krewire Dash — AI-native virtual workspace, execution sandboxes, and collaboration console.
 6. **forge**: Krewire Forge — Declarative web, form, resource, and admin panel builder for Go & `.kiw`.
-7. **ui**: Pop-Brutalist `.kiw` design system (50+ components, pure Go embed.FS, zero npm runtime).
+7. **ui**: Pop-Brutalist `.kiw` design system (66 components, pure Go embed.FS, zero npm runtime).
 8. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
 9. **krewire.com**: Official product website and documentation portal.
 10. **krewire.github.io**: Community portal and guides hub.
