@@ -13,34 +13,6 @@ import (
 	"github.com/krewire/krewire/pkg/cloud/storage"
 )
 
-// taskRecord is the JSON-serializable representation of a Task in KV storage.
-type taskRecord struct {
-	ID       JobID         `json:"id"`
-	Type     string        `json:"type"`
-	Payload  []byte        `json:"payload,omitempty"`
-	Priority int           `json:"priority"`
-	Delay    time.Duration `json:"delay"`
-	Cron     string        `json:"cron,omitempty"`
-	Retry    *RetryPolicy  `json:"retry,omitempty"`
-	Attempts int           `json:"attempts"`
-	RunAt    time.Time     `json:"run_at"`
-	Seq      uint64        `json:"seq"`
-}
-
-type deadLetterRecord struct {
-	ID       JobID     `json:"id"`
-	Type     string    `json:"type"`
-	Payload  []byte    `json:"payload,omitempty"`
-	Err      string    `json:"err"`
-	Attempts int       `json:"attempts"`
-	At       time.Time `json:"at"`
-}
-
-type taskLease struct {
-	Owner     string    `json:"owner"`
-	ExpiresAt time.Time `json:"expires_at"`
-}
-
 var globalWorkerCounter atomic.Uint64
 
 func newWorkerID() string {
@@ -163,30 +135,7 @@ func (q *KVQueue) Enqueue(ctx context.Context, job Job, opts Options) (JobID, er
 	t.runAt = q.now().Add(opts.Delay)
 
 	// Persist task to KV
-	jobType := "generic"
-	var payload []byte
-	if sj, ok := job.(SerializableJob); ok {
-		jobType = sj.JobType()
-		var err error
-		payload, err = sj.Encode()
-		if err != nil {
-			return "", fmt.Errorf("worker: encode job: %w", err)
-		}
-	}
-
-	rec := taskRecord{
-		ID:       t.ID,
-		Type:     jobType,
-		Payload:  payload,
-		Priority: opts.Priority,
-		Delay:    opts.Delay,
-		Cron:     opts.Cron,
-		Retry:    opts.Retry,
-		Attempts: t.Attempts,
-		RunAt:    t.runAt,
-		Seq:      t.seq,
-	}
-	b, err := json.Marshal(rec)
+	b, err := marshalTaskRecord(t)
 	if err != nil {
 		return "", err
 	}
@@ -270,16 +219,22 @@ func (q *KVQueue) claim(ctx context.Context, taskID JobID) bool {
 	return true
 }
 
-func (q *KVQueue) claimReadyTask(ctx context.Context) (*Task, time.Duration, error) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
+func (q *KVQueue) isActivelyLeased(ctx context.Context, id JobID, now time.Time) bool {
+	leaseKey := "worker/leases/" + string(id)
+	lval, lok, _ := q.kv.Get(ctx, leaseKey)
+	if !lok {
+		return false
+	}
+	var lease taskLease
+	return json.Unmarshal(lval, &lease) == nil && lease.ExpiresAt.After(now)
+}
 
+func (q *KVQueue) findCandidates(ctx context.Context, now time.Time) ([]taskRecord, time.Duration, error) {
 	keys, err := q.kv.List(ctx, "worker/tasks/")
 	if err != nil {
 		return nil, 0, err
 	}
 
-	now := q.now()
 	var candidates []taskRecord
 	var minFutureDelay time.Duration
 
@@ -301,23 +256,57 @@ func (q *KVQueue) claimReadyTask(ctx context.Context) (*Task, time.Duration, err
 			continue
 		}
 
-		// Check if actively leased by someone else
-		leaseKey := "worker/leases/" + string(rec.ID)
-		lval, lok, _ := q.kv.Get(ctx, leaseKey)
-		if lok {
-			var lease taskLease
-			if err := json.Unmarshal(lval, &lease); err == nil {
-				if lease.ExpiresAt.After(now) {
-					continue
-				}
-			}
+		if q.isActivelyLeased(ctx, rec.ID, now) {
+			continue
 		}
 
 		candidates = append(candidates, rec)
 	}
 
-	if len(candidates) == 0 {
-		return nil, minFutureDelay, nil
+	return candidates, minFutureDelay, nil
+}
+
+func (q *KVQueue) activateTask(rec taskRecord) *Task {
+	var job Job
+	if lj, ok := q.localJobs[rec.ID]; ok {
+		job = lj
+	} else {
+		var err error
+		job, err = q.registry.Resolve(rec.Type, rec.Payload)
+		if err != nil {
+			job = &PayloadJob{Type: rec.Type, Data: rec.Payload}
+		}
+	}
+
+	task := &Task{
+		ID:       rec.ID,
+		Job:      job,
+		Attempts: rec.Attempts,
+		Options: Options{
+			Priority: rec.Priority,
+			Delay:    rec.Delay,
+			Cron:     rec.Cron,
+			Retry:    rec.Retry,
+		},
+		runAt: rec.RunAt,
+		seq:   rec.Seq,
+	}
+	if rec.Cron != "" {
+		if sched, err := ParseCron(rec.Cron); err == nil {
+			task.cron = sched
+		}
+	}
+	return task
+}
+
+func (q *KVQueue) claimReadyTask(ctx context.Context) (*Task, time.Duration, error) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	now := q.now()
+	candidates, minFutureDelay, err := q.findCandidates(ctx, now)
+	if err != nil || len(candidates) == 0 {
+		return nil, minFutureDelay, err
 	}
 
 	// Highest priority first, then oldest seq (FIFO)
@@ -350,36 +339,7 @@ func (q *KVQueue) claimReadyTask(ctx context.Context) (*Task, time.Duration, err
 			_ = q.kv.Put(ctx, taskKey, b)
 		}
 
-		var job Job
-		if lj, ok := q.localJobs[rec.ID]; ok {
-			job = lj
-		} else {
-			var err error
-			job, err = q.registry.Resolve(rec.Type, rec.Payload)
-			if err != nil {
-				job = &PayloadJob{Type: rec.Type, Data: rec.Payload}
-			}
-		}
-
-		task := &Task{
-			ID:       rec.ID,
-			Job:      job,
-			Attempts: rec.Attempts,
-			Options: Options{
-				Priority: rec.Priority,
-				Delay:    rec.Delay,
-				Cron:     rec.Cron,
-				Retry:    rec.Retry,
-			},
-			runAt: rec.RunAt,
-			seq:   rec.Seq,
-		}
-		if rec.Cron != "" {
-			if sched, err := ParseCron(rec.Cron); err == nil {
-				task.cron = sched
-			}
-		}
-
+		task := q.activateTask(rec)
 		q.inflight[task.ID] = task
 		q.wake()
 		return task, 0, nil
@@ -456,25 +416,7 @@ func (q *KVQueue) Nack(ctx context.Context, task *Task) error {
 
 	if task.Attempts >= policy.MaxAttempts {
 		_ = q.kv.Delete(ctx, "worker/tasks/"+string(task.ID))
-		jobType := "generic"
-		var payload []byte
-		if sj, ok := task.Job.(SerializableJob); ok {
-			jobType = sj.JobType()
-			payload, _ = sj.Encode()
-		}
-		errStr := ""
-		if task.LastErr != nil {
-			errStr = task.LastErr.Error()
-		}
-		dlqRec := deadLetterRecord{
-			ID:       task.ID,
-			Type:     jobType,
-			Payload:  payload,
-			Err:      errStr,
-			Attempts: task.Attempts,
-			At:       q.now(),
-		}
-		b, _ := json.Marshal(dlqRec)
+		b, _ := marshalDeadLetterRecord(task, q.now())
 		_ = q.kv.Put(ctx, "worker/dlq/"+string(task.ID), b)
 		_ = q.kv.Delete(ctx, "worker/leases/"+string(task.ID))
 		return nil
@@ -483,25 +425,7 @@ func (q *KVQueue) Nack(ctx context.Context, task *Task) error {
 	task.runAt = q.now().Add(policy.Backoff(task.Attempts))
 	task.LastErr = nil
 
-	jobType := "generic"
-	var payload []byte
-	if sj, ok := task.Job.(SerializableJob); ok {
-		jobType = sj.JobType()
-		payload, _ = sj.Encode()
-	}
-	rec := taskRecord{
-		ID:       task.ID,
-		Type:     jobType,
-		Payload:  payload,
-		Priority: task.Options.Priority,
-		Delay:    task.Options.Delay,
-		Cron:     task.Options.Cron,
-		Retry:    task.Options.Retry,
-		Attempts: task.Attempts,
-		RunAt:    task.runAt,
-		Seq:      task.seq,
-	}
-	b, _ := json.Marshal(rec)
+	b, _ := marshalTaskRecord(task)
 	_ = q.kv.Put(ctx, "worker/tasks/"+string(task.ID), b)
 	_ = q.kv.Delete(ctx, "worker/leases/"+string(task.ID))
 
@@ -569,25 +493,10 @@ func (q *KVQueue) rearm(ctx context.Context, task *Task) error {
 	occurrence.Attempts = 0
 	occurrence.LastErr = nil
 
-	jobType := "generic"
-	var payload []byte
-	if sj, ok := task.Job.(SerializableJob); ok {
-		jobType = sj.JobType()
-		payload, _ = sj.Encode()
+	b, err := marshalTaskRecord(&occurrence)
+	if err != nil {
+		return err
 	}
-	rec := taskRecord{
-		ID:       occurrence.ID,
-		Type:     jobType,
-		Payload:  payload,
-		Priority: occurrence.Options.Priority,
-		Delay:    occurrence.Options.Delay,
-		Cron:     occurrence.Options.Cron,
-		Retry:    occurrence.Options.Retry,
-		Attempts: occurrence.Attempts,
-		RunAt:    occurrence.runAt,
-		Seq:      occurrence.seq,
-	}
-	b, _ := json.Marshal(rec)
 	if err := q.kv.Put(ctx, "worker/tasks/"+string(occurrence.ID), b); err != nil {
 		return err
 	}
