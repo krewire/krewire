@@ -102,76 +102,7 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 		return errs.ExitCodeUsage
 	}
 
-	opts := scaffold.EquipOptions{
-		Dir:         dir,
-		Title:       flagValue(fs, "title"),
-		TemplateURL: templateURL,
-	}
-	switch {
-	case site:
-		opts.Variant = scaffold.VariantStatic
-		opts.Name = name
-		opts.Title = firstNonEmpty(opts.Title, name)
-	case book:
-		opts.Variant = scaffold.VariantBook
-		opts.Name = name
-		opts.Title = firstNonEmpty(opts.Title, name)
-	case cli:
-		opts.Variant = scaffold.VariantCLI
-		mod, _ := gomod.Find(dir)
-		if mod != nil {
-			opts.Module = mod.Path
-		} else {
-			opts.Module = name
-		}
-		opts.Name = name
-		opts.Version = resolveVersion()
-	case worker:
-		opts.Variant = scaffold.VariantWorker
-		mod, _ := gomod.Find(dir)
-		if mod != nil {
-			opts.Module = mod.Path
-		} else {
-			opts.Module = name
-		}
-		opts.Name = name
-		opts.Version = resolveVersion()
-	case service:
-		opts.Variant = scaffold.VariantService
-		mod, _ := gomod.Find(dir)
-		if mod != nil {
-			opts.Module = mod.Path
-		} else {
-			opts.Module = name
-		}
-		opts.Name = name
-		opts.Version = resolveVersion()
-	case gateway:
-		opts.Variant = scaffold.VariantGateway
-		mod, _ := gomod.Find(dir)
-		if mod != nil {
-			opts.Module = mod.Path
-		} else {
-			opts.Module = name
-		}
-		opts.Name = name
-		opts.Version = resolveVersion()
-	case infra:
-		opts.Variant = scaffold.VariantInfra
-		opts.Name = name
-	case templateURL != "":
-		opts.Variant = scaffold.VariantTemplate
-	default: // app
-		opts.Variant = scaffold.VariantApp
-		mod, _ := gomod.Find(dir)
-		if mod != nil {
-			opts.Module = mod.Path
-		} else {
-			opts.Module = name
-		}
-		opts.Name = name
-		opts.Version = resolveVersion()
-	}
+	opts := resolveEquipOptions(fs, dir, name)
 
 	created, err := scaffold.Equip(opts)
 	if err != nil {
@@ -185,6 +116,59 @@ func RunInit(fs *flag.FlagSet) errs.ExitCode {
 		fmt.Println("created " + path)
 	}
 	return errs.ExitCodeSuccess
+}
+
+func resolveModulePath(dir, name string) string {
+	if mod, _ := gomod.Find(dir); mod != nil {
+		return mod.Path
+	}
+	return name
+}
+
+func resolveEquipOptions(fs *flag.FlagSet, dir, name string) scaffold.EquipOptions {
+	templateURL := flagValue(fs, "template")
+	title := flagValue(fs, "title")
+
+	opts := scaffold.EquipOptions{
+		Dir:         dir,
+		Name:        name,
+		Title:       title,
+		TemplateURL: templateURL,
+	}
+
+	switch {
+	case flagBool(fs, "site"):
+		opts.Variant = scaffold.VariantStatic
+		opts.Title = firstNonEmpty(title, name)
+	case flagBool(fs, "book"):
+		opts.Variant = scaffold.VariantBook
+		opts.Title = firstNonEmpty(title, name)
+	case flagBool(fs, "cli"):
+		opts.Variant = scaffold.VariantCLI
+		opts.Module = resolveModulePath(dir, name)
+		opts.Version = resolveVersion()
+	case flagBool(fs, "worker"):
+		opts.Variant = scaffold.VariantWorker
+		opts.Module = resolveModulePath(dir, name)
+		opts.Version = resolveVersion()
+	case flagBool(fs, "service"):
+		opts.Variant = scaffold.VariantService
+		opts.Module = resolveModulePath(dir, name)
+		opts.Version = resolveVersion()
+	case flagBool(fs, "gateway"):
+		opts.Variant = scaffold.VariantGateway
+		opts.Module = resolveModulePath(dir, name)
+		opts.Version = resolveVersion()
+	case flagBool(fs, "infra"):
+		opts.Variant = scaffold.VariantInfra
+	case templateURL != "":
+		opts.Variant = scaffold.VariantTemplate
+	default: // app
+		opts.Variant = scaffold.VariantApp
+		opts.Module = resolveModulePath(dir, name)
+		opts.Version = resolveVersion()
+	}
+	return opts
 }
 
 // moduleBase returns the last path segment of a module path, used as the

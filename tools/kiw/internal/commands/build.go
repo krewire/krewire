@@ -94,60 +94,8 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 		target = strings.ToLower(strings.TrimSpace(flagValue(fs, "target")))
 	}
 
-	// Explicit target overrides
-	switch target {
-	case "wasm":
-		if code := buildWASM(root, cfg, fs); code != errs.ExitCodeSuccess {
-			return code
-		}
-		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
-		return errs.ExitCodeSuccess
-	case "infra":
-		if code := buildInfra(root, cfg, fs); code != errs.ExitCodeSuccess {
-			return code
-		}
-		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
-		return errs.ExitCodeSuccess
-	case "binary":
-		if code := buildAppBinary(root, cfg, fs, shape.KindApp); code != errs.ExitCodeSuccess {
-			return code
-		}
-		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
-		return errs.ExitCodeSuccess
-	case "ssg", "site":
-		hasPages := hasDir(root, "pages")
-		hasSSG := cfg.IsSSG()
-		if !hasPages && !hasSSG {
-			fmt.Fprintln(os.Stderr, "kiw build: no SSG pages or ssg: config found")
-			return errs.ExitCodeUsage
-		}
-		var code errs.ExitCode
-		if hasPages {
-			code, _, _ = buildSSGFromFile(root, cfg, fs)
-		} else {
-			code, _, _ = buildSSGFromConfig(root, cfg, fs)
-		}
-		if code != errs.ExitCodeSuccess {
-			return code
-		}
-		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
-		return errs.ExitCodeSuccess
-	case "book":
-		hasBook := hasDir(root, "content")
-		if !hasBook {
-			fmt.Fprintln(os.Stderr, "kiw build: no content/ directory found for book")
-			return errs.ExitCodeUsage
-		}
-		if code := buildManuscript(root, cfg, fs, false, nil, nil, ""); code != errs.ExitCodeSuccess {
-			return code
-		}
-		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
-		return errs.ExitCodeSuccess
-	case "":
-		// auto-detect below
-	default:
-		fmt.Fprintf(os.Stderr, "kiw build: unknown target %q — supported: site, book, binary, wasm, infra\n", target)
-		return errs.ExitCodeUsage
+	if handled, code := buildByTarget(root, cfg, fs, target, outDir); handled {
+		return code
 	}
 
 	// Auto-detect project shape
@@ -162,6 +110,76 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 		return errs.ExitCodeUsage
 	}
 
+	built, firstErr := buildByWorkloadKind(root, cfg, fs, res)
+	if !built {
+		if firstErr != errs.ExitCodeSuccess {
+			return firstErr
+		}
+		fmt.Fprintln(os.Stderr, "kiw: no buildable workload found — add main.go, pages/*.kiw, an `ssg:`/`infra:` key to krewire.yaml, or content/")
+		return errs.ExitCodeUsage
+	}
+
+	writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+	return errs.ExitCodeSuccess
+}
+
+func buildByTarget(root string, cfg *config.Config, fs *flag.FlagSet, target, outDir string) (bool, errs.ExitCode) {
+	switch target {
+	case "wasm":
+		if code := buildWASM(root, cfg, fs); code != errs.ExitCodeSuccess {
+			return true, code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return true, errs.ExitCodeSuccess
+	case "infra":
+		if code := buildInfra(root, cfg, fs); code != errs.ExitCodeSuccess {
+			return true, code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return true, errs.ExitCodeSuccess
+	case "binary":
+		if code := buildAppBinary(root, cfg, fs, shape.KindApp); code != errs.ExitCodeSuccess {
+			return true, code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return true, errs.ExitCodeSuccess
+	case "ssg", "site":
+		hasPages := hasDir(root, "pages")
+		hasSSG := cfg.IsSSG()
+		if !hasPages && !hasSSG {
+			fmt.Fprintln(os.Stderr, "kiw build: no SSG pages or ssg: config found")
+			return true, errs.ExitCodeUsage
+		}
+		var code errs.ExitCode
+		if hasPages {
+			code, _, _ = buildSSGFromFile(root, cfg, fs)
+		} else {
+			code, _, _ = buildSSGFromConfig(root, cfg, fs)
+		}
+		if code != errs.ExitCodeSuccess {
+			return true, code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return true, errs.ExitCodeSuccess
+	case "book":
+		if !hasDir(root, "content") {
+			fmt.Fprintln(os.Stderr, "kiw build: no content/ directory found for book")
+			return true, errs.ExitCodeUsage
+		}
+		if code := buildManuscript(root, cfg, fs, false, nil, nil, ""); code != errs.ExitCodeSuccess {
+			return true, code
+		}
+		writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
+		return true, errs.ExitCodeSuccess
+	case "":
+		return false, errs.ExitCodeSuccess
+	default:
+		fmt.Fprintf(os.Stderr, "kiw build: unknown target %q — supported: site, book, binary, wasm, infra\n", target)
+		return true, errs.ExitCodeUsage
+	}
+}
+
+func buildByWorkloadKind(root string, cfg *config.Config, fs *flag.FlagSet, res shape.Result) (bool, errs.ExitCode) {
 	hasPages := hasDir(root, "pages")
 	hasSSG := cfg.IsSSG()
 	hasBook := hasDir(root, "content")
@@ -172,7 +190,7 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 	// 1. Infra workload dispatch
 	if res.Capabilities.HasInfra || res.Kind == shape.KindInfra {
 		if code := buildInfra(root, cfg, fs); code != errs.ExitCodeSuccess {
-			return code
+			return false, code
 		}
 		built = true
 	}
@@ -184,7 +202,7 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 			targetKind = shape.KindApp
 		}
 		if code := buildAppBinary(root, cfg, fs, targetKind); code != errs.ExitCodeSuccess {
-			return code
+			return false, code
 		}
 		built = true
 	}
@@ -215,77 +233,75 @@ func RunBuild(fs *flag.FlagSet) errs.ExitCode {
 
 	if hasBook {
 		hybrid := hasPages || hasSSG
-
-		// I18n: build per-locale book output trees when i18n is configured.
-		// content/<locale>/docs/ (or legacy content/docs/<locale>/) → .krewire/build/<locale>/docs/
-		if cfg.I18n != nil && len(cfg.I18n.Locales) > 0 {
-			for _, locale := range cfg.I18n.Locales {
-				localeInput := filepath.Join("content", locale, "docs")
-				if !hasDir(root, localeInput) {
-					localeInput = filepath.Join("content", "docs", locale)
-				}
-				if !hasDir(root, localeInput) && cfg.Input != "" {
-					localeInput = filepath.Join(cfg.Input, locale)
-					if !hasDir(root, localeInput) {
-						localeInput = filepath.Join(cfg.Input, locale, "docs")
-					}
-				}
-				if !hasDir(root, localeInput) {
-					slog.Warn("i18n: skipping locale, input dir missing", "locale", locale, "input", localeInput)
-					continue
-				}
-				origInput := cfg.Input
-				origOutput := cfg.Output
-				origBase := cfg.Base
-				cfg.Input = localeInput
-				if locale == cfg.I18n.DefaultLocale {
-					cfg.Output = origOutput
-				} else {
-					cfg.Output = filepath.Join(origOutput, locale)
-					cfg.Base = localeBasePath(origBase, locale, cfg.Book.Mount)
-				}
-				slog.Info("i18n: building book for locale", "locale", locale, "input", cfg.Input, "output", cfg.Output, "base", cfg.Base)
-				if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS, locale); code != errs.ExitCodeSuccess {
-					if firstErr == errs.ExitCodeSuccess {
-						firstErr = code
-					}
-				} else {
-					built = true
-					if locale == cfg.I18n.DefaultLocale {
-						_ = copyDir(filepath.Join(root, origOutput, "docs"), filepath.Join(root, origOutput, locale, "docs"))
-					}
-				}
-				cfg.Input = origInput
-				cfg.Output = origOutput
-				cfg.Base = origBase
-			}
-		} else {
-			if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS, ""); code != errs.ExitCodeSuccess {
-				if firstErr == errs.ExitCodeSuccess {
-					firstErr = code
-				}
-			} else {
-				built = true
-			}
+		bookBuilt, code := buildBookWorkload(root, cfg, fs, hybrid, planCSS, planJS)
+		if bookBuilt {
+			built = true
+		} else if code != errs.ExitCodeSuccess && firstErr == errs.ExitCodeSuccess {
+			firstErr = code
 		}
 	}
 
 	// 4. WASM entry point if configured or wasm directory present
 	if cfg.Wasm.Entry != "" || hasDir(root, "wasm") {
 		if code := buildWASM(root, cfg, fs); code != errs.ExitCodeSuccess {
-			return code
+			return false, code
 		}
 		built = true
 	}
 
-	if !built {
-		if firstErr != errs.ExitCodeSuccess {
-			return firstErr
+	return built, firstErr
+}
+
+func buildBookWorkload(root string, cfg *config.Config, fs *flag.FlagSet, hybrid bool, planCSS, planJS []string) (bool, errs.ExitCode) {
+	if cfg.I18n == nil || len(cfg.I18n.Locales) == 0 {
+		if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS, ""); code != errs.ExitCodeSuccess {
+			return false, code
 		}
-		fmt.Fprintln(os.Stderr, "kiw: no buildable workload found — add main.go, pages/*.kiw, an `ssg:`/`infra:` key to krewire.yaml, or content/")
-		return errs.ExitCodeUsage
+		return true, errs.ExitCodeSuccess
 	}
 
-	writeManifest(outDir, collectCreated(outDir), cfg.Build.Outputs)
-	return errs.ExitCodeSuccess
+	built := false
+	var firstErr errs.ExitCode = errs.ExitCodeSuccess
+
+	for _, locale := range cfg.I18n.Locales {
+		localeInput := filepath.Join("content", locale, "docs")
+		if !hasDir(root, localeInput) {
+			localeInput = filepath.Join("content", "docs", locale)
+		}
+		if !hasDir(root, localeInput) && cfg.Input != "" {
+			localeInput = filepath.Join(cfg.Input, locale)
+			if !hasDir(root, localeInput) {
+				localeInput = filepath.Join(cfg.Input, locale, "docs")
+			}
+		}
+		if !hasDir(root, localeInput) {
+			slog.Warn("i18n: skipping locale, input dir missing", "locale", locale, "input", localeInput)
+			continue
+		}
+		origInput := cfg.Input
+		origOutput := cfg.Output
+		origBase := cfg.Base
+		cfg.Input = localeInput
+		if locale == cfg.I18n.DefaultLocale {
+			cfg.Output = origOutput
+		} else {
+			cfg.Output = filepath.Join(origOutput, locale)
+			cfg.Base = localeBasePath(origBase, locale, cfg.Book.Mount)
+		}
+		slog.Info("i18n: building book for locale", "locale", locale, "input", cfg.Input, "output", cfg.Output, "base", cfg.Base)
+		if code := buildManuscript(root, cfg, fs, hybrid, planCSS, planJS, locale); code != errs.ExitCodeSuccess {
+			if firstErr == errs.ExitCodeSuccess {
+				firstErr = code
+			}
+		} else {
+			built = true
+			if locale == cfg.I18n.DefaultLocale {
+				_ = copyDir(filepath.Join(root, origOutput, "docs"), filepath.Join(root, origOutput, locale, "docs"))
+			}
+		}
+		cfg.Input = origInput
+		cfg.Output = origOutput
+		cfg.Base = origBase
+	}
+	return built, firstErr
 }
