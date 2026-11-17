@@ -27,132 +27,167 @@ var (
 func DetectRuntimePorts(root string, cfg *Config) ([]DetectedPort, []string) {
 	var detected []DetectedPort
 
-	// 1. Krewire declared ports
-	if cfg != nil {
-		if cfg.Runtime.Port > 0 {
-			detected = append(detected, DetectedPort{
+	detected = append(detected, detectKrewirePorts(cfg)...)
+	detected = append(detected, detectNodePorts(root)...)
+	detected = append(detected, detectLaravelPorts(root)...)
+	detected = append(detected, detectDotenvPorts(root, detected)...)
+
+	warnings := detectPortConflicts(detected)
+	return detected, warnings
+}
+
+func detectKrewirePorts(cfg *Config) []DetectedPort {
+	if cfg == nil {
+		return nil
+	}
+	var ports []DetectedPort
+	if cfg.Runtime.Port > 0 {
+		ports = append(ports, DetectedPort{
+			Runtime: "krewire",
+			Source:  "krewire.yaml",
+			Port:    cfg.Runtime.Port,
+			Detail:  "runtime.port",
+		})
+	}
+	if cfg.Dev.Port > 0 && cfg.Dev.Port != cfg.Runtime.Port {
+		ports = append(ports, DetectedPort{
+			Runtime: "krewire",
+			Source:  "krewire.yaml",
+			Port:    cfg.Dev.Port,
+			Detail:  "dev.port",
+		})
+	}
+	if cfg.Server.Port > 0 && cfg.Server.Port != cfg.Runtime.Port && cfg.Server.Port != cfg.Dev.Port {
+		ports = append(ports, DetectedPort{
+			Runtime: "krewire",
+			Source:  "krewire.yaml",
+			Port:    cfg.Server.Port,
+			Detail:  "server.port",
+		})
+	}
+	for _, svc := range cfg.Services {
+		if svc.Port > 0 {
+			ports = append(ports, DetectedPort{
 				Runtime: "krewire",
 				Source:  "krewire.yaml",
-				Port:    cfg.Runtime.Port,
-				Detail:  "runtime.port",
+				Port:    svc.Port,
+				Detail:  "service: " + svc.Name,
 			})
 		}
-		if cfg.Dev.Port > 0 && cfg.Dev.Port != cfg.Runtime.Port {
-			detected = append(detected, DetectedPort{
-				Runtime: "krewire",
-				Source:  "krewire.yaml",
-				Port:    cfg.Dev.Port,
-				Detail:  "dev.port",
-			})
-		}
-		if cfg.Server.Port > 0 && cfg.Server.Port != cfg.Runtime.Port && cfg.Server.Port != cfg.Dev.Port {
-			detected = append(detected, DetectedPort{
-				Runtime: "krewire",
-				Source:  "krewire.yaml",
-				Port:    cfg.Server.Port,
-				Detail:  "server.port",
-			})
-		}
-		for _, svc := range cfg.Services {
-			if svc.Port > 0 {
-				detected = append(detected, DetectedPort{
-					Runtime: "krewire",
-					Source:  "krewire.yaml",
-					Port:    svc.Port,
-					Detail:  "service: " + svc.Name,
+	}
+	return ports
+}
+
+func detectNodePorts(root string) []DetectedPort {
+	pkgPath := filepath.Join(root, "package.json")
+	data, err := os.ReadFile(pkgPath)
+	if err != nil {
+		return nil
+	}
+	var pkg struct {
+		Port    any               `json:"port"`
+		Scripts map[string]string `json:"scripts"`
+	}
+	if json.Unmarshal(data, &pkg) != nil {
+		return nil
+	}
+	var ports []DetectedPort
+	if p, ok := pkg.Port.(float64); ok && p > 0 && p <= 65535 {
+		ports = append(ports, DetectedPort{
+			Runtime: "nodejs",
+			Source:  "package.json",
+			Port:    int(p),
+			Detail:  "port config",
+		})
+	}
+	for scriptName, cmd := range pkg.Scripts {
+		matches := portFlagRegex.FindStringSubmatch(cmd)
+		if len(matches) == 2 {
+			if portNum, err := strconv.Atoi(matches[1]); err == nil && portNum > 0 && portNum <= 65535 {
+				ports = append(ports, DetectedPort{
+					Runtime: "nodejs",
+					Source:  "package.json",
+					Port:    portNum,
+					Detail:  fmt.Sprintf("scripts.%s: %q", scriptName, cmd),
 				})
 			}
 		}
 	}
+	return ports
+}
 
-	// 2. Node.js (package.json)
-	pkgPath := filepath.Join(root, "package.json")
-	if data, err := os.ReadFile(pkgPath); err == nil {
-		var pkg struct {
-			Port    any               `json:"port"`
-			Scripts map[string]string `json:"scripts"`
-		}
-		if json.Unmarshal(data, &pkg) == nil {
-			if p, ok := pkg.Port.(float64); ok && p > 0 && p <= 65535 {
-				detected = append(detected, DetectedPort{
-					Runtime: "nodejs",
-					Source:  "package.json",
-					Port:    int(p),
-					Detail:  "port config",
-				})
+func detectLaravelPorts(root string) []DetectedPort {
+	composerPath := filepath.Join(root, "composer.json")
+	data, err := os.ReadFile(composerPath)
+	if err != nil {
+		return nil
+	}
+	var comp struct {
+		Scripts map[string]any `json:"scripts"`
+	}
+	if json.Unmarshal(data, &comp) != nil {
+		return nil
+	}
+	var ports []DetectedPort
+	for scriptName, val := range comp.Scripts {
+		if cmd, ok := val.(string); ok {
+			matches := portFlagRegex.FindStringSubmatch(cmd)
+			if len(matches) == 2 {
+				if portNum, err := strconv.Atoi(matches[1]); err == nil && portNum > 0 && portNum <= 65535 {
+					ports = append(ports, DetectedPort{
+						Runtime: "laravel",
+						Source:  "composer.json",
+						Port:    portNum,
+						Detail:  fmt.Sprintf("scripts.%s", scriptName),
+					})
+				}
 			}
-			for scriptName, cmd := range pkg.Scripts {
-				matches := portFlagRegex.FindStringSubmatch(cmd)
-				if len(matches) == 2 {
-					if portNum, err := strconv.Atoi(matches[1]); err == nil && portNum > 0 && portNum <= 65535 {
-						detected = append(detected, DetectedPort{
-							Runtime: "nodejs",
-							Source:  "package.json",
+		}
+	}
+	return ports
+}
+
+func detectDotenvPorts(root string, existing []DetectedPort) []DetectedPort {
+	var ports []DetectedPort
+	for _, envFileName := range []string{".env", ".env.example"} {
+		envPath := filepath.Join(root, envFileName)
+		data, err := os.ReadFile(envPath)
+		if err != nil {
+			continue
+		}
+		matches := envPortRegex.FindAllStringSubmatch(string(data), -1)
+		for _, m := range matches {
+			if len(m) == 2 {
+				if portNum, err := strconv.Atoi(m[1]); err == nil && portNum > 0 && portNum <= 65535 {
+					exists := false
+					for _, d := range existing {
+						if d.Port == portNum && d.Source == envFileName {
+							exists = true
+							break
+						}
+					}
+					for _, d := range ports {
+						if d.Port == portNum && d.Source == envFileName {
+							exists = true
+							break
+						}
+					}
+					if !exists {
+						ports = append(ports, DetectedPort{
+							Runtime: "dotenv",
+							Source:  envFileName,
 							Port:    portNum,
-							Detail:  fmt.Sprintf("scripts.%s: %q", scriptName, cmd),
+							Detail:  m[0],
 						})
 					}
 				}
 			}
 		}
 	}
+	return ports
+}
 
-	// 3. PHP / Laravel (composer.json)
-	composerPath := filepath.Join(root, "composer.json")
-	if data, err := os.ReadFile(composerPath); err == nil {
-		var comp struct {
-			Scripts map[string]any `json:"scripts"`
-		}
-		if json.Unmarshal(data, &comp) == nil {
-			for scriptName, val := range comp.Scripts {
-				if cmd, ok := val.(string); ok {
-					matches := portFlagRegex.FindStringSubmatch(cmd)
-					if len(matches) == 2 {
-						if portNum, err := strconv.Atoi(matches[1]); err == nil && portNum > 0 && portNum <= 65535 {
-							detected = append(detected, DetectedPort{
-								Runtime: "laravel",
-								Source:  "composer.json",
-								Port:    portNum,
-								Detail:  fmt.Sprintf("scripts.%s", scriptName),
-							})
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// 4. Dotenv (.env and .env.example)
-	for _, envFileName := range []string{".env", ".env.example"} {
-		envPath := filepath.Join(root, envFileName)
-		if data, err := os.ReadFile(envPath); err == nil {
-			matches := envPortRegex.FindAllStringSubmatch(string(data), -1)
-			for _, m := range matches {
-				if len(m) == 2 {
-					if portNum, err := strconv.Atoi(m[1]); err == nil && portNum > 0 && portNum <= 65535 {
-						// Don't duplicate if already detected from another file
-						exists := false
-						for _, d := range detected {
-							if d.Port == portNum && d.Source == envFileName {
-								exists = true
-								break
-							}
-						}
-						if !exists {
-							detected = append(detected, DetectedPort{
-								Runtime: "dotenv",
-								Source:  envFileName,
-								Port:    portNum,
-								Detail:  m[0],
-							})
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// 5. Check for conflicts between Krewire and other runtimes (FRK-CONF-003)
+func detectPortConflicts(detected []DetectedPort) []string {
 	var warnings []string
 	krewirePorts := make(map[int]DetectedPort)
 	for _, d := range detected {
@@ -171,6 +206,5 @@ func DetectRuntimePorts(root string, cfg *Config) ([]DetectedPort, []string) {
 			}
 		}
 	}
-
-	return detected, warnings
+	return warnings
 }
