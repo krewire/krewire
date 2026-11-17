@@ -36,76 +36,32 @@ func parseAndRenderBlocks(src []byte) string {
 
 	for i < n {
 		line := lines[i]
-
-		// Blank line
-		if strings.TrimSpace(line) == "" {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
 			i++
 			continue
 		}
 
 		// 1. Fenced Code Block: ``` or ~~~
-		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
-			fence := trimmed[:3]
-			lang := strings.TrimSpace(trimmed[3:])
-			// Extract language token (first word)
-			if idx := strings.IndexAny(lang, " \t"); idx != -1 {
-				lang = lang[:idx]
-			}
-			i++
-			var codeLines []string
-			for i < n {
-				if strings.HasPrefix(strings.TrimSpace(lines[i]), fence) {
-					i++
-					break
-				}
-				codeLines = append(codeLines, lines[i])
-				i++
-			}
-			codeContent := strings.Join(codeLines, "\n")
-			if len(codeLines) > 0 {
-				codeContent += "\n"
-			}
-			sb.WriteString("<pre><code")
-			if lang != "" {
-				sb.WriteString(` class="language-`)
-				sb.WriteString(html.EscapeString(lang))
-				sb.WriteString(`"`)
-			}
-			sb.WriteString(">")
-			sb.WriteString(html.EscapeString(codeContent))
-			sb.WriteString("</code></pre>\n")
+			codeHTML, consumed := parseFencedCode(lines, i)
+			sb.WriteString(codeHTML)
+			i += consumed
 			continue
 		}
 
 		// 2. ATX Heading: # Title
-		if m := atxHeadingRe.FindStringSubmatch(trimmed); m != nil {
-			level := len(m[1])
-			title := m[2]
-			slug := ctx.slugs.Slug(title)
-			fmt.Fprintf(sb, `<h%d id="%s">`, level, html.EscapeString(slug))
-			renderInlines(title, sb)
-			fmt.Fprintf(sb, "</h%d>\n", level)
+		if headingHTML, ok := parseATXHeading(trimmed, ctx); ok {
+			sb.WriteString(headingHTML)
 			i++
 			continue
 		}
 
 		// 3. Setext Heading: line followed by === or ---
-		if i+1 < n && strings.TrimSpace(lines[i+1]) != "" {
-			nextTrimmed := strings.TrimSpace(lines[i+1])
-			if isSetextUnderline(nextTrimmed) && !strings.HasPrefix(trimmed, ">") && !strings.HasPrefix(trimmed, "-") {
-				level := 1
-				if nextTrimmed[0] == '-' {
-					level = 2
-				}
-				title := trimmed
-				slug := ctx.slugs.Slug(title)
-				fmt.Fprintf(sb, `<h%d id="%s">`, level, html.EscapeString(slug))
-				renderInlines(title, sb)
-				fmt.Fprintf(sb, "</h%d>\n", level)
-				i += 2
-				continue
-			}
+		if headingHTML, consumed, ok := parseSetextHeading(lines, i, ctx); ok {
+			sb.WriteString(headingHTML)
+			i += consumed
+			continue
 		}
 
 		// 4. Horizontal Rule: ---, ***, ___
@@ -117,22 +73,9 @@ func parseAndRenderBlocks(src []byte) string {
 
 		// 5. Blockquote: > text
 		if strings.HasPrefix(trimmed, ">") {
-			var bqLines []string
-			for i < n {
-				cur := strings.TrimSpace(lines[i])
-				if !strings.HasPrefix(cur, ">") {
-					break
-				}
-				// Strip leading '>' and optional space
-				rest := strings.TrimPrefix(cur, ">")
-				rest = strings.TrimPrefix(rest, " ")
-				bqLines = append(bqLines, rest)
-				i++
-			}
-			sb.WriteString("<blockquote>\n")
-			inner := parseAndRenderBlocks([]byte(strings.Join(bqLines, "\n")))
-			sb.WriteString(inner)
-			sb.WriteString("</blockquote>\n")
+			bqHTML, consumed := parseBlockquote(lines, i)
+			sb.WriteString(bqHTML)
+			i += consumed
 			continue
 		}
 
@@ -168,51 +111,161 @@ func parseAndRenderBlocks(src []byte) string {
 
 		// 9. Raw HTML Block: starts with <tag or </tag
 		if isHTMLBlockStart(trimmed) {
-			var htmlLines []string
-			for i < n {
-				cur := lines[i]
-				if strings.TrimSpace(cur) == "" {
-					break
-				}
-				htmlLines = append(htmlLines, cur)
-				i++
-			}
-			sb.WriteString(strings.Join(htmlLines, "\n"))
-			sb.WriteString("\n")
+			htmlBlock, consumed := parseHTMLBlock(lines, i)
+			sb.WriteString(htmlBlock)
+			i += consumed
 			continue
 		}
 
-		// 10. Paragraph (collect lines until blank line or next block)
-		var pLines []string
-		for i < n {
-			cur := lines[i]
-			curTrim := strings.TrimSpace(cur)
-			if curTrim == "" {
-				break
-			}
-			// Stop if next line is a distinct block
-			if len(pLines) > 0 {
-				if atxHeadingRe.MatchString(curTrim) ||
-					strings.HasPrefix(curTrim, "```") ||
-					strings.HasPrefix(curTrim, "~~~") ||
-					strings.HasPrefix(curTrim, ">") ||
-					hrRe.MatchString(curTrim) ||
-					isSetextUnderline(curTrim) {
-					break
-				}
-			}
-			pLines = append(pLines, cur)
-			i++
-		}
-		if len(pLines) > 0 {
-			pText := strings.Join(pLines, "\n")
-			sb.WriteString("<p>")
-			renderInlines(pText, sb)
-			sb.WriteString("</p>\n")
-		}
+		// 10. Paragraph
+		pHTML, consumed := parseParagraph(lines, i)
+		sb.WriteString(pHTML)
+		i += consumed
 	}
 
 	return sb.String()
+}
+
+func parseFencedCode(lines []string, i int) (string, int) {
+	n := len(lines)
+	trimmed := strings.TrimSpace(lines[i])
+	fence := trimmed[:3]
+	lang := strings.TrimSpace(trimmed[3:])
+	if idx := strings.IndexAny(lang, " \t"); idx != -1 {
+		lang = lang[:idx]
+	}
+	start := i + 1
+	var codeLines []string
+	curr := start
+	for curr < n {
+		if strings.HasPrefix(strings.TrimSpace(lines[curr]), fence) {
+			curr++
+			break
+		}
+		codeLines = append(codeLines, lines[curr])
+		curr++
+	}
+	codeContent := strings.Join(codeLines, "\n")
+	if len(codeLines) > 0 {
+		codeContent += "\n"
+	}
+	sb := GetBuffer()
+	defer PutBuffer(sb)
+	sb.WriteString("<pre><code")
+	if lang != "" {
+		sb.WriteString(` class="language-`)
+		sb.WriteString(html.EscapeString(lang))
+		sb.WriteString(`"`)
+	}
+	sb.WriteString(">")
+	sb.WriteString(html.EscapeString(codeContent))
+	sb.WriteString("</code></pre>\n")
+	return sb.String(), curr - i
+}
+
+func parseATXHeading(trimmed string, ctx *parseContext) (string, bool) {
+	m := atxHeadingRe.FindStringSubmatch(trimmed)
+	if m == nil {
+		return "", false
+	}
+	level := len(m[1])
+	title := m[2]
+	slug := ctx.slugs.Slug(title)
+	sb := GetBuffer()
+	defer PutBuffer(sb)
+	fmt.Fprintf(sb, `<h%d id="%s">`, level, html.EscapeString(slug))
+	renderInlines(title, sb)
+	fmt.Fprintf(sb, "</h%d>\n", level)
+	return sb.String(), true
+}
+
+func parseSetextHeading(lines []string, i int, ctx *parseContext) (string, int, bool) {
+	n := len(lines)
+	if i+1 >= n || strings.TrimSpace(lines[i+1]) == "" {
+		return "", 0, false
+	}
+	trimmed := strings.TrimSpace(lines[i])
+	nextTrimmed := strings.TrimSpace(lines[i+1])
+	if !isSetextUnderline(nextTrimmed) || strings.HasPrefix(trimmed, ">") || strings.HasPrefix(trimmed, "-") {
+		return "", 0, false
+	}
+	level := 1
+	if nextTrimmed[0] == '-' {
+		level = 2
+	}
+	title := trimmed
+	slug := ctx.slugs.Slug(title)
+	sb := GetBuffer()
+	defer PutBuffer(sb)
+	fmt.Fprintf(sb, `<h%d id="%s">`, level, html.EscapeString(slug))
+	renderInlines(title, sb)
+	fmt.Fprintf(sb, "</h%d>\n", level)
+	return sb.String(), 2, true
+}
+
+func parseBlockquote(lines []string, i int) (string, int) {
+	n := len(lines)
+	var bqLines []string
+	curr := i
+	for curr < n {
+		cur := strings.TrimSpace(lines[curr])
+		if !strings.HasPrefix(cur, ">") {
+			break
+		}
+		rest := strings.TrimPrefix(cur, ">")
+		rest = strings.TrimPrefix(rest, " ")
+		bqLines = append(bqLines, rest)
+		curr++
+	}
+	inner := parseAndRenderBlocks([]byte(strings.Join(bqLines, "\n")))
+	return "<blockquote>\n" + inner + "</blockquote>\n", curr - i
+}
+
+func parseHTMLBlock(lines []string, i int) (string, int) {
+	n := len(lines)
+	var htmlLines []string
+	curr := i
+	for curr < n {
+		cur := lines[curr]
+		if strings.TrimSpace(cur) == "" {
+			break
+		}
+		htmlLines = append(htmlLines, cur)
+		curr++
+	}
+	return strings.Join(htmlLines, "\n") + "\n", curr - i
+}
+
+func parseParagraph(lines []string, i int) (string, int) {
+	n := len(lines)
+	var pLines []string
+	curr := i
+	for curr < n {
+		cur := lines[curr]
+		curTrim := strings.TrimSpace(cur)
+		if curTrim == "" {
+			break
+		}
+		if len(pLines) > 0 {
+			if atxHeadingRe.MatchString(curTrim) ||
+				strings.HasPrefix(curTrim, "```") ||
+				strings.HasPrefix(curTrim, "~~~") ||
+				strings.HasPrefix(curTrim, ">") ||
+				hrRe.MatchString(curTrim) ||
+				isSetextUnderline(curTrim) {
+				break
+			}
+		}
+		pLines = append(pLines, cur)
+		curr++
+	}
+	sb := GetBuffer()
+	defer PutBuffer(sb)
+	pText := strings.Join(pLines, "\n")
+	sb.WriteString("<p>")
+	renderInlines(pText, sb)
+	sb.WriteString("</p>\n")
+	return sb.String(), curr - i
 }
 
 func isSetextUnderline(s string) bool {
