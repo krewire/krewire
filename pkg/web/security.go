@@ -6,15 +6,12 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 	"net/http"
-	"regexp"
 
 	"github.com/krewire/krewire/pkg/sec"
 )
 
 // SecurityOptions tunes the security-headers middleware.
 type SecurityOptions = sec.SecurityOptions
-
-var tagStripper = regexp.MustCompile(`<[^>]*>`)
 
 // StripTags removes HTML tags from s — delegates to sec as heart of defense.
 func StripTags(s string) string {
@@ -25,12 +22,6 @@ func StripTags(s string) string {
 // Delegates to sec as heart of defense; web re-exports for backward compat.
 func SecurityHeaders(opts ...func(*SecurityOptions)) Middleware {
 	return Middleware(sec.SecurityHeaders(opts...))
-}
-
-func setOnce(h http.Header, key, val string) {
-	if h.Get(key) == "" {
-		h.Set(key, val)
-	}
 }
 
 // CSRFOptions tunes CSRF protection.
@@ -61,13 +52,13 @@ func CSRF(opts ...func(*CSRFOptions)) Middleware {
 		f(o)
 	}
 	if o.CookieName == "" {
-		o.CookieName = "XSRF-TOKEN"
+		o.CookieName = sec.DefaultCSRFCookieName
 	}
 	if o.HeaderName == "" {
-		o.HeaderName = "X-CSRF-Token"
+		o.HeaderName = sec.DefaultCSRFHeaderName
 	}
 	if o.FieldName == "" {
-		o.FieldName = "csrf_token"
+		o.FieldName = sec.DefaultCSRFFieldName
 	}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

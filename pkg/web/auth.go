@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"net/http"
 	"strings"
 
 	"github.com/krewire/krewire/pkg/auth"
@@ -34,8 +33,3 @@ func authParam(h string) (scheme, param string, ok bool) {
 	}
 	return parts[0], parts[1], true
 }
-
-// Ensure auth helpers are available for web's policy
-var _ = auth.IdentityFrom
-var _ = http.StatusUnauthorized
-var _ = strings.SplitN
