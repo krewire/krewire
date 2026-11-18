@@ -250,14 +250,17 @@ func hasYamlKey(dir, key string) bool {
 	return false
 }
 
-// hasFile reports whether file exists as a regular file under dir.
-func hasFile(dir, name string) bool {
+// HasFile reports whether file exists as a regular file under dir (SSOT).
+func HasFile(dir, name string) bool {
 	info, err := os.Stat(filepath.Join(dir, name))
 	return err == nil && !info.IsDir()
 }
 
-// isDir reports whether sub is a directory under dir.
-func isDir(dir, sub string) bool {
+// HasDir reports whether sub is a directory under dir (SSOT).
+func HasDir(dir, sub string) bool {
 	info, err := os.Stat(filepath.Join(dir, sub))
 	return err == nil && info.IsDir()
 }
+
+func hasFile(dir, name string) bool { return HasFile(dir, name) }
+func isDir(dir, sub string) bool   { return HasDir(dir, sub) }

@@ -90,7 +90,8 @@ func syncNamespaceEnv(ns string) {
 	}
 }
 
-func firstNonEmpty(vals ...string) string {
+// FirstNonEmpty returns the first non-empty string among the arguments (SSOT).
+func FirstNonEmpty(vals ...string) string {
 	for _, v := range vals {
 		if v != "" {
 			return v
@@ -98,6 +99,8 @@ func firstNonEmpty(vals ...string) string {
 	}
 	return ""
 }
+
+func firstNonEmpty(vals ...string) string { return FirstNonEmpty(vals...) }
 
 func isTruthy(s string) bool {
 	switch strings.ToLower(strings.TrimSpace(s)) {

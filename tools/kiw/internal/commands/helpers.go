@@ -14,6 +14,7 @@ import (
 	"github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
+	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
 
 func flagValue(fs *flag.FlagSet, name string) string {
@@ -130,14 +131,9 @@ func childEnviron(base []string, addr string, env env.Env, debug bool) []string 
 	return append(e, "KIW_ENV="+env.String(), "KIW_DEBUG="+truthStr(debug))
 }
 
-// firstNonEmpty returns the first non-empty string among the arguments.
+// firstNonEmpty returns the first non-empty string among the arguments (SSOT delegation).
 func firstNonEmpty(vals ...string) string {
-	for _, v := range vals {
-		if v != "" {
-			return v
-		}
-	}
-	return ""
+	return config.FirstNonEmpty(vals...)
 }
 
 // findRoot locates the project root walking up from the working directory.
@@ -186,16 +182,14 @@ func joinRoot(root, value, def string) string {
 	return filepath.Join(root, value)
 }
 
-// hasDir reports whether path exists inside root as a directory.
+// hasDir reports whether path exists inside root as a directory (delegates to shape.HasDir).
 func hasDir(root, path string) bool {
-	info, err := os.Stat(filepath.Join(root, path))
-	return err == nil && info.IsDir()
+	return shape.HasDir(root, path)
 }
 
-// hasFile reports whether path exists inside root as a regular file.
+// hasFile reports whether path exists inside root as a regular file (delegates to shape.HasFile).
 func hasFile(root, path string) bool {
-	info, err := os.Stat(filepath.Join(root, path))
-	return err == nil && !info.IsDir()
+	return shape.HasFile(root, path)
 }
 
 // resolveEntry finds the main entry point package for go build / go run.
