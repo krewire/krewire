@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	kiwdsl "github.com/krewire/krewire/pkg/kiw"
+	"github.com/krewire/krewire/pkg/model"
 	"github.com/krewire/krewire/pkg/ui"
 	"gopkg.in/yaml.v3"
 )
@@ -45,7 +46,7 @@ func LoadFromDir(root string) (*Site, error) {
 
 func loadMeta(root string) *meta {
 	m := &meta{Data: map[string]any{}}
-	for _, name := range []string{"krewire.yaml", "krewire.yml"} {
+	for _, name := range []string{model.ConfigFileName, "krewire.yml"} {
 		b, err := os.ReadFile(filepath.Join(root, name))
 		if err != nil {
 			continue

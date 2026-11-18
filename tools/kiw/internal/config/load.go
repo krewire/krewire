@@ -12,7 +12,7 @@ import (
 // Load reads krewire.yaml from dir. A missing file yields a zero Config without
 // an error.
 func Load(dir string) (*Config, error) {
-	path := filepath.Join(dir, "krewire.yaml")
+	path := filepath.Join(dir, ConfigFileName)
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

@@ -12,6 +12,14 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/tools/kiw/internal/gomod"
+)
+
+// File and entry point constants for project shape detection (SSOT).
+const (
+	ConfigFileName = model.ConfigFileName
+	GoModFileName  = gomod.GoModFileName
+	EntryMainGo    = "main.go"
 )
 
 // Kind identifies a Krewire project kind. Re-exported from model for SSOT.
@@ -129,7 +137,7 @@ func Detect(dir, explicitKind string) (Result, error) {
 	if hasYamlKey(dir, "ssg") || isDir(dir, "pages") {
 		marker := "pages/"
 		if hasYamlKey(dir, "ssg") {
-			marker = "krewire.yaml#ssg"
+			marker = ConfigFileName + "#ssg"
 		}
 		return Result{Kind: KindSite, Marker: marker, Capabilities: caps}, nil
 	}
@@ -144,10 +152,10 @@ func Detect(dir, explicitKind string) (Result, error) {
 
 // isPreInit reports whether dir is a fresh, pre-scaffold bootstrap project.
 func isPreInit(dir string) bool {
-	if !hasFile(dir, "main.go") || !hasFile(dir, "krewire.yaml") || !hasFile(dir, "go.mod") {
+	if !hasFile(dir, EntryMainGo) || !hasFile(dir, ConfigFileName) || !hasFile(dir, GoModFileName) {
 		return false
 	}
-	data, err := os.ReadFile(filepath.Join(dir, "main.go"))
+	data, err := os.ReadFile(filepath.Join(dir, EntryMainGo))
 	if err != nil {
 		return false
 	}

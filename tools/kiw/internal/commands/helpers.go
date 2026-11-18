@@ -154,10 +154,10 @@ func findRoot() (string, error) {
 		return "", err
 	}
 	for {
-		if info, err := os.Stat(filepath.Join(cur, "go.mod")); err == nil && !info.IsDir() {
+		if info, err := os.Stat(filepath.Join(cur, gomod.GoModFileName)); err == nil && !info.IsDir() {
 			return cur, nil
 		}
-		if info, err := os.Stat(filepath.Join(cur, "krewire.yaml")); err == nil && !info.IsDir() {
+		if info, err := os.Stat(filepath.Join(cur, config.ConfigFileName)); err == nil && !info.IsDir() {
 			return cur, nil
 		}
 		if info, err := os.Stat(filepath.Join(cur, "pages")); err == nil && info.IsDir() {

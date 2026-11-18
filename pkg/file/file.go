@@ -19,9 +19,9 @@ import (
 // would let another account list the names of the files inside it.
 const (
 	// defaultFileMode is applied when the caller passes a zero perm.
-	defaultFileMode os.FileMode = 0o600
+	defaultFileMode = os.FileMode(fs.ModeFilePrivate)
 	// parentDirMode is the mode for directories Write and WriteAtomic create.
-	parentDirMode os.FileMode = 0o700
+	parentDirMode = os.FileMode(fs.ModeDirPrivate)
 	// tempSuffixEntropyBytes is the length of the random suffix tempName
 	// appends. 16 bytes makes the temporary name unguessable, so another
 	// process cannot pre-create it (CWE-377).

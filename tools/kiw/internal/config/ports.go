@@ -44,7 +44,7 @@ func detectKrewirePorts(config *Config) []DetectedPort {
 	if config.Runtime.Port > 0 {
 		ports = append(ports, DetectedPort{
 			Runtime: "krewire",
-			Source:  "krewire.yaml",
+			Source:  ConfigFileName,
 			Port:    config.Runtime.Port,
 			Detail:  "runtime.port",
 		})
@@ -52,7 +52,7 @@ func detectKrewirePorts(config *Config) []DetectedPort {
 	if config.Dev.Port > 0 && config.Dev.Port != config.Runtime.Port {
 		ports = append(ports, DetectedPort{
 			Runtime: "krewire",
-			Source:  "krewire.yaml",
+			Source:  ConfigFileName,
 			Port:    config.Dev.Port,
 			Detail:  "dev.port",
 		})
@@ -60,7 +60,7 @@ func detectKrewirePorts(config *Config) []DetectedPort {
 	if config.Server.Port > 0 && config.Server.Port != config.Runtime.Port && config.Server.Port != config.Dev.Port {
 		ports = append(ports, DetectedPort{
 			Runtime: "krewire",
-			Source:  "krewire.yaml",
+			Source:  ConfigFileName,
 			Port:    config.Server.Port,
 			Detail:  "server.port",
 		})
@@ -69,7 +69,7 @@ func detectKrewirePorts(config *Config) []DetectedPort {
 		if svc.Port > 0 {
 			ports = append(ports, DetectedPort{
 				Runtime: "krewire",
-				Source:  "krewire.yaml",
+				Source:  ConfigFileName,
 				Port:    svc.Port,
 				Detail:  "service: " + svc.Name,
 			})

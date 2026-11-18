@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	pkgconfig "github.com/krewire/krewire/pkg/config"
+	"github.com/krewire/krewire/pkg/model"
 )
 
 // BookConfigFile represents the configuration file schema for standalone books
@@ -67,7 +68,7 @@ func FindConfigFile(dir string) string {
 	candidates := []string{
 		"book.yaml",
 		"book.yml",
-		"krewire.yaml",
+		model.ConfigFileName,
 	}
 	for _, c := range candidates {
 		p := filepath.Join(dir, c)

@@ -301,7 +301,7 @@ func Equip(opts EquipOptions) ([]string, error) {
 
 const (
 	goModFile     = "go.mod"
-	krewireYaml   = "krewire.yaml"
+	krewireYaml   = config.ConfigFileName
 	gitignoreFile = ".gitignore"
 	mainGo        = "main.go"
 )

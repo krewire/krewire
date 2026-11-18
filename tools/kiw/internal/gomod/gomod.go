@@ -10,6 +10,9 @@ import (
 	"strings"
 )
 
+// GoModFileName is the canonical file name for Go module declarations (SSOT).
+const GoModFileName = "go.mod"
+
 // Module describes the module path of a go.mod file, required Go version, and its direct requires.
 type Module struct {
 	// Path is the module path declared in the go.mod file.
@@ -67,13 +70,13 @@ func Find(dir string) (*Module, error) {
 		return nil, err
 	}
 	for {
-		p := filepath.Join(cur, "go.mod")
+		p := filepath.Join(cur, GoModFileName)
 		if info, err := os.Stat(p); err == nil && !info.IsDir() {
 			return Read(p)
 		}
 		parent := filepath.Dir(cur)
 		if parent == cur {
-			return nil, fmt.Errorf("go.mod not found (from %s)", dir)
+			return nil, fmt.Errorf("%s not found (from %s)", GoModFileName, dir)
 		}
 		cur = parent
 	}

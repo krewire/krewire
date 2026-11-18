@@ -10,6 +10,17 @@ import (
 	"path/filepath"
 )
 
+const (
+	// ModeDirDefault is the standard directory permission (rwxr-xr-x).
+	ModeDirDefault fs.FileMode = 0o755
+	// ModeFileDefault is the standard readable file permission (rw-r--r--).
+	ModeFileDefault fs.FileMode = 0o644
+	// ModeFilePrivate is the restricted owner-only file permission (rw-------).
+	ModeFilePrivate fs.FileMode = 0o600
+	// ModeDirPrivate is the restricted owner-only directory permission (rwx------).
+	ModeDirPrivate fs.FileMode = 0o700
+)
+
 // FileSystem is the filesystem contract used by file and storage packages.
 type FileSystem interface {
 	Open(name string) (io.ReadCloser, error)

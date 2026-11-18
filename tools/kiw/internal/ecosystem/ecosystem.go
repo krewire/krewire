@@ -239,8 +239,8 @@ func FindColocated(dir string) []ColocatedProject {
 		}
 
 		subDir := filepath.Join(dir, name)
-		hasMod := fileExists(filepath.Join(subDir, "go.mod"))
-		hasYaml := fileExists(filepath.Join(subDir, "krewire.yaml"))
+		hasMod := fileExists(filepath.Join(subDir, gomod.GoModFileName))
+		hasYaml := fileExists(filepath.Join(subDir, kiwconfig.ConfigFileName))
 
 		if !hasMod && !hasYaml {
 			continue

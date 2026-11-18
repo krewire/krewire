@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+// ConfigFileName is the canonical Single Source of Truth for the configuration file name (SSOT).
+const ConfigFileName = "krewire.yaml"
+
 // Project describes a Krewire project for validation.
 type Project struct {
 	Name       string `json:"name"`
@@ -57,8 +60,8 @@ func ValidateKrewireYamlPath(path string) error {
 	// take the final element: krewire.yaml, ./krewire.yaml and /abs/krewire.yaml
 	// are all accepted.
 	base := filepath.Base(strings.ReplaceAll(path, "\\", "/"))
-	if base != "krewire.yaml" {
-		return errs.UsageError(fmt.Sprintf("invalid config path %q: must be krewire.yaml (no ssg.yaml)", path))
+	if base != ConfigFileName {
+		return errs.UsageError(fmt.Sprintf("invalid config path %q: must be %s (no ssg.yaml)", path, ConfigFileName))
 	}
 	return nil
 }

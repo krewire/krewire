@@ -9,8 +9,12 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/pkg/cloud/infra/provider"
+	"github.com/krewire/krewire/pkg/model"
 	"github.com/krewire/krewire/pkg/web/ssg"
 )
+
+// ConfigFileName is the canonical file name for project configuration (SSOT).
+const ConfigFileName = model.ConfigFileName
 
 const DefaultOutput = ".krewire/build"
 
