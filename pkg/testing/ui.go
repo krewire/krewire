@@ -130,7 +130,8 @@ func normalizeHTML(s string) string {
 	return strings.Join(out, "\n")
 }
 
-func findAll(root *html.Node, selector string) []*html.Node {
+// FindAll returns all HTML element nodes matching selector under root.
+func FindAll(root *html.Node, selector string) []*html.Node {
 	// Support descendant selector like "nav a" by splitting on space
 	if strings.Contains(selector, " ") {
 		parts := strings.Fields(selector)
@@ -163,6 +164,8 @@ func findAll(root *html.Node, selector string) []*html.Node {
 	walk(root)
 	return res
 }
+
+func findAll(root *html.Node, selector string) []*html.Node { return FindAll(root, selector) }
 
 func hasAncestor(n *html.Node, selector string) bool {
 	for p := n.Parent; p != nil; p = p.Parent {
@@ -221,7 +224,8 @@ func matches(n *html.Node, selector string) bool {
 	return true
 }
 
-func textContent(n *html.Node) string {
+// TextContent extracts the aggregated plain text inside an HTML node.
+func TextContent(n *html.Node) string {
 	var b strings.Builder
 	var walk func(*html.Node)
 	walk = func(node *html.Node) {
@@ -235,3 +239,5 @@ func textContent(n *html.Node) string {
 	walk(n)
 	return strings.TrimSpace(b.String())
 }
+
+func textContent(n *html.Node) string { return TextContent(n) }

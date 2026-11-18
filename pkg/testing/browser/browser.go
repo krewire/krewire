@@ -133,7 +133,7 @@ func (b *Browser) findHref(selector string) string {
 	if err != nil {
 		return ""
 	}
-	nodes := findAll(doc, selector)
+	nodes := ftest.FindAll(doc, selector)
 	for _, n := range nodes {
 		for _, a := range n.Attr {
 			if a.Key == "href" {
@@ -162,114 +162,12 @@ func (b *Browser) Text(selector string) string {
 		b.t.Errorf("Text %q: parse failed %v", selector, err)
 		return ""
 	}
-	nodes := findAll(doc, selector)
+	nodes := ftest.FindAll(doc, selector)
 	if len(nodes) == 0 {
 		b.t.Errorf("Text %q: not found", selector)
 		return ""
 	}
-	return textContent(nodes[0])
-}
-
-func findAll(root *html.Node, selector string) []*html.Node {
-	if strings.Contains(selector, " ") {
-		parts := strings.Fields(selector)
-		if len(parts) == 2 {
-			ancestor, descendant := parts[0], parts[1]
-			var res []*html.Node
-			var walk func(*html.Node)
-			walk = func(n *html.Node) {
-				if n.Type == html.ElementNode && matchesSimple(n, descendant) && hasAncestor(n, ancestor) {
-					res = append(res, n)
-				}
-				for c := n.FirstChild; c != nil; c = c.NextSibling {
-					walk(c)
-				}
-			}
-			walk(root)
-			return res
-		}
-	}
-	var res []*html.Node
-	var walk func(*html.Node)
-	walk = func(n *html.Node) {
-		if n.Type == html.ElementNode && matches(n, selector) {
-			res = append(res, n)
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			walk(c)
-		}
-	}
-	walk(root)
-	return res
-}
-
-func hasAncestor(n *html.Node, selector string) bool {
-	for p := n.Parent; p != nil; p = p.Parent {
-		if p.Type == html.ElementNode && matchesSimple(p, selector) {
-			return true
-		}
-	}
-	return false
-}
-
-func matchesSimple(n *html.Node, selector string) bool { return matches(n, selector) }
-
-func matches(n *html.Node, selector string) bool {
-	if selector == "" {
-		return false
-	}
-	if strings.HasPrefix(selector, "#") {
-		id := selector[1:]
-		for _, a := range n.Attr {
-			if a.Key == "id" && a.Val == id {
-				return true
-			}
-		}
-		return false
-	}
-	tag := ""
-	class := ""
-	if strings.HasPrefix(selector, ".") {
-		class = selector[1:]
-	} else if strings.Contains(selector, ".") {
-		parts := strings.SplitN(selector, ".", 2)
-		tag = parts[0]
-		class = parts[1]
-	} else {
-		tag = selector
-	}
-	if tag != "" && n.Data != tag {
-		return false
-	}
-	if class != "" {
-		for _, a := range n.Attr {
-			if a.Key == "class" {
-				for _, c := range strings.Fields(a.Val) {
-					if c == class {
-						return true
-					}
-				}
-				return false
-			}
-		}
-		return false
-	}
-	return true
-}
-
-func textContent(n *html.Node) string {
-	var b strings.Builder
-	var walk func(*html.Node)
-	walk = func(node *html.Node) {
-		if node.Type == html.TextNode {
-			b.WriteString(node.Data)
-		}
-		for c := node.FirstChild; c != nil; c = c.NextSibling {
-			walk(c)
-		}
-	}
-	walk(n)
-	return strings.TrimSpace(b.String())
+	return ftest.TextContent(nodes[0])
 }
 
 // HTML returns the current page HTML.
