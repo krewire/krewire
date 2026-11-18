@@ -488,3 +488,52 @@ func splitArgs(s string) []string {
 	}
 	return args
 }
+
+// DesugarTemplate translates modern Svelte-style .kiw 2.0 syntax
+// (interpolation, conditionals, loops, class directives, and JSX-like component tags)
+// into Go template invocations.
+func DesugarTemplate(src string) (string, error) {
+	return DesugarTemplateWithScope(src, nil)
+}
+
+// DesugarTemplateWithScope translates .kiw 2.0 syntax within a given variable scope.
+func DesugarTemplateWithScope(src string, loopVars map[string]bool) (string, error) {
+	return desugar(src, loopVars, false), nil
+}
+
+// desugar runs the desugaring passes. With pad set, every replacement keeps
+// the line count of the text it replaces (see keepLines).
+func desugar(src string, loopVars map[string]bool, pad bool) string {
+	// 1. Desugar class directives on HTML tags: class:active={isActive}
+	res := desugarClassDirectives(src, pad)
+
+	// 2. Desugar loops: {#each items as item}...{/each}
+	res = desugarLoops(res, loopVars, pad)
+
+	// 3. Desugar conditionals: {#if ...}, {:else if ...}, {:else}, {/if}
+	res = desugarConditionals(res, loopVars, pad)
+
+	// 3.5. Desugar inline snippets and render invocations
+	res = desugarSnippets(res, loopVars, pad)
+
+	// 4. Desugar self-closing components: <Navbar ... />
+	res = selfClosingCompRe.ReplaceAllStringFunc(res, func(match string) string {
+		sm := selfClosingCompRe.FindStringSubmatch(match)
+		if len(sm) < 3 {
+			return match
+		}
+		name := sm[1]
+		attrStr := sm[2]
+		replacement, _ := desugarComponent(name, attrStr, "", match)
+		return keepLines(match, replacement, pad)
+	})
+
+	// 5. Desugar paired components: <Card ...>...</Card>
+	res = desugarPairedComponents(res, pad)
+
+	// 5.5. Desugar component slot outlets with fallbacks (<slot>, <slot name="xyz">)
+	res = desugarSlots(res, pad)
+
+	// 6. Desugar clean expression interpolation: {var} -> {{.Var}}
+	return desugarInterpolation(res, loopVars)
+}
