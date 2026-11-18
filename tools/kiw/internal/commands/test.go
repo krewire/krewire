@@ -21,7 +21,14 @@ func RegisterTest(fs *flag.FlagSet) {
 	fs.Bool("watch", false, "watch files and rerun tests on change (like vitest --watch)")
 	fs.Bool("w", false, "alias for --watch")
 	fs.Bool("coverage", false, "run with coverage (go test -cover)")
+	fs.Bool("cover", false, "alias for --coverage")
 	fs.String("coverprofile", "", "write coverage profile to file (go test -coverprofile)")
+	fs.String("html", "", "generate HTML coverage report to file (e.g. coverage.html)")
+	fs.String("cover-html", "", "alias for --html")
+	fs.Float64("threshold", 0, "fail if total coverage percentage is below threshold (e.g. 80.0)")
+	fs.Float64("min", 0, "alias for --threshold")
+	fs.Bool("summary", false, "display detailed per-package coverage summary table")
+	fs.Bool("breakdown", false, "alias for --summary")
 	fs.Bool("verbose", false, "verbose output (go test -v)")
 	fs.Bool("v", false, "alias for --verbose")
 	fs.Bool("json", false, "json output (go test -json)")
@@ -52,8 +59,16 @@ func RunTest(fs *flag.FlagSet) errs.ExitCode {
 	}
 
 	watch := flagValue(fs, "watch") == "true" || flagValue(fs, "w") == "true"
-	coverage := flagValue(fs, "coverage") == "true"
-	coverprofile := flagValue(fs, "coverprofile")
+	covOpts, err := resolveCoverageOptions(fs)
+	if err != nil {
+		return fail(err)
+	}
+	if covOpts.TempProfile {
+		defer func() {
+			_ = os.Remove(covOpts.ProfilePath)
+		}()
+	}
+
 	verbose := flagValue(fs, "verbose") == "true" || flagValue(fs, "v") == "true"
 	jsonOut := flagValue(fs, "json") == "true"
 	update := flagValue(fs, "update") == "true" || flagValue(fs, "u") == "true"
@@ -74,14 +89,8 @@ func RunTest(fs *flag.FlagSet) errs.ExitCode {
 	if jsonOut {
 		args = append(args, "-json")
 	}
-	if coverage {
-		args = append(args, "-cover")
-	}
-	if coverprofile != "" {
-		args = append(args, "-coverprofile="+coverprofile)
-		if !coverage {
-			args = append(args, "-cover")
-		}
+	if covOpts.Enabled {
+		args = append(args, "-coverprofile="+covOpts.ProfilePath)
 	}
 	if count != "" {
 		args = append(args, "-count="+count)
@@ -144,10 +153,17 @@ func RunTest(fs *flag.FlagSet) errs.ExitCode {
 	}
 
 	if watch {
-		return runTestWatch(dir, args, env)
+		return runTestWatch(dir, args, env, covOpts)
 	}
 
-	return runTestOnce(dir, args, env)
+	code := runTestOnce(dir, args, env)
+	if code != errs.ExitCodeSuccess {
+		return code
+	}
+	if covOpts.Enabled {
+		return processCoverageResults(covOpts, os.Stdout, os.Stderr)
+	}
+	return errs.ExitCodeSuccess
 }
 
 func runTestOnce(dir string, args []string, env []string) errs.ExitCode {
@@ -163,7 +179,7 @@ func runTestOnce(dir string, args []string, env []string) errs.ExitCode {
 	return errs.ExitCodeSuccess
 }
 
-func runTestWatch(dir string, args []string, env []string) errs.ExitCode {
+func runTestWatch(dir string, args []string, env []string, covOpts CoverageOptions) errs.ExitCode {
 	root := dir
 	if mod, err := gomod.Find(dir); err == nil {
 		if mdir := moduleDir(dir); mdir != "" {
@@ -179,6 +195,8 @@ func runTestWatch(dir string, args []string, env []string) errs.ExitCode {
 	code := runTestOnce(dir, args, env)
 	if code != errs.ExitCodeSuccess {
 		slog.Info("watch: initial run failed, waiting for changes...")
+	} else if covOpts.Enabled {
+		_ = processCoverageResults(covOpts, os.Stdout, os.Stderr)
 	}
 	fmt.Fprintln(os.Stdout, "watching for changes (Ctrl+C to stop)...")
 
@@ -187,7 +205,10 @@ func runTestWatch(dir string, args []string, env []string) errs.ExitCode {
 		case <-w.Changed():
 			fmt.Fprintln(os.Stdout, "\n--- change detected, rerunning ---")
 			w.Reset()
-			_ = runTestOnce(dir, args, env)
+			code := runTestOnce(dir, args, env)
+			if code == errs.ExitCodeSuccess && covOpts.Enabled {
+				_ = processCoverageResults(covOpts, os.Stdout, os.Stderr)
+			}
 		case <-time.After(200 * time.Millisecond):
 		}
 	}
@@ -204,7 +225,26 @@ func isPackageFilter(s string) bool {
 }
 
 func isKnownTestFlag(a string) bool {
-	known := []string{"-filter", "--filter", "-watch", "--watch", "-w", "-coverage", "--coverage", "-coverprofile", "--coverprofile", "-verbose", "--verbose", "-v", "-json", "--json", "-update", "--update", "-u", "-run", "--run", "-count", "--count", "-list", "--list", "-reporter", "--reporter"}
+	known := []string{
+		"-filter", "--filter",
+		"-watch", "--watch", "-w",
+		"-coverage", "--coverage",
+		"-cover", "--cover",
+		"-coverprofile", "--coverprofile",
+		"-html", "--html",
+		"-cover-html", "--cover-html",
+		"-threshold", "--threshold",
+		"-min", "--min",
+		"-summary", "--summary",
+		"-breakdown", "--breakdown",
+		"-verbose", "--verbose", "-v",
+		"-json", "--json",
+		"-update", "--update", "-u",
+		"-run", "--run",
+		"-count", "--count",
+		"-list", "--list",
+		"-reporter", "--reporter",
+	}
 	for _, k := range known {
 		if a == k || strings.HasPrefix(a, k+"=") {
 			return true

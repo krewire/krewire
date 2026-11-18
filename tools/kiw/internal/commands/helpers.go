@@ -36,6 +36,15 @@ func flagInt(fs *flag.FlagSet, name string) int {
 	return n
 }
 
+func flagFloat(fs *flag.FlagSet, name string) float64 {
+	v := flagValue(fs, name)
+	if v == "" {
+		return 0
+	}
+	f, _ := strconv.ParseFloat(v, 64)
+	return f
+}
+
 func commandError(err error) errs.ExitCode {
 	fmt.Fprint(os.Stderr, errs.FormatTree(err))
 	switch {
