@@ -51,36 +51,36 @@ func Open(driverName, dsn string) (*DB, error) {
 }
 
 // OpenWithConfig creates a DB instance with custom pool configuration.
-func OpenWithConfig(cfg Config) (*DB, error) {
-	driverName := strings.TrimSpace(cfg.DriverName)
+func OpenWithConfig(config Config) (*DB, error) {
+	driverName := strings.TrimSpace(config.DriverName)
 	if driverName == "" {
 		return nil, errs.UsageError("orm: driver name is required")
 	}
 
-	sqlDB, err := sql.Open(driverName, cfg.DSN)
+	sqlDB, err := sql.Open(driverName, config.DSN)
 	if err != nil {
 		return nil, errs.FailureError(fmt.Sprintf("orm: failed to open driver %s: %v", driverName, err))
 	}
 
-	maxOpen := cfg.MaxOpenConns
+	maxOpen := config.MaxOpenConns
 	if maxOpen <= 0 {
 		maxOpen = DefaultMaxOpenConns
 	}
 	sqlDB.SetMaxOpenConns(maxOpen)
 
-	maxIdle := cfg.MaxIdleConns
+	maxIdle := config.MaxIdleConns
 	if maxIdle <= 0 {
 		maxIdle = DefaultMaxIdleConns
 	}
 	sqlDB.SetMaxIdleConns(maxIdle)
 
-	connMaxLifetime := cfg.ConnMaxLifetime
+	connMaxLifetime := config.ConnMaxLifetime
 	if connMaxLifetime <= 0 {
 		connMaxLifetime = DefaultConnMaxLifetime
 	}
 	sqlDB.SetConnMaxLifetime(connMaxLifetime)
 
-	connMaxIdleTime := cfg.ConnMaxIdleTime
+	connMaxIdleTime := config.ConnMaxIdleTime
 	if connMaxIdleTime <= 0 {
 		connMaxIdleTime = DefaultConnMaxIdleTime
 	}

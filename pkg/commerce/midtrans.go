@@ -51,25 +51,25 @@ type MidtransProvider struct {
 }
 
 // NewMidtransProvider creates a new Midtrans payment provider.
-func NewMidtransProvider(cfg MidtransConfig) (*MidtransProvider, error) {
-	if cfg.HTTPClient == nil {
-		cfg.HTTPClient = &http.Client{Timeout: DefaultMidtransTimeout}
+func NewMidtransProvider(config MidtransConfig) (*MidtransProvider, error) {
+	if config.HTTPClient == nil {
+		config.HTTPClient = &http.Client{Timeout: DefaultMidtransTimeout}
 	}
 
 	snapURL := midtransSandboxSnapURL
 	apiURL := midtransSandboxAPIURL
-	if cfg.IsProduction {
+	if config.IsProduction {
 		snapURL = midtransProductionSnapURL
 		apiURL = midtransProductionAPIURL
 	}
 
 	return &MidtransProvider{
-		serverKey:    cfg.ServerKey,
-		clientKey:    cfg.ClientKey,
-		isProduction: cfg.IsProduction,
+		serverKey:    config.ServerKey,
+		clientKey:    config.ClientKey,
+		isProduction: config.IsProduction,
 		snapURL:      snapURL,
 		apiURL:       apiURL,
-		client:       cfg.HTTPClient,
+		client:       config.HTTPClient,
 	}, nil
 }
 

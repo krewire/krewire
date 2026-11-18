@@ -46,22 +46,22 @@ type SMTPConfig struct {
 
 // SMTPDriver sends email via standard SMTP protocol.
 type SMTPDriver struct {
-	cfg SMTPConfig
+	config SMTPConfig
 }
 
 // NewSMTPDriver creates an SMTP driver.
-func NewSMTPDriver(cfg SMTPConfig) *SMTPDriver {
-	if cfg.Port <= 0 {
-		if cfg.Encryption == SMTPEncryptionTLS {
-			cfg.Port = DefaultSMTPPortTLS
+func NewSMTPDriver(config SMTPConfig) *SMTPDriver {
+	if config.Port <= 0 {
+		if config.Encryption == SMTPEncryptionTLS {
+			config.Port = DefaultSMTPPortTLS
 		} else {
-			cfg.Port = DefaultSMTPPortSTARTTLS
+			config.Port = DefaultSMTPPortSTARTTLS
 		}
 	}
-	if cfg.Timeout <= 0 {
-		cfg.Timeout = DefaultSMTPTimeout
+	if config.Timeout <= 0 {
+		config.Timeout = DefaultSMTPTimeout
 	}
-	return &SMTPDriver{cfg: cfg}
+	return &SMTPDriver{config: config}
 }
 
 func (d *SMTPDriver) Name() string {
@@ -78,7 +78,7 @@ func (d *SMTPDriver) Send(ctx context.Context, msg *Message) error {
 		return errs.FailureError(fmt.Sprintf("mail: build mime failed: %v", err))
 	}
 
-	addr := fmt.Sprintf("%s:%d", d.cfg.Host, d.cfg.Port)
+	addr := fmt.Sprintf("%s:%d", d.config.Host, d.config.Port)
 
 	// Combine recipients: To + Cc + Bcc
 	var recipients []string
@@ -87,14 +87,14 @@ func (d *SMTPDriver) Send(ctx context.Context, msg *Message) error {
 	recipients = append(recipients, msg.Bcc...)
 
 	tlsConfig := &tls.Config{
-		ServerName:         d.cfg.Host,
-		InsecureSkipVerify: d.cfg.InsecureSkipVerify,
+		ServerName:         d.config.Host,
+		InsecureSkipVerify: d.config.InsecureSkipVerify,
 	}
 
-	dialer := &net.Dialer{Timeout: d.cfg.Timeout}
+	dialer := &net.Dialer{Timeout: d.config.Timeout}
 	var conn net.Conn
 
-	if d.cfg.Encryption == SMTPEncryptionTLS {
+	if d.config.Encryption == SMTPEncryptionTLS {
 		conn, err = tls.DialWithDialer(dialer, "tcp", addr, tlsConfig)
 	} else {
 		conn, err = dialer.DialContext(ctx, "tcp", addr)
@@ -104,13 +104,13 @@ func (d *SMTPDriver) Send(ctx context.Context, msg *Message) error {
 	}
 	defer conn.Close()
 
-	client, err := smtp.NewClient(conn, d.cfg.Host)
+	client, err := smtp.NewClient(conn, d.config.Host)
 	if err != nil {
 		return errs.FailureError(fmt.Sprintf("mail: smtp handshake failed: %v", err))
 	}
 	defer client.Quit()
 
-	if d.cfg.Encryption == SMTPEncryptionSTARTTLS {
+	if d.config.Encryption == SMTPEncryptionSTARTTLS {
 		if ok, _ := client.Extension("STARTTLS"); ok {
 			if err := client.StartTLS(tlsConfig); err != nil {
 				return errs.FailureError(fmt.Sprintf("mail: starttls failed: %v", err))
@@ -118,8 +118,8 @@ func (d *SMTPDriver) Send(ctx context.Context, msg *Message) error {
 		}
 	}
 
-	if d.cfg.Username != "" && d.cfg.Password != "" {
-		auth := smtp.PlainAuth("", d.cfg.Username, d.cfg.Password, d.cfg.Host)
+	if d.config.Username != "" && d.config.Password != "" {
+		auth := smtp.PlainAuth("", d.config.Username, d.config.Password, d.config.Host)
 		if err := client.Auth(auth); err != nil {
 			return errs.FailureError(fmt.Sprintf("mail: smtp auth failed: %v", err))
 		}

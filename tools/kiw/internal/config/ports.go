@@ -24,10 +24,10 @@ var (
 
 // DetectRuntimePorts scans the project root and krewire.yaml to discover declared
 // ports across runtimes and flags potential conflicts (FRK-CONF-003, FRK-CONF-030).
-func DetectRuntimePorts(root string, cfg *Config) ([]DetectedPort, []string) {
+func DetectRuntimePorts(root string, config *Config) ([]DetectedPort, []string) {
 	var detected []DetectedPort
 
-	detected = append(detected, detectKrewirePorts(cfg)...)
+	detected = append(detected, detectKrewirePorts(config)...)
 	detected = append(detected, detectNodePorts(root)...)
 	detected = append(detected, detectLaravelPorts(root)...)
 	detected = append(detected, detectDotenvPorts(root, detected)...)
@@ -36,36 +36,36 @@ func DetectRuntimePorts(root string, cfg *Config) ([]DetectedPort, []string) {
 	return detected, warnings
 }
 
-func detectKrewirePorts(cfg *Config) []DetectedPort {
-	if cfg == nil {
+func detectKrewirePorts(config *Config) []DetectedPort {
+	if config == nil {
 		return nil
 	}
 	var ports []DetectedPort
-	if cfg.Runtime.Port > 0 {
+	if config.Runtime.Port > 0 {
 		ports = append(ports, DetectedPort{
 			Runtime: "krewire",
 			Source:  "krewire.yaml",
-			Port:    cfg.Runtime.Port,
+			Port:    config.Runtime.Port,
 			Detail:  "runtime.port",
 		})
 	}
-	if cfg.Dev.Port > 0 && cfg.Dev.Port != cfg.Runtime.Port {
+	if config.Dev.Port > 0 && config.Dev.Port != config.Runtime.Port {
 		ports = append(ports, DetectedPort{
 			Runtime: "krewire",
 			Source:  "krewire.yaml",
-			Port:    cfg.Dev.Port,
+			Port:    config.Dev.Port,
 			Detail:  "dev.port",
 		})
 	}
-	if cfg.Server.Port > 0 && cfg.Server.Port != cfg.Runtime.Port && cfg.Server.Port != cfg.Dev.Port {
+	if config.Server.Port > 0 && config.Server.Port != config.Runtime.Port && config.Server.Port != config.Dev.Port {
 		ports = append(ports, DetectedPort{
 			Runtime: "krewire",
 			Source:  "krewire.yaml",
-			Port:    cfg.Server.Port,
+			Port:    config.Server.Port,
 			Detail:  "server.port",
 		})
 	}
-	for _, svc := range cfg.Services {
+	for _, svc := range config.Services {
 		if svc.Port > 0 {
 			ports = append(ports, DetectedPort{
 				Runtime: "krewire",

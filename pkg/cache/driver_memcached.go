@@ -28,24 +28,24 @@ type MemcachedConfig struct {
 // MemcachedCache implements Cache using Memcached text protocol.
 type MemcachedCache struct {
 	mu      sync.Mutex
-	cfg     MemcachedConfig
+	config  MemcachedConfig
 	conn    net.Conn
 	reader  *bufio.Reader
 	timeout time.Duration
 }
 
 // NewMemcachedCache creates a new Memcached Cache client.
-func NewMemcachedCache(cfg MemcachedConfig) (*MemcachedCache, error) {
-	if cfg.Address == "" {
-		cfg.Address = DefaultMemcachedAddress
+func NewMemcachedCache(config MemcachedConfig) (*MemcachedCache, error) {
+	if config.Address == "" {
+		config.Address = DefaultMemcachedAddress
 	}
-	if cfg.Timeout <= 0 {
-		cfg.Timeout = DefaultMemcachedTimeout
+	if config.Timeout <= 0 {
+		config.Timeout = DefaultMemcachedTimeout
 	}
 
 	return &MemcachedCache{
-		cfg:     cfg,
-		timeout: cfg.Timeout,
+		config:  config,
+		timeout: config.Timeout,
 	}, nil
 }
 
@@ -54,9 +54,9 @@ func (m *MemcachedCache) getConnection() (net.Conn, *bufio.Reader, error) {
 		return m.conn, m.reader, nil
 	}
 
-	conn, err := net.DialTimeout("tcp", m.cfg.Address, m.timeout)
+	conn, err := net.DialTimeout("tcp", m.config.Address, m.timeout)
 	if err != nil {
-		return nil, nil, fmt.Errorf("cache: memcached connect to %s failed: %w", m.cfg.Address, err)
+		return nil, nil, fmt.Errorf("cache: memcached connect to %s failed: %w", m.config.Address, err)
 	}
 
 	m.conn = conn

@@ -43,22 +43,22 @@ type CircuitBreakerConfig struct {
 }
 
 // NewCircuitBreaker creates a closed breaker (FRK-SVC-030).
-func NewCircuitBreaker(cfg CircuitBreakerConfig) *CircuitBreaker {
-	if cfg.Threshold <= 0 {
-		cfg.Threshold = 5
+func NewCircuitBreaker(config CircuitBreakerConfig) *CircuitBreaker {
+	if config.Threshold <= 0 {
+		config.Threshold = 5
 	}
-	if cfg.Timeout <= 0 {
-		cfg.Timeout = 30 * time.Second
+	if config.Timeout <= 0 {
+		config.Timeout = 30 * time.Second
 	}
-	if cfg.HalfOpenMax <= 0 {
-		cfg.HalfOpenMax = 1
+	if config.HalfOpenMax <= 0 {
+		config.HalfOpenMax = 1
 	}
 	return &CircuitBreaker{
-		name:          cfg.Name,
-		threshold:     cfg.Threshold,
-		timeout:       cfg.Timeout,
-		halfOpenMax:   cfg.HalfOpenMax,
-		onStateChange: cfg.OnStateChange,
+		name:          config.Name,
+		threshold:     config.Threshold,
+		timeout:       config.Timeout,
+		halfOpenMax:   config.HalfOpenMax,
+		onStateChange: config.OnStateChange,
 	}
 }
 

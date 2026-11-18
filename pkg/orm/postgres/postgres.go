@@ -66,24 +66,24 @@ func Config(host string, port int, user, password, database string) orm.Postgres
 // ProductionConfig returns an enterprise-tuned PostgreSQL configuration:
 // SSLMode require, pool limits, prepared statement caching, and bounded timeouts.
 func ProductionConfig(host string, port int, user, password, database string) orm.PostgresConfig {
-	cfg := Config(host, port, user, password, database)
-	cfg.SSLMode = "require"
-	cfg.MaxOpenConns = 50
-	cfg.MaxIdleConns = 15
-	cfg.ConnMaxLifetime = 15 * time.Minute
-	cfg.ConnMaxIdleTime = 3 * time.Minute
-	cfg.ConnectTimeout = 10 * time.Second
-	cfg.StatementTimeout = 45 * time.Second
-	cfg.IdleInTransactionSessionTimeout = 30 * time.Second
-	return cfg
+	config := Config(host, port, user, password, database)
+	config.SSLMode = "require"
+	config.MaxOpenConns = 50
+	config.MaxIdleConns = 15
+	config.ConnMaxLifetime = 15 * time.Minute
+	config.ConnMaxIdleTime = 3 * time.Minute
+	config.ConnectTimeout = 10 * time.Second
+	config.StatementTimeout = 45 * time.Second
+	config.IdleInTransactionSessionTimeout = 30 * time.Second
+	return config
 }
 
-// DSN returns the formatted PostgreSQL connection URL string from cfg.
-func DSN(cfg orm.PostgresConfig) string {
-	if strings.TrimSpace(cfg.DriverName) == "" {
-		cfg.DriverName = DriverName
+// DSN returns the formatted PostgreSQL connection URL string from config.
+func DSN(config orm.PostgresConfig) string {
+	if strings.TrimSpace(config.DriverName) == "" {
+		config.DriverName = DriverName
 	}
-	return cfg.FormatDSN()
+	return config.FormatDSN()
 }
 
 // Open opens a PostgreSQL database connection using a formatted DSN string.
@@ -95,11 +95,11 @@ func Open(dsn string) (*orm.DB, error) {
 }
 
 // OpenConfig opens a PostgreSQL database connection using a structured orm.PostgresConfig.
-func OpenConfig(cfg orm.PostgresConfig) (*orm.DB, error) {
-	if strings.TrimSpace(cfg.DriverName) == "" {
-		cfg.DriverName = DriverName
+func OpenConfig(config orm.PostgresConfig) (*orm.DB, error) {
+	if strings.TrimSpace(config.DriverName) == "" {
+		config.DriverName = DriverName
 	}
-	return orm.NewPostgres(cfg)
+	return orm.NewPostgres(config)
 }
 
 // OpenProduction opens an enterprise-grade connection pool for PostgreSQL.

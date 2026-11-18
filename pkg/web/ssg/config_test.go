@@ -69,14 +69,14 @@ func TestConfigSiteBuilds(t *testing.T) {
 }
 
 func TestConfigSiteEscapesUntrustedData(t *testing.T) {
-	cfg := testConfig()
-	cfg.Components = []ComponentConfig{
+	config := testConfig()
+	config.Components = []ComponentConfig{
 		{Name: "badge", Body: `<span class="badge">{{.}}</span>`},
 		{Name: "hero", Body: `<section class="hero">{{component "badge" .Feature}}<h1>{{.Title}}</h1></section>`},
 	}
-	cfg.Data = map[string]any{"Feature": "<script>alert(1)</script>"}
+	config.Data = map[string]any{"Feature": "<script>alert(1)</script>"}
 	out := t.TempDir()
-	if _, err := BuildFromConfig(cfg, out); err != nil {
+	if _, err := BuildFromConfig(config, out); err != nil {
 		t.Fatal(err)
 	}
 	page, err := os.ReadFile(filepath.Join(out, "index.html"))
@@ -89,8 +89,8 @@ func TestConfigSiteEscapesUntrustedData(t *testing.T) {
 }
 
 func TestConfigThemePaletteOverrides(t *testing.T) {
-	cfg := testConfig()
-	th := cfg.theme()
+	config := testConfig()
+	th := config.theme()
 	if string(th.Light.Primary) != "#ff6b00" {
 		t.Errorf("light primary = %q, want #ff6b00", th.Light.Primary)
 	}
@@ -106,10 +106,10 @@ func TestConfigThemePaletteOverrides(t *testing.T) {
 }
 
 func TestConfigNoThemeOmitsThemeAsset(t *testing.T) {
-	cfg := testConfig()
-	cfg.Theme = nil
+	config := testConfig()
+	config.Theme = nil
 	out := t.TempDir()
-	if _, err := BuildFromConfig(cfg, out); err != nil {
+	if _, err := BuildFromConfig(config, out); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(filepath.Join(out, "assets", "theme.css")); !os.IsNotExist(err) {
@@ -118,12 +118,12 @@ func TestConfigNoThemeOmitsThemeAsset(t *testing.T) {
 }
 
 func TestConfigPageDataMergesOverrides(t *testing.T) {
-	cfg := testConfig()
-	cfg.Pages = []PageConfig{
+	config := testConfig()
+	config.Pages = []PageConfig{
 		{Path: "/", Title: "Home", Layout: "base", Root: "hero", Data: map[string]any{"Feature": "<b>page</b>"}},
 	}
 	out := t.TempDir()
-	if _, err := BuildFromConfig(cfg, out); err != nil {
+	if _, err := BuildFromConfig(config, out); err != nil {
 		t.Fatal(err)
 	}
 	page, err := os.ReadFile(filepath.Join(out, "index.html"))
@@ -136,7 +136,7 @@ func TestConfigPageDataMergesOverrides(t *testing.T) {
 }
 
 func TestConfigUIShellLayout(t *testing.T) {
-	cfg := &Config{
+	config := &Config{
 		Title:       "Krewire",
 		Description: "Built from a ui shell.",
 		Theme:       &ThemeConfig{Default: "auto"},
@@ -163,7 +163,7 @@ func TestConfigUIShellLayout(t *testing.T) {
 		},
 	}
 	out := t.TempDir()
-	created, err := BuildFromConfig(cfg, out)
+	created, err := BuildFromConfig(config, out)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,7 +200,7 @@ func TestConfigUIShellLayout(t *testing.T) {
 }
 
 func TestConfigUIShellInvalidFailsBuild(t *testing.T) {
-	cfg := &Config{
+	config := &Config{
 		Layouts: []LayoutConfig{
 			{Name: "main", UI: &ui.LayoutConfig{Head: template.HTML(`{{if}}`)}},
 		},
@@ -208,13 +208,13 @@ func TestConfigUIShellInvalidFailsBuild(t *testing.T) {
 			{Path: "/", Title: "Home", Layout: "main", Root: "home"},
 		},
 	}
-	if _, err := BuildFromConfig(cfg, t.TempDir()); err == nil {
+	if _, err := BuildFromConfig(config, t.TempDir()); err == nil {
 		t.Error("invalid ui shell must fail the build")
 	}
 }
 
 func TestConfigPageRootResolvesViaRegistry(t *testing.T) {
-	cfg := &Config{
+	config := &Config{
 		Title: "Krewire",
 		Layouts: []LayoutConfig{
 			{Name: "base", Body: `<!DOCTYPE html><html><body>{{.Content}}</body></html>`},
@@ -224,7 +224,7 @@ func TestConfigPageRootResolvesViaRegistry(t *testing.T) {
 		},
 	}
 	out := t.TempDir()
-	if _, err := BuildFromConfig(cfg, out); err != nil {
+	if _, err := BuildFromConfig(config, out); err != nil {
 		t.Fatal(err)
 	}
 	page, err := os.ReadFile(filepath.Join(out, "index.html"))
@@ -242,7 +242,7 @@ func TestConfigPageRootResolvesViaRegistry(t *testing.T) {
 }
 
 func TestConfigPageRootUnknownRegistryComponentFails(t *testing.T) {
-	cfg := &Config{
+	config := &Config{
 		Layouts: []LayoutConfig{
 			{Name: "base", Body: `<!DOCTYPE html><html><body>{{.Content}}</body></html>`},
 		},
@@ -250,7 +250,7 @@ func TestConfigPageRootUnknownRegistryComponentFails(t *testing.T) {
 			{Path: "/", Title: "Home", Layout: "base", Root: "DoesNotExist"},
 		},
 	}
-	if _, err := BuildFromConfig(cfg, t.TempDir()); err == nil {
+	if _, err := BuildFromConfig(config, t.TempDir()); err == nil {
 		t.Error("undefined root component must fail the build")
 	}
 }

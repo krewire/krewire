@@ -140,8 +140,8 @@ type WasmConfig struct {
 }
 
 // Wasm configures WebAssembly island hydration.
-func (s *Site) Wasm(cfg WasmConfig) *Site {
-	s.wasm = cfg
+func (s *Site) Wasm(config WasmConfig) *Site {
+	s.wasm = config
 	return s
 }
 

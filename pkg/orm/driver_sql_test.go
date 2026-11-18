@@ -10,19 +10,19 @@ import (
 
 func TestSQLiteConfig_FormatDSN(t *testing.T) {
 	// 1. In-memory
-	cfgMem := orm.SQLiteConfig{InMemory: true}
-	if dsn := cfgMem.FormatDSN(); dsn != ":memory:" {
+	memConfig := orm.SQLiteConfig{InMemory: true}
+	if dsn := memConfig.FormatDSN(); dsn != ":memory:" {
 		t.Errorf("expected :memory:, got %s", dsn)
 	}
 
 	// 2. File with WAL and pragmas
-	cfgFile := orm.SQLiteConfig{
+	fileConfig := orm.SQLiteConfig{
 		Path:        "data/app.db",
 		JournalMode: "WAL",
 		ForeignKeys: true,
 		BusyTimeout: 3 * time.Second,
 	}
-	dsn := cfgFile.FormatDSN()
+	dsn := fileConfig.FormatDSN()
 	if !strings.HasPrefix(dsn, "data/app.db?") {
 		t.Errorf("expected prefix data/app.db?, got %s", dsn)
 	}
@@ -37,14 +37,14 @@ func TestSQLiteConfig_FormatDSN(t *testing.T) {
 	}
 
 	// 3. Explicit BEGIN mode
-	cfgFile.TxLock = "IMMEDIATE"
-	if dsn := cfgFile.FormatDSN(); !strings.Contains(dsn, "_txlock=immediate") {
+	fileConfig.TxLock = "IMMEDIATE"
+	if dsn := fileConfig.FormatDSN(); !strings.Contains(dsn, "_txlock=immediate") {
 		t.Errorf("missing _txlock=immediate in DSN: %s", dsn)
 	}
 }
 
 func TestPostgresConfig_FormatDSN(t *testing.T) {
-	cfg := orm.PostgresConfig{
+	config := orm.PostgresConfig{
 		Host:     "db.internal",
 		Port:     5432,
 		Database: "krewire_prod",
@@ -54,7 +54,7 @@ func TestPostgresConfig_FormatDSN(t *testing.T) {
 		TimeZone: "Asia/Jakarta",
 	}
 
-	dsn := cfg.FormatDSN()
+	dsn := config.FormatDSN()
 	expectedPrefix := "postgres://krewire_user:supersecret%26password@db.internal:5432/krewire_prod"
 	if !strings.HasPrefix(dsn, expectedPrefix) {
 		t.Errorf("expected prefix %s, got %s", expectedPrefix, dsn)
@@ -68,7 +68,7 @@ func TestPostgresConfig_FormatDSN(t *testing.T) {
 }
 
 func TestMySQLConfig_FormatDSN(t *testing.T) {
-	cfg := orm.MySQLConfig{
+	config := orm.MySQLConfig{
 		Host:      "127.0.0.1",
 		Port:      3306,
 		Database:  "krewire_app",
@@ -78,7 +78,7 @@ func TestMySQLConfig_FormatDSN(t *testing.T) {
 		Collation: "utf8mb4_unicode_ci",
 	}
 
-	dsn := cfg.FormatDSN()
+	dsn := config.FormatDSN()
 	expectedPrefix := "app_user:db_pass_123@tcp(127.0.0.1:3306)/krewire_app?"
 	if !strings.HasPrefix(dsn, expectedPrefix) {
 		t.Errorf("expected prefix %s, got %s", expectedPrefix, dsn)

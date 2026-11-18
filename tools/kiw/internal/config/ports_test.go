@@ -8,7 +8,7 @@ import (
 
 func TestDetectRuntimePorts_NoConflict(t *testing.T) {
 	dir := t.TempDir()
-	cfg := &Config{
+	config := &Config{
 		Dev: DevConfig{Port: 8080},
 	}
 
@@ -17,7 +17,7 @@ func TestDetectRuntimePorts_NoConflict(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	detected, warnings := DetectRuntimePorts(dir, cfg)
+	detected, warnings := DetectRuntimePorts(dir, config)
 	if len(warnings) != 0 {
 		t.Errorf("expected 0 warnings, got %v", warnings)
 	}
@@ -28,7 +28,7 @@ func TestDetectRuntimePorts_NoConflict(t *testing.T) {
 
 func TestDetectRuntimePorts_WithConflict(t *testing.T) {
 	dir := t.TempDir()
-	cfg := &Config{
+	config := &Config{
 		Runtime: RuntimeConfig{Port: 3000},
 	}
 
@@ -37,7 +37,7 @@ func TestDetectRuntimePorts_WithConflict(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, warnings := DetectRuntimePorts(dir, cfg)
+	_, warnings := DetectRuntimePorts(dir, config)
 	if len(warnings) != 1 {
 		t.Fatalf("expected 1 conflict warning, got %d: %v", len(warnings), warnings)
 	}

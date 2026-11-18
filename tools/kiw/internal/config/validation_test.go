@@ -8,16 +8,16 @@ import (
 func TestConfig_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		cfg     Config
+		config  Config
 		wantErr string
 	}{
 		{
-			name: "valid empty config",
-			cfg:  Config{},
+			name:   "valid empty config",
+			config: Config{},
 		},
 		{
 			name: "valid runtime namespace and env file",
-			cfg: Config{
+			config: Config{
 				Runtime: RuntimeConfig{
 					Namespace: "krewire",
 					EnvFile:   ".env.local",
@@ -27,7 +27,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid runtime namespace characters",
-			cfg: Config{
+			config: Config{
 				Runtime: RuntimeConfig{
 					Namespace: "krewire-app!",
 				},
@@ -36,7 +36,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid runtime env file path traversal",
-			cfg: Config{
+			config: Config{
 				Runtime: RuntimeConfig{
 					EnvFile: "../outside.env",
 				},
@@ -45,7 +45,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid port out of bounds",
-			cfg: Config{
+			config: Config{
 				Runtime: RuntimeConfig{
 					Port: 70000,
 				},
@@ -54,7 +54,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "valid multiple services with unique ports",
-			cfg: Config{
+			config: Config{
 				Services: []ServiceConfig{
 					{Name: "auth", Port: 8081},
 					{Name: "payment", Port: 8082},
@@ -63,7 +63,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "service port conflict (FRK-CONF-032)",
-			cfg: Config{
+			config: Config{
 				Services: []ServiceConfig{
 					{Name: "auth", Port: 8081},
 					{Name: "payment", Port: 8081},
@@ -75,7 +75,7 @@ func TestConfig_Validate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.cfg.Validate()
+			err := tt.config.Validate()
 			if tt.wantErr == "" {
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)

@@ -69,7 +69,7 @@ func TestLayoutEscapesTitle(t *testing.T) {
 }
 
 func TestLayoutFromConfig(t *testing.T) {
-	cfg := &LayoutConfig{
+	config := &LayoutConfig{
 		Title:       "Config Site",
 		Description: "desc",
 		Head:        template.HTML(`<meta name="generator" content="krewire">`),
@@ -83,7 +83,7 @@ func TestLayoutFromConfig(t *testing.T) {
 		Main:   ComponentRef{HTML: template.HTML("<p>from config</p>")},
 		Theme:  &ThemeConfig{Default: "dark", Light: map[string]string{"primary": "#111111"}},
 	}
-	l := LayoutFromConfig(cfg)
+	l := LayoutFromConfig(config)
 	if l.Title != "Config Site" {
 		t.Errorf("title = %q", l.Title)
 	}

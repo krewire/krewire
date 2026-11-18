@@ -6,11 +6,11 @@ import (
 )
 
 func TestResolveDatabasePrecedence(t *testing.T) {
-	cfg := &Config{Database: DatabaseConfig{Driver: "sqlite", DSN: "app.db"}}
+	config := &Config{Database: DatabaseConfig{Driver: "sqlite", DSN: "app.db"}}
 	env := map[string]string{}
 	lookup := func(k string) (string, bool) { v, ok := env[k]; return v, ok }
 
-	got, err := cfg.ResolveDatabase(lookup, DatabaseConfig{})
+	got, err := config.ResolveDatabase(lookup, DatabaseConfig{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,11 +20,11 @@ func TestResolveDatabasePrecedence(t *testing.T) {
 
 	env["APP_DATABASE_DSN"] = "from-env.db"
 	env["APP_DATABASE_MIGRATIONS"] = "db/migrations"
-	if got, _ = cfg.ResolveDatabase(lookup, DatabaseConfig{}); got.DSN != "from-env.db" || got.Migrations != "db/migrations" {
+	if got, _ = config.ResolveDatabase(lookup, DatabaseConfig{}); got.DSN != "from-env.db" || got.Migrations != "db/migrations" {
 		t.Fatalf("env must override krewire.yaml: %+v", got)
 	}
 
-	if got, _ = cfg.ResolveDatabase(lookup, DatabaseConfig{DSN: "flag.db", Driver: "postgres"}); got.DSN != "flag.db" || got.Driver != "postgres" {
+	if got, _ = config.ResolveDatabase(lookup, DatabaseConfig{DSN: "flag.db", Driver: "postgres"}); got.DSN != "flag.db" || got.Driver != "postgres" {
 		t.Fatalf("flags must override env: %+v", got)
 	}
 

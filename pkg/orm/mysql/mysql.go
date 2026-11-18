@@ -67,22 +67,22 @@ func Config(host string, port int, user, password, database string) orm.MySQLCon
 // ProductionConfig returns an enterprise-tuned MySQL configuration:
 // high concurrency connection pool, statement interpolation, and bounded idle reaps.
 func ProductionConfig(host string, port int, user, password, database string) orm.MySQLConfig {
-	cfg := Config(host, port, user, password, database)
-	cfg.MaxOpenConns = 50
-	cfg.MaxIdleConns = 15
-	cfg.ConnMaxLifetime = 15 * time.Minute
-	cfg.ConnMaxIdleTime = 3 * time.Minute
-	cfg.InterpolateParams = true
-	cfg.CheckConnLiveness = true
-	return cfg
+	config := Config(host, port, user, password, database)
+	config.MaxOpenConns = 50
+	config.MaxIdleConns = 15
+	config.ConnMaxLifetime = 15 * time.Minute
+	config.ConnMaxIdleTime = 3 * time.Minute
+	config.InterpolateParams = true
+	config.CheckConnLiveness = true
+	return config
 }
 
-// DSN returns the formatted MySQL connection string from cfg.
-func DSN(cfg orm.MySQLConfig) string {
-	if strings.TrimSpace(cfg.DriverName) == "" {
-		cfg.DriverName = DriverName
+// DSN returns the formatted MySQL connection string from config.
+func DSN(config orm.MySQLConfig) string {
+	if strings.TrimSpace(config.DriverName) == "" {
+		config.DriverName = DriverName
 	}
-	return cfg.FormatDSN()
+	return config.FormatDSN()
 }
 
 // Open opens a MySQL database connection using a formatted DSN string.
@@ -94,11 +94,11 @@ func Open(dsn string) (*orm.DB, error) {
 }
 
 // OpenConfig opens a MySQL database connection using a structured orm.MySQLConfig.
-func OpenConfig(cfg orm.MySQLConfig) (*orm.DB, error) {
-	if strings.TrimSpace(cfg.DriverName) == "" {
-		cfg.DriverName = DriverName
+func OpenConfig(config orm.MySQLConfig) (*orm.DB, error) {
+	if strings.TrimSpace(config.DriverName) == "" {
+		config.DriverName = DriverName
 	}
-	return orm.NewMySQL(cfg)
+	return orm.NewMySQL(config)
 }
 
 // OpenProduction opens an enterprise-grade connection pool for MySQL.

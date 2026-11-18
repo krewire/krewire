@@ -24,8 +24,8 @@ func TestDriverRegistration(t *testing.T) {
 }
 
 func TestConfigAndDSN(t *testing.T) {
-	cfg := mysql.Config("db.production.local", 3307, "krewire_admin", "s3cret@p@ss", "krewire_core")
-	dsn := mysql.DSN(cfg)
+	config := mysql.Config("db.production.local", 3307, "krewire_admin", "s3cret@p@ss", "krewire_core")
+	dsn := mysql.DSN(config)
 
 	expectedPrefix := "krewire_admin:s3cret@p@ss@tcp(db.production.local:3307)/krewire_core?"
 	if !strings.HasPrefix(dsn, expectedPrefix) {

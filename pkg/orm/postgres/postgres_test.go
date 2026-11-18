@@ -24,13 +24,13 @@ func TestDriverRegistration(t *testing.T) {
 }
 
 func TestConfigAndDSN(t *testing.T) {
-	cfg := postgres.Config("pg.production.local", 5433, "krew_app", "p@ssword!#", "krewire_iam")
-	cfg.SearchPath = "krewire_auth,public"
-	cfg.ApplicationName = "krewire-auth-server"
-	cfg.ConnectTimeout = 8 * time.Second
-	cfg.StatementTimeout = 25 * time.Second
+	config := postgres.Config("pg.production.local", 5433, "krew_app", "p@ssword!#", "krewire_iam")
+	config.SearchPath = "krewire_auth,public"
+	config.ApplicationName = "krewire-auth-server"
+	config.ConnectTimeout = 8 * time.Second
+	config.StatementTimeout = 25 * time.Second
 
-	dsn := postgres.DSN(cfg)
+	dsn := postgres.DSN(config)
 
 	expectedPrefix := "postgres://krew_app:p%40ssword%21%23@pg.production.local:5433/krewire_iam?"
 	if !strings.HasPrefix(dsn, expectedPrefix) {

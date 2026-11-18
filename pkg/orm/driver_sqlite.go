@@ -96,27 +96,27 @@ func (c SQLiteConfig) FormatDSN() string {
 }
 
 // NewSQLite creates and opens a DB connection pool configured for SQLite.
-func NewSQLite(cfg SQLiteConfig) (*DB, error) {
-	driver := strings.TrimSpace(cfg.DriverName)
+func NewSQLite(config SQLiteConfig) (*DB, error) {
+	driver := strings.TrimSpace(config.DriverName)
 	if driver == "" {
 		driver = DefaultSQLiteDriverName
 	}
 
-	dsn := cfg.FormatDSN()
+	dsn := config.FormatDSN()
 
-	dbCfg := Config{
+	dbConfig := Config{
 		DriverName:      driver,
 		DSN:             dsn,
-		MaxOpenConns:    cfg.MaxOpenConns,
-		MaxIdleConns:    cfg.MaxIdleConns,
-		ConnMaxLifetime: cfg.ConnMaxLifetime,
-		ConnMaxIdleTime: cfg.ConnMaxIdleTime,
+		MaxOpenConns:    config.MaxOpenConns,
+		MaxIdleConns:    config.MaxIdleConns,
+		ConnMaxLifetime: config.ConnMaxLifetime,
+		ConnMaxIdleTime: config.ConnMaxIdleTime,
 	}
 
 	// SQLite typically performs best with serialized or single-writer concurrency in memory
-	if cfg.InMemory && dbCfg.MaxOpenConns == 0 {
-		dbCfg.MaxOpenConns = 1
+	if config.InMemory && dbConfig.MaxOpenConns == 0 {
+		dbConfig.MaxOpenConns = 1
 	}
 
-	return OpenWithConfig(dbCfg)
+	return OpenWithConfig(dbConfig)
 }

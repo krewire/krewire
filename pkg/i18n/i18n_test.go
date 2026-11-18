@@ -384,12 +384,12 @@ func TestBundle_Concurrency(t *testing.T) {
 
 func TestConfigAndCenter(t *testing.T) {
 	fsys := sampleFileSystem()
-	cfg := i18n.DefaultConfig()
-	cfg.DefaultLocale = "id"
-	cfg.FallbackLocale = "en"
-	cfg.Locales = []string{"id", "en", "es"}
+	config := i18n.DefaultConfig()
+	config.DefaultLocale = "id"
+	config.FallbackLocale = "en"
+	config.Locales = []string{"id", "en", "es"}
 
-	bundle, err := i18n.NewFromConfig(fsys, cfg)
+	bundle, err := i18n.NewFromConfig(fsys, config)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

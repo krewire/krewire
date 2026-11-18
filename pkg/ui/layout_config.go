@@ -68,52 +68,52 @@ type FooterConfig struct {
 }
 
 // LayoutFromConfig converts a declarative layout config into a Layout.
-func LayoutFromConfig(cfg *LayoutConfig) *Layout {
+func LayoutFromConfig(config *LayoutConfig) *Layout {
 	l := &Layout{
-		Title:       cfg.Title,
-		Description: cfg.Description,
-		Head:        cfg.Head,
-		BodyAttrs:   cfg.BodyAttrs,
-		Stylesheets: cfg.Stylesheets,
+		Title:       config.Title,
+		Description: config.Description,
+		Head:        config.Head,
+		BodyAttrs:   config.BodyAttrs,
+		Stylesheets: config.Stylesheets,
 	}
-	if cfg.Theme != nil {
-		l.Theme = cfg.Theme.Theme()
+	if config.Theme != nil {
+		l.Theme = config.Theme.Theme()
 	}
-	if cfg.Header != nil {
-		l.Header = headerFromConfig(cfg.Header, l.Theme)
+	if config.Header != nil {
+		l.Header = headerFromConfig(config.Header, l.Theme)
 	}
-	if cfg.Main.HTML != "" {
-		l.Main = cfg.Main.HTML
+	if config.Main.HTML != "" {
+		l.Main = config.Main.HTML
 	}
-	if cfg.Footer != nil {
+	if config.Footer != nil {
 		f := Footer{
-			Left:   cfg.Footer.Left,
-			Center: cfg.Footer.Center,
-			Right:  cfg.Footer.Right,
+			Left:   config.Footer.Left,
+			Center: config.Footer.Center,
+			Right:  config.Footer.Right,
 		}
 		l.Footer = f.Render()
 	}
-	if cfg.Aside.HTML != "" {
-		l.Aside = cfg.Aside.HTML
+	if config.Aside.HTML != "" {
+		l.Aside = config.Aside.HTML
 	}
 	return l
 }
 
 // headerFromConfig builds Header markup from its declarative form, appending
 // the layout's theme button when ThemeToggle is set.
-func headerFromConfig(cfg *HeaderConfig, theme *Theme) template.HTML {
-	h := Header{Brand: cfg.Brand}
-	if cfg.Nav != nil {
-		links := make([]NavLink, 0, len(cfg.Nav.Links))
-		for _, l := range cfg.Nav.Links {
+func headerFromConfig(config *HeaderConfig, theme *Theme) template.HTML {
+	h := Header{Brand: config.Brand}
+	if config.Nav != nil {
+		links := make([]NavLink, 0, len(config.Nav.Links))
+		for _, l := range config.Nav.Links {
 			links = append(links, NavLink{Text: l.Text, URL: l.URL, Active: l.Active, Target: l.Target, Rel: l.Rel, Class: l.Class})
 		}
-		h.Nav = Nav{Links: links, Label: cfg.Nav.Label}.Render()
+		h.Nav = Nav{Links: links, Label: config.Nav.Label}.Render()
 	}
-	if cfg.Actions != "" {
-		h.Actions = cfg.Actions
+	if config.Actions != "" {
+		h.Actions = config.Actions
 	}
-	if cfg.ThemeToggle {
+	if config.ThemeToggle {
 		if theme == nil {
 			theme = &Theme{}
 		}

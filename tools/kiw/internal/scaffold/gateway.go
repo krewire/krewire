@@ -81,13 +81,13 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load("krewire.yaml")
+	gatewayConfig, err := config.Load("krewire.yaml")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "gateway: load config: %%v\n", err)
 		os.Exit(1)
 	}
 
-	routes, err := cfg.Routes()
+	routes, err := gatewayConfig.Routes()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "gateway: %%v\n", err)
 		os.Exit(1)
@@ -102,7 +102,7 @@ func main() {
 	}
 
 	server := &http.Server{
-		Addr:              cfg.Addr(),
+		Addr:              gatewayConfig.Addr(),
 		Handler:           gw,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
@@ -177,11 +177,11 @@ type Route struct {
 
 // Load reads krewire.yaml at path into a Config.
 func Load(path string) (*Config, error) {
-	var cfg Config
-	if err := rconfig.Load(path, &cfg); err != nil {
+	var config Config
+	if err := rconfig.Load(path, &config); err != nil {
 		return nil, err
 	}
-	return &cfg, nil
+	return &config, nil
 }
 
 // Addr returns the listen address, honoring GATEWAY_ADDR over krewire.yaml.

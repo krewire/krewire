@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/krewire/krewire/tools/kiw/internal/config"
+	kiwconfig "github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/gomod"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
@@ -246,8 +246,8 @@ func FindColocated(dir string) []ColocatedProject {
 			continue
 		}
 
-		cfg, _ := config.Load(subDir)
-		res, _ := shape.Detect(subDir, cfg.Kind())
+		config, _ := kiwconfig.Load(subDir)
+		res, _ := shape.Detect(subDir, config.Kind())
 		mod, _ := gomod.Find(subDir)
 
 		kindStr := res.String()

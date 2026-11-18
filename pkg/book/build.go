@@ -80,28 +80,28 @@ type Config struct {
 	Lang string
 }
 
-// Build renders the content in cfg.Input into a static website in
-// cfg.Output and returns the list of created paths, sorted for determinism.
-func Build(cfg Config) ([]string, error) {
-	if cfg.Input == "" {
-		cfg.Input = defaultInput
+// Build renders the content in config.Input into a static website in
+// config.Output and returns the list of created paths, sorted for determinism.
+func Build(config Config) ([]string, error) {
+	if config.Input == "" {
+		config.Input = defaultInput
 	}
-	if cfg.Output == "" {
-		cfg.Output = defaultOutput
+	if config.Output == "" {
+		config.Output = defaultOutput
 	}
-	mount := normalizeBase(cfg.MountPath)
-	base := cfg.BasePath
+	mount := normalizeBase(config.MountPath)
+	base := config.BasePath
 	if mount != "/" {
 		if base == "" || base == "/" {
 			base = mount
 		}
 	}
-	b, err := loadWithRules(cfg.Input, cfg.Title, cfg.Author, base, cfg.Include, cfg.Exclude)
+	b, err := loadWithRules(config.Input, config.Title, config.Author, base, config.Include, config.Exclude)
 	if err != nil {
 		return nil, err
 	}
 	b.mount = strings.TrimSuffix(mount, "/")
-	homeURL := cfg.HomeURL
+	homeURL := config.HomeURL
 	if homeURL == "" {
 		if b.mount != "" {
 			homeURL = "/"
@@ -110,36 +110,36 @@ func Build(cfg Config) ([]string, error) {
 		}
 	}
 	b.homeURL = homeURL
-	b.noRootTOC = cfg.NoRootTOC
-	b.extraCSS = append([]string(nil), cfg.ExtraCSS...)
-	b.extraJS = append([]string(nil), cfg.ExtraJS...)
-	b.lang = cfg.Lang
+	b.noRootTOC = config.NoRootTOC
+	b.extraCSS = append([]string(nil), config.ExtraCSS...)
+	b.extraJS = append([]string(nil), config.ExtraJS...)
+	b.lang = config.Lang
 	if b.lang == "" {
 		b.lang = defaultLang
 	}
-	b.version = cfg.Version
-	b.WithChrome(cfg.NavLinks, cfg.FooterText)
-	if cfg.Theme != nil {
-		b.WithTheme(cfg.Theme)
+	b.version = config.Version
+	b.WithChrome(config.NavLinks, config.FooterText)
+	if config.Theme != nil {
+		b.WithTheme(config.Theme)
 	}
 	pages, err := b.Pages()
 	if err != nil {
 		return nil, err
 	}
-	if err := exportPages(cfg.Output, pages, b.mount); err != nil {
+	if err := exportPages(config.Output, pages, b.mount); err != nil {
 		return nil, err
 	}
-	if len(cfg.ExtraCSS) == 0 {
-		if err := exportMountedAssets(cfg.Output, b.mount, Assets()); err != nil {
+	if len(config.ExtraCSS) == 0 {
+		if err := exportMountedAssets(config.Output, b.mount, Assets()); err != nil {
 			return nil, err
 		}
 	}
 	searchIdx := b.BuildSearchIndex()
 	navManifest := b.BuildNavManifest()
-	if err := exportManifests(cfg.Output, b.mount, searchIdx, navManifest); err != nil {
+	if err := exportManifests(config.Output, b.mount, searchIdx, navManifest); err != nil {
 		return nil, err
 	}
-	return b.createdPaths(cfg.Output), nil
+	return b.createdPaths(config.Output), nil
 }
 
 func exportAssets(outDir string, assets map[string]string) error {

@@ -115,9 +115,9 @@ func serveWithGracefulShutdown(srv *http.Server) error {
 
 // LiveHandler returns an http.Handler that re-reads Markdown files on every
 // request during local development, providing instant updates without server restarts.
-func LiveHandler(cfg Config) http.Handler {
+func LiveHandler(config Config) http.Handler {
 	css := Assets()["assets/krewire.css"]
-	mount := normalizeBase(cfg.MountPath)
+	mount := normalizeBase(config.MountPath)
 	mountPrefix := strings.TrimSuffix(mount, "/")
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -132,25 +132,25 @@ func LiveHandler(cfg Config) http.Handler {
 		}
 
 		// Rebuild in-memory book representation
-		base := cfg.BasePath
+		base := config.BasePath
 		if mount != "/" && (base == "" || base == "/") {
 			base = mount
 		}
-		input := cfg.Input
+		input := config.Input
 		if input == "" {
 			input = "."
 		}
-		b, err := loadWithRules(input, cfg.Title, cfg.Author, base, cfg.Include, cfg.Exclude)
+		b, err := loadWithRules(input, config.Title, config.Author, base, config.Include, config.Exclude)
 		if err != nil {
 			http.Error(w, "500 — error loading content: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		b.mount = mountPrefix
-		b.noRootTOC = cfg.NoRootTOC
-		b.version = cfg.Version
-		b.WithChrome(cfg.NavLinks, cfg.FooterText)
-		if cfg.Theme != nil {
-			b.WithTheme(cfg.Theme)
+		b.noRootTOC = config.NoRootTOC
+		b.version = config.Version
+		b.WithChrome(config.NavLinks, config.FooterText)
+		if config.Theme != nil {
+			b.WithTheme(config.Theme)
 		}
 
 		pages, err := b.Pages()
@@ -177,8 +177,8 @@ func LiveHandler(cfg Config) http.Handler {
 
 // ServeConfig serves the book using live loading on addr, shutting down
 // gracefully on SIGINT/SIGTERM.
-func ServeConfig(cfg Config, addr string) error {
-	h := LiveHandler(cfg)
+func ServeConfig(config Config, addr string) error {
+	h := LiveHandler(config)
 	slog.Info("serving live book", "addr", addr)
 	return serveWithGracefulShutdown(newServer(addr, h))
 }

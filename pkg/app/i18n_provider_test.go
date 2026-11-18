@@ -60,12 +60,12 @@ func TestI18nProviderWithConfig(t *testing.T) {
 		t.Fatalf("i18n.New: %v", err)
 	}
 
-	cfg := i18n.Config{
+	config := i18n.Config{
 		DefaultLocale:  "id",
 		FallbackLocale: "en",
 	}
 
-	application, err := app.NewApp(app.I18nProviderWithConfig(bundle, cfg)).Build()
+	application, err := app.NewApp(app.I18nProviderWithConfig(bundle, config)).Build()
 	if err != nil {
 		t.Fatalf("app.Build: %v", err)
 	}

@@ -14,10 +14,10 @@ import (
 func I18nProvider(bundle *i18n.Bundle) Provider {
 	return ProviderFunc(func(c *Container) error {
 		if err := Singleton[*i18n.Bundle](c, func() *i18n.Bundle {
-			if cfg, err := Resolve[i18n.Config](c); err == nil {
-				i18n.WithConfig(cfg)(bundle)
-			} else if cfgPtr, err := Resolve[*i18n.Config](c); err == nil && cfgPtr != nil {
-				i18n.WithConfig(*cfgPtr)(bundle)
+			if config, err := Resolve[i18n.Config](c); err == nil {
+				i18n.WithConfig(config)(bundle)
+			} else if configPtr, err := Resolve[*i18n.Config](c); err == nil && configPtr != nil {
+				i18n.WithConfig(*configPtr)(bundle)
 			}
 			return bundle
 		}); err != nil {
@@ -39,15 +39,15 @@ func I18nProvider(bundle *i18n.Bundle) Provider {
 
 // I18nProviderWithConfig returns an app.Provider that explicitly binds an i18n.Config,
 // *i18n.Bundle, and *i18n.Translator into the application container.
-func I18nProviderWithConfig(bundle *i18n.Bundle, cfg i18n.Config) Provider {
+func I18nProviderWithConfig(bundle *i18n.Bundle, config i18n.Config) Provider {
 	return ProviderFunc(func(c *Container) error {
 		if err := Singleton[i18n.Config](c, func() i18n.Config {
-			return cfg
+			return config
 		}); err != nil {
 			return err
 		}
 		if bundle != nil {
-			i18n.WithConfig(cfg)(bundle)
+			i18n.WithConfig(config)(bundle)
 		}
 		return I18nProvider(bundle).Register(c)
 	})

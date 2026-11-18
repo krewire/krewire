@@ -151,16 +151,16 @@ func Install(target string, opts ...Option) ([]string, error) {
 		return nil, fmt.Errorf("%w: %s", ErrTargetMissing, target)
 	}
 
-	cfg := &options{}
+	config := &options{}
 	for _, apply := range opts {
-		apply(cfg)
+		apply(config)
 	}
 
 	conflicts, err := detectConflicts(target)
 	if err != nil {
 		return nil, err
 	}
-	if len(conflicts) > 0 && !cfg.force && !cfg.dryRun {
+	if len(conflicts) > 0 && !config.force && !config.dryRun {
 		return nil, fmt.Errorf("%w: %s", ErrConflicts, listConflicts(target, conflicts))
 	}
 
@@ -172,7 +172,7 @@ func Install(target string, opts ...Option) ([]string, error) {
 	created := make([]string, 0, len(relPaths))
 	for _, rel := range relPaths {
 		dest := filepath.Join(target, rel)
-		if cfg.dryRun {
+		if config.dryRun {
 			created = append(created, dest)
 			continue
 		}

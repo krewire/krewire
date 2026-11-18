@@ -36,7 +36,7 @@ type Config struct {
 // Client represents a pure-Go Redis client.
 type Client struct {
 	mu      sync.Mutex
-	cfg     Config
+	config  Config
 	conn    net.Conn
 	reader  *bufio.Reader
 	timeout time.Duration
@@ -44,17 +44,17 @@ type Client struct {
 }
 
 // NewClient initializes a new Redis Client.
-func NewClient(cfg Config) (*Client, error) {
-	if cfg.Address == "" {
-		cfg.Address = DefaultAddress
+func NewClient(config Config) (*Client, error) {
+	if config.Address == "" {
+		config.Address = DefaultAddress
 	}
-	if cfg.Timeout <= 0 {
-		cfg.Timeout = DefaultTimeout
+	if config.Timeout <= 0 {
+		config.Timeout = DefaultTimeout
 	}
 
 	return &Client{
-		cfg:     cfg,
-		timeout: cfg.Timeout,
+		config:  config,
+		timeout: config.Timeout,
 	}, nil
 }
 
@@ -67,23 +67,23 @@ func (c *Client) getConn() (net.Conn, *bufio.Reader, error) {
 		return c.conn, c.reader, nil
 	}
 
-	conn, err := net.DialTimeout("tcp", c.cfg.Address, c.timeout)
+	conn, err := net.DialTimeout("tcp", c.config.Address, c.timeout)
 	if err != nil {
-		return nil, nil, errs.FailureError(fmt.Sprintf("redis: failed to connect to %s: %v", c.cfg.Address, err))
+		return nil, nil, errs.FailureError(fmt.Sprintf("redis: failed to connect to %s: %v", c.config.Address, err))
 	}
 
 	c.conn = conn
 	c.reader = bufio.NewReader(conn)
 
-	if c.cfg.Password != "" {
-		if _, err := c.execRaw("AUTH", c.cfg.Password); err != nil {
+	if c.config.Password != "" {
+		if _, err := c.execRaw("AUTH", c.config.Password); err != nil {
 			c.closeConn()
 			return nil, nil, errs.FailureError(fmt.Sprintf("redis: auth failed: %v", err))
 		}
 	}
 
-	if c.cfg.DB > 0 {
-		if _, err := c.execRaw("SELECT", strconv.Itoa(c.cfg.DB)); err != nil {
+	if c.config.DB > 0 {
+		if _, err := c.execRaw("SELECT", strconv.Itoa(c.config.DB)); err != nil {
 			c.closeConn()
 			return nil, nil, errs.FailureError(fmt.Sprintf("redis: select db failed: %v", err))
 		}

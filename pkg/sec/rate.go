@@ -58,18 +58,18 @@ func RateLimit(rps float64, burst int, opts ...RateLimitOption) Middleware {
 		burst = 20
 	}
 
-	cfg := &RateLimitOptions{
+	config := &RateLimitOptions{
 		KeyFunc: defaultKeyFunc,
 	}
 	for _, opt := range opts {
-		opt(cfg)
+		opt(config)
 	}
 
 	limiter := &rateLimiter{
 		rps:     rps,
 		burst:   float64(burst),
 		buckets: make(map[string]*tokenBucket),
-		keyFunc: cfg.KeyFunc,
+		keyFunc: config.KeyFunc,
 	}
 
 	return func(next http.Handler) http.Handler {

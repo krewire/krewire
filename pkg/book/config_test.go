@@ -27,7 +27,7 @@ func TestFindConfigFile(t *testing.T) {
 
 func TestLoadConfigFile(t *testing.T) {
 	dir := t.TempDir()
-	cfgPath := filepath.Join(dir, "book.yaml")
+	configPath := filepath.Join(dir, "book.yaml")
 	content := `
 title: "The Distributed Systems Manual"
 author: "Alice Gopher"
@@ -40,38 +40,38 @@ nav:
     url: "https://github.com/example/book"
 footer: "Copyright 2026 Alice"
 `
-	if err := os.WriteFile(cfgPath, []byte(content), 0o644); err != nil {
+	if err := os.WriteFile(configPath, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
-	cfg, err := LoadConfigFile(cfgPath)
+	config, err := LoadConfigFile(configPath)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if cfg.Title != "The Distributed Systems Manual" {
-		t.Errorf("expected title 'The Distributed Systems Manual', got %q", cfg.Title)
+	if config.Title != "The Distributed Systems Manual" {
+		t.Errorf("expected title 'The Distributed Systems Manual', got %q", config.Title)
 	}
-	if cfg.Author != "Alice Gopher" {
-		t.Errorf("expected author 'Alice Gopher', got %q", cfg.Author)
+	if config.Author != "Alice Gopher" {
+		t.Errorf("expected author 'Alice Gopher', got %q", config.Author)
 	}
-	if cfg.Input != "docs" {
-		t.Errorf("expected input 'docs', got %q", cfg.Input)
+	if config.Input != "docs" {
+		t.Errorf("expected input 'docs', got %q", config.Input)
 	}
-	if cfg.Output != "dist" {
-		t.Errorf("expected output 'dist', got %q", cfg.Output)
+	if config.Output != "dist" {
+		t.Errorf("expected output 'dist', got %q", config.Output)
 	}
-	if cfg.BasePath != "/book/" {
-		t.Errorf("expected base '/book/', got %q", cfg.BasePath)
+	if config.BasePath != "/book/" {
+		t.Errorf("expected base '/book/', got %q", config.BasePath)
 	}
-	if cfg.FooterText != "Copyright 2026 Alice" {
-		t.Errorf("expected footer 'Copyright 2026 Alice', got %q", cfg.FooterText)
+	if config.FooterText != "Copyright 2026 Alice" {
+		t.Errorf("expected footer 'Copyright 2026 Alice', got %q", config.FooterText)
 	}
-	if cfg.Theme == nil || cfg.Theme.Default != "dark" {
-		t.Errorf("expected dark theme, got %v", cfg.Theme)
+	if config.Theme == nil || config.Theme.Default != "dark" {
+		t.Errorf("expected dark theme, got %v", config.Theme)
 	}
-	if len(cfg.NavLinks) != 1 || cfg.NavLinks[0].Text != "GitHub" {
-		t.Errorf("expected nav link to GitHub, got %v", cfg.NavLinks)
+	if len(config.NavLinks) != 1 || config.NavLinks[0].Text != "GitHub" {
+		t.Errorf("expected nav link to GitHub, got %v", config.NavLinks)
 	}
 }
 
@@ -82,12 +82,12 @@ func TestLiveHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cfg := Config{
+	config := Config{
 		Input: dir,
 		Title: "Live Book",
 	}
 
-	handler := LiveHandler(cfg)
+	handler := LiveHandler(config)
 
 	// 1. Request chapter page
 	req := httptest.NewRequest(http.MethodGet, "/intro", nil)

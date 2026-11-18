@@ -50,7 +50,7 @@ func WithHeaderName(name string) MiddlewareOption {
 // 3. Accept-Language header
 // 4. Bundle default locale
 func Middleware(bundle *Bundle, opts ...MiddlewareOption) func(http.Handler) http.Handler {
-	cfg := &middlewareConfig{
+	config := &middlewareConfig{
 		queryParam:   "lang",
 		cookieName:   "lang",
 		headerName:   "Accept-Language",
@@ -60,22 +60,22 @@ func Middleware(bundle *Bundle, opts ...MiddlewareOption) func(http.Handler) htt
 	}
 
 	for _, opt := range opts {
-		opt(cfg)
+		opt(config)
 	}
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			locale := detectLocale(r, bundle, cfg)
+			locale := detectLocale(r, bundle, config)
 			ctx := WithLocale(r.Context(), locale)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
 
-func detectLocale(r *http.Request, bundle *Bundle, cfg *middlewareConfig) string {
+func detectLocale(r *http.Request, bundle *Bundle, config *middlewareConfig) string {
 	// 1. Query param
-	if cfg.enableQuery && cfg.queryParam != "" {
-		if val := r.URL.Query().Get(cfg.queryParam); val != "" {
+	if config.enableQuery && config.queryParam != "" {
+		if val := r.URL.Query().Get(config.queryParam); val != "" {
 			cleaned := strings.ToLower(strings.TrimSpace(val))
 			if bundle == nil || bundle.HasLocale(cleaned) {
 				return cleaned
@@ -84,8 +84,8 @@ func detectLocale(r *http.Request, bundle *Bundle, cfg *middlewareConfig) string
 	}
 
 	// 2. Cookie
-	if cfg.enableCookie && cfg.cookieName != "" {
-		if cookie, err := r.Cookie(cfg.cookieName); err == nil && cookie.Value != "" {
+	if config.enableCookie && config.cookieName != "" {
+		if cookie, err := r.Cookie(config.cookieName); err == nil && cookie.Value != "" {
 			cleaned := strings.ToLower(strings.TrimSpace(cookie.Value))
 			if bundle == nil || bundle.HasLocale(cleaned) {
 				return cleaned
@@ -94,8 +94,8 @@ func detectLocale(r *http.Request, bundle *Bundle, cfg *middlewareConfig) string
 	}
 
 	// 3. Accept-Language header
-	if cfg.enableHeader && cfg.headerName != "" {
-		if headerVal := r.Header.Get(cfg.headerName); headerVal != "" {
+	if config.enableHeader && config.headerName != "" {
+		if headerVal := r.Header.Get(config.headerName); headerVal != "" {
 			if matched := matchAcceptLanguage(headerVal, bundle); matched != "" {
 				return matched
 			}

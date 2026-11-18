@@ -135,18 +135,18 @@ func (c MySQLConfig) FormatDSN() string {
 }
 
 // NewMySQL creates and opens a DB connection pool configured for MySQL.
-func NewMySQL(cfg MySQLConfig) (*DB, error) {
-	driver := strings.TrimSpace(cfg.DriverName)
+func NewMySQL(config MySQLConfig) (*DB, error) {
+	driver := strings.TrimSpace(config.DriverName)
 	if driver == "" {
 		driver = DefaultMySQLDriverName
 	}
 
 	return OpenWithConfig(Config{
 		DriverName:      driver,
-		DSN:             cfg.FormatDSN(),
-		MaxOpenConns:    cfg.MaxOpenConns,
-		MaxIdleConns:    cfg.MaxIdleConns,
-		ConnMaxLifetime: cfg.ConnMaxLifetime,
-		ConnMaxIdleTime: cfg.ConnMaxIdleTime,
+		DSN:             config.FormatDSN(),
+		MaxOpenConns:    config.MaxOpenConns,
+		MaxIdleConns:    config.MaxIdleConns,
+		ConnMaxLifetime: config.ConnMaxLifetime,
+		ConnMaxIdleTime: config.ConnMaxIdleTime,
 	})
 }

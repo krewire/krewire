@@ -38,30 +38,30 @@ type Config struct {
 // (FRK-WASM/001). The JS glue is copied from the Go distribution. On
 // failure it returns a diagnostic error with actionable guidance
 // (FRK-WASM/004).
-func BuildWASM(cfg Config) (Artifacts, error) {
-	if cfg.Entry == "" {
+func BuildWASM(config Config) (Artifacts, error) {
+	if config.Entry == "" {
 		return Artifacts{}, usageError("entry package path is required")
 	}
-	if cfg.OutDir == "" {
+	if config.OutDir == "" {
 		return Artifacts{}, usageError("output directory is required")
 	}
-	name := cfg.Name
+	name := config.Name
 	if name == "" {
 		name = "runtime"
 	}
 
-	goRoot, err := resolveGoRoot(cfg.GoRoot)
+	goRoot, err := resolveGoRoot(config.GoRoot)
 	if err != nil {
 		return Artifacts{}, err
 	}
 
-	if err := os.MkdirAll(cfg.OutDir, 0o755); err != nil {
+	if err := os.MkdirAll(config.OutDir, 0o755); err != nil {
 		return Artifacts{}, fmt.Errorf("build: create output dir: %w", err)
 	}
 
-	wasmPath := filepath.Join(cfg.OutDir, name+".wasm")
+	wasmPath := filepath.Join(config.OutDir, name+".wasm")
 	var logBuf bytes.Buffer
-	cmd := exec.Command(filepath.Join(goRoot, "bin", "go"), "build", "-trimpath", "-ldflags=-s -w", "-o", wasmPath, cfg.Entry)
+	cmd := exec.Command(filepath.Join(goRoot, "bin", "go"), "build", "-trimpath", "-ldflags=-s -w", "-o", wasmPath, config.Entry)
 	cmd.Env = append(os.Environ(), "GOOS=js", "GOARCH=wasm")
 	cmd.Stdout = &logBuf
 	cmd.Stderr = &logBuf
@@ -74,7 +74,7 @@ func BuildWASM(cfg Config) (Artifacts, error) {
 		return Artifacts{}, err
 	}
 
-	jsPath, err := copyJSGlue(goRoot, cfg.OutDir)
+	jsPath, err := copyJSGlue(goRoot, config.OutDir)
 	if err != nil {
 		return Artifacts{}, err
 	}

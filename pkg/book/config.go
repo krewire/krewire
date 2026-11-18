@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/krewire/krewire/pkg/config"
+	pkgconfig "github.com/krewire/krewire/pkg/config"
 )
 
 // BookConfigFile represents the configuration file schema for standalone books
@@ -28,10 +28,10 @@ type BookConfigFile struct {
 // LoadConfigFile loads and parses a YAML configuration file from path into a Config.
 func LoadConfigFile(path string) (*Config, error) {
 	var cf BookConfigFile
-	if err := config.Load(path, &cf); err != nil {
+	if err := pkgconfig.Load(path, &cf); err != nil {
 		return nil, err
 	}
-	cfg := &Config{
+	config := &Config{
 		Title:      cf.Title,
 		Author:     cf.Author,
 		Input:      cf.Input,
@@ -46,19 +46,19 @@ func LoadConfigFile(path string) (*Config, error) {
 	}
 	switch strings.ToLower(strings.TrimSpace(cf.Theme)) {
 	case "auto", "default", "":
-		cfg.Theme = DefaultTheme()
+		config.Theme = DefaultTheme()
 	case "light":
 		th := DefaultTheme()
 		th.Default = "light"
-		cfg.Theme = th
+		config.Theme = th
 	case "dark":
 		th := DefaultTheme()
 		th.Default = "dark"
-		cfg.Theme = th
+		config.Theme = th
 	case "off", "none", "false":
-		cfg.Theme = nil
+		config.Theme = nil
 	}
-	return cfg, nil
+	return config, nil
 }
 
 // FindConfigFile discovers a configuration file in dir, searching in order:

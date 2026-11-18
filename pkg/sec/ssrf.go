@@ -108,15 +108,15 @@ func WithDialTimeout(d time.Duration) SafeTransportOption {
 // NewSafeTransport returns an http.RoundTripper that guards against SSRF
 // and DNS rebinding attacks by validating every resolved IP address before dialing.
 func NewSafeTransport(opts ...SafeTransportOption) *http.Transport {
-	cfg := &SafeTransportOptions{
+	config := &SafeTransportOptions{
 		Timeout: 10 * time.Second,
 	}
 	for _, opt := range opts {
-		opt(cfg)
+		opt(config)
 	}
 
 	dialer := &net.Dialer{
-		Timeout:   cfg.Timeout,
+		Timeout:   config.Timeout,
 		KeepAlive: 30 * time.Second,
 	}
 
@@ -137,9 +137,9 @@ func NewSafeTransport(opts ...SafeTransportOption) *http.Transport {
 				return nil, fmt.Errorf("%w: blocked host %q", ErrOutboundHostDenied, cleanHost)
 			}
 
-			if len(cfg.AllowedHosts) > 0 {
+			if len(config.AllowedHosts) > 0 {
 				matched := false
-				for _, h := range cfg.AllowedHosts {
+				for _, h := range config.AllowedHosts {
 					if strings.EqualFold(strings.TrimSuffix(h, "."), cleanHost) {
 						matched = true
 						break
@@ -159,7 +159,7 @@ func NewSafeTransport(opts ...SafeTransportOption) *http.Transport {
 			}
 
 			// Validate all resolved IPs
-			if !cfg.AllowPrivateIP {
+			if !config.AllowPrivateIP {
 				for _, ip := range ips {
 					if isPrivateAddress(ip) {
 						return nil, fmt.Errorf("%w: host %q resolved to private address %s", ErrOutboundHostDenied, cleanHost, ip.String())

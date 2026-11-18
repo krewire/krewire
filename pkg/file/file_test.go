@@ -128,30 +128,30 @@ func TestRead_WrapsErrorWithPath(t *testing.T) {
 // agnostic, which is what lets tests substitute an in-memory filesystem.
 func TestOperations_WorkWithMemoryFilesystem(t *testing.T) {
 	mem := fs.NewMemory()
-	if err := WriteAtomic(mem, "/cfg/data.json", []byte(`{"a":1}`), 0o600); err != nil {
+	if err := WriteAtomic(mem, "/config/data.json", []byte(`{"a":1}`), 0o600); err != nil {
 		t.Fatalf("WriteAtomic: %v", err)
 	}
-	got, err := Read(mem, "/cfg/data.json")
+	got, err := Read(mem, "/config/data.json")
 	if err != nil {
 		t.Fatalf("Read: %v", err)
 	}
 	if string(got) != `{"a":1}` {
 		t.Errorf("contents = %q", got)
 	}
-	if err := Copy(mem, "/cfg/copy.json", "/cfg/data.json", 0o600); err != nil {
+	if err := Copy(mem, "/config/copy.json", "/config/data.json", 0o600); err != nil {
 		t.Fatalf("Copy: %v", err)
 	}
-	copied, err := Read(mem, "/cfg/copy.json")
+	copied, err := Read(mem, "/config/copy.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if string(copied) != `{"a":1}` {
 		t.Errorf("copied contents = %q", copied)
 	}
-	if err := Write(mem, "/cfg/data.json", []byte("v2"), 0o600); err != nil {
+	if err := Write(mem, "/config/data.json", []byte("v2"), 0o600); err != nil {
 		t.Fatalf("Write: %v", err)
 	}
-	rewritten, err := Read(mem, "/cfg/data.json")
+	rewritten, err := Read(mem, "/config/data.json")
 	if err != nil {
 		t.Fatal(err)
 	}

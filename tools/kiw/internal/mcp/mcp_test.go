@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/krewire/krewire/tools/kiw/internal/config"
+	kiwconfig "github.com/krewire/krewire/tools/kiw/internal/config"
 )
 
 func setupTestServer(t *testing.T) (*Server, string) {
@@ -33,8 +33,8 @@ project:
 	_ = os.MkdirAll(pagesDir, 0o755)
 	_ = os.WriteFile(filepath.Join(pagesDir, "index.kiw"), []byte("<h1>Home</h1>"), 0o644)
 
-	cfg, _ := config.Load(tmpDir)
-	return NewServer(tmpDir, cfg), tmpDir
+	config, _ := kiwconfig.Load(tmpDir)
+	return NewServer(tmpDir, config), tmpDir
 }
 
 func TestInitialize(t *testing.T) {

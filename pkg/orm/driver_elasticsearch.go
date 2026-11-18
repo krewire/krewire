@@ -65,8 +65,8 @@ type ElasticsearchAdapter struct {
 var _ Adapter = (*ElasticsearchAdapter)(nil)
 
 // NewElasticsearch initializes a production-ready Elasticsearch adapter.
-func NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error) {
-	addrs := cfg.Addresses
+func NewElasticsearch(config ElasticsearchConfig) (*ElasticsearchAdapter, error) {
+	addrs := config.Addresses
 	if len(addrs) == 0 {
 		addrs = []string{DefaultElasticsearchAddress}
 	}
@@ -76,9 +76,9 @@ func NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error) {
 		cleanAddrs[i] = strings.TrimRight(a, "/")
 	}
 
-	httpClient := cfg.Client
+	httpClient := config.Client
 	if httpClient == nil {
-		timeout := cfg.Timeout
+		timeout := config.Timeout
 		if timeout <= 0 {
 			timeout = DefaultElasticsearchTimeout
 		}
@@ -97,7 +97,7 @@ func NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error) {
 			ExpectContinueTimeout: 1 * time.Second,
 		}
 
-		if cfg.TLSInsecureSkipVerify {
+		if config.TLSInsecureSkipVerify {
 			tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		}
 
@@ -108,22 +108,22 @@ func NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error) {
 	}
 
 	var auth string
-	if cfg.Username != "" {
-		auth = base64.StdEncoding.EncodeToString([]byte(cfg.Username + ":" + cfg.Password))
+	if config.Username != "" {
+		auth = base64.StdEncoding.EncodeToString([]byte(config.Username + ":" + config.Password))
 	}
 
-	retries := cfg.MaxRetries
+	retries := config.MaxRetries
 	if retries <= 0 {
 		retries = DefaultMaxRetries
 	}
 
-	backoff := cfg.RetryBackoff
+	backoff := config.RetryBackoff
 	if backoff <= 0 {
 		backoff = DefaultRetryBackoff
 	}
 
 	headers := make(map[string]string)
-	for k, v := range cfg.Headers {
+	for k, v := range config.Headers {
 		headers[k] = v
 	}
 
@@ -131,8 +131,8 @@ func NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error) {
 		addresses:    cleanAddrs,
 		client:       httpClient,
 		basicAuth:    auth,
-		apiKey:       cfg.APIKey,
-		bearerToken:  cfg.BearerToken,
+		apiKey:       config.APIKey,
+		bearerToken:  config.BearerToken,
 		headers:      headers,
 		maxRetries:   retries,
 		retryBackoff: backoff,

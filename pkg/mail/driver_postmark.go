@@ -37,23 +37,23 @@ type PostmarkDriver struct {
 }
 
 // NewPostmarkDriver creates a Postmark delivery driver.
-func NewPostmarkDriver(cfg PostmarkConfig) (*PostmarkDriver, error) {
-	if strings.TrimSpace(cfg.ServerToken) == "" {
+func NewPostmarkDriver(config PostmarkConfig) (*PostmarkDriver, error) {
+	if strings.TrimSpace(config.ServerToken) == "" {
 		return nil, errs.UsageError("mail: postmark server_token is required")
 	}
 
-	endpoint := strings.TrimSpace(cfg.Endpoint)
+	endpoint := strings.TrimSpace(config.Endpoint)
 	if endpoint == "" {
 		endpoint = DefaultPostmarkEndpoint
 	}
 
-	client := cfg.HTTPClient
+	client := config.HTTPClient
 	if client == nil {
 		client = &http.Client{Timeout: DefaultPostmarkTimeout}
 	}
 
 	return &PostmarkDriver{
-		serverToken: cfg.ServerToken,
+		serverToken: config.ServerToken,
 		endpoint:    endpoint,
 		client:      client,
 	}, nil

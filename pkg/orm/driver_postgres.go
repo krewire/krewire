@@ -138,18 +138,18 @@ func (c PostgresConfig) FormatDSN() string {
 }
 
 // NewPostgres creates and opens a DB connection pool configured for PostgreSQL.
-func NewPostgres(cfg PostgresConfig) (*DB, error) {
-	driver := strings.TrimSpace(cfg.DriverName)
+func NewPostgres(config PostgresConfig) (*DB, error) {
+	driver := strings.TrimSpace(config.DriverName)
 	if driver == "" {
 		driver = DefaultPostgresDriverName
 	}
 
 	return OpenWithConfig(Config{
 		DriverName:      driver,
-		DSN:             cfg.FormatDSN(),
-		MaxOpenConns:    cfg.MaxOpenConns,
-		MaxIdleConns:    cfg.MaxIdleConns,
-		ConnMaxLifetime: cfg.ConnMaxLifetime,
-		ConnMaxIdleTime: cfg.ConnMaxIdleTime,
+		DSN:             config.FormatDSN(),
+		MaxOpenConns:    config.MaxOpenConns,
+		MaxIdleConns:    config.MaxIdleConns,
+		ConnMaxLifetime: config.ConnMaxLifetime,
+		ConnMaxIdleTime: config.ConnMaxIdleTime,
 	})
 }

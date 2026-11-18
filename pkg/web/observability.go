@@ -116,11 +116,11 @@ func WithAccessLogger(l *slog.Logger) AccessLogOption {
 
 // AccessLog returns middleware that logs completed HTTP requests with latency, status, and request ID.
 func AccessLog(opts ...AccessLogOption) Middleware {
-	cfg := AccessLogOptions{
+	config := AccessLogOptions{
 		Logger: slog.Default(),
 	}
 	for _, opt := range opts {
-		opt(&cfg)
+		opt(&config)
 	}
 
 	return func(next http.Handler) http.Handler {
@@ -134,7 +134,7 @@ func AccessLog(opts ...AccessLogOption) Middleware {
 			reqID := GetRequestID(req)
 			clientIP := clientIP(req)
 
-			cfg.Logger.Info("http request",
+			config.Logger.Info("http request",
 				slog.String("method", req.Method),
 				slog.String("path", req.URL.Path),
 				slog.Int("status", rec.status),

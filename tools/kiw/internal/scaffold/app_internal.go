@@ -128,17 +128,17 @@ func internalConfigTemplate() string {
 		"// LoadMetadata reads krewire.yaml from path, overlays the environment, and returns a\n" +
 		"// validated Metadata.\n" +
 		"func LoadMetadata(path string) (*Metadata, error) {\n" +
-		"\tcfg := &Metadata{}\n" +
-		"\tif err := rconfig.Load(path, cfg); err != nil {\n" +
+		"\tconfig := &Metadata{}\n" +
+		"\tif err := rconfig.Load(path, config); err != nil {\n" +
 		"\t\treturn nil, err\n" +
 		"\t}\n" +
-		"\tif err := rconfig.Override(cfg, os.LookupEnv); err != nil {\n" +
+		"\tif err := rconfig.Override(config, os.LookupEnv); err != nil {\n" +
 		"\t\treturn nil, err\n" +
 		"\t}\n" +
-		"\tif err := validation.Struct(cfg); err != nil {\n" +
+		"\tif err := validation.Struct(config); err != nil {\n" +
 		"\t\treturn nil, fmt.Errorf(\"config: %w\", err)\n" +
 		"\t}\n" +
-		"\treturn cfg, nil\n" +
+		"\treturn config, nil\n" +
 		"}\n"
 }
 

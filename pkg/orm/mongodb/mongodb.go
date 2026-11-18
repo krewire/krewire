@@ -46,14 +46,14 @@ func Config(uri, database string) orm.MongoConfig {
 // ProductionConfig returns an enterprise-tuned MongoDB configuration:
 // high-throughput connection pool, 15s operation timeout, and keepalive reaps.
 func ProductionConfig(uri, database string) orm.MongoConfig {
-	cfg := Config(uri, database)
-	cfg.Timeout = 15 * time.Second
-	cfg.MinPoolSize = 10
-	cfg.MaxPoolSize = 100
-	cfg.MaxConnIdleTime = 10 * time.Minute
-	cfg.ServerSelectionTimeout = 10 * time.Second
-	cfg.AppName = "krewire-production"
-	return cfg
+	config := Config(uri, database)
+	config.Timeout = 15 * time.Second
+	config.MinPoolSize = 10
+	config.MaxPoolSize = 100
+	config.MaxConnIdleTime = 10 * time.Minute
+	config.ServerSelectionTimeout = 10 * time.Second
+	config.AppName = "krewire-production"
+	return config
 }
 
 // Open initializes and opens a MongoDB adapter with baseline Config defaults.
@@ -66,7 +66,7 @@ func OpenProduction(uri, database string) (*orm.MongoAdapter, error) {
 	return OpenConfig(ProductionConfig(uri, database))
 }
 
-// OpenConfig initializes a MongoDB adapter from cfg.
-func OpenConfig(cfg orm.MongoConfig) (*orm.MongoAdapter, error) {
-	return orm.NewMongoDB(cfg)
+// OpenConfig initializes a MongoDB adapter from config.
+func OpenConfig(config orm.MongoConfig) (*orm.MongoAdapter, error) {
+	return orm.NewMongoDB(config)
 }

@@ -77,12 +77,12 @@ func Config(path string) orm.SQLiteConfig {
 // WAL mode, synchronous NORMAL, 64MB memory page cache, in-memory temp tables,
 // 256MB memory-mapped I/O, and incremental auto-vacuum.
 func ProductionConfig(path string) orm.SQLiteConfig {
-	cfg := Config(path)
-	cfg.CacheSize = -64000           // 64 MB page cache
-	cfg.TempStore = "MEMORY"         // memory temp store
-	cfg.MmapSize = 256 * 1024 * 1024 // 256 MB mmap
-	cfg.AutoVacuum = "INCREMENTAL"
-	return cfg
+	config := Config(path)
+	config.CacheSize = -64000           // 64 MB page cache
+	config.TempStore = "MEMORY"         // memory temp store
+	config.MmapSize = 256 * 1024 * 1024 // 256 MB mmap
+	config.AutoVacuum = "INCREMENTAL"
+	return config
 }
 
 // DSN returns the connection string for path with the defaults of Config,
@@ -102,16 +102,16 @@ func OpenProduction(path string) (*orm.DB, error) {
 	return OpenConfig(ProductionConfig(path))
 }
 
-// OpenConfig opens a SQLite database from cfg. An empty DriverName selects the
+// OpenConfig opens a SQLite database from config. An empty DriverName selects the
 // bundled driver; an empty TxLock selects DefaultTxLock.
-func OpenConfig(cfg orm.SQLiteConfig) (*orm.DB, error) {
-	if strings.TrimSpace(cfg.DriverName) == "" {
-		cfg.DriverName = DriverName
+func OpenConfig(config orm.SQLiteConfig) (*orm.DB, error) {
+	if strings.TrimSpace(config.DriverName) == "" {
+		config.DriverName = DriverName
 	}
-	if strings.TrimSpace(cfg.TxLock) == "" {
-		cfg.TxLock = DefaultTxLock
+	if strings.TrimSpace(config.TxLock) == "" {
+		config.TxLock = DefaultTxLock
 	}
-	return orm.NewSQLite(cfg)
+	return orm.NewSQLite(config)
 }
 
 // Checkpoint executes a PRAGMA wal_checkpoint command to flush WAL frames back to the main DB.

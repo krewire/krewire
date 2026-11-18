@@ -88,9 +88,9 @@ func TestOpenRoundTripsThroughORM(t *testing.T) {
 }
 
 func TestOpenConfigFillsDefaults(t *testing.T) {
-	cfg := sqlite.Config(filepath.Join(t.TempDir(), "x.db"))
-	cfg.DriverName, cfg.TxLock = "", ""
-	db, err := sqlite.OpenConfig(cfg)
+	config := sqlite.Config(filepath.Join(t.TempDir(), "x.db"))
+	config.DriverName, config.TxLock = "", ""
+	db, err := sqlite.OpenConfig(config)
 	if err != nil {
 		t.Fatal(err)
 	}

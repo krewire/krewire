@@ -101,14 +101,14 @@ func TestLoadDotEnv_CustomFileAndNamespace(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cfg := &Config{
+	config := &Config{
 		Runtime: RuntimeConfig{
 			Namespace: "krewire",
 			EnvFile:   ".env.custom",
 		},
 	}
 
-	if err := cfg.LoadDotEnv(dir); err != nil {
+	if err := config.LoadDotEnv(dir); err != nil {
 		t.Fatalf("LoadDotEnv failed: %v", err)
 	}
 
@@ -129,8 +129,8 @@ func TestLoadDotEnv_ExampleWarning(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cfg := &Config{}
-	if err := cfg.LoadDotEnv(dir); err != nil {
+	config := &Config{}
+	if err := config.LoadDotEnv(dir); err != nil {
 		t.Fatalf("LoadDotEnv should not fail when only .env.example exists: %v", err)
 	}
 }

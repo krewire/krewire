@@ -60,7 +60,7 @@ type IndexOptions struct {
 // MongoAdapter implements Adapter for document-oriented MongoDB workloads.
 type MongoAdapter struct {
 	mu     sync.RWMutex
-	cfg    MongoConfig
+	config MongoConfig
 	closed bool
 	stores map[string]*mongoMemoryStore // collection name -> store
 }
@@ -70,16 +70,16 @@ var _ Adapter = (*MongoAdapter)(nil)
 
 // NewMongoDB creates an adapter for MongoDB. If URI is "memory://" or empty,
 // it runs in high-performance in-memory mode with full query operator fidelity.
-func NewMongoDB(cfg MongoConfig) (*MongoAdapter, error) {
-	if strings.TrimSpace(cfg.Database) == "" {
-		cfg.Database = DefaultMongoDatabase
+func NewMongoDB(config MongoConfig) (*MongoAdapter, error) {
+	if strings.TrimSpace(config.Database) == "" {
+		config.Database = DefaultMongoDatabase
 	}
-	if cfg.Timeout <= 0 {
-		cfg.Timeout = DefaultMongoTimeout
+	if config.Timeout <= 0 {
+		config.Timeout = DefaultMongoTimeout
 	}
 
 	return &MongoAdapter{
-		cfg:    cfg,
+		config: config,
 		stores: make(map[string]*mongoMemoryStore),
 	}, nil
 }
@@ -94,7 +94,7 @@ func (a *MongoAdapter) Type() AdapterType {
 
 // Database returns the currently selected database name.
 func (a *MongoAdapter) Database() string {
-	return a.cfg.Database
+	return a.config.Database
 }
 
 func (a *MongoAdapter) Ping(ctx context.Context) error {

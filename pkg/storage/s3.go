@@ -48,12 +48,12 @@ type S3Store struct {
 }
 
 // NewS3Store initializes an S3Store.
-func NewS3Store(cfg S3Config) (*S3Store, error) {
-	if strings.TrimSpace(cfg.Bucket) == "" {
+func NewS3Store(config S3Config) (*S3Store, error) {
+	if strings.TrimSpace(config.Bucket) == "" {
 		return nil, fmt.Errorf("storage: s3 bucket name is required")
 	}
 
-	endpoint := strings.TrimRight(strings.TrimSpace(cfg.Endpoint), "/")
+	endpoint := strings.TrimRight(strings.TrimSpace(config.Endpoint), "/")
 	if endpoint == "" {
 		endpoint = DefaultS3Endpoint
 	}
@@ -61,23 +61,23 @@ func NewS3Store(cfg S3Config) (*S3Store, error) {
 		endpoint = "https://" + endpoint
 	}
 
-	region := strings.TrimSpace(cfg.Region)
+	region := strings.TrimSpace(config.Region)
 	if region == "" {
 		region = DefaultS3Region
 	}
 
-	client := cfg.HTTPClient
+	client := config.HTTPClient
 	if client == nil {
 		client = &http.Client{Timeout: DefaultS3Timeout}
 	}
 
 	return &S3Store{
 		endpoint:     endpoint,
-		bucket:       cfg.Bucket,
+		bucket:       config.Bucket,
 		region:       region,
-		accessKey:    cfg.AccessKeyID,
-		secretKey:    cfg.SecretAccessKey,
-		usePathStyle: cfg.UsePathStyle,
+		accessKey:    config.AccessKeyID,
+		secretKey:    config.SecretAccessKey,
+		usePathStyle: config.UsePathStyle,
 		client:       client,
 	}, nil
 }

@@ -32,24 +32,24 @@ type RedisConfig struct {
 // RedisCache implements Cache over Redis/RESP protocol in pure Go.
 type RedisCache struct {
 	mu      sync.Mutex
-	cfg     RedisConfig
+	config  RedisConfig
 	conn    net.Conn
 	reader  *bufio.Reader
 	timeout time.Duration
 }
 
 // NewRedisCache creates a new Redis Cache client.
-func NewRedisCache(cfg RedisConfig) (*RedisCache, error) {
-	if cfg.Address == "" {
-		cfg.Address = DefaultRedisAddress
+func NewRedisCache(config RedisConfig) (*RedisCache, error) {
+	if config.Address == "" {
+		config.Address = DefaultRedisAddress
 	}
-	if cfg.Timeout <= 0 {
-		cfg.Timeout = DefaultRedisTimeout
+	if config.Timeout <= 0 {
+		config.Timeout = DefaultRedisTimeout
 	}
 
 	rc := &RedisCache{
-		cfg:     cfg,
-		timeout: cfg.Timeout,
+		config:  config,
+		timeout: config.Timeout,
 	}
 
 	return rc, nil
@@ -60,27 +60,27 @@ func (r *RedisCache) getConnection() (net.Conn, *bufio.Reader, error) {
 		return r.conn, r.reader, nil
 	}
 
-	conn, err := net.DialTimeout("tcp", r.cfg.Address, r.timeout)
+	conn, err := net.DialTimeout("tcp", r.config.Address, r.timeout)
 	if err != nil {
-		return nil, nil, fmt.Errorf("cache: redis connect to %s failed: %w", r.cfg.Address, err)
+		return nil, nil, fmt.Errorf("cache: redis connect to %s failed: %w", r.config.Address, err)
 	}
 
 	r.conn = conn
 	r.reader = bufio.NewReader(conn)
 
 	// Auth if password provided
-	if r.cfg.Password != "" {
-		if _, err := r.execCommand("AUTH", r.cfg.Password); err != nil {
+	if r.config.Password != "" {
+		if _, err := r.execCommand("AUTH", r.config.Password); err != nil {
 			r.closeConn()
 			return nil, nil, fmt.Errorf("cache: redis auth failed: %w", err)
 		}
 	}
 
 	// Select DB if > 0
-	if r.cfg.DB > 0 {
-		if _, err := r.execCommand("SELECT", strconv.Itoa(r.cfg.DB)); err != nil {
+	if r.config.DB > 0 {
+		if _, err := r.execCommand("SELECT", strconv.Itoa(r.config.DB)); err != nil {
 			r.closeConn()
-			return nil, nil, fmt.Errorf("cache: redis select db %d failed: %w", r.cfg.DB, err)
+			return nil, nil, fmt.Errorf("cache: redis select db %d failed: %w", r.config.DB, err)
 		}
 	}
 

@@ -37,23 +37,23 @@ type ResendDriver struct {
 }
 
 // NewResendDriver creates a Resend delivery driver.
-func NewResendDriver(cfg ResendConfig) (*ResendDriver, error) {
-	if strings.TrimSpace(cfg.APIKey) == "" {
+func NewResendDriver(config ResendConfig) (*ResendDriver, error) {
+	if strings.TrimSpace(config.APIKey) == "" {
 		return nil, errs.UsageError("mail: resend api_key is required")
 	}
 
-	endpoint := strings.TrimSpace(cfg.Endpoint)
+	endpoint := strings.TrimSpace(config.Endpoint)
 	if endpoint == "" {
 		endpoint = DefaultResendEndpoint
 	}
 
-	client := cfg.HTTPClient
+	client := config.HTTPClient
 	if client == nil {
 		client = &http.Client{Timeout: DefaultResendTimeout}
 	}
 
 	return &ResendDriver{
-		apiKey:   cfg.APIKey,
+		apiKey:   config.APIKey,
 		endpoint: endpoint,
 		client:   client,
 	}, nil

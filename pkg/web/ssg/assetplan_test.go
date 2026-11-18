@@ -402,19 +402,19 @@ func TestBundleAssets_BuildWritesBundledFilesOnly(t *testing.T) {
 
 func TestAutoAssetConfig_Bundle(t *testing.T) {
 	b := true
-	cfg := &AutoAssetConfig{
+	config := &AutoAssetConfig{
 		Bundle: &b,
 	}
-	s := New().AutoAssets(cfg)
+	s := New().AutoAssets(config)
 	if !s.Bundle() {
 		t.Errorf("expected s.Bundle() to be true")
 	}
 
 	bFalse := false
-	cfgFalse := &AutoAssetConfig{
+	configFalse := &AutoAssetConfig{
 		Bundle: &bFalse,
 	}
-	s2 := New().AutoAssets(cfgFalse)
+	s2 := New().AutoAssets(configFalse)
 	if s2.Bundle() {
 		t.Errorf("expected s2.Bundle() to be false")
 	}

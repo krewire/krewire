@@ -72,15 +72,15 @@ func ParseContent(filePath string, baseDir string) (*ParsedContent, error) {
 		return nil, fmt.Errorf("content: missing frontmatter in %s", filePath)
 	}
 
-	var cfg ContentConfig
-	if err := yaml.Unmarshal([]byte(parts[1]), &cfg); err != nil {
+	var config ContentConfig
+	if err := yaml.Unmarshal([]byte(parts[1]), &config); err != nil {
 		return nil, fmt.Errorf("content: frontmatter parse error in %s: %w", filePath, err)
 	}
 
 	// Parse date
 	var rawDate time.Time
-	if cfg.Date != "" {
-		rawDate, err = parseFlexibleDate(cfg.Date)
+	if config.Date != "" {
+		rawDate, err = parseFlexibleDate(config.Date)
 		if err != nil {
 			return nil, fmt.Errorf("content: invalid date in %s: %w", filePath, err)
 		}
@@ -96,14 +96,14 @@ func ParseContent(filePath string, baseDir string) (*ParsedContent, error) {
 
 	// Determine slug and URL
 	rel, _ := filepath.Rel(baseDir, filePath)
-	slug := cfg.Slug
+	slug := config.Slug
 	if slug == "" {
 		slug = strings.TrimSuffix(filepath.Base(rel), filepath.Ext(rel))
 	}
 	url := "/" + strings.TrimSuffix(rel, filepath.Ext(rel))
 
 	return &ParsedContent{
-		Config:  cfg,
+		Config:  config,
 		Content: template.HTML(htmlBytes),
 		Path:    filePath,
 		URL:     url,

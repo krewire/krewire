@@ -58,7 +58,7 @@ func (c *Config) ToSSGConfig() *ssg.Config {
 	if autoAssets == nil {
 		autoAssets = c.AutoAssets
 	}
-	cfg := &ssg.Config{
+	config := &ssg.Config{
 		Title:       c.Title,
 		Description: s.Description,
 		Base:        c.Base,
@@ -68,18 +68,18 @@ func (c *Config) ToSSGConfig() *ssg.Config {
 		AutoAssets:  autoAssets,
 	}
 	if c.Theme != nil {
-		cfg.Theme = &ssg.ThemeConfig{
+		config.Theme = &ssg.ThemeConfig{
 			Default: c.Theme.Default,
 		}
 	}
 	for _, l := range s.Layouts {
-		cfg.Layouts = append(cfg.Layouts, ssg.LayoutConfig{Name: l.Name, Body: l.Body, Style: l.Style, UI: l.UI})
+		config.Layouts = append(config.Layouts, ssg.LayoutConfig{Name: l.Name, Body: l.Body, Style: l.Style, UI: l.UI})
 	}
 	for _, comp := range s.Components {
-		cfg.Components = append(cfg.Components, ssg.ComponentConfig{Name: comp.Name, Body: comp.Body, Style: comp.Style})
+		config.Components = append(config.Components, ssg.ComponentConfig{Name: comp.Name, Body: comp.Body, Style: comp.Style})
 	}
 	for _, p := range s.Pages {
-		cfg.Pages = append(cfg.Pages, ssg.PageConfig{
+		config.Pages = append(config.Pages, ssg.PageConfig{
 			Path:   p.Path,
 			Title:  p.Title,
 			Layout: p.Layout,
@@ -87,5 +87,5 @@ func (c *Config) ToSSGConfig() *ssg.Config {
 			Data:   p.Data,
 		})
 	}
-	return cfg
+	return config
 }

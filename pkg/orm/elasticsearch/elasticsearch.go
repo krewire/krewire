@@ -37,11 +37,11 @@ func Config(addresses ...string) orm.ElasticsearchConfig {
 // ProductionConfig returns an enterprise-tuned Elasticsearch configuration:
 // cluster load-balancing, 20s query timeout, 3 retries with backoff.
 func ProductionConfig(addresses ...string) orm.ElasticsearchConfig {
-	cfg := Config(addresses...)
-	cfg.Timeout = 20 * time.Second
-	cfg.MaxRetries = 3
-	cfg.RetryBackoff = 150 * time.Millisecond
-	return cfg
+	config := Config(addresses...)
+	config.Timeout = 20 * time.Second
+	config.MaxRetries = 3
+	config.RetryBackoff = 150 * time.Millisecond
+	return config
 }
 
 // Open initializes and opens an Elasticsearch adapter with baseline Config defaults.
@@ -54,7 +54,7 @@ func OpenProduction(addresses ...string) (*orm.ElasticsearchAdapter, error) {
 	return OpenConfig(ProductionConfig(addresses...))
 }
 
-// OpenConfig initializes an Elasticsearch adapter from cfg.
-func OpenConfig(cfg orm.ElasticsearchConfig) (*orm.ElasticsearchAdapter, error) {
-	return orm.NewElasticsearch(cfg)
+// OpenConfig initializes an Elasticsearch adapter from config.
+func OpenConfig(config orm.ElasticsearchConfig) (*orm.ElasticsearchAdapter, error) {
+	return orm.NewElasticsearch(config)
 }

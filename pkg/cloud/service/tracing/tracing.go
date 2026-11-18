@@ -58,11 +58,11 @@ func (noopSpan) RecordError(_ error)          {}
 
 // New creates a tracer from config (FRK-SVC-040). Returns NoopTracer if
 // the exporter is empty or unsupported (no external dependency required).
-func New(cfg Config) (Tracer, error) {
-	if cfg.ServiceName == "" {
+func New(config Config) (Tracer, error) {
+	if config.ServiceName == "" {
 		return nil, fmt.Errorf("tracing: serviceName is required")
 	}
-	switch cfg.Exporter {
+	switch config.Exporter {
 	case "otlp", "jaeger", "zipkin", "stdout":
 		// In a full implementation, this would initialize the OTel SDK.
 		// For now, return a noop tracer to avoid external dependencies.
@@ -70,7 +70,7 @@ func New(cfg Config) (Tracer, error) {
 	case "":
 		return NoopTracer{}, nil
 	default:
-		return nil, fmt.Errorf("tracing: unknown exporter %q", cfg.Exporter)
+		return nil, fmt.Errorf("tracing: unknown exporter %q", config.Exporter)
 	}
 }
 

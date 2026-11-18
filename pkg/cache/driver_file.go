@@ -26,8 +26,8 @@ type FileCache struct {
 }
 
 // NewFileCache creates a disk-based Cache.
-func NewFileCache(cfg FileCacheConfig) (*FileCache, error) {
-	dir := cfg.Directory
+func NewFileCache(config FileCacheConfig) (*FileCache, error) {
+	dir := config.Directory
 	if dir == "" {
 		dir = filepath.Join(os.TempDir(), "krewire_cache")
 	}
@@ -41,7 +41,7 @@ func NewFileCache(cfg FileCacheConfig) (*FileCache, error) {
 		stopCh: make(chan struct{}),
 	}
 
-	sweepInterval := cfg.SweepInterval
+	sweepInterval := config.SweepInterval
 	if sweepInterval <= 0 {
 		sweepInterval = 10 * time.Minute
 	}

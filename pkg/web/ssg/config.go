@@ -195,8 +195,8 @@ func (c *Config) Site() (*Site, error) {
 
 // BuildFromConfig builds the declarative site into outDir and returns the
 // paths created, relative to outDir.
-func BuildFromConfig(cfg *Config, outDir string) ([]string, error) {
-	s, err := cfg.Site()
+func BuildFromConfig(config *Config, outDir string) ([]string, error) {
+	s, err := config.Site()
 	if err != nil {
 		return nil, err
 	}
@@ -207,8 +207,8 @@ func BuildFromConfig(cfg *Config, outDir string) ([]string, error) {
 // must keep rendering more output into the same directory — a book mounted into
 // an ssg site, for example — can ask the site for its resolved asset plan
 // instead of guessing which assets exist and in what order.
-func BuildFromConfigSite(cfg *Config, outDir string) (*Site, []string, error) {
-	s, err := cfg.Site()
+func BuildFromConfigSite(config *Config, outDir string) (*Site, []string, error) {
+	s, err := config.Site()
 	if err != nil {
 		return nil, nil, err
 	}

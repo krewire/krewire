@@ -79,15 +79,15 @@ type Bundler struct {
 
 // NewBundler returns an initialized Bundler with applied options.
 func NewBundler(opts ...BundlerOption) *Bundler {
-	cfg := BundlerOptions{
+	config := BundlerOptions{
 		SourceComments: true,
 		CSSOutputName:  DefaultCSSBundlePath,
 		JSOutputName:   DefaultJSBundlePath,
 	}
 	for _, opt := range opts {
-		opt(&cfg)
+		opt(&config)
 	}
-	return &Bundler{opts: cfg}
+	return &Bundler{opts: config}
 }
 
 // BundleResult holds the rendered bundle strings and metadata.

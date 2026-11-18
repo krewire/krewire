@@ -37,23 +37,23 @@ type SendGridDriver struct {
 }
 
 // NewSendGridDriver initializes a SendGrid delivery driver.
-func NewSendGridDriver(cfg SendGridConfig) (*SendGridDriver, error) {
-	if strings.TrimSpace(cfg.APIKey) == "" {
+func NewSendGridDriver(config SendGridConfig) (*SendGridDriver, error) {
+	if strings.TrimSpace(config.APIKey) == "" {
 		return nil, errs.UsageError("mail: sendgrid api_key is required")
 	}
 
-	endpoint := strings.TrimSpace(cfg.Endpoint)
+	endpoint := strings.TrimSpace(config.Endpoint)
 	if endpoint == "" {
 		endpoint = DefaultSendGridEndpoint
 	}
 
-	client := cfg.HTTPClient
+	client := config.HTTPClient
 	if client == nil {
 		client = &http.Client{Timeout: DefaultSendGridTimeout}
 	}
 
 	return &SendGridDriver{
-		apiKey:   cfg.APIKey,
+		apiKey:   config.APIKey,
 		endpoint: endpoint,
 		client:   client,
 	}, nil

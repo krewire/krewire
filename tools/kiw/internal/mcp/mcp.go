@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/krewire/krewire/tools/kiw/internal/buildinfo"
-	"github.com/krewire/krewire/tools/kiw/internal/config"
+	kiwconfig "github.com/krewire/krewire/tools/kiw/internal/config"
 	"github.com/krewire/krewire/tools/kiw/internal/scaffold"
 	"github.com/krewire/krewire/tools/kiw/internal/shape"
 )
@@ -59,15 +59,15 @@ const (
 // Server coordinates MCP protocol interactions for a Krewire project.
 type Server struct {
 	root      string
-	cfg       *config.Config
+	config    *kiwconfig.Config
 	startTime time.Time
 }
 
 // NewServer initializes a new MCP Server for the given project root and config.
-func NewServer(root string, cfg *config.Config) *Server {
+func NewServer(root string, config *kiwconfig.Config) *Server {
 	return &Server{
 		root:      root,
-		cfg:       cfg,
+		config:    config,
 		startTime: time.Now(),
 	}
 }
@@ -351,22 +351,22 @@ func (s *Server) collectMetrics() map[string]any {
 
 func (s *Server) collectInfo() map[string]any {
 	name := ""
-	if s.cfg != nil {
-		name = s.cfg.Title
+	if s.config != nil {
+		name = s.config.Title
 	}
 	if name == "" {
 		name = filepath.Base(s.root)
 	}
 
 	explicit := ""
-	if s.cfg != nil {
-		explicit = s.cfg.Kind()
+	if s.config != nil {
+		explicit = s.config.Kind()
 	}
 	res, _ := shape.Detect(s.root, explicit)
 
 	var svcs []map[string]any
-	if s.cfg != nil {
-		for _, svc := range s.cfg.Services {
+	if s.config != nil {
+		for _, svc := range s.config.Services {
 			svcs = append(svcs, map[string]any{
 				"name": svc.Name,
 				"port": svc.Port,

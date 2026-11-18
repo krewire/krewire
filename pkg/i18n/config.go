@@ -49,18 +49,18 @@ func DefaultConfig() Config {
 }
 
 // WithConfig applies settings from a Config struct onto the Bundle.
-func WithConfig(cfg Config) Option {
+func WithConfig(config Config) Option {
 	return func(b *Bundle) {
-		if cfg.DefaultLocale != "" {
-			b.defaultLocale = strings.ToLower(cfg.DefaultLocale)
+		if config.DefaultLocale != "" {
+			b.defaultLocale = strings.ToLower(config.DefaultLocale)
 		}
-		if cfg.FallbackLocale != "" {
-			b.fallbackLocale = strings.ToLower(cfg.FallbackLocale)
+		if config.FallbackLocale != "" {
+			b.fallbackLocale = strings.ToLower(config.FallbackLocale)
 		}
-		if cfg.BasePath != "" {
-			b.basePath = strings.Trim(cfg.BasePath, "/")
+		if config.BasePath != "" {
+			b.basePath = strings.Trim(config.BasePath, "/")
 		}
-		for _, loc := range cfg.Locales {
+		for _, loc := range config.Locales {
 			if trimmed := strings.ToLower(strings.TrimSpace(loc)); trimmed != "" {
 				b.locales[trimmed] = struct{}{}
 			}
@@ -69,8 +69,8 @@ func WithConfig(cfg Config) Option {
 }
 
 // NewFromConfig creates an i18n Bundle configured from a Config struct.
-func NewFromConfig(fsys fs.FS, cfg Config, opts ...Option) (*Bundle, error) {
-	allOpts := append([]Option{WithConfig(cfg)}, opts...)
+func NewFromConfig(fsys fs.FS, config Config, opts ...Option) (*Bundle, error) {
+	allOpts := append([]Option{WithConfig(config)}, opts...)
 	return New(fsys, allOpts...)
 }
 
@@ -86,21 +86,21 @@ type ConfigSource interface {
 // LoadConfigFromSource reads an i18n Config from a dynamic ConfigSource.
 // It supports values stored as JSON or YAML under the given key.
 func LoadConfigFromSource(ctx context.Context, src ConfigSource, key string) (Config, error) {
-	cfg := DefaultConfig()
+	config := DefaultConfig()
 	if src == nil {
-		return cfg, fmt.Errorf("i18n: nil config source")
+		return config, fmt.Errorf("i18n: nil config source")
 	}
 
 	data, err := src.Get(ctx, key)
 	if err != nil {
-		return cfg, fmt.Errorf("i18n: read config key %q from source: %w", key, err)
+		return config, fmt.Errorf("i18n: read config key %q from source: %w", key, err)
 	}
 
-	if err := parseConfigData(data, &cfg); err != nil {
-		return cfg, fmt.Errorf("i18n: parse config from source: %w", err)
+	if err := parseConfigData(data, &config); err != nil {
+		return config, fmt.Errorf("i18n: parse config from source: %w", err)
 	}
 
-	return cfg, nil
+	return config, nil
 }
 
 // WatchSource watches a ConfigSource for dynamic updates to i18n configuration.
@@ -117,16 +117,16 @@ func WatchSource(ctx context.Context, src ConfigSource, key string, bundle *Bund
 
 	go func() {
 		for data := range changes {
-			var newCfg Config
-			if err := parseConfigData(data, &newCfg); err == nil {
+			var newConfig Config
+			if err := parseConfigData(data, &newConfig); err == nil {
 				bundle.mu.Lock()
-				if newCfg.DefaultLocale != "" {
-					bundle.defaultLocale = strings.ToLower(newCfg.DefaultLocale)
+				if newConfig.DefaultLocale != "" {
+					bundle.defaultLocale = strings.ToLower(newConfig.DefaultLocale)
 				}
-				if newCfg.FallbackLocale != "" {
-					bundle.fallbackLocale = strings.ToLower(newCfg.FallbackLocale)
+				if newConfig.FallbackLocale != "" {
+					bundle.fallbackLocale = strings.ToLower(newConfig.FallbackLocale)
 				}
-				for _, loc := range newCfg.Locales {
+				for _, loc := range newConfig.Locales {
 					if trimmed := strings.ToLower(strings.TrimSpace(loc)); trimmed != "" {
 						bundle.locales[trimmed] = struct{}{}
 					}
