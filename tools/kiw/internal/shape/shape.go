@@ -263,4 +263,4 @@ func HasDir(dir, sub string) bool {
 }
 
 func hasFile(dir, name string) bool { return HasFile(dir, name) }
-func isDir(dir, sub string) bool   { return HasDir(dir, sub) }
+func isDir(dir, sub string) bool    { return HasDir(dir, sub) }
