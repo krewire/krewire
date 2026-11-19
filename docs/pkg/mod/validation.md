@@ -1,33 +1,63 @@
-# `validation`
+# Package Reference: `validation`
 
 Import: `github.com/krewire/krewire/pkg/validation`
 
-## Purpose
+## 1. Purpose & Architecture
 
-Reflection-based, stdlib-only struct validation using `validate` tags. The package is framework-agnostic and shared by web, CLI, and configuration consumers.
+The `pkg/validation` package provides a framework-agnostic, reflection-based struct and scalar validation engine in 100% standard-library Go. It allows HTTP handlers, CLI commands, and domain models to share one unified validation rule syntax without external dependencies.
 
-## Main API
+For deep validation rules and custom rule registration, see [Configuration & Validation Guide](../system/config-and-validation.md).
 
-- `Struct(value)` validates exported fields recursively.
-- `Field(value, tag)` validates a scalar or collection value.
-- `ValidationError` aggregates field failures.
-- `FieldError` describes field, value, and failed rule.
-- `validation/rules` provides built-in rules and `rules.Register` for extensions.
+---
 
-Supported rules include `required`, `omitempty`, `min`, `max`, `len`, `email`, `pattern`, and `oneof`.
+## 2. Main API Reference
 
-## Example
+- **`validation.Struct(v any) error`**: Validates a struct or struct pointer against its `validate` tags. Returns `nil` on success or `*validation.ValidationError` detailing failing fields.
+- **`validation.Field(value any, tag string) error`**: Validates an individual scalar value against a rule string.
+- **Built-in Rules**:
+  - `required`: Non-zero value.
+  - `min=N` / `max=N`: Minimum/maximum numeric value or string/slice length.
+  - `len=N`: Exact length.
+  - `email`: Valid RFC 5322 email address format.
+  - `oneof=a b c`: Value must be one of the listed choices.
+  - `pattern=regex`: Value must match regular expression.
+
+---
+
+## 3. Usage Example
 
 ```go
-type User struct {
-    Email string `validate:"required,email"`
-    Role  string `validate:"oneof=admin viewer"`
+package main
+
+import (
+    "fmt"
+    "github.com/krewire/krewire/pkg/validation"
+)
+
+type SignupPayload struct {
+    Username string `validate:"required,min=3,max=30"`
+    Email    string `validate:"required,email"`
+    Role     string `validate:"required,oneof=user admin"`
 }
-if err := validation.Struct(User{Email: "user@example.com", Role: "viewer"}); err != nil {
-    return err
+
+func main() {
+    payload := SignupPayload{
+        Username: "al",
+        Email:    "invalid-email",
+        Role:     "superuser",
+    }
+
+    err := validation.Struct(payload)
+    if err != nil {
+        fmt.Println("Validation failed:", err)
+    }
 }
 ```
 
-## Design boundary
+---
 
-The package validates local struct constraints. Cross-field business invariants and workload rules belong to [`core`](../core/model.md). Malformed or unknown rules return errors; they do not panic.
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: Validates invariants before untrusted user input reaches SQL builders, shell executors, or filesystem storage.
+- **Sustainable (S2)**: Pure Go standard library; no bloated external dependencies.
+- **Scalable (S3)**: Reusable across web APIs, TUI command arguments, and background job payloads.

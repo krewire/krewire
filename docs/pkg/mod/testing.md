@@ -1,33 +1,57 @@
-# `testing`
+# Package Reference: `testing`
 
 Import: `github.com/krewire/krewire/pkg/testing`
 
-## Purpose
+## 1. Purpose & Architecture
 
-Unified test harness, assertions, temporary sandboxes, HTTP test servers, and headless browser automation.
+The `pkg/testing` package delivers testing assertions, fluent HTTP request builders, chainable response expecters, golden snapshot assertions, UI component render harnesses, and headless browser test runners.
 
-## Subpackages
+For complete browser testing and end-to-end integration examples, see [Testing & Browser Automation Guide](../platform/testing.md).
 
-- **`testing`**: Assertion helpers, temp file sandbox management, and test lifecycle hooks.
-- **`testing/browser`**: Headless browser automation harness for end-to-end SSR and WASM verification.
+---
 
-## Example
+## 2. Main API Reference
+
+- **Assertions**: `Equal(t, got, want)`, `NoError(t, err)`, `HasError(t, err)`, `Contains(t, s, substr)`, `NotContains(t, s, substr)`, `True(t, cond, msg)`.
+- **Fluent HTTP**:
+  - `test.Request(t)` / `test.GET(t, path)` / `test.POST(t, path, body)` / `test.JSONRequest(t, method, path, payload)`.
+  - `test.Do(t, handler, req)` executing against any `http.Handler`.
+  - `.Status(code)`, `.Header(key, want)`, `.Contains(text)`, `.JSON(&dst)`.
+- **Snapshots**: `AssertGolden(t, goldenPath, actualBytes)`.
+- **Headless Browser**: `browser.New(t, serverURL)` for verifying rendered HTML and client WASM widgets.
+
+---
+
+## 3. Usage Example
 
 ```go
-package mytest_test
+package main_test
 
 import (
-	"testing"
-	"github.com/krewire/krewire/pkg/testing/browser"
+    "net/http"
+    "testing"
+    ftest "github.com/krewire/krewire/pkg/testing"
 )
 
-func TestPage_Render(t *testing.T) {
-	b := browser.New(t)
-	b.Navigate("http://localhost:8080")
-	b.AssertTextVisible("Krewire")
+func TestHealthCheck(t *testing.T) {
+    handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusOK)
+        w.Write([]byte(`{"status":"healthy"}`))
+    })
+
+    req := ftest.GET(t, "/health").Request()
+    ftest.Do(t, handler, req).
+        Status(http.StatusOK).
+        Header("Content-Type", "application/json").
+        Contains("healthy")
 }
 ```
 
-## Design boundary
+---
 
-Testing utility suite. See the full [Testing Reference](../platform/testing.md).
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: In-process test execution; prevents accidental external socket exposure during automated test runs.
+- **Sustainable (S2)**: Pure Go without heavyweight third-party test runners or node-based testing tools.
+- **Scalable (S3)**: Unified test contracts across HTTP APIs, WebAssembly islands, and CLI tools.

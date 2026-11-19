@@ -1,32 +1,56 @@
-# `storage`
+# Package Reference: `storage`
 
 Import: `github.com/krewire/krewire/pkg/storage`
 
-## Purpose
+## 1. Purpose & Architecture
 
-`storage` defines a backend-independent object storage contract and provides a local filesystem implementation. Consumers depend on `Store` instead of coupling application code to a concrete backend.
+The `pkg/storage` package defines a clean, backend-independent object storage abstraction boundary. Applications depend strictly on the `storage.Store` or `storage.StreamStore` interface, allowing transparent swapping between local disk, in-memory mocks, and S3-compatible cloud storage.
 
-## Main API
+For detailed storage architecture and filesystem operations, see [Storage & Filesystem Guide](../system/storage-and-fs.md).
 
-- `Store` — `Put`, `Get`, `Delete`, and `Stat` operations.
-- `ContextStore` — context-aware extension of `Store` without changing the base interface.
-- **Drivers**:
-  - `Local` — local filesystem storage with path-traversal protection and atomic replacement.
-  - `MemoryStore` (`NewMemoryStore`) — thread-safe in-memory object store.
-  - `S3Store` (`NewS3Store`) — S3-compatible cloud storage driver (AWS S3, MinIO, Cloudflare R2, Wasabi) with pure-Go AWS SigV4 authorization.
-- `ObjectInfo` — key, size, and mode metadata.
+---
 
-Object keys are resolved below the configured root. Path traversal attempts are rejected.
+## 2. Main API Reference
 
-## Example
+- **`storage.Store`**: Core contract with `Put(key string, data []byte)`, `Get(key string)`, `Delete(key string)`, and `Stat(key string) (ObjectInfo, error)`.
+- **`storage.Provider`**: Type alias for `Store` conforming to Krewire dependency naming conventions.
+- **`storage.StreamStore`**: Extends `Store` with `PutStream(key string, r io.Reader)` and `GetStream(key string) (io.ReadCloser, error)`.
+- **`storage.NewLocal(root string, fsys fs.FileSystem) (*Local, error)`**: Creates local filesystem storage with path-traversal prevention.
+- **`storage.NewMemory() *Memory`**: Ephemeral in-memory mock store for unit tests.
+- **`storage.NewS3(cfg S3Config) (*S3, error)`**: Cloud object storage driver (AWS S3, Cloudflare R2, MinIO).
+- **`storage.NewRedis(client) (*Redis, error)`**: Redis/Valkey backed binary storage.
+
+---
+
+## 3. Usage Example
 
 ```go
-store, err := storage.NewLocal("var/objects", nil)
-if err != nil { return err }
-if err := store.Put("images/avatar.png", data); err != nil { return err }
-contents, err := store.Get("images/avatar.png")
+package main
+
+import (
+    "fmt"
+    "github.com/krewire/krewire/pkg/storage"
+)
+
+func main() {
+    // In production: storage.NewLocal or storage.NewS3
+    store, _ := storage.NewLocal("/var/data/uploads", nil)
+
+    // Put object
+    _ = store.Put("reports/2026-q1.pdf", []byte("%PDF-1.4..."))
+
+    // Get object
+    data, err := store.Get("reports/2026-q1.pdf")
+    if err == nil {
+        fmt.Printf("Retrieved %d bytes\n", len(data))
+    }
+}
 ```
 
-## Design boundary
+---
 
-`storage` owns object addressing and backend abstraction. It does not define serialization, authentication, lifecycle, replication, or remote cloud adapters. Additional backends can implement `Store` without changing consumers.
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: `Local` driver integrates `SafePath` validation, preventing directory traversal breakouts.
+- **Sustainable (S2)**: `Memory` store eliminates disk I/O in automated test suites; sub-millisecond setup.
+- **Scalable (S3)**: Reversible driver swapping; switch from single-node local storage to S3 cloud storage via configuration without rewriting business logic.

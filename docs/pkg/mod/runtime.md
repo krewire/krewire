@@ -1,41 +1,49 @@
-# `runtime` (Client WASM)
+# Package Reference: `runtime`
 
 Import: `github.com/krewire/krewire/pkg/runtime`
 
-## Purpose
+## 1. Purpose & Architecture
 
-Interactive client-side WebAssembly runtime (`GOOS=js GOARCH=wasm`) providing reactive Virtual DOM components without JavaScript build dependencies.
+The `pkg/runtime` package delivers the client-side WebAssembly (WASM) execution engine, Virtual DOM (VDOM) reconciliation, Fiber component lifecycle scheduler, and multi-framework island hydration contracts (`mount.Hydrate`).
 
-## Subpackages
+For full details on client WASM architecture and hydration contracts, see [Client-Side WASM & Island Hydration Guide](../web-runtime/runtime.md).
 
-- **`runtime/vdom`**: High-speed, diff-and-patch Virtual DOM tree.
-- **`runtime/mount`**: Attaches reactive Go component trees to HTML DOM elements.
-- **`runtime/widgets`**: Built-in stateful UI widgets (counters, forms, tabs, dropdowns).
-- **`runtime/boot`**: Initializes WASM event loop and browser event bridging.
+---
 
-## Example
+## 2. Main API Reference
+
+- **`mount.Scan(doc)`**: Discovers server-rendered mount points (`data-kiw-mount`) and extracts JSON props.
+- **`mount.Hydrate`**: Progressive hydration strategies (`Load`, `Idle`, `Visible`).
+- **`vdom.H(tag, props, children...)`**: Constructs virtual DOM nodes.
+- **`vdom.Diff(oldTree, newTree)`**: Computes the minimal DOM patch set.
+- **`component.Register(name, factory)`**: Registers client-side reactive components.
+- **`boot.Run()`**: Initializes client event loops and mounts interactive islands.
+
+---
+
+## 3. Usage Example
 
 ```go
-//go:build js && wasm
-
 package main
 
 import (
-	"github.com/krewire/krewire/pkg/runtime/boot"
-	"github.com/krewire/krewire/pkg/runtime/mount"
-	"github.com/krewire/krewire/pkg/runtime/vdom"
+    "github.com/krewire/krewire/pkg/runtime/boot"
+    "github.com/krewire/krewire/pkg/runtime/component"
 )
 
 func main() {
-	boot.Init()
-	mount.Mount("#app", vdom.Div(
-		vdom.Class("hero"),
-		vdom.H1(vdom.Text("Reactive WebAssembly")),
-	))
-	select {}
+    // Register reactive components in client WASM binary
+    component.Register("Counter", NewCounterComponent)
+
+    // Scan DOM and hydrate islands
+    boot.Run()
 }
 ```
 
-## Design boundary
+---
 
-Targeted at browser client execution (`GOOS=js GOARCH=wasm`). See the full [Runtime Reference](../web-runtime/runtime.md).
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: Runs in browser's sandboxed WebAssembly execution environment; auto-escapes DOM text to prevent XSS.
+- **Sustainable (S2)**: Zero npm/Node.js runtime required; compiled with standard Go WASM toolchain.
+- **Scalable (S3)**: Unified hydration contract supporting Go WASM, Svelte 5, and Vue 3 islands.

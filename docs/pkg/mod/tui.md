@@ -1,40 +1,57 @@
-# `tui`
+# Package Reference: `tui`
 
 Import: `github.com/krewire/krewire/pkg/tui`
 
-## Purpose
+## 1. Purpose & Architecture
 
-Terminal UI toolkit powering the `kiw` CLI: declarative command routing, subcommand trees, help text generation, and interactive terminal prompts.
+The `pkg/tui` package is the Terminal UI application builder powering the `kiw` CLI tool. It provides command dispatching, flag parsing, subcommands, interactive terminal spinners, styled banners, progress bars, and Levenshtein-based typo suggestions.
 
-## Main API
+For detailed TUI architecture and examples, see [Web UI & Terminal UI Guide](../web-runtime/ui-tui.md).
 
-- `tui.NewApp(name, version)`: Initializes a CLI command application.
-- `tui.NewCommand(name, desc, registerFlags, runHandler)`: Declares a CLI command with group and examples.
-- `(*tui.App).Command(cmd)`: Mounts a subcommand into the application.
-- `(*tui.App).Run(tokens)`: Dispatches command execution and maps exit codes.
+---
 
-## Example
+## 2. Main API Reference
+
+- **`tui.NewApp(name, version, description) *App`**: Creates a CLI application entry point.
+- **`tui.NewCommand(name) *Command`**: Creates a subcommand with flags, aliases, and action handlers.
+- **`tui.StringFlag` / `tui.BoolFlag` / `tui.IntFlag`**: Strongly typed CLI flag definitions.
+- **`ctx.NewSpinner(label)`**: Interactive terminal spinner for long-running tasks.
+- **`ctx.Banner(title, color)` / `ctx.Success(...)` / `ctx.Error(...)`**: Styled ANSI terminal output.
+- **`tui.Suggest(input, candidates)`**: Levenshtein distance typo suggestion for mistyped commands.
+
+---
+
+## 3. Usage Example
 
 ```go
 package main
 
 import (
-	"os"
-	"github.com/krewire/krewire/pkg/errs"
-	"github.com/krewire/krewire/pkg/tui"
+    "context"
+    "os"
+    "github.com/krewire/krewire/pkg/tui"
 )
 
 func main() {
-	app := tui.NewApp("mycli", "1.0.0").
-		Command(tui.NewCommand("hello", "Print greeting", nil, func(fs *flag.FlagSet) errs.ExitCode {
-			println("Hello, World!")
-			return errs.ExitCodeSuccess
-		}))
+    app := tui.NewApp("tool", "1.0.0", "Custom Developer Tool")
 
-	os.Exit(int(app.Run(os.Args[1:])))
+    cmd := tui.NewCommand("build").
+        Description("Build static assets").
+        Flag(tui.BoolFlag{Name: "prod", Usage: "Production build"}).
+        Action(func(c *tui.Context) error {
+            c.Banner("Starting Build", tui.ColorGreen)
+            return nil
+        })
+
+    app.AddCommand(cmd)
+    _ = app.Run(context.Background(), os.Args[1:])
 }
 ```
 
-## Design boundary
+---
 
-Independent presentation layer for terminal applications. Powers `tools/kiw`.
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: Sanitizes ANSI control codes; prevents terminal escape sequence injection attacks.
+- **Sustainable (S2)**: Zero CGO dependencies; compiles to static pure-Go binaries without ncurses.
+- **Scalable (S3)**: Reusable command and flag models for all ecosystem CLI tools.

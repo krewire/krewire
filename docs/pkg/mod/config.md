@@ -1,30 +1,61 @@
-# `config`
+# Package Reference: `config`
 
 Import: `github.com/krewire/krewire/pkg/config`
 
-## Purpose
+## 1. Purpose & Architecture
 
-Typed YAML configuration loading and environment overlays for Krewire projects.
+The `pkg/config` package provides declarative YAML configuration loading with environment-variable overlays for all Krewire applications and CLI tools.
 
-## Main API
+It enforces strict precedence:
+$$\text{Built-in Struct Defaults} < \text{YAML Configuration File} < \text{Environment Variables}$$
 
-- `Load(path, dst)`
-- `LoadOrDefault(path, dst)`
-- `Override(dst, lookup, options...)`
-- `WithPrefix(prefix)`
-- `ParseDotEnv(data)` and `LoadDotEnv(path)`
-- `LoadVars(path)` and `Vars`
+For deep configuration schema design and validation rules, see [Configuration & Validation Guide](../system/config-and-validation.md).
 
-Configuration precedence is zero-value defaults, then file values, then environment values. Later sources win.
+---
 
-## Example
+## 2. Main API Reference
+
+- **`config.Load(path string, dst any) error`**: Unmarshals YAML into `dst` (must be a non-nil pointer to a struct). Missing files leave `dst` unchanged and return `nil`.
+- **`config.LoadOrDefault(path string, dst any) error`**: Loads YAML if present; tolerates absent files without error.
+- **`config.Override(dst any, lookup func(string) (string, bool), opts ...Option) error`**: Overlays environment variables onto struct fields based on `env` tags or auto-derived uppercase keys.
+- **`config.WithPrefix(prefix string) Option`**: Customizes the environment variable prefix (default: `APP`).
+
+---
+
+## 3. Usage Example
 
 ```go
-var cfg ServerConfig
-if err := config.Load("krewire.yaml", &cfg); err != nil { return err }
-if err := config.Override(&cfg, os.LookupEnv, config.WithPrefix("APP_")); err != nil { return err }
+package main
+
+import (
+    "fmt"
+    "os"
+    "github.com/krewire/krewire/pkg/config"
+)
+
+type Config struct {
+    Port int    `yaml:"port" env:"PORT"`
+    Host string `yaml:"host" env:"HOST"`
+    DB   string `yaml:"db_url" env:"DATABASE_URL"`
+}
+
+func main() {
+    cfg := Config{Port: 8080, Host: "127.0.0.1"}
+
+    // 1. Load from file
+    _ = config.Load("config.yaml", &cfg)
+
+    // 2. Overlay environment variables
+    _ = config.Override(&cfg, os.LookupEnv, config.WithPrefix("APP"))
+
+    fmt.Printf("Configured on %s:%d\n", cfg.Host, cfg.Port)
+}
 ```
 
-## Design boundary
+---
 
-`config` handles decoding and overlays. Domain validation belongs to [`core`](../core/model.md) and struct-tag validation belongs to [`validation`](./validation.md).
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: Sensitive database URLs and API keys can be passed strictly via environment variables, avoiding committed secrets.
+- **Sustainable (S2)**: Zero third-party runtime frameworks; uses standard Go reflection and standard YAML parser.
+- **Scalable (S3)**: Common configuration layer across microservices, static sites, background workers, and developer CLI tools.

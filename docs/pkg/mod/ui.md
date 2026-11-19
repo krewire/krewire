@@ -1,44 +1,53 @@
-# `ui`
+# Package Reference: `ui`
 
 Import: `github.com/krewire/krewire/pkg/ui`
 
-## Purpose
+## 1. Purpose & Architecture
 
-Web UI component library, layout panels, design tokens, and CSS theme palettes for SSR templates and client components.
+The `pkg/ui` package implements Krewire's **Pop-Brutalist** UI design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), strongly typed widgets, declarative form builders, and accessible dark-mode inversion.
 
-## Components
+For full component specifications and design tokens, see [Web UI Component Toolkit Guide](../web-runtime/ui-tui.md).
 
-Every component is a plain struct with a `Render() template.HTML` method, so it composes in Go templates and in server-rendered pages.
+---
 
-- **Layout & chrome**: `Header` (`HeaderConfig`), `Footer` (`FooterConfig`), `Nav` (`NavConfig`), `Hero`, `Section`, `Container`, `Grid`, `Layout` (`LayoutConfig`).
-- **Content**: `Button` (`Text`, `URL`, `Variant`, `Target`, `Rel`), `Badge` (`Text`, `Variant`), `Card` (`Header`, `Body`, `Footer`), `ThemeToggle`.
-- **`ui/form`**: Form controls, text input, select, checkbox, and validation error binding.
-- **`ui/panel`**: Header, sidebar, modal, and drawer panels.
-- **Theme & tokens**: `Theme` (`Default` = `auto|light|dark`, `Light`/`Dark` `Palette` overrides), `DefaultLightPalette`/`DefaultDarkPalette`, and per-component CSS constants (`ButtonCSS`, `CardCSS`, `HeroCSS`, …).
-- `ui.ComponentsCSS()` returns the combined built-in stylesheet; `ui.AllBuiltinNames()` lists registered components.
-- `ui.New(title)` returns an `App` that serves a dashboard, pages, and forms over HTTP with optional Tailwind integration.
+## 2. Main API Reference
 
-## Example
+- **`widget.NewButton(label)`**: Creates button with variants (`Primary`, `Secondary`, `Destructive`, `Outline`, `Ghost`).
+- **`widget.NewCard()`**: Pop-Brutalist card layout with Header, Body, and Footer slots.
+- **`widget.NewModal(title)`**: Accessible modal dialog with backdrop blur and keyboard dismissal.
+- **`widget.NewAlert(message, level)`**: Status alerts (`Success`, `Warning`, `Error`, `Info`).
+- **`form.New(action, method)`**: Declarative form builder with CSRF tokens and field validation state.
+- **`tokens.CSS()`**: Returns standard Pop-Brutalist CSS tokens and theme variables.
+
+---
+
+## 3. Usage Example
 
 ```go
 package main
 
 import (
-	"fmt"
-
-	"github.com/krewire/krewire/pkg/ui"
+    "fmt"
+    "github.com/krewire/krewire/pkg/ui/widget"
 )
 
-func main() {
-	btn := ui.Button{
-		Text:    "Submit",
-		URL:     "/submit",
-		Variant: "primary",
-	}
-	fmt.Println(btn.Render())
+func RenderUserProfileCard(username string) string {
+    btn := widget.NewButton("Edit Profile").
+        Variant(widget.VariantPrimary)
+
+    card := widget.NewCard().
+        Title("User Profile").
+        AddChild(widget.NewText("Active Member: " + username)).
+        Footer(btn)
+
+    return card.Render()
 }
 ```
 
-## Design boundary
+---
 
-Pure Go UI definition. Standard HTML/CSS output. See the full [UI Reference](../web-runtime/ui-tui.md).
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: Automatic CSRF token injection in forms; strict contextual HTML escaping on all text widgets.
+- **Sustainable (S2)**: Zero npm/Node.js runtime dependencies; components compile via pure Go `embed.FS`.
+- **Scalable (S3)**: Components follow the "Copy & Own" model or direct Go module imports.

@@ -1,28 +1,54 @@
-# `file`
+# Package Reference: `file`
 
 Import: `github.com/krewire/krewire/pkg/file`
 
-## Purpose
+## 1. Purpose & Architecture
 
-`file` provides file-oriented operations with consistent errors, parent-directory creation, and atomic replacement.
+The `pkg/file` package provides high-level, atomic file operations built on top of `pkg/fs`. It prevents data corruption during unexpected process crashes and protects against symlink traversal attacks (CWE-59, CWE-61) and predictable temporary file race conditions (CWE-377).
 
-## Main API
+---
 
-- `Read(fsys, name)` — reads a complete file.
-- `Write(fsys, name, data, perm)` — creates parent directories and replaces a file.
-- `WriteAtomic(fsys, name, data, perm)` — writes beside the destination and renames into place.
-- `Copy(fsys, dst, src, perm)` — copies complete file contents.
-- `ReadContext`, `WriteContext`, `WriteAtomicContext`, `CopyContext` — context-aware variants.
+## 2. Main API Reference
 
-Pass `nil` for `fsys` to use `fs.Default`.
+- **`file.WriteAtomic(fsys fs.FileSystem, path string, data []byte, perm os.FileMode) error`**:
+  Writes data to an unguessable temporary file in the same directory using 16 cryptographic random bytes (`tempSuffixEntropyBytes`), syncs to disk, and replaces the target file via atomic `os.Rename`.
+- **`file.ErrSymlinkTarget`**: Returned if the target file is a symlink, preventing link redirection attacks.
+- **`file.EnsureDir(fsys fs.FileSystem, dir string) error`**: Creates parent directories with secure permissions (`0700` / `ModeDirPrivate`).
+- **`file.Read(fsys fs.FileSystem, path string) ([]byte, error)`**: Reads complete contents safely.
+- **`file.Exists(fsys fs.FileSystem, path string) bool`**: Checks file existence without race panics.
+- **`file.Copy(fsys fs.FileSystem, src, dst string) error`**: Copies files with permission preservation.
 
-## Example
+---
+
+## 3. Usage Example: Crash-Resistant Atomic Writes
 
 ```go
-err := file.WriteAtomic(nil, "var/data/config.json", data, 0o600)
-if err != nil { return err }
+package main
+
+import (
+    "fmt"
+    "github.com/krewire/krewire/pkg/file"
+)
+
+func SaveConfig(configBytes []byte) error {
+    targetFile := "/etc/app/config.json"
+
+    // 1. Refuses to write through symlinks
+    // 2. Uses atomic rename
+    // 3. Defaults to 0600 private permissions
+    err := file.WriteAtomic(nil, targetFile, configBytes, 0o600)
+    if err != nil {
+        return fmt.Errorf("failed to save config: %w", err)
+    }
+
+    return nil
+}
 ```
 
-## Design boundary
+---
 
-`file` owns file operations, not object-store behavior, serialization formats, locking, or retention policies. Atomic replacement is intended to prevent readers from observing a partially written file; it is not a distributed transaction.
+## 4. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: Refusal to follow write symlinks eliminates symlink hijacking; 16-byte random temporary names prevent TOCTOU file races.
+- **Sustainable (S2)**: Zero external dependencies; standard library `crypto/rand` and `os`.
+- **Scalable (S3)**: Fully integrated with `pkg/fs.FileSystem` for deterministic mocking in tests.
