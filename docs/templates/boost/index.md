@@ -1,22 +1,53 @@
 # Krewire Boost — AI Agent Engineering System
 
-An autonomous, multi-agent AI pair-programming team and constitution embedded directly into the developer workflow.
+An autonomous, multi-agent AI pair-programming team and operational engineering constitution embedded directly into the developer workflow.
 
 ---
 
-## 1. Overview
+## 1. Overview & Core Philosophy
 
-Krewire Boost equips repositories with a complete team of specialized AI agents, predefined slash commands, and domain skills stored under `.agents/`.
+Krewire Boost equips repositories with a complete team of 21 specialized autonomous AI agents, predefined slash commands, and domain skills stored under `.agents/` and governed by the repository `AGENTS.md`.
 
-To install Boost in any project:
-```bash
-kiw boost install
+Rather than treating AI as a generic code autocomplete, Boost models software engineering as a coordinated, role-specialized team executing deterministic development phases with strict quality gates:
+
+```text
+Understand ──► Map (Scout) ──► Plan & Spec ──► Implement ──► Verify (Gates) ──► Summarize
 ```
 
 ---
 
-## 2. Boost System Sections
+## 2. Installing Boost in Any Project
 
-- **[Autonomous Agent Roster](./agents.md)**: 21 specialized agents covering planning, architecture, coding, testing, refactoring, and security auditing.
-- **[Agentic SDLC & Workflows](./workflow.md)**: Phase-by-phase execution, quality gates, and checkpoint coordination.
-- **[Agent Conventions & Rules](./conventions.md)**: Authoring standards, conventional commits, and safety boundaries.
+Boost is installed into any existing repository using the `kiw` CLI tool:
+
+```bash
+# Install Boost into current repository
+kiw boost install .
+
+# Preview files to be created without writing to disk
+kiw boost install . --dry-run
+
+# Force update / re-align Boost templates
+kiw boost install . --force
+```
+
+### Managed Files & Directory Layout
+
+```text
+your-project/
+├── AGENTS.md                  # Operational constitution and repository rule SSOT
+├── opencode.json              # Tool configuration & agent routing parameters
+└── .agents/                   # Specialized agent configurations
+    ├── agents/                # 21 subagent personas and tool permission boundaries
+    ├── commands/              # Slash commands (/plan, /spec, /refactor, /test, /audit, /deploy)
+    ├── skills/                # Domain skill definitions with procedural execution guides
+    └── rules/                 # Invariant safety, quality, and architectural rules
+```
+
+---
+
+## 3. Boost System Guides
+
+- **[Autonomous Agent Roster & Specializations](./agents.md)**: Directory of all 21 specialized agents covering planning, architecture, coding, testing, refactoring, security auditing, and operations.
+- **[Agentic SDLC & Execution Workflows](./workflow.md)**: 6-phase development lifecycle, slash commands, role delegation, and gate enforcement.
+- **[Agent Conventions & Safety Boundaries](./conventions.md)**: Code style invariants, Conventional Commits, destructive command prevention, and secret masking.

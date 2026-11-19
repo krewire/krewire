@@ -1,27 +1,37 @@
 # Boost Agent Conventions & Safety Boundaries
 
-Engineering rules and behavioral guardrails that agents enforce across all projects.
+Engineering rules, commit standards, and behavioral guardrails that autonomous agents must enforce across all Krewire projects.
 
 ---
 
-## 1. Code Style & Integrity
+## 1. Code Style & Architectural Invariants
 
-- **Preserve Documentation**: Preserve existing comments and docstrings unrelated to current edits.
-- **Single Responsibility Principle**: Favor small, focused files and functions. Clear names over cleverness.
-- **Zero Speculative Abstraction**: Introduce abstractions only when a second concrete use case emerges.
-
----
-
-## 2. Commit Discipline
-
-- **Conventional Commits**: Format commit messages as `feat|fix|docs|test|refactor|perf|security|chore(scope): desc`.
-- **Atomic Commits**: Keep changes atomic ($\le$ ~300 LOC per commit).
-- **Issue Reference**: Always reference corresponding GitHub Issue numbers and requirement IDs.
+- **Standard Library First**: Always prefer Go standard library packages (`net/http`, `crypto`, `context`, `os`, `io/fs`) over third-party dependencies.
+- **Strict Downward Layering**: Dependencies flow only downward (`Layer N → Layer < N`). Higher layers must never be imported by lower layers.
+- **Single Responsibility Principle (SRP)**: Each unit and package has exactly one reason to change. Decompose god-classes and oversized files into cohesive sub-packages.
+- **Preserve Existing Documentation**: Never delete or overwrite existing comments, ADRs, or docstrings unrelated to current edits.
+- **Zero Speculative Abstractions**: Introduce interfaces and abstractions only when a concrete second use case requires it.
 
 ---
 
-## 3. Safety Boundaries
+## 2. Commit Discipline & Automation
 
-- **Destructive Operations**: Prohibit unconfirmed destructive commands (`rm -rf`, force-push, recursive delete).
-- **Secrets Management**: Never log, display, or commit tokens, passwords, private keys, or API secrets.
-- **PII Protection**: Mask personal identification information in transcripts and diagnostic logs.
+- **Conventional Commits**: Format commit messages strictly as:
+  - `feat(<scope>): description`
+  - `fix(<scope>): description`
+  - `docs(<scope>): description`
+  - `refactor(<scope>): description`
+  - `test(<scope>): description`
+  - `chore(<scope>): description`
+- **Atomic Commits**: Keep changes granular ($\le 300$ lines of code per commit).
+- **Issue Traceability**: Always reference corresponding GitHub Issue IDs (e.g. `feat(auth): add PKCE verification (ref #12)`).
+- **Automated Commit Execution**: Once quality gates pass, stage and commit atomically without waiting for extra user confirmations.
+
+---
+
+## 3. Defensive Safety Guardrails
+
+- **Zero Hardcoded Secrets**: Never commit or log API keys, private certificates, or passwords. Always use environment variables (`${env:KEY_NAME}`).
+- **Path-Traversal Guard (`SafePath`)**: All file system operations with untrusted input must be sanitized via `SafePath` to prevent directory traversal attacks (CWE-22).
+- **Prohibited Destructive Actions**: Agents must never run unconfirmed destructive commands (`rm -rf /`, force-pushing `git push --force`, or rewriting shared history).
+- **PII Redaction**: Personal identifying information (passwords, JWTs, credit card numbers) must be masked in log outputs using `sec.NewPIIHandler`.
