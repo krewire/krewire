@@ -1,75 +1,143 @@
 # Workload: Static Website (`site`)
 
-The `site` workload powers static websites, documentation hubs, blogs, and landing pages using Static Site Generation (SSG) with Markdown support and Hot Module Replacement (HMR).
+The `site` workload powers static websites, landing pages, documentation portals, and blogs using Krewire's native Static Site Generation (SSG) engine (`pkg/web/ssg`), `.kiw` component compiler (`pkg/kiw`), and Markdown pipeline (`pkg/markdown`).
+
+It produces zero-dependency static HTML/CSS/JS artifacts with automatic scoped styles, content fingerprinting, and WebSocket-driven Hot Module Replacement (HMR) during local development.
+
+In production, this workload powers the official [`krewire.com`](https://krewire.com) website.
 
 ---
 
-## 1. Key Capabilities
+## 1. Architectural Capabilities
 
-- **Asset Pipeline (`pkg/web/ssg`)**: Generates optimized static HTML, CSS, and JavaScript with optional minification and fingerprinting.
-- **Live Preview (`pkg/web/ssg/hmr`)**: WebSocket-driven browser refresh on file changes during `kiw serve`.
-- **Markdown & Frontmatter (`pkg/markdown`)**: Parses Markdown files with YAML frontmatter into structured content collections.
-- **`.kiw` DSL (`pkg/kiw`)**: Pages, layouts, and components authored as `.kiw` files with scoped styles and component tags.
+- **Pure-Go SSG Compiler**: Generates clean static HTML without requiring Node.js, npm, webpack, or Vite.
+- **Scoped CSS Isolation**: `<style>` blocks inside `.kiw` components are automatically isolated via deterministic `data-kiw-*` scope attributes, preventing global CSS collisions.
+- **Progressive Hydration Islands**: Static pages can mount interactive reactive islands (Go WASM, Svelte 5, Vue 3) using standard hydration contracts (`load`, `idle`, `visible`).
+- **Live Preview & WebSocket HMR (`kiw serve`)**: In-process development server watches files and pushes instantaneous updates to browser clients without full-page reloads.
+- **Asset Pipeline & Cache Busting**: Scans `public/assets/`, bundles CSS/JS, minifies output, and injects fingerprint queries (`?v=0.2.3`).
 
 ---
 
-## 2. Directory Layout
+## 2. Standard Directory Layout
 
-The `kiw init --site` scaffold writes:
+Scaffolded via `kiw new <site-name> --site` or `kiw init --site`:
 
 ```text
 my-site/
-├── krewire.yaml
-├── pages/
-│   └── index.kiw
-├── layouts/
-│   └── Base.kiw
-├── components/
-│   └── Hero.kiw
-├── public/
-│   └── favicon.svg
-└── README.md
+├── krewire.yaml          # Project configuration manifest (no go.mod required!)
+├── pages/                # Route entrypoints (file-based routing)
+│   ├── index.kiw         # Maps to /
+│   └── about.kiw         # Maps to /about
+├── layouts/              # Shared layout shells
+│   └── Landing.kiw
+├── components/           # Reusable Pop-Brutalist .kiw components
+│   ├── Navbar.kiw
+│   ├── Hero.kiw
+│   └── Footer.kiw
+└── public/               # Static assets directly copied to output
+    ├── favicon.svg
+    └── assets/
+        └── styles.css
 ```
-
-Markdown collections can be added under a content directory and declared with `ssg.collections`.
 
 ---
 
-## 3. Configuration (`krewire.yaml`)
+## 3. Configuration Contract (`krewire.yaml`)
 
 ```yaml
-version: "0.1.0"
 project:
-  name: my-site
-  kind: site
+  name: "my-site"
+  kind: "site"
+  version: "0.2.0"
 
 output: ".krewire/build"
 base: "/"
 
 theme:
-  default: "auto"          # auto | light | dark
+  default: "auto"         # auto | light | dark
+  toggle: true
 
 ssg:
-  description: "My static site"
-  components: []           # {name, body, style}
-  layouts: []              # {name, body, style} or {name, ui}
-  pages: []                # declarative output pages
   auto_assets:
-    enabled: true
-    bundle: true
+    enabled: true         # Automatically inject styles and scripts into layouts
+    bundle: true          # Bundle into assets/krewire.css and assets/krewire.js
+    minify: true          # Minify HTML, CSS, and JS
+
+server:
+  port: 8080
+  host: "127.0.0.1"
 ```
 
 ---
 
-## 4. Development Workflow
+## 4. Authoring `.kiw` Components & Pages
+
+### Example Layout (`layouts/Landing.kiw`)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}} — Krewire</title>
+</head>
+<body>
+  <Navbar />
+  <main>
+    {{slot}}
+  </main>
+  <Footer />
+</body>
+</html>
+```
+
+### Example Page (`pages/index.kiw`)
+
+```html
+---
+layout: "Landing"
+title: "Home"
+---
+
+<section class="hero">
+  <h1>Build Fast with Pure Go</h1>
+  <p>Zero npm dependencies, 10-30 MB memory footprints, and instant cold starts.</p>
+  <a href="/docs" class="btn btn-primary">Read Documentation</a>
+</section>
+
+<style>
+.hero {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+</style>
+```
+
+---
+
+## 5. Development & Deployment Workflow
 
 ```bash
-# Preview website with live reload (default :8080)
-kiw serve --addr :3000
+# 1. Start local preview server with instant WebSocket HMR
+kiw serve
 
-# Build static output into .krewire/build
-kiw build
+# 2. Compile static production output into .krewire/build/
+kiw build --minify
 
-# Stage for deployment
-kiw deploy
+# 3. Deploy static site to GitHub Pages or CDN
+kiw deploy --target gh-pages
 ```
+
+---
+
+## 6. Alignment with the Three Pillars (3S)
+
+- **Secure (S1)**: Produces static HTML/CSS with no server-side attack surface; contextual template auto-escaping prevents XSS.
+- **Sustainable (S2)**: Zero npm/Node.js dependencies; works with or without `go.mod`; builds hundreds of pages in sub-second time on a minimal $5 VPS.
+- **Scalable (S3)**: Seamlessly enhances from pure static pages into fullstack applications (`app`) or multi-language books (`book`) using the same `.kiw` templates.
