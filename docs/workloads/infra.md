@@ -1,26 +1,27 @@
 # Workload: Declarative Infrastructure (`infra`)
 
-The `infra` workload manages cloud infrastructure, provisioning blueprints, deployment targets, and environment states declaratively.
+The `infra` workload manages cloud infrastructure, provisioning blueprints, deployment targets, and environment states declaratively without requiring external DSLs like Terraform or HCL.
 
 ---
 
 ## 1. Key Capabilities
 
-- **Declarative Blueprints (`pkg/cloud/infra/schema`)**: Typed Go schemas describing cloud resources (compute, containers, object buckets, networking).
-- **State & Provider Management (`pkg/cloud/infra/state`, `pkg/cloud/infra/provider`)**: Track infrastructure changes, detect drift, and generate deterministic deployment plans.
-- **Unified Deployment (`pkg/cloud/deploy`)**: Rolling deploys and artifact distribution into cloud runners.
+- **Declarative Go Blueprints (`pkg/cloud/infra/schema`)**: Strongly-typed Go definitions describing resources (containers, databases, object buckets, network ingress, routing).
+- **Drift Detection & State Reconciliation (`pkg/cloud/infra/state`)**: Tracks desired state versus live cloud state, producing deterministic execution plans.
+- **Plan Inspection (`kiw build --plan`)**: Generates and inspects an execution graph before provisioning changes.
+- **Provider Modularity**: Pluggable provider drivers supporting local Docker, Linux `systemd`, and cloud PaaS engines.
 
 ---
 
 ## 2. Directory Layout
 
-The `kiw init --infra` scaffold writes:
+The `kiw new my-infra --infra` or `kiw init --infra` scaffold writes:
 
 ```text
 my-infra/
 ├── krewire.yaml
 ├── infra/
-│   └── blueprint.go      # Declarative resource definitions
+│   └── blueprint.go      # Declarative resource topology
 └── README.md
 ```
 
@@ -40,20 +41,75 @@ infra:
   state: ".krewire/infra/state.json"
   resources:
     - kind: "service"
-      id: "api"
+      id: "api-backend"
       properties:
-        image: "krewire/api:latest"
+        image: "krewire/api:v0.2.0"
+        replicas: 2
+        port: 8080
+    - kind: "database"
+      id: "primary-db"
+      properties:
+        engine: "postgres"
+        version: "16"
 ```
 
 ---
 
-## 4. Commands
+## 4. Implementation Example
+
+### `infra/blueprint.go`
+```go
+package infra
+
+type Resource struct {
+	ID         string            `json:"id"`
+	Kind       string            `json:"kind"`
+	Properties map[string]string `json:"properties"`
+}
+
+type Blueprint struct {
+	Name      string     `json:"name"`
+	Region    string     `json:"region"`
+	Resources []Resource `json:"resources"`
+}
+
+func GetBlueprint() Blueprint {
+	return Blueprint{
+		Name:   "production-cluster",
+		Region: "asia-southeast1",
+		Resources: []Resource{
+			{
+				ID:   "web-frontend",
+				Kind: "container",
+				Properties: map[string]string{
+					"image": "krewire/web:latest",
+					"port":  "3000",
+				},
+			},
+			{
+				ID:   "cache-store",
+				Kind: "redis",
+				Properties: map[string]string{
+					"memory": "512mb",
+				},
+			},
+		},
+	}
+}
+```
+
+---
+
+## 5. Development & Deployment Commands
 
 ```bash
-# Evaluate infrastructure blueprint and output a plan
+# Evaluate infrastructure blueprint and output plan to .krewire/build/plan.json
 kiw build --plan
 
-# Deploy or stage infrastructure
+# Preview staging changes without mutating cloud resources
 kiw deploy --plan
+kiw deploy --dry-run
+
+# Apply and provision infrastructure
 kiw deploy
 ```

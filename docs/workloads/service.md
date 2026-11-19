@@ -1,28 +1,30 @@
 # Workload: Microservice (`service`)
 
-The `service` workload targets headless backend microservices, RPC nodes, and RESTful APIs optimized for low latency and high concurrency.
+The `service` workload targets headless backend microservices, RPC endpoints, and RESTful APIs optimized for high throughput, low latency, and zero-downtime operations.
 
 ---
 
 ## 1. Key Capabilities
 
-- **Lightweight API Gateway (`pkg/web/gateway`)**: Fast HTTP path routing, rate limiting, and token verification.
-- **Service Discovery & Registry (`pkg/cloud/service/registry`)**: Built-in service registration and health checks (`/healthz`, `/readyz`).
-- **Distributed Tracing & Metrics (`pkg/cloud/service/tracing`)**: Context-propagated request tracing and metrics.
-- **Resilience (`pkg/cloud/service/resilience`)**: Retries, circuit breakers, and timeout policies for service-to-service calls.
+- **High-Throughput HTTP Routing (`pkg/web`)**: Lightweight standard-library-aligned router with route groups and JSON serialization.
+- **Observability & Tracing (`pkg/web`, `pkg/log`)**: Automatic propagation of W3C `traceparent` headers, request IDs, and structured logging.
+- **Service Resilience (`pkg/resilience`)**: Integrated rate limiting, bulkheads, and circuit breakers preventing cascading service failures.
+- **Health Check Endpoints**: Standardized liveness (`/healthz`) and readiness (`/readyz`) probe endpoints for container orchestrators.
 
 ---
 
 ## 2. Directory Layout
 
-The `kiw init --service` scaffold writes:
+The `kiw new my-service --service` or `kiw init --service` scaffold writes:
 
 ```text
 my-service/
 ├── krewire.yaml
 ├── main.go
 ├── internal/
-│   └── handler/          # HTTP handlers
+│   └── handler/          # HTTP request handlers & controllers
+│       ├── health.go
+│       └── users.go
 └── README.md
 ```
 
@@ -41,22 +43,103 @@ server:
   port: 9000
 
 service:
-  name: "my-service"
-  port: 9000
+  name: "user-service"
+  timeout: 10s
+  cors:
+    origins:
+      - "https://app.krewire.com"
 ```
 
 ---
 
-## 4. Commands
+## 4. Implementation Example
+
+### `internal/handler/health.go`
+```go
+package handler
+
+import (
+	"net/http"
+	"github.com/krewire/krewire/pkg/web"
+)
+
+func HealthCheck(c *web.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{
+		"status": "healthy",
+		"system": "krewire-service",
+	})
+}
+```
+
+### `main.go`
+```go
+package main
+
+import (
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/krewire/krewire/internal/handler"
+	"github.com/krewire/krewire/pkg/env"
+	"github.com/krewire/krewire/pkg/log"
+	"github.com/krewire/krewire/pkg/web"
+)
+
+func main() {
+	logger := log.Install(env.EnvProduction, false)
+
+	router := web.NewRouter()
+	router.Get("/healthz", handler.HealthCheck)
+	router.Get("/readyz", handler.HealthCheck)
+
+	srv := &http.Server{
+		Addr:         ":9000",
+		Handler:      router,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	go func() {
+		logger.Info("microservice listening", "addr", srv.Addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Error("server failure", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+
+	logger.Info("shutting down microservice...")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error("graceful shutdown failed", "error", err)
+	}
+}
+```
+
+---
+
+## 5. Development & Production Commands
 
 ```bash
-# Run service in development mode
+# Start service with hot reload on code changes
 kiw dev
 
-# Build binary into .krewire/build/bin/<name>
+# Run service once directly
+kiw run
+
+# Build production binary into .krewire/build/bin/my-service
 kiw build
 
-# Run security audit & test
+# Run security posture check and tests
 kiw vet --sec
 kiw test
 ```
