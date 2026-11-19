@@ -98,6 +98,16 @@ jobs:
             HOTFIX_VER="${MAJOR}.${MINOR}.${NEXT_PATCH}"
           fi
           
+          # Ensure calculated hotfix tag does not already exist
+          while git rev-parse -q --verify "refs/tags/${HOTFIX_VER}" >/dev/null; do
+            NEXT_PATCH=$((NEXT_PATCH + 1))
+            if [ "$TRACK" = "lts" ]; then
+              HOTFIX_VER="${MAJOR}.${MINOR}.${NEXT_PATCH}-lts.1"
+            else
+              HOTFIX_VER="${MAJOR}.${MINOR}.${NEXT_PATCH}"
+            fi
+          done
+          
           echo "version=${HOTFIX_VER}" >> "$GITHUB_OUTPUT"
           echo "tag=${HOTFIX_VER}" >> "$GITHUB_OUTPUT"
           echo "▶ Prepared Hotfix Release: ${HOTFIX_VER}"
@@ -118,8 +128,8 @@ jobs:
           TAG="${{ steps.patch.outputs.tag }}"
           git config user.name "krewire-bot"
           git config user.email "bot@krewire.com"
-          git tag -a "${TAG}" -m "hotfix: ${TAG} [${{ inputs.description }}]"
-          git push origin "${TAG}" || true
+          git tag -fa "${TAG}" -m "hotfix: ${TAG} [${{ inputs.description }}]"
+          git push origin "${TAG}" --force || true
 
       - name: Publish Emergency Release
         uses: softprops/action-gh-release@v2
