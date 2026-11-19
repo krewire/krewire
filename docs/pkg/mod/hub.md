@@ -8,8 +8,11 @@ Plugin management, package resolution, semantic version constraint solving, and 
 
 ## Subpackages
 
-- **`hub/resolver`**: Resolves Go package paths, remote git URLs, and semantic versions (`@latest`, `@v0.1.0`).
-- **`hub/plugin`**: Lifecycle interface and registry for opt-in framework plugins (e.g., Tailwind CSS).
+- **`hub/resolver`**: Resolves Go package paths, remote git URLs, and semantic versions (`@latest`, `@v0.2.0`). Implements the cascading `DefaultChain()`: `PluginResolver` → `GoResolver` → `NpmResolver`.
+- **`hub/plugin`**: Lifecycle interface and registry for opt-in framework plugins:
+  - **`tailwind`** (aliases: `twcss`, `tailwindcss`): Standalone/npm Tailwind CSS compiler.
+  - **`svelte`** (alias: `sveltejs`): Modular Svelte 5 component compiler and island hydration bridge.
+  - **`vue`** (aliases: `vuejs`, `vue3`): Modular Vue 3 component compiler and island hydration bridge.
 
 ## Example
 
@@ -18,15 +21,23 @@ package main
 
 import (
 	"fmt"
+	"github.com/krewire/krewire/pkg/hub/plugin"
 	"github.com/krewire/krewire/pkg/hub/resolver"
 )
 
 func main() {
-	pkg, ver := resolver.ParsePackageSpec("github.com/krewire/krewire@v0.1.0")
+	// 1. Resolve package specification
+	pkg, ver := resolver.ParsePackageSpec("svelte@latest")
 	fmt.Printf("Package: %s, Version: %s\n", pkg, ver)
+
+	// 2. Discover modular plugin
+	p := plugin.Find("svelte")
+	if p != nil {
+		fmt.Printf("Plugin found: %s (v%s)\n", p.Name(), p.Version())
+	}
 }
 ```
 
-## Design boundary
+## Design Boundary
 
-Powers `kiw add` and `kiw remove`. Independent of specific package implementations.
+Powers `kiw add` and `kiw remove`. Allows developers to opt in to modern frontend ecosystems (Tailwind, Svelte, Vue) without breaking pure-Go zero-JS defaults.

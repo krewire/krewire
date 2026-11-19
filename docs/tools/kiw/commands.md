@@ -86,21 +86,27 @@ kiw init --site
 ```
 
 ### `kiw add <package[@version] | ui/<component> | ui:<pack>>`
-Installs a Go module or activates an opt-in ecosystem plugin (such as Tailwind CSS), or copies Krewire UI (kui) components into `./components` (see [`kiw ui`](#kiw-ui-subcommand)).
+Installs a Go module or activates an opt-in ecosystem plugin (such as Tailwind CSS, Svelte, or Vue), or copies Krewire UI (kui) components into `./components` (see [`kiw ui`](#kiw-ui-subcommand)).
 - **Zero JS by Default**: Krewire projects default to pure Go with native CSS design tokens and zero external toolchains.
-- **Opt-In Technology**: Adding `twcss` configures the Tailwind plugin and auto-detects runners (standalone binary in `bin/tailwindcss`, Bun, PNPM, or npm/npx).
+- **Opt-In Technology**: 
+  - Adding `twcss` configures the Tailwind plugin and auto-detects runners (standalone binary in `bin/tailwindcss`, Bun, PNPM, or npm/npx).
+  - Adding `svelte` installs Svelte 5, configures `svelte.config.js` and `vite.config.js`, and sets up starter components in `components/`.
+  - Adding `vue` installs Vue 3, configures `@vitejs/plugin-vue`, and sets up starter components in `components/`.
 ```bash
 kiw add twcss@latest
+kiw add svelte@latest              # Opt-in modular Svelte 5 integration
+kiw add vue@latest                 # Opt-in modular Vue 3 integration
 kiw add ui/button ui/card         # kui components (plus the components they nest)
 kiw add ui:dashboard              # starter pack: Table, Stat, Sidebar, Modal
-kiw add tailwindcss
-kiw add github.com/krewire/krewire@v0.1.0
+kiw add github.com/krewire/krewire@v0.2.0
 ```
 
 ### `kiw remove <package>`
 Uninstalls an external package or deactivates an opt-in plugin.
 ```bash
 kiw remove twcss
+kiw remove svelte
+kiw remove vue
 ```
 
 ### `kiw update [packages...] [flags]`

@@ -121,3 +121,23 @@ func TestFindColocated(t *testing.T) {
 		t.Errorf("expected module myapp/api, got %q", colocated[0].ModulePath)
 	}
 }
+
+func TestDetectHost_SvelteAndVue(t *testing.T) {
+	// 1. Svelte (Vite + Svelte)
+	dirSvelte := t.TempDir()
+	pkgSvelte := `{"name": "svelte-app", "dependencies": {"svelte": "^5.0.0"}}`
+	_ = os.WriteFile(filepath.Join(dirSvelte, ManifestPackageJSON), []byte(pkgSvelte), 0o644)
+	hostSvelte := DetectHost(dirSvelte)
+	if hostSvelte == nil || hostSvelte.Framework != "Svelte" {
+		t.Errorf("expected Svelte framework, got %+v", hostSvelte)
+	}
+
+	// 2. Vue (Vite + Vue)
+	dirVue := t.TempDir()
+	pkgVue := `{"name": "vue-app", "dependencies": {"vue": "^3.5.0"}}`
+	_ = os.WriteFile(filepath.Join(dirVue, ManifestPackageJSON), []byte(pkgVue), 0o644)
+	hostVue := DetectHost(dirVue)
+	if hostVue == nil || hostVue.Framework != "Vue" {
+		t.Errorf("expected Vue framework, got %+v", hostVue)
+	}
+}

@@ -175,6 +175,59 @@ Running `kiw boost install <dir>` installs the AI Agent Constitution (`AGENTS.md
 
 ---
 
+## 9. Modular Frontend Framework Integration (Svelte & Vue)
+
+Krewire provides first-class modular plugins for embedding **Svelte 5** and **Vue 3** reactive components as client-side islands within Krewire SSR or static pages (`site`, `app`, `book`), while keeping Krewire's core 100% pure Go and zero-JS by default.
+
+### Adding Modular Svelte or Vue
+
+Activate the modular plugin in any Krewire project using `kiw add`:
+
+```bash
+# Add Svelte 5 modular plugin
+kiw add svelte
+
+# Add Vue 3 modular plugin
+kiw add vue
+```
+
+Adding the plugin automatically:
+1. Detects your preferred package manager (`bun`, `pnpm`, `yarn`, or `npm`).
+2. Configures `svelte.config.js` or `vite.config.js` with build targets set to `.krewire/build/assets/`.
+3. Creates a starter reactive component in `components/Counter.svelte` or `components/Counter.vue`.
+4. Installs necessary devDependencies without polluting your Go module.
+
+### Mounting Svelte & Vue Islands in Krewire Pages
+
+Use the native template functions `mountSvelte` and `mountVue` inside `.kiw` or Go HTML templates:
+
+```html
+<!-- Svelte 5 Reactive Island -->
+<section class="island-container">
+  <h2>Interactive Svelte Component</h2>
+  {{mountSvelte "Counter" "load" (dict "initial" 5)}}
+</section>
+
+<!-- Vue 3 Reactive Island -->
+<section class="island-container">
+  <h2>Interactive Vue Component</h2>
+  {{mountVue "Counter" "visible" (dict "initial" 10)}}
+</section>
+```
+
+### Progressive Hydration Contract
+Both `mountSvelte` and `mountVue` emit the standard Krewire hydration contract:
+```html
+<div data-kiw-mount="Counter" data-kiw-framework="svelte" data-kiw-hydrate="load" data-kiw-props='{"initial":5}'>
+  <!-- SSR initial paint content -->
+</div>
+```
+- **`hydrate="load"`**: Hydrates immediately as soon as the client bundle loads.
+- **`hydrate="idle"`**: Hydrates during the browser's first `requestIdleCallback`.
+- **`hydrate="visible"`**: Hydrates via `IntersectionObserver` only when the island scrolls into the viewport.
+
+---
+
 ## Quick References
 
 - [`krewire.yaml` Configuration Reference](../tools/kiw/configuration.md) — Multi-runtime and port options.

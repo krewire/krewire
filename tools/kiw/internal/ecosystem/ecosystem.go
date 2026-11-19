@@ -157,8 +157,12 @@ func detectNodeFramework(deps, devDeps map[string]string) string {
 	switch {
 	case all["@sveltejs/kit"]:
 		return "SvelteKit"
+	case all["svelte"]:
+		return "Svelte"
 	case all["nuxt"]:
 		return "Nuxt"
+	case all["vue"] || all["@vue/cli-service"]:
+		return "Vue"
 	case all["next"]:
 		return "Next.js"
 	case all["@remix-run/react"] || all["@remix-run/node"]:
