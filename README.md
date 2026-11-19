@@ -20,7 +20,7 @@ krewire/
 │   ├── app/      # Dependency injection container & application assembly
 │   ├── ui/       # UI components, layout, styling tokens, CSS theme palettes
 │   ├── tui/      # Terminal UI toolkit powering the kiw CLI
-│   ├── runtime/  # WebAssembly client runtime (VDOM, mounting, widgets)
+│   ├── runtime/  # Client WebAssembly VDOM engine, component mounting, island hydration (WASM, Svelte, Vue)
 │   ├── ai/       # Native AI SDK: providers, streaming, tools, schema, object generation
 │   ├── sec/      # SafePath traversal guard, PBKDF2 hashing, SafeHTTPClient (SSRF), headers, CORS, CSRF
 │   ├── auth/     # Authentication & token verification primitives (Basic Auth, JWT)
@@ -32,7 +32,7 @@ krewire/
 │   ├── fs/       # Testable filesystem abstraction boundary
 │   ├── file/     # Atomic file operations and safe replacement
 │   ├── functional/ # Generic collection and functional utilities (Map, Filter, Reduce)
-│   ├── hub/      # Plugin registry and package resolver
+│   ├── hub/      # Plugin registry and package resolver (Tailwind, Svelte 5, Vue 3 modular plugins)
 │   ├── i18n/     # Internationalization, message bundles, pluralization, middleware
 │   ├── kiw/      # .kiw DSL compiler, parser, AST desugaring, component engine
 │   ├── markdown/ # Markdown parsing & rendering with link prefixing

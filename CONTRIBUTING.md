@@ -4,14 +4,13 @@ This guide covers *how* to contribute: the workflow, conventions, and quality
 gates every change must pass. It assumes you've completed
 [internal/docs/getting-started.md](../internal/docs/getting-started.md) and have a working local workspace.
 
-> All chat, code, commit messages, specs, and repository docs are in **English**.
-> If you write in Indonesian or another language, reply in that language in chat,
-> but keep all repository files in English.
+> All stored code, comments, docstrings, commit messages, specifications, and repository docs are in **English**.
+> If the human writes in Indonesian or another language, reply in that language during conversational dialogue,
+> but keep all repository files and code artifacts strictly in English.
 
 ## Communication & scope
 
-- Write and discuss in English; the human may write in Indonesian (or any
-  language) — always reply in English.
+- Write and discuss in the human's preferred language during conversational dialogue (Indonesian, English, etc.), while maintaining all code, comments, docs, and git commit messages strictly in English.
 - Work in small, focused increments. One logical change per PR. Don't bundle
   unrelated work or secrets.
 - The agent (and you) may push back on a request that conflicts with the project's
