@@ -54,7 +54,7 @@ A P0 task may precede a prerequisite only when waiting would increase core-flow,
 
 ## Quick References
 
-- [Agent registry and lifecycle](../AGENTS.md)
+- [Agent registry and lifecycle](../../AGENTS.md)
 - [Delegation rule](agent-delegation.md)
 - [Global conventions](global-conventions.md)
 - [Manager skill](../skills/managing/SKILL.md)

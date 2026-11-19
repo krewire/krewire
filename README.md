@@ -45,7 +45,8 @@ krewire/
 │   ├── redis/    # Pure-Go Redis client (RESP protocol)
 │   ├── orm/      # Pure-Go multi-driver ORM, SQL builder, bounded pool defaults, migrations engine
 │   ├── mail/     # Multi-driver email delivery (SMTP, Resend, SendGrid, Postmark)
-│   ├── commerce/ # Payment gateway integration (Midtrans) with constant-time webhook verification│   └── collab/   # Team roles and per-environment collaboration policies
+│   ├── commerce/ # Payment gateway integration (Midtrans) with constant-time webhook verification
+│   └── collab/   # Team roles and per-environment collaboration policies
 ├── apps/         # Deployable services and applications
 ├── tools/        # Developer tooling
 │   └── kiw/      # Unified developer CLI for project scaffolding, build, and deploy

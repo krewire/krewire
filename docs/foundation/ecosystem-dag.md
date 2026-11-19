@@ -33,7 +33,7 @@ A critical architectural distinction is maintained between **compile-time depend
 ### Compile-Time Dependencies (Go Module Imports)
 - **Strict Downward-Only**: A higher layer may import a lower layer (`Layer N → Layer < N`). Lower layers must **never** import higher layers.
 - **Zero Peer Coupling (Lateral Independence)**: Parallel Layer 4 products (`forge` and `dash`) are lateral peers. They **never** import each other's Go packages or private source trees.
-- **Tooling Isolation Guard**: Pustaka domain (`pkg/*`) must never import the CLI tool (`tools/kiw`).
+- **Tooling Isolation Guard**: Domain libraries (`pkg/*`) must never import the CLI tool (`tools/kiw`).
 
 ### Runtime / Service Integrations (Decoupled Protocols)
 - **Horizontal Services**: `cloud` and `auth` are horizontal platform capabilities. Products (`dash`, `forge`, or third-party applications) integrate with them over standard decoupled interfaces:

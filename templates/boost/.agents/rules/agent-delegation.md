@@ -55,7 +55,7 @@ Runtime-specific limits may be lower than these defaults. A lower limit must be 
 
 ## Quick References
 
-- [Agent registry and lifecycle](../AGENTS.md)
+- [Agent registry and lifecycle](../../AGENTS.md)
 - [Ordering rule](agent-ordering.md)
 - [Manager skill](../skills/managing/SKILL.md)
 - [Orchestrating skill](../skills/orchestrating/SKILL.md)

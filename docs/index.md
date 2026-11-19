@@ -56,6 +56,7 @@ Scaffolding blueprints and autonomous multi-agent engineering workflows:
 ## 6. [Guides & Best Practices](./guides/security-best-practices.md)
 Operational and quality assurance playbooks:
 - [Multi-Runtime Coexistence (Node.js & Laravel)](./guides/multi-runtime-coexistence.md)
+- [Interoperability & Incremental Adoption](./guides/interoperability-and-migration.md)
 - [Security Best Practices](./guides/security-best-practices.md)
 - [Testing & Quality Assurance](./guides/testing-and-qa.md)
 - [Contributing Guide](./guides/contributing.md)
