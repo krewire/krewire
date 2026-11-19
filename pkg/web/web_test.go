@@ -237,6 +237,12 @@ func TestRouter_HandleFunc(t *testing.T) {
 		t.Fatalf("GET /ping = %d %q, want 200 pong", rec.Code, rec.Body.String())
 	}
 
+	recHead := httptest.NewRecorder()
+	r.ServeHTTP(recHead, httptest.NewRequest(http.MethodHead, "/ping", nil))
+	if recHead.Code != http.StatusOK {
+		t.Fatalf("HEAD /ping = %d, want 200", recHead.Code)
+	}
+
 	recPost := httptest.NewRecorder()
 	r.ServeHTTP(recPost, httptest.NewRequest(http.MethodPost, "/submit", nil))
 	if recPost.Code != http.StatusOK || recPost.Body.String() != "submitted" {

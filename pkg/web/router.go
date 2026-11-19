@@ -98,6 +98,7 @@ func (r *Router) Match(methods []string, pattern string, h HandlerFunc) {
 // HandleFunc registers a standard http.HandlerFunc on pattern.
 // Pattern can be a bare path (e.g. "/login") which matches any HTTP method,
 // or a method-prefixed pattern (e.g. "GET /login", "POST /login").
+// Patterns with "GET" automatically register "HEAD" support per RFC 9110.
 func (r *Router) HandleFunc(pattern string, h func(http.ResponseWriter, *http.Request)) {
 	if h == nil {
 		return
@@ -112,7 +113,10 @@ func (r *Router) HandleFunc(pattern string, h func(http.ResponseWriter, *http.Re
 	adapter := func(w http.ResponseWriter, req *http.Request, _ Params) {
 		h(w, req)
 	}
-	if method != "" {
+	if method == http.MethodGet {
+		r.Handle(http.MethodGet, path, adapter)
+		r.Handle(http.MethodHead, path, adapter)
+	} else if method != "" {
 		r.Handle(method, path, adapter)
 	} else {
 		r.Any(path, adapter)
