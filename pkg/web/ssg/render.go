@@ -188,8 +188,28 @@ func (s *Site) renderPage(p *Page) (string, error) {
 	if len(allScripts) > 0 {
 		body = injectScripts(body, allScripts)
 	}
-	if s.wasm.Enabled || strings.Contains(body, mount.AttrMount) {
+	hasWasmMount := false
+	hasFrameworkMount := false
+	if strings.Contains(body, mount.AttrMount) {
+		if mounts, err := mount.Scan(body); err == nil && len(mounts) > 0 {
+			for _, m := range mounts {
+				if m.Framework == "" || m.Framework == "wasm" || m.Framework == "go" {
+					hasWasmMount = true
+				} else {
+					hasFrameworkMount = true
+				}
+			}
+		} else {
+			hasWasmMount = true
+		}
+	}
+
+	if s.wasm.Enabled || hasWasmMount {
 		body = s.injectWasmLoader(body)
+	}
+	if s.islands.Enabled || hasFrameworkMount {
+		s.hasIslandsEmitted = true
+		body = s.injectIslandsLoader(body)
 	}
 	return body, nil
 }

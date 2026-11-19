@@ -69,10 +69,11 @@ type ScriptBlock struct {
 // whether written as {{component "Name" ...}}, {{mount "Name" "mode" ...}},
 // or <Name ... /> with optional hydration directives.
 type ComponentCall struct {
-	Name    string            `json:"name"`
-	Hydrate string            `json:"hydrate,omitempty"`
-	Props   map[string]string `json:"props,omitempty"`
-	Raw     string            `json:"raw"`
+	Name      string            `json:"name"`
+	Hydrate   string            `json:"hydrate,omitempty"`
+	Framework string            `json:"framework,omitempty"`
+	Props     map[string]string `json:"props,omitempty"`
+	Raw       string            `json:"raw"`
 }
 
 // KiwModule is the parsed result of a .kiw file.
@@ -295,15 +296,17 @@ func parseKiw(src string, pad bool) *KiwModule {
 		nameSet[compName] = true
 	}
 	for _, match := range mustacheMountRe.FindAllStringSubmatch(body, -1) {
-		if len(match) < 3 {
+		if len(match) < 4 {
 			continue
 		}
-		compName := match[1]
-		hydrate := match[2]
+		framework := strings.ToLower(match[1])
+		compName := match[2]
+		hydrate := match[3]
 		m.Components = append(m.Components, ComponentCall{
-			Name:    compName,
-			Hydrate: hydrate,
-			Raw:     match[0],
+			Name:      compName,
+			Hydrate:   hydrate,
+			Framework: framework,
+			Raw:       match[0],
 		})
 		nameSet[compName] = true
 	}

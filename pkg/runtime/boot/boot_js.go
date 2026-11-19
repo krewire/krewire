@@ -32,6 +32,11 @@ func Hydrate() {
 		if name == "" {
 			continue // partial marker: skip gracefully
 		}
+		// Non-WASM / external framework islands (e.g., svelte, vue) are handled by client island loader.
+		fw := attrOr(el, mount.AttrFramework, "")
+		if fw != "" && fw != "wasm" && fw != "go" {
+			continue
+		}
 		j, err := newJob(el, name)
 		if err != nil {
 			warn(name, err)

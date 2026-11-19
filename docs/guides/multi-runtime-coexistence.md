@@ -199,19 +199,23 @@ Adding the plugin automatically:
 
 ### Mounting Svelte & Vue Islands in Krewire Pages
 
-Use the native template functions `mountSvelte` and `mountVue` inside `.kiw` or Go HTML templates:
+You can declare Svelte and Vue islands using either native template functions (`{{mountSvelte}}`, `{{mountVue}}`) or modern `.kiw` component syntax with directives:
 
 ```html
-<!-- Svelte 5 Reactive Island -->
+<!-- Option A: Modern .kiw Component Syntax -->
+<Counter client:svelte client:load initial=5 />
+<Counter:svelte client:idle step=2 />
+<VueWidget:vue client:visible theme="dark" />
+
+<!-- Option B: Native Template Functions -->
 <section class="island-container">
   <h2>Interactive Svelte Component</h2>
   {{mountSvelte "Counter" "load" (dict "initial" 5)}}
 </section>
 
-<!-- Vue 3 Reactive Island -->
 <section class="island-container">
   <h2>Interactive Vue Component</h2>
-  {{mountVue "Counter" "visible" (dict "initial" 10)}}
+  {{mountVue "VueWidget" "visible" (dict "theme" "dark")}}
 </section>
 ```
 
@@ -223,8 +227,38 @@ Both `mountSvelte` and `mountVue` emit the standard Krewire hydration contract:
 </div>
 ```
 - **`hydrate="load"`**: Hydrates immediately as soon as the client bundle loads.
-- **`hydrate="idle"`**: Hydrates during the browser's first `requestIdleCallback`.
+- **`hydrate="idle"`**: Hydrates during the browser's first `requestIdleCallback` (with 2000ms timeout fallback).
 - **`hydrate="visible"`**: Hydrates via `IntersectionObserver` only when the island scrolls into the viewport.
+- **`hydrate="media"`**: Hydrates when `data-kiw-media` query matches `window.matchMedia(query)`.
+
+### Client Island Loader Runtime (`assets/kiw-islands.js`)
+
+When a page contains framework islands, Krewire automatically generates and injects the client island loader (`<script type="module" src="/assets/kiw-islands.js"></script>`):
+- **Automatic & Opt-In**: Only pages with non-WASM islands inject the loader; pure Go WASM or static pages incur zero script overhead.
+- **Built-in Svelte & Vue Hydrators**: Built-in support for Svelte 5 (`hydrate` / `mount`), Svelte 4 class components, and Vue 3 (`createSSRApp` / `createApp`).
+- **Coexistence with Go WASM**: Pages can host both Go WebAssembly components and JavaScript islands simultaneously. The Go WASM boot runtime ignores `data-kiw-framework` mounts, while `kiw-islands.js` hydrates the JavaScript islands without conflicts.
+- **Extensible Client API (`window.KiwIslands`)**:
+  ```javascript
+  import KiwIslands from '/assets/kiw-islands.js';
+
+  // Register custom framework adapter (e.g. React, Preact, Solid)
+  KiwIslands.register('react', async (el, Component, props) => {
+    const { hydrateRoot } = await import('react-dom/client');
+    const React = await import('react');
+    return hydrateRoot(el, React.createElement(Component, props));
+  });
+
+  // Explicit component registration
+  KiwIslands.components({
+    Counter: MyCounterComponent,
+  });
+
+  // Custom component resolver
+  KiwIslands.resolve(async (name, framework, el) => {
+    return import(`/components/${name}.js`);
+  });
+  ```
+- **Lifecycle Events**: The loader dispatches `kiw:island:hydrate`, `kiw:island:mounted`, and `kiw:island:error` on island container elements for easy debugging and analytics.
 
 ---
 

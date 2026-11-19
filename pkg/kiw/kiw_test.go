@@ -417,11 +417,12 @@ console.log("Ready");
 
 func TestDesugar_IslandHydrationDirectives(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    string
-		expected string
-		hydrate  string
-		comp     string
+		name      string
+		input     string
+		expected  string
+		hydrate   string
+		framework string
+		comp      string
 	}{
 		{
 			name:     "client:load with props",
@@ -458,6 +459,38 @@ func TestDesugar_IslandHydrationDirectives(t *testing.T) {
 			hydrate:  "visible",
 			comp:     "Widget",
 		},
+		{
+			name:      "client:svelte with client:load",
+			input:     `<Counter client:svelte client:load initial=5 />`,
+			expected:  `{{mountSvelte "Counter" "load" (dict "initial" 5)}}`,
+			hydrate:   "load",
+			framework: "svelte",
+			comp:      "Counter",
+		},
+		{
+			name:      "client:vue with client:visible",
+			input:     `<VueWidget client:vue client:visible theme="dark" />`,
+			expected:  `{{mountVue "VueWidget" "visible" (dict "theme" "dark")}}`,
+			hydrate:   "visible",
+			framework: "vue",
+			comp:      "VueWidget",
+		},
+		{
+			name:      "namespaced <Counter:svelte client:idle />",
+			input:     `<Counter:svelte client:idle step=2 />`,
+			expected:  `{{mountSvelte "Counter" "idle" (dict "step" 2)}}`,
+			hydrate:   "idle",
+			framework: "svelte",
+			comp:      "Counter",
+		},
+		{
+			name:      "namespaced <Widget:vue /> default to load",
+			input:     `<Widget:vue active />`,
+			expected:  `{{mountVue "Widget" "load" (dict "active" true)}}`,
+			hydrate:   "load",
+			framework: "vue",
+			comp:      "Widget",
+		},
 	}
 
 	for _, tc := range tests {
@@ -477,8 +510,10 @@ func TestDesugar_IslandHydrationDirectives(t *testing.T) {
 			found := false
 			for _, c := range mod.Components {
 				if c.Name == tc.comp && c.Hydrate == tc.hydrate {
-					found = true
-					break
+					if tc.framework == "" || c.Framework == tc.framework {
+						found = true
+						break
+					}
 				}
 			}
 			if !found {

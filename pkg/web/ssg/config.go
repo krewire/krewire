@@ -53,6 +53,8 @@ type Config struct {
 	IncludeFuture bool `yaml:"include_future"`
 	// I18n configures internationalization (default/fallback locale, supported locales).
 	I18n *I18nConfig `yaml:"i18n"`
+	// Islands configures client island hydration for multi-framework components.
+	Islands *IslandsConfig `yaml:"islands"`
 }
 
 // I18nConfig configures internationalization for declarative sites.
@@ -122,6 +124,9 @@ func (c *Config) Site() (*Site, error) {
 	}
 	if c.Theme != nil {
 		s.Asset("assets/theme.css", ui.ThemeModeVarsCSS+"\n"+ui.ThemeToggleCSS)
+	}
+	if c.Islands != nil {
+		s.Islands(*c.Islands)
 	}
 	for _, comp := range c.Components {
 		s.Component(Component{Name: comp.Name, Body: comp.Body, Style: comp.Style})

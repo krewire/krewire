@@ -13,6 +13,9 @@ func (s *Site) Open(name string) (fs.File, error) {
 	name = strings.TrimPrefix(name, "/")
 	body, ok := s.assets[name]
 	if !ok {
+		if name == DefaultIslandsAssetPath {
+			return fsFile{name: name, r: strings.NewReader(DefaultIslandsScript)}, nil
+		}
 		return nil, fs.ErrNotExist
 	}
 	return fsFile{name: name, r: strings.NewReader(body)}, nil

@@ -189,6 +189,15 @@ func (s *Site) writeAssets(outDir string) []string {
 		}
 		created = append(created, rel)
 	}
+	if s.hasFrameworkMounts() && s.assets[DefaultIslandsAssetPath] == "" && !s.declared[DefaultIslandsAssetPath] {
+		rel := cleanAssetPath(DefaultIslandsAssetPath)
+		out := filepath.Join(outDir, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(out), 0o755); err == nil {
+			if werr := os.WriteFile(out, []byte(DefaultIslandsScript), 0o644); werr == nil {
+				created = append(created, rel)
+			}
+		}
+	}
 	if len(s.manifest) > 0 {
 		if mb, err := json.MarshalIndent(s.manifest, "", "  "); err == nil {
 			rel := "manifest.json"
@@ -252,6 +261,17 @@ func (s *Site) WriteBundleAssets(outDir string) []string {
 // assetContent retrieves the body of an asset for bundling, supporting generated
 // scoped styles and assets written to disk by external plugins.
 func (s *Site) assetContent(name, outDir string) string {
+	if name == DefaultIslandsAssetPath {
+		if content, ok := s.assets[name]; ok && content != "" {
+			return content
+		}
+		if outDir != "" {
+			if b, err := os.ReadFile(filepath.Join(outDir, filepath.FromSlash(name))); err == nil {
+				return string(b)
+			}
+		}
+		return DefaultIslandsScript
+	}
 	if name == "assets/style.css" {
 		collected := s.collectedCSS()
 		raw := s.assets[name]

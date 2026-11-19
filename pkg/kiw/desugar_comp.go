@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-const compNamePattern = `(?:[a-zA-Z_][a-zA-Z0-9_-]*:)?[A-Z][a-zA-Z0-9_]*(?:\.[A-Z][a-zA-Z0-9_]*)*`
+const compNamePattern = `(?:[a-zA-Z_][a-zA-Z0-9_-]*:)?[A-Z][a-zA-Z0-9_]*(?:\.[A-Z][a-zA-Z0-9_]*)*(?::[a-zA-Z0-9_-]+)?`
 
 var (
 	selfClosingCompRe = regexp.MustCompile(`(?s)<(` + compNamePattern + `)([^>]*?)\s*/>`)
 	openCompTagRe     = regexp.MustCompile(`<(` + compNamePattern + `)([^>]*)>`)
 	mustacheCompRe    = regexp.MustCompile(`{{\s*component\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
-	mustacheMountRe   = regexp.MustCompile(`{{\s*mount\s+"([^"]+)"\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
+	mustacheMountRe   = regexp.MustCompile(`{{\s*mount(Svelte|Vue)?\s+"([^"]+)"\s+"([^"]+)"(?:\s+([^{}]+))?\s*}}`)
 	compAttrRe        = regexp.MustCompile("([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|\\{([^}]*)\\}|([^\\s\"'=<>`]+)))?")
 	namedSlotRe       = regexp.MustCompile(`(?s)<(?:template|div|section|svelte:fragment)\s+slot=["']([a-zA-Z0-9_-]+)["']>([\s\S]*?)</(?:template|div|section|svelte:fragment)>`)
 	namedSlotTagRe    = regexp.MustCompile(`(?s)<slot\s+name=["']([a-zA-Z0-9_-]+)["']>([\s\S]*?)</slot>`)
@@ -31,10 +31,20 @@ func isNumeric(s string) bool {
 }
 
 func desugarComponent(name, attrStr, bodyContent, raw string) (string, ComponentCall) {
+	var frameworkMode string
+	if colonIdx := strings.Index(name, ":"); colonIdx > 0 {
+		fw := strings.ToLower(name[colonIdx+1:])
+		if fw == "svelte" || fw == "vue" || fw == "wasm" || fw == "react" || fw == "preact" {
+			name = name[:colonIdx]
+			frameworkMode = fw
+		}
+	}
+
 	call := ComponentCall{
-		Name:  name,
-		Props: make(map[string]string),
-		Raw:   raw,
+		Name:      name,
+		Framework: frameworkMode,
+		Props:     make(map[string]string),
+		Raw:       raw,
 	}
 
 	trimmedAttr := strings.TrimSpace(attrStr)
@@ -93,6 +103,32 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 				continue
 			case "client:visible":
 				hydrateMode = "visible"
+				continue
+			case "client:svelte":
+				frameworkMode = "svelte"
+				if hydrateMode == "" {
+					hydrateMode = "load"
+				}
+				continue
+			case "client:vue":
+				frameworkMode = "vue"
+				if hydrateMode == "" {
+					hydrateMode = "load"
+				}
+				continue
+			case "client:framework":
+				v := ""
+				if len(sm) > 2 && sm[2] != "" {
+					v = sm[2]
+				} else if len(sm) > 3 && sm[3] != "" {
+					v = sm[3]
+				} else if len(sm) > 5 && sm[5] != "" {
+					v = sm[5]
+				}
+				frameworkMode = strings.ToLower(v)
+				if hydrateMode == "" {
+					hydrateMode = "load"
+				}
 				continue
 			case "client:hydrate", "hydrate":
 				v := ""
@@ -189,12 +225,27 @@ func desugarComponent(name, attrStr, bodyContent, raw string) (string, Component
 		}
 	}
 
-	if hydrateMode != "" {
-		call.Hydrate = hydrateMode
-		if len(dictPairs) == 0 {
-			return fmt.Sprintf(`{{mount %q %q (dict)}}`, name, hydrateMode), call
+	if frameworkMode != "" || hydrateMode != "" {
+		if hydrateMode == "" {
+			hydrateMode = "load"
 		}
-		return fmt.Sprintf(`{{mount %q %q (dict %s)}}`, name, hydrateMode, strings.Join(dictPairs, " ")), call
+		call.Hydrate = hydrateMode
+		call.Framework = frameworkMode
+
+		var mountHelper string
+		switch frameworkMode {
+		case "svelte":
+			mountHelper = "mountSvelte"
+		case "vue":
+			mountHelper = "mountVue"
+		default:
+			mountHelper = "mount"
+		}
+
+		if len(dictPairs) == 0 {
+			return fmt.Sprintf(`{{%s %q %q (dict)}}`, mountHelper, name, hydrateMode), call
+		}
+		return fmt.Sprintf(`{{%s %q %q (dict %s)}}`, mountHelper, name, hydrateMode, strings.Join(dictPairs, " ")), call
 	}
 
 	if len(dictPairs) == 0 {

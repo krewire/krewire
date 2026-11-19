@@ -130,6 +130,10 @@ type Site struct {
 	used map[string]bool
 	// wasm holds client WebAssembly island hydration configuration.
 	wasm WasmConfig
+	// islands holds client island hydration configuration for external frameworks.
+	islands IslandsConfig
+	// hasIslandsEmitted tracks whether any rendered page has framework island markers.
+	hasIslandsEmitted bool
 }
 
 // WasmConfig configures client WebAssembly island hydration (KWF-T4X9P).
