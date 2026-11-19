@@ -219,6 +219,37 @@ func TestExportSanitizesAssetPaths(t *testing.T) {
 	assertFile(t, filepath.Join(out, "assets", "_"), "x")
 }
 
+func TestRouter_HandleFunc(t *testing.T) {
+	r := NewRouter()
+	r.HandleFunc("GET /ping", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("pong"))
+	})
+	r.HandleFunc("POST /submit", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("submitted"))
+	})
+	r.HandleFunc("/any", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("any"))
+	})
+
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/ping", nil))
+	if rec.Code != http.StatusOK || rec.Body.String() != "pong" {
+		t.Fatalf("GET /ping = %d %q, want 200 pong", rec.Code, rec.Body.String())
+	}
+
+	recPost := httptest.NewRecorder()
+	r.ServeHTTP(recPost, httptest.NewRequest(http.MethodPost, "/submit", nil))
+	if recPost.Code != http.StatusOK || recPost.Body.String() != "submitted" {
+		t.Fatalf("POST /submit = %d %q, want 200 submitted", recPost.Code, recPost.Body.String())
+	}
+
+	recAny := httptest.NewRecorder()
+	r.ServeHTTP(recAny, httptest.NewRequest(http.MethodPut, "/any", nil))
+	if recAny.Code != http.StatusOK || recAny.Body.String() != "any" {
+		t.Fatalf("PUT /any = %d %q, want 200 any", recAny.Code, recAny.Body.String())
+	}
+}
+
 func assertFile(t *testing.T, path, want string) {
 	t.Helper()
 	body, err := os.ReadFile(path)

@@ -95,6 +95,30 @@ func (r *Router) Match(methods []string, pattern string, h HandlerFunc) {
 	}
 }
 
+// HandleFunc registers a standard http.HandlerFunc on pattern.
+// Pattern can be a bare path (e.g. "/login") which matches any HTTP method,
+// or a method-prefixed pattern (e.g. "GET /login", "POST /login").
+func (r *Router) HandleFunc(pattern string, h func(http.ResponseWriter, *http.Request)) {
+	if h == nil {
+		return
+	}
+	pattern = strings.TrimSpace(pattern)
+	method := ""
+	path := pattern
+	if idx := strings.IndexByte(pattern, ' '); idx > 0 {
+		method = strings.ToUpper(strings.TrimSpace(pattern[:idx]))
+		path = strings.TrimSpace(pattern[idx+1:])
+	}
+	adapter := func(w http.ResponseWriter, req *http.Request, _ Params) {
+		h(w, req)
+	}
+	if method != "" {
+		r.Handle(method, path, adapter)
+	} else {
+		r.Any(path, adapter)
+	}
+}
+
 // Fallback registers a catch-all handler for unmatched routes.
 func (r *Router) Fallback(h HandlerFunc) {
 	r.root().NotFound = h
