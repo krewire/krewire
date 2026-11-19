@@ -283,6 +283,25 @@ func TestDefaultChainResolvesTailwindToPlugin(t *testing.T) {
 	}
 }
 
+func TestDefaultChainResolvesSvelteAndVueToPlugin(t *testing.T) {
+	// "svelte" and "vue" resolve to their respective modular plugins
+	resolvedSvelte, err := DefaultChain().Resolve(mustSpec(t, "svelte"))
+	if err != nil {
+		t.Fatalf("DefaultChain().Resolve(svelte) error = %v", err)
+	}
+	if resolvedSvelte.Kind != "plugin" {
+		t.Errorf("Kind = %q, want 'plugin'", resolvedSvelte.Kind)
+	}
+
+	resolvedVue, err := DefaultChain().Resolve(mustSpec(t, "vue"))
+	if err != nil {
+		t.Fatalf("DefaultChain().Resolve(vue) error = %v", err)
+	}
+	if resolvedVue.Kind != "plugin" {
+		t.Errorf("Kind = %q, want 'plugin'", resolvedVue.Kind)
+	}
+}
+
 func TestDefaultChainResolvesGoModuleToGomod(t *testing.T) {
 	// Go detection must precede npm so "github.com/..." is not read as npm.
 	resolved, err := DefaultChain().Resolve(mustSpec(t, "github.com/foo/bar@v1.0.0"))

@@ -80,6 +80,69 @@ func TestTailwindPlugin_AddAndRemove(t *testing.T) {
 	}
 }
 
+func TestSveltePlugin_AddAndRemove(t *testing.T) {
+	dir := t.TempDir()
+	origWd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origWd)
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	sv := &plugin.Svelte{}
+	if err := sv.Add(dir, "latest"); err != nil {
+		t.Logf("sv.Add note: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "svelte.config.js")); err != nil {
+		t.Errorf("expected svelte.config.js to exist: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "components", "Counter.svelte")); err != nil {
+		t.Errorf("expected components/Counter.svelte to exist: %v", err)
+	}
+
+	if err := sv.Remove(dir); err != nil {
+		t.Logf("sv.Remove note: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "svelte.config.js")); !os.IsNotExist(err) {
+		t.Errorf("expected svelte.config.js to be removed")
+	}
+	if _, err := os.Stat(filepath.Join(dir, "components", "Counter.svelte")); !os.IsNotExist(err) {
+		t.Errorf("expected components/Counter.svelte to be removed")
+	}
+}
+
+func TestVuePlugin_AddAndRemove(t *testing.T) {
+	dir := t.TempDir()
+	origWd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origWd)
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	vue := &plugin.Vue{}
+	if err := vue.Add(dir, "latest"); err != nil {
+		t.Logf("vue.Add note: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "vite.config.js")); err != nil {
+		t.Errorf("expected vite.config.js to exist: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "components", "Counter.vue")); err != nil {
+		t.Errorf("expected components/Counter.vue to exist: %v", err)
+	}
+
+	if err := vue.Remove(dir); err != nil {
+		t.Logf("vue.Remove note: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "components", "Counter.vue")); !os.IsNotExist(err) {
+		t.Errorf("expected components/Counter.vue to be removed")
+	}
+}
+
 func TestResolverChainOrder(t *testing.T) {
 	chain := resolver.DefaultChain()
 
