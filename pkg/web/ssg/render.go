@@ -326,6 +326,8 @@ func (s *Site) prepare() error {
 	}
 	funcs["component"] = s.renderComponent
 	funcs["mount"] = s.renderMount
+	funcs["mountSvelte"] = s.renderMountSvelte
+	funcs["mountVue"] = s.renderMountVue
 	funcs["dict"] = dict
 	funcs["asset"] = s.asset
 	// assetLinks emits <link> and <script> tags for every asset that matches

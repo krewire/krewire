@@ -25,9 +25,10 @@ import (
 
 // Marker attribute names emitted by Wrap and consumed by Scan.
 const (
-	AttrMount   = "data-kiw-mount"
-	AttrHydrate = "data-kiw-hydrate"
-	AttrProps   = "data-kiw-props"
+	AttrMount     = "data-kiw-mount"
+	AttrHydrate   = "data-kiw-hydrate"
+	AttrProps     = "data-kiw-props"
+	AttrFramework = "data-kiw-framework"
 )
 
 // Hydrate says when a mount point attaches client behavior. Values follow
@@ -58,22 +59,38 @@ func ParseHydrate(s string) (Hydrate, error) {
 
 // Mount is one scanned mount point. Props carries the raw JSON payload from
 // data-kiw-props; decoding belongs to the component's typed schema.
+// Framework specifies the client island runtime (e.g., "svelte", "vue", or ""/ "wasm").
 type Mount struct {
-	Name    string
-	Hydrate Hydrate
-	Props   string
+	Name      string
+	Hydrate   Hydrate
+	Props     string
+	Framework string
 }
 
 // Wrap embeds SSR output in a marked container div. Attribute values are
 // HTML-escaped; an empty or null propsJSON omits the props attribute so
 // purely static mounts stay minimal.
 func Wrap(name string, h Hydrate, propsJSON, innerHTML string) string {
+	return WrapWithFramework(name, "", h, propsJSON, innerHTML)
+}
+
+// WrapWithFramework embeds SSR output in a marked container div annotated with
+// a specific framework island runtime (e.g., "svelte", "vue", or "" for default WASM).
+func WrapWithFramework(name, framework string, h Hydrate, propsJSON, innerHTML string) string {
 	var b strings.Builder
 	b.WriteString(`<div `)
 	b.WriteString(AttrMount)
 	b.WriteString(`="`)
 	b.WriteString(html.EscapeString(name))
-	b.WriteString(`" `)
+	b.WriteString(`"`)
+	if fw := strings.TrimSpace(framework); fw != "" {
+		b.WriteString(` `)
+		b.WriteString(AttrFramework)
+		b.WriteString(`="`)
+		b.WriteString(html.EscapeString(fw))
+		b.WriteString(`"`)
+	}
+	b.WriteString(` `)
 	b.WriteString(AttrHydrate)
 	b.WriteString(`="`)
 	b.WriteString(string(h))
@@ -109,7 +126,12 @@ func Scan(pageHTML string) ([]Mount, error) {
 				if h == "" {
 					h = string(Load)
 				}
-				out = append(out, Mount{Name: name, Hydrate: Hydrate(h), Props: attr(n, AttrProps)})
+				out = append(out, Mount{
+					Name:      name,
+					Hydrate:   Hydrate(h),
+					Props:     attr(n, AttrProps),
+					Framework: attr(n, AttrFramework),
+				})
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {

@@ -84,3 +84,30 @@ func TestScan_NoMountsAndPartialMarkers(t *testing.T) {
 		t.Fatalf("parser must recover from broken html: %v", err)
 	}
 }
+
+func TestWrapWithFramework_SvelteAndVue(t *testing.T) {
+	svelteHTML := WrapWithFramework("SvelteCounter", "svelte", Load, `{"count":5}`, `<button>5</button>`)
+	if !strings.Contains(svelteHTML, `data-kiw-framework="svelte"`) {
+		t.Fatalf("expected svelte framework attribute: %s", svelteHTML)
+	}
+
+	vueHTML := WrapWithFramework("VueWidget", "vue", Visible, `{"mode":"dark"}`, `<div>widget</div>`)
+	if !strings.Contains(vueHTML, `data-kiw-framework="vue"`) {
+		t.Fatalf("expected vue framework attribute: %s", vueHTML)
+	}
+
+	page := `<body>` + svelteHTML + vueHTML + `</body>`
+	mounts, err := Scan(page)
+	if err != nil {
+		t.Fatalf("Scan failed: %v", err)
+	}
+	if len(mounts) != 2 {
+		t.Fatalf("expected 2 mounts, got %d", len(mounts))
+	}
+	if mounts[0].Name != "SvelteCounter" || mounts[0].Framework != "svelte" || mounts[0].Hydrate != Load {
+		t.Errorf("unexpected mount[0]: %+v", mounts[0])
+	}
+	if mounts[1].Name != "VueWidget" || mounts[1].Framework != "vue" || mounts[1].Hydrate != Visible {
+		t.Errorf("unexpected mount[1]: %+v", mounts[1])
+	}
+}

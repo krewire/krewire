@@ -152,3 +152,37 @@ func TestMount_WasmLoaderInjected(t *testing.T) {
 		t.Errorf("expected WebAssembly bootstrap loader injected in html: %s", html)
 	}
 }
+
+func TestMountSvelteAndVue(t *testing.T) {
+	site, err := LoadFromDir("testdata/mount")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := site.prepare(); err != nil {
+		t.Fatal(err)
+	}
+
+	svelteHTML, err := site.renderMountSvelte("Counter", "load", map[string]any{"initial": 10})
+	if err != nil {
+		t.Fatalf("renderMountSvelte failed: %v", err)
+	}
+	s := string(svelteHTML)
+	if !strings.Contains(s, `data-kiw-framework="svelte"`) {
+		t.Errorf("expected svelte framework attribute: %s", s)
+	}
+	if !strings.Contains(s, `data-kiw-mount="Counter"`) {
+		t.Errorf("expected Counter mount attribute: %s", s)
+	}
+
+	vueHTML, err := site.renderMountVue("VueWidget", "visible", map[string]any{"theme": "dark"})
+	if err != nil {
+		t.Fatalf("renderMountVue failed: %v", err)
+	}
+	v := string(vueHTML)
+	if !strings.Contains(v, `data-kiw-framework="vue"`) {
+		t.Errorf("expected vue framework attribute: %s", v)
+	}
+	if !strings.Contains(v, `data-kiw-mount="VueWidget"`) {
+		t.Errorf("expected VueWidget mount attribute: %s", v)
+	}
+}

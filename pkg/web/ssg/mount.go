@@ -36,3 +36,51 @@ func (s *Site) renderMount(name, hydrate string, data any) (template.HTML, error
 	}
 	return template.HTML(mount.Wrap(name, h, propsJSON, string(inner))), nil
 }
+
+// renderMountSvelte renders a Svelte island component mount point with hydration markers.
+// Template usage:
+//
+//	{{mountSvelte "Counter" "load" .}}
+func (s *Site) renderMountSvelte(name, hydrate string, data any) (template.HTML, error) {
+	h, err := mount.ParseHydrate(hydrate)
+	if err != nil {
+		return "", fmt.Errorf("ssg: mount svelte %q: %w", name, err)
+	}
+	var inner template.HTML
+	if compHTML, cErr := s.renderComponent(name, data); cErr == nil {
+		inner = compHTML
+	}
+	propsJSON := ""
+	if p := componentProps(data); p != nil {
+		b, mErr := json.Marshal(p)
+		if mErr != nil {
+			return "", fmt.Errorf("ssg: mount svelte %q props: %w", name, mErr)
+		}
+		propsJSON = string(b)
+	}
+	return template.HTML(mount.WrapWithFramework(name, "svelte", h, propsJSON, string(inner))), nil
+}
+
+// renderMountVue renders a Vue island component mount point with hydration markers.
+// Template usage:
+//
+//	{{mountVue "Counter" "load" .}}
+func (s *Site) renderMountVue(name, hydrate string, data any) (template.HTML, error) {
+	h, err := mount.ParseHydrate(hydrate)
+	if err != nil {
+		return "", fmt.Errorf("ssg: mount vue %q: %w", name, err)
+	}
+	var inner template.HTML
+	if compHTML, cErr := s.renderComponent(name, data); cErr == nil {
+		inner = compHTML
+	}
+	propsJSON := ""
+	if p := componentProps(data); p != nil {
+		b, mErr := json.Marshal(p)
+		if mErr != nil {
+			return "", fmt.Errorf("ssg: mount vue %q props: %w", name, mErr)
+		}
+		propsJSON = string(b)
+	}
+	return template.HTML(mount.WrapWithFramework(name, "vue", h, propsJSON, string(inner))), nil
+}
