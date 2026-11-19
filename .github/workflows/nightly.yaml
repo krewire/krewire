@@ -1,0 +1,176 @@
+name: Nightly Pipeline
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Krewire Nightly Build Pipeline (ADR-R7P3K)
+# Automated bleeding-edge daily release for kiw CLI & Core libraries
+# Triggered daily on schedule from branch 'main' or via manual dispatch
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    - cron: '0 2 * * *'                      # Nightly build at 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run compilation without publishing release assets'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: nightly-krewire-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  classify:
+    name: Prepare Nightly Metadata
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      track: nightly
+      is_prerelease: "true"
+    steps:
+      - name: Generate Version Tag
+        id: meta
+        run: |
+          DATE_TAG="$(date -u +%Y%m%d)"
+          VER="v0.3.0-nightly.${DATE_TAG}"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "Generated Nightly Version: ${VER}"
+
+  quality-gate:
+    name: Quality Gate & Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.x"
+          check-latest: true
+          cache: true
+
+      - name: Formatting Check
+        run: |
+          UNFORMATTED="$(gofmt -l .)"
+          if [ -n "$UNFORMATTED" ]; then
+            echo "gofmt found unformatted files:"
+            echo "$UNFORMATTED"
+            exit 1
+          fi
+
+      - name: Static Analysis
+        run: go vet ./...
+
+      - name: Layering & Peer Decoupling Tests
+        run: go test -v ./layering_test.go
+
+      - name: Unit & Integration Tests
+        run: go test -v ./...
+
+      - name: Pure-Go Compilation Invariant
+        run: CGO_ENABLED=0 go build ./...
+
+  build-binaries:
+    name: Cross-Compile kiw CLI (Nightly)
+    needs: [classify, quality-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.x"
+          cache: true
+
+      - name: Compile Multi-Platform Binaries
+        env:
+          VER: ${{ needs.classify.outputs.version }}
+          TRACK: "nightly"
+        run: |
+          mkdir -p dist
+          LDFLAGS="-s -w -X 'github.com/krewire/krewire/tools/kiw/internal/buildinfo.Version=${VER}' -X 'github.com/krewire/krewire/tools/kiw/internal/buildinfo.Track=${TRACK}'"
+          
+          PLATFORMS=(
+            "linux/amd64/kiw-linux-amd64"
+            "linux/arm64/kiw-linux-arm64"
+            "darwin/amd64/kiw-darwin-amd64"
+            "darwin/arm64/kiw-darwin-arm64"
+            "windows/amd64/kiw-windows-amd64.exe"
+          )
+          
+          for target in "${PLATFORMS[@]}"; do
+            IFS="/" read -r OS ARCH OUT <<< "$target"
+            echo "▶ Compiling ${OUT} (${OS}/${ARCH})..."
+            GOOS=$OS GOARCH=$ARCH CGO_ENABLED=0 go build -ldflags="$LDFLAGS" -o "dist/${OUT}" ./tools/kiw/cmd/kiw
+          done
+
+      - name: Generate Checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Upload Distribution Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kiw-nightly-${{ needs.classify.outputs.version }}
+          path: dist/
+          retention-days: 7
+
+  publish-github-release:
+    name: Publish Nightly Release Artifacts
+    needs: [classify, build-binaries]
+    runs-on: ubuntu-latest
+    if: inputs.dry_run != true
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: kiw-nightly-${{ needs.classify.outputs.version }}
+          path: dist/
+
+      - name: Generate Release Notes
+        id: notes
+        run: |
+          VER="${{ needs.classify.outputs.version }}"
+          
+          cat << EOF > release_notes.md
+          ## Krewire Core & kiw CLI — ${VER} (Nightly Build)
+          
+          **Release Track**: \`nightly\`
+          **Commit**: \`${{ github.sha }}\`
+          **Build Date**: \`$(date -u +"%Y-%m-%d %H:%M:%S UTC")\`
+          
+          ### Distribution Binaries & Integrity
+          Statically linked, pure-Go binaries compiled from branch \`main\`.
+          
+          \`\`\`
+          $(cat dist/checksums.txt)
+          \`\`\`
+          EOF
+
+      - name: Create or Update Nightly Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.classify.outputs.version }}
+          name: Krewire ${{ needs.classify.outputs.version }} [nightly]
+          body_path: release_notes.md
+          prerelease: true
+          draft: false
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
