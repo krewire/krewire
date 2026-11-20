@@ -6,7 +6,7 @@ Import: `github.com/krewire/krewire/pkg/storage`
 
 The `pkg/storage` package defines a clean, backend-independent object storage abstraction boundary. Applications depend strictly on the `storage.Store` or `storage.StreamStore` interface, allowing transparent swapping between local disk, in-memory mocks, and S3-compatible cloud storage.
 
-For detailed storage architecture and filesystem operations, see [Storage & Filesystem Guide](../system/storage-and-fs.md).
+For detailed storage architecture and filesystem operations, see [Storage & Filesystem Guide](./system/storage-and-fs.md).
 
 ---
 

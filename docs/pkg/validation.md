@@ -6,7 +6,7 @@ Import: `github.com/krewire/krewire/pkg/validation`
 
 The `pkg/validation` package provides a framework-agnostic, reflection-based struct and scalar validation engine in 100% standard-library Go. It allows HTTP handlers, CLI commands, and domain models to share one unified validation rule syntax without external dependencies.
 
-For deep validation rules and custom rule registration, see [Configuration & Validation Guide](../system/config-and-validation.md).
+For deep validation rules and custom rule registration, see [Configuration & Validation Guide](./system/config-and-validation.md).
 
 ---
 

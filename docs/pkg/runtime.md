@@ -6,7 +6,7 @@ Import: `github.com/krewire/krewire/pkg/runtime`
 
 The `pkg/runtime` package delivers the client-side WebAssembly (WASM) execution engine, Virtual DOM (VDOM) reconciliation, Fiber component lifecycle scheduler, and multi-framework island hydration contracts (`mount.Hydrate`).
 
-For full details on client WASM architecture and hydration contracts, see [Client-Side WASM & Island Hydration Guide](../web-runtime/runtime.md).
+For full details on client WASM architecture and hydration contracts, see [Client-Side WASM & Island Hydration Guide](./web-runtime/runtime.md).
 
 ---
 

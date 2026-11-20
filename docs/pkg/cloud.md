@@ -62,4 +62,4 @@ For long-running consumption, wrap the same `Queue` in `worker.NewRunner(q, work
 
 ## Design boundary
 
-Implements `worker`, `service`, and `infra` workload kinds. See the detailed [Cloud Platform Reference](../platform/cloud.md).
+Implements `worker`, `service`, and `infra` workload kinds. See the detailed [Cloud Platform Reference](./platform/cloud.md).

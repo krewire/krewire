@@ -9,7 +9,7 @@ The `pkg/config` package provides declarative YAML configuration loading with en
 It enforces strict precedence:
 $$\text{Built-in Struct Defaults} < \text{YAML Configuration File} < \text{Environment Variables}$$
 
-For deep configuration schema design and validation rules, see [Configuration & Validation Guide](../system/config-and-validation.md).
+For deep configuration schema design and validation rules, see [Configuration & Validation Guide](./system/config-and-validation.md).
 
 ---
 

@@ -39,5 +39,5 @@ _, err = book.Build(book.Config{
 
 ## Documentation
 
-- [Package reference](../../docs/pkg/mod/book.md)
+- [Package reference](../../docs/pkg/book.md)
 - [Book workload guide](../../docs/workloads/book.md)

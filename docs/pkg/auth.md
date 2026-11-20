@@ -14,7 +14,7 @@ pkg/auth/
 └── middleware.go   # Authentication middleware chain
 ```
 
-For full details on defensive security, SSRF guards, and password hashing, see [Security & Authentication Guide](../system/security-and-auth.md).
+For full details on defensive security, SSRF guards, and password hashing, see [Security & Authentication Guide](./system/security-and-auth.md).
 
 ---
 

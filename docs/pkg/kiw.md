@@ -139,7 +139,7 @@ pages/index.kiw:6:16: {#if on} inside an attribute of <Button>: component props 
 ## Editor support
 
 A TextMate grammar and VS Code extension for `.kiw` live in
-[`tools/kiw/editors/vscode`](../../../tools/kiw/editors/vscode): frontmatter,
+[`tools/kiw/editors/vscode`](../../tools/kiw/editors/vscode): frontmatter,
 template blocks, interpolation, component tags, scoped `<style>`, `<script>`
 and `<markdown>`, plus bracket matching and folding.
 

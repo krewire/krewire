@@ -6,7 +6,7 @@ Import: `github.com/krewire/krewire/pkg/tui`
 
 The `pkg/tui` package is the Terminal UI application builder powering the `kiw` CLI tool. It provides command dispatching, flag parsing, subcommands, interactive terminal spinners, styled banners, progress bars, and Levenshtein-based typo suggestions.
 
-For detailed TUI architecture and examples, see [Web UI & Terminal UI Guide](../web-runtime/ui-tui.md).
+For detailed TUI architecture and examples, see [Web UI & Terminal UI Guide](./web-runtime/ui-tui.md).
 
 ---
 

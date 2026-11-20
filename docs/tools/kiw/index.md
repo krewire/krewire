@@ -12,7 +12,7 @@ Rather than juggling fragmented bash scripts, npm build runners, webpack/vite co
 kiw <command> [flags]
 ```
 
-`kiw` dogfoods the monorepo's own Terminal UI toolkit ([`pkg/tui`](../../pkg/web-runtime/ui-tui.md)), declarative models ([`pkg/model`](../../pkg/core/model.md)), and supervisor lifecycle standards ([`pkg/lifecycle`](../../pkg/mod/lifecycle.md)).
+`kiw` dogfoods the monorepo's own Terminal UI toolkit ([`pkg/tui`](../../pkg/web-runtime/ui-tui.md)), declarative models ([`pkg/model`](../../pkg/core/model.md)), and supervisor lifecycle standards ([`pkg/lifecycle`](../../pkg/lifecycle.md)).
 
 ```text
 Go Stdlib ──► pkg/* ──► tools/kiw (Layer 3) ──► krewire.yaml ──► 8 Workload Runtimes

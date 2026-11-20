@@ -6,7 +6,7 @@ Import: `github.com/krewire/krewire/pkg/web`
 
 The `pkg/web` package provides high-performance HTTP routing, structured observability, distributed tracing propagation, RFC 7807 problem details, Static Site Generation (SSG), and Edge API Gateway routing.
 
-For complete routing, middleware, and gateway specifications, see [Web Framework Reference Guide](../web-runtime/web.md).
+For complete routing, middleware, and gateway specifications, see [Web Framework Reference Guide](./web-runtime/web.md).
 
 ---
 

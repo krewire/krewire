@@ -6,7 +6,7 @@ Import: `github.com/krewire/krewire/pkg/testing`
 
 The `pkg/testing` package delivers testing assertions, fluent HTTP request builders, chainable response expecters, golden snapshot assertions, UI component render harnesses, and headless browser test runners.
 
-For complete browser testing and end-to-end integration examples, see [Testing & Browser Automation Guide](../platform/testing.md).
+For complete browser testing and end-to-end integration examples, see [Testing & Browser Automation Guide](./platform/testing.md).
 
 ---
 
