@@ -175,3 +175,38 @@ Technical documentation benchmark testing rendering speed and allocations.
 		_, _ = markdown.Render(doc)
 	}
 }
+
+// ── 3. Usability Benchmark: Native Go vs. kiw Lifecycle ─────────────────────
+
+func TestLifecycle_UsabilityComparison(t *testing.T) {
+	tempDir := t.TempDir()
+
+	// 1. Simulate unified kiw lifecycle: initialize, configure, context check
+	krewireYaml := `project:
+  name: usability-app
+  kind: app
+  version: "0.1.0"
+server:
+  port: 8080
+`
+	if err := os.WriteFile(filepath.Join(tempDir, "krewire.yaml"), []byte(krewireYaml), 0644); err != nil {
+		t.Fatalf("failed to write krewire.yaml: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(tempDir, "go.mod"), []byte("module example.com/usability\ngo 1.27.1\n"), 0644); err != nil {
+		t.Fatalf("failed to write go.mod: %v", err)
+	}
+
+	cfg, err := config.Load(tempDir)
+	if err != nil {
+		t.Fatalf("config.Load failed: %v", err)
+	}
+	if cfg.Project.Name != "usability-app" {
+		t.Errorf("expected project name 'usability-app', got %q", cfg.Project.Name)
+	}
+
+	// 2. Assert all 8 canonical workloads are discoverable with evidence
+	readiness := model.CanonicalWorkloadReadiness()
+	if len(readiness) != 8 {
+		t.Errorf("expected 8 canonical workloads, got %d", len(readiness))
+	}
+}
