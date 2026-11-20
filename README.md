@@ -1,6 +1,10 @@
 # Krewire — Core Monorepo
 
-Official monorepo for the Krewire ecosystem (`github.com/krewire/krewire`), providing modular domain packages, developer tooling, first-party applications, and agentic templates.
+> **Krewire is an end-to-end, Go-first digital SDLC ecosystem engineered to build, run, and scale secure, sustainable, and scalable software products from specification to production.**
+
+Official open-source core monorepo for the Krewire ecosystem (`github.com/krewire/krewire`), providing modular domain packages, the `kiw` developer CLI toolchain, official application runtimes, and agentic engineering blueprints.
+
+For the canonical brand definition, communication variants, and taxonomical guide, see **[Canonical Definition & Identity](docs/foundation/canonical-definition.md)**.
 
 ## Architecture & Layout
 
@@ -76,12 +80,12 @@ Krewire is the core monorepo in the 9-repository ecosystem:
 8. **krewire.com**: Official product website and documentation portal.
 9. **krewire.github.io**: Community portal and guides hub.
 
-## The 3S Pillars (Secure, Sustainable, Scalable)
+## The Three Pillars (Secure, Sustain, and Scalable)
 
 Every library, tool, and service in Krewire is engineered to pass the **Three Pillars**:
-- **Secure (S1)**: Standard library first to eliminate supply-chain vulnerabilities, `SafePath` directory traversal guards, PBKDF2 password hashing, `SafeHTTPClient` SSRF defense, constant-time secret checks, secure-by-default HTTP primitives (OWASP/CWE-aligned), context-aware template auto-escaping, CSRF/CORS protection, and secrets referenced via `${env:NAME}` without hardcoding.
-- **Sustainable (S2)**: Bounded database connection pools and bulkhead concurrency limits to maintain a 10–30 MB lean RAM footprint, modular packages where you only pay for what you import, single static binaries with embedded assets, boring proven technology, a permanent MIT-licensed open-core foundation, and near-zero operational costs allowing production workloads to run on a $5 VPS.
-- **Scalable (S3)**: Progressive pipeline from static sites to distributed cloud mesh without rewrites, reversible provider swapping (SQLite to Postgres, Memory to Redis), 6-layer Pyramid architecture with Bridge/Gateway decoupling, and Zero Peer Coupling between lateral engines.
+- **Secure**: Standard library first to eliminate supply-chain vulnerabilities, `SafePath` directory traversal guards, PBKDF2 password hashing, `SafeHTTPClient` SSRF defense, constant-time secret checks, secure-by-default HTTP primitives (OWASP/CWE-aligned), context-aware template auto-escaping, CSRF/CORS protection, and secrets referenced via `${env:NAME}` without hardcoding.
+- **Sustain**: Bounded database connection pools and bulkhead concurrency limits to maintain a 10–30 MB lean RAM footprint, modular packages where you only pay for what you import, single static binaries with embedded assets, boring proven technology, a permanent MIT-licensed open-core foundation, and near-zero operational costs allowing production workloads to run on a $5 VPS.
+- **Scalable**: Progressive pipeline from static sites to distributed cloud mesh without rewrites, reversible provider swapping (SQLite to Postgres, Memory to Redis), 6-layer Pyramid architecture with Bridge/Gateway decoupling, and Zero Peer Coupling between lateral engines.
 
 ## Prerequisites
 

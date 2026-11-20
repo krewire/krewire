@@ -1,11 +1,14 @@
 # Krewire Documentation
 
+> **Krewire is an end-to-end, Go-first digital SDLC ecosystem engineered to build, run, and scale secure, sustainable, and scalable software products from specification to production.**
+
 Central technical documentation portal for the Krewire core monorepo (`github.com/krewire/krewire`).
 
 ---
 
 ## 1. [Foundation & Architecture](./foundation/architecture.md)
-Core architectural blueprint and system philosophy:
+Core architectural blueprint, canonical definitions, and system philosophy:
+- **[Canonical Definition & Identity](./foundation/canonical-definition.md)** — Canonical one-sentence definition, communication tiers (short, standard, extended), and taxonomy.
 - **[Architecture Specification](./foundation/architecture.md)** — Monorepo structure, strict downward-only layering invariants, domain models, and quality gates.
 - **[Philosophy & Guiding Principles](./foundation/philosophy.md)** — Core tenets, Go language rationale, stdlib-first policy, and single source of truth (SSOT).
 
