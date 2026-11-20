@@ -62,6 +62,136 @@ const (
 	StatusPlanned Status = "planned"
 )
 
+// MaturityLevel represents the objective readiness and support status of a workload or capability.
+type MaturityLevel string
+
+const (
+	// MaturityStable: Production-qualified, full automated test coverage, performance baseline verified, backwards compatible.
+	MaturityStable MaturityLevel = "Stable"
+	// MaturityUsable: Functional and tested for single-node / standard use cases, documented, active production use.
+	MaturityUsable MaturityLevel = "Usable"
+	// MaturityExperimental: Working prototype / preview, public API may change, opt-in flag required.
+	MaturityExperimental MaturityLevel = "Experimental"
+	// MaturityPlanned: Defined in roadmap and specifications, implementation not yet complete.
+	MaturityPlanned MaturityLevel = "Planned"
+	// MaturityUnsupported: Explicitly out of scope or deprecated.
+	MaturityUnsupported MaturityLevel = "Unsupported"
+)
+
+// WorkloadReadiness represents the evidence-backed maturity record for a workload kind.
+type WorkloadReadiness struct {
+	Kind        Kind          `json:"kind"`
+	Title       string        `json:"title"`
+	Status      Status        `json:"status"`
+	Maturity    MaturityLevel `json:"maturity"`
+	Package     string        `json:"package"`
+	Evidence    string        `json:"evidence"`
+	Limitations []string      `json:"limitations,omitempty"`
+	Owner       string        `json:"owner"`
+}
+
+// CanonicalWorkloadReadiness returns the official evidence-backed readiness records for all 8 canonical workloads.
+func CanonicalWorkloadReadiness() []WorkloadReadiness {
+	return []WorkloadReadiness{
+		{
+			Kind:     KindSite,
+			Title:    "Static Website (SSG)",
+			Status:   StatusShipped,
+			Maturity: MaturityStable,
+			Package:  "pkg/web/ssg",
+			Evidence: "Powers krewire.com in production. SSG compilation, assets pipeline, client HMR, multi-locale i18n.",
+			Limitations: []string{
+				"Dynamic server-side API routes require pairing with an app kind or gateway kind.",
+			},
+			Owner: "@krewire/team-runtime",
+		},
+		{
+			Kind:     KindBook,
+			Title:    "Documentation & Books",
+			Status:   StatusShipped,
+			Maturity: MaturityStable,
+			Package:  "pkg/book",
+			Evidence: "Powers ecosystem documentation in English & Indonesian with automated search indexing and TOC.",
+			Limitations: []string{
+				"Manuscript compilation currently focuses on Markdown; AsciiDoc support is planned.",
+			},
+			Owner: "@krewire/team-runtime",
+		},
+		{
+			Kind:     KindApp,
+			Title:    "Fullstack Web Application",
+			Status:   StatusShipped,
+			Maturity: MaturityStable,
+			Package:  "pkg/app, pkg/web, pkg/runtime",
+			Evidence: "Fullstack SSR + WebAssembly islands compilation, routing middleware, 18 .kiw conformance tests passing.",
+			Limitations: []string{
+				"SSR state hydration for deeply nested reactive loops is under ongoing optimization.",
+			},
+			Owner: "@krewire/team-runtime",
+		},
+		{
+			Kind:     KindCLI,
+			Title:    "Command-Line Tool",
+			Status:   StatusShipped,
+			Maturity: MaturityStable,
+			Package:  "tools/kiw, pkg/tui, pkg/term",
+			Evidence: "Unified devtool kiw drives all ecosystem workflows. Reproducible pure-Go binary compilation verified.",
+			Limitations: []string{
+				"Terminal graphics protocols (Sixel, Kitty) are unbundled and optional.",
+			},
+			Owner: "@krewire/team-runtime",
+		},
+		{
+			Kind:     KindGateway,
+			Title:    "API Gateway & Reverse Proxy",
+			Status:   StatusShipped,
+			Maturity: MaturityStable,
+			Package:  "pkg/web/gateway",
+			Evidence: "Reverse proxy ingress routing, rate limiting token bucket, header transformation, and health checks.",
+			Limitations: []string{
+				"Dynamic service discovery beyond static route tables requires external DNS or consul adapters.",
+			},
+			Owner: "@krewire/team-runtime",
+		},
+		{
+			Kind:     KindWorker,
+			Title:    "Background Queue Worker",
+			Status:   StatusShipped,
+			Maturity: MaturityUsable,
+			Package:  "pkg/cloud/worker, pkg/lifecycle",
+			Evidence: "Priority queue processing, concurrency bounds, exponential backoff retries, Redis/Postgres drivers.",
+			Limitations: []string{
+				"Redis and PostgreSQL queue backends supported; distributed Kafka/RabbitMQ adapters planned.",
+			},
+			Owner: "@krewire/team-cloud",
+		},
+		{
+			Kind:     KindService,
+			Title:    "Headless Microservice",
+			Status:   StatusShipped,
+			Maturity: MaturityUsable,
+			Package:  "pkg/cloud/service, pkg/resilience",
+			Evidence: "Headless REST microservice runtime, request correlation tracing, circuit breakers, rate limiting.",
+			Limitations: []string{
+				"Direct HTTP/REST and SSE supported; gRPC and protobuf support in roadmap.",
+			},
+			Owner: "@krewire/team-cloud",
+		},
+		{
+			Kind:     KindInfra,
+			Title:    "Declarative Cloud Infrastructure",
+			Status:   StatusShipped,
+			Maturity: MaturityExperimental,
+			Package:  "pkg/cloud/infra, pkg/cloud/deploy",
+			Evidence: "Declarative resource topology planning (kiw build --plan) and state reconciliation parser.",
+			Limitations: []string{
+				"Provider drivers currently target local Docker and Linux systemd; cloud PaaS drivers are experimental.",
+			},
+			Owner: "@krewire/team-cloud",
+		},
+	}
+}
+
 // Workload is one cell of the workload matrix: a Kind and the package that
 // implements it.
 //

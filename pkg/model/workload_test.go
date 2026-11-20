@@ -125,3 +125,46 @@ func TestStatusValues(t *testing.T) {
 		}
 	}
 }
+
+func TestMaturityLevels(t *testing.T) {
+	levels := []MaturityLevel{
+		MaturityStable,
+		MaturityUsable,
+		MaturityExperimental,
+		MaturityPlanned,
+		MaturityUnsupported,
+	}
+	for _, lvl := range levels {
+		if lvl == "" {
+			t.Error("a declared MaturityLevel must not be empty")
+		}
+	}
+}
+
+func TestCanonicalWorkloadReadiness(t *testing.T) {
+	records := CanonicalWorkloadReadiness()
+	if len(records) != len(AllKinds) {
+		t.Fatalf("expected %d readiness records, got %d", len(AllKinds), len(records))
+	}
+
+	seenKinds := make(map[Kind]bool)
+	for _, r := range records {
+		if !r.Kind.IsCanonical() {
+			t.Errorf("readiness record has non-canonical kind: %v", r.Kind)
+		}
+		if seenKinds[r.Kind] {
+			t.Errorf("duplicate readiness record for kind: %v", r.Kind)
+		}
+		seenKinds[r.Kind] = true
+
+		if r.Maturity == "" {
+			t.Errorf("readiness record for %v missing maturity", r.Kind)
+		}
+		if r.Evidence == "" {
+			t.Errorf("readiness record for %v missing evidence", r.Kind)
+		}
+		if r.Owner == "" {
+			t.Errorf("readiness record for %v missing owner", r.Kind)
+		}
+	}
+}

@@ -1,47 +1,112 @@
-# Workload Readiness & Implementation Maturity Baseline
+# Workload Maturity & Implementation Readiness Baseline
 
-This document publishes the evidence-based implementation maturity assessment for all eight Krewire workloads, fulfilling the core excellence baseline for developer adoption.
-
----
-
-## 1. Maturity Tiers & Criteria
-
-Each workload is categorized into one of three explicit maturity states based on concrete repository evidence:
-
-- **Stable (Production-Ready)**:
-  - Tested across automated unit and integration suites (`go test ./...`).
-  - Running in production workloads (e.g., `krewire.com`, `api.krewire.com`, or `kiw` CLI binary).
-  - Fully supports pure Go (`CGO_ENABLED=0`) and the 3S Pillars (Secure, Sustainable, Scalable).
-  - Complete documentation, tutorials, and starter scaffolding.
-- **Usable (Beta)**:
-  - Core pipelines and drivers are functional and covered by unit tests.
-  - Suitable for single-node deployments, self-hosted environments, and early production workloads.
-  - Known limitations exist in multi-region or distributed cluster scaling.
-- **Experimental (Alpha)**:
-  - Core interfaces and prototypes declared; broader automated and production verification underway.
+| Field | Value |
+|---|---|
+| ID | KWF-MAT-001 |
+| Title | Workload Maturity and Capability Readiness Baseline |
+| Status | Approved (Canonical Implementation Baseline) |
+| Date | 2026-11-21 |
+| Owners | `@krewire/team-runtime`, `@krewire/team-cloud` |
+| Precedence | Precedence 1 (Core Technical Baseline) |
 
 ---
 
-## 2. Workload Maturity Matrix
+## 1. Objective Maturity Criteria
 
-| Workload | Maturity Status | Primary Module / Package | Verified Production Evidence | Known Limitations & Gaps |
-|---|---|---|---|---|
-| **`site`** | **Stable** | `pkg/web/ssg`, `tools/kiw` | Powers [`krewire.com`](https://krewire.com) in production. SSG generation, assets bundling, client HMR, and multi-locale i18n. | Dynamic server-side API routes require pairing with an `app` entrypoint or gateway. |
-| **`book`** | **Stable** | `pkg/book`, `pkg/markdown` | Powers ecosystem documentation manuals in English and Indonesian with automated search indexing and TOC. | Manuscript asset pipeline currently focuses on Markdown; AsciiDoc support planned. |
-| **`app`** | **Stable** | `pkg/web`, `pkg/app`, `pkg/runtime` | Fullstack SSR + WebAssembly (`client.wasm`) side-by-side compilation with standard library HTTP routers. | SSR state hydration for deeply nested reactive loops is under ongoing refinement. |
-| **`cli`** | **Stable** | `tools/kiw`, `pkg/tui`, `pkg/term` | `kiw` developer CLI itself is written as a Krewire CLI workload. Bitwise reproducible builds and cross-compilation verified. | Terminal graphics protocol support (e.g. Sixel, Kitty) is optional and unbundled. |
-| **`gateway`** | **Stable** | `pkg/web/gateway`, `cloud/pkg/gateway` | Powers live reverse proxy ingress on [`api.krewire.com`](https://api.krewire.com) routing `/auth`, `/cloud`, and `/dash`. | Dynamic service discovery beyond static route tables requires DNS or consul adapters. |
-| **`worker`** | **Usable** | `pkg/cloud/worker`, `pkg/lifecycle` | Priority queue processing, concurrency management, and graceful signal shutdown tested in `tools/kiw`. | Redis and PostgreSQL queue backends implemented; distributed Kafka/RabbitMQ adapters planned. |
-| **`service`** | **Usable** | `pkg/cloud/service`, `pkg/resilience` | Headless REST microservice runtime with correlation tracing, circuit breakers, and rate limiting. | gRPC proto generation integration is documented but requires external `protoc` toolchain. |
-| **`infra`** | **Usable** | `pkg/cloud/infra`, `pkg/cloud/deploy` | Declarative resource topology planning (`kiw build --plan`) and state reconciliation. | Provider drivers currently target local Docker and Linux systemd; cloud PaaS provider in active verification. |
+To ensure developers and AI agents can assess implementation readiness accurately without marketing bias, Krewire classifies workloads and capabilities into five objective maturity levels:
+
+- **`Stable` (Production-Ready)**:
+  - 100% automated unit and integration test coverage passing in CI.
+  - Reproducible benchmark baselines verified against performance regressions (`kiw bench`).
+  - Active, verified production use (e.g., [`krewire.com`](https://krewire.com) or `kiw` CLI binary).
+  - Backward compatibility guaranteed under Semantic Versioning (SemVer).
+  - Pure-Go invariant (`CGO_ENABLED=0`) verified without external runtime dependencies.
+- **`Usable` (Functional / Single-Node)**:
+  - Core execution loop is functional and thoroughly covered by automated test suites.
+  - Suitable for single-node deployments, self-hosted VPS environments, and early production use.
+  - Known limitations exist in multi-region clustering or distributed failover.
+  - Documentation and starter blueprints are published.
+- **`Experimental` (Preview / Alpha)**:
+  - Architecture interfaces and prototypes implemented; broader production verification underway.
+  - Public API contracts may evolve between minor releases.
+  - Requires explicit opt-in flags or developer configuration.
+- **`Planned` (Roadmap)**:
+  - Formally specified in Architecture Decision Records (ADRs) or roadmaps; implementation not yet shipped.
+- **`Unsupported` (Deprecated / Out of Scope)**:
+  - Explicitly excluded from framework scope or decommissioned (e.g. Node.js runtime dependencies).
 
 ---
 
-## 3. Prioritized Implementation Gaps
+## 2. Canonical 8-Workload Maturity Matrix
 
-1. **Gap 1: Unified Scaffold Verification (P0)**:
-   Ensure `kiw new <project>` and `kiw init` scaffold projects with 100% zero-configuration `kiw build` success across all 8 starters.
-2. **Gap 2: Distributed Worker Coordination (P1)**:
-   Add out-of-the-box Redis cluster locking and worker heartbeat telemetry for multi-instance deployments.
-3. **Gap 3: Live Service Mesh Telemetry (P1)**:
-   Standardize Prometheus exposition endpoints across headless `service` and `gateway` workloads.
+Every workload status below is backed by concrete test fixtures and implementation evidence:
+
+| Workload | Maturity | Primary Package | Verified Implementation & Production Evidence | Known Limitations & Gaps | Owner |
+|---|---|---|---|---|---|
+| **`site`** | **Stable** | `pkg/web/ssg` | Powers [`krewire.com`](https://krewire.com) in production. SSG compilation, assets pipeline, client HMR, and multi-locale i18n. | Dynamic server-side API routes require pairing with an `app` entrypoint or gateway. | `@krewire/team-runtime` |
+| **`book`** | **Stable** | `pkg/book` | Powers official ecosystem documentation in English & Indonesian with automated search indexing and TOC. | Manuscript compilation currently focuses on Markdown; AsciiDoc support is planned. | `@krewire/team-runtime` |
+| **`app`** | **Stable** | `pkg/app`, `pkg/web`, `pkg/runtime` | Fullstack SSR + WebAssembly islands compilation. Standard library HTTP router. 18 `.kiw` conformance tests pass. | SSR state hydration for deeply nested reactive loops is under ongoing optimization. | `@krewire/team-runtime` |
+| **`cli`** | **Stable** | `tools/kiw`, `pkg/tui`, `pkg/term` | The `kiw` developer CLI itself is built as a Krewire CLI workload. Bitwise reproducible pure-Go binary compilation verified. | Terminal graphics protocols (Sixel, Kitty) are unbundled and optional. | `@krewire/team-runtime` |
+| **`gateway`** | **Stable** | `pkg/web/gateway` | High-throughput reverse proxy ingress routing, token bucket rate limiting, header rewriting, and health check pass-through. | Dynamic service discovery beyond static route tables requires external DNS or consul adapters. | `@krewire/team-runtime` |
+| **`worker`** | **Usable** | `pkg/cloud/worker`, `pkg/lifecycle` | Priority queue execution, bulkhead concurrency management, exponential backoff retries, and graceful OS signal shutdown. | Redis and PostgreSQL queue backends supported; distributed Kafka/RabbitMQ adapters planned. | `@krewire/team-cloud` |
+| **`service`** | **Usable** | `pkg/cloud/service`, `pkg/resilience` | Headless REST microservice runtime with correlation request tracing, circuit breakers, and bulkhead limits. | Direct HTTP/REST and SSE supported; gRPC protobuf generation integration is in roadmap. | `@krewire/team-cloud` |
+| **`infra`** | **Experimental** | `pkg/cloud/infra`, `pkg/cloud/deploy` | Declarative resource topology planning (`kiw build --plan`) and state reconciliation parser. | Provider drivers currently target local Docker and Linux systemd; cloud PaaS drivers are experimental. | `@krewire/team-cloud` |
+
+---
+
+## 3. Sub-Capabilities & Provider Integration Matrix
+
+A workload's top-level maturity does not imply that every pluggable provider shares the same readiness:
+
+### 3.1 Database & ORM Drivers (`pkg/orm`)
+- **SQLite**: **Stable** (Pure-Go driver, in-memory & file-based, bounded connection pools, zero CGO).
+- **PostgreSQL**: **Stable** (Pure-Go `pgx` engine, SSL/TLS, schema migrations, pool tuning).
+- **MySQL / MariaDB**: **Usable** (Pure-Go driver, standard SQL schema migrations).
+- **MongoDB**: **Usable** (NoSQL document repository driver, BSON serialization).
+- **Elasticsearch**: **Usable** (Search index driver and bulk indexing).
+
+### 3.2 Cache Drivers (`pkg/cache`)
+- **In-Memory**: **Stable** (Thread-safe LRU cache with TTL expiration and zero allocations).
+- **Redis**: **Stable** (Pure-Go RESP protocol client, connection pooling, clustered fallback).
+- **File Cache**: **Stable** (Atomic filesystem cache with SafePath protection).
+- **Memcached**: **Usable** (ASCII/binary protocol driver for legacy infrastructures).
+
+### 3.3 Identity & Security Primitives (`pkg/sec`, `pkg/auth`)
+- **Password Hashing (PBKDF2)**: **Stable** (OWASP-recommended iterations, constant-time verification).
+- **Path Traversal Guard (`SafePath`)**: **Stable** (Boundary-confined directory operations).
+- **Security Headers & Middleware**: **Stable** (Automated CSP, HSTS, X-Frame-Options, CSRF, CORS).
+- **JWT / Bearer Token Verification**: **Stable** (HMAC-SHA256, Ed25519 token validation).
+- **OIDC / PKCE Federation**: **Usable** (Federated login with public discovery endpoints).
+- **SAML 2.0 Identity**: **Usable** (XML signature verification and assertion parsing).
+
+### 3.4 Background Queue Drivers (`pkg/cloud/worker`)
+- **In-Memory Channel Queue**: **Stable** (Local concurrent goroutine pool with worker limits).
+- **Redis Queue Backend**: **Usable** (Reliable queue via Redis lists and atomic popping).
+- **PostgreSQL Queue Backend**: **Usable** (`SKIP LOCKED` transactional queue driver).
+- **Kafka / RabbitMQ**: **Planned** (Distributed event streaming integration).
+
+---
+
+## 4. Maintenance & Review Lifecycle
+
+1. **Ownership & Governance**:
+   - Runtime workloads (`site`, `book`, `app`, `cli`, `gateway`) are maintained by `@krewire/team-runtime`.
+   - Cloud workloads (`worker`, `service`, `infra`) are maintained by `@krewire/team-cloud`.
+2. **Promotion Gate**:
+   - A capability moves from `Experimental` to `Usable` only after automated integration tests and documented starter blueprints exist.
+   - A capability moves from `Usable` to `Stable` only when verified in live production workloads and qualified by `kiw release --qualify`.
+3. **Automated Verification**:
+   - The release qualification engine (`tools/kiw/internal/release/qualify.go`) verifies cross-repository boundary conformance on every release tag.
+
+---
+
+## 5. Architectural Invariants (The Three Pillars)
+
+Every maturity designation is bound by Krewire's immutable Three Pillars:
+
+1. **Secure**: Safety by default, stdlib-first, SafePath sanitization, zero hardcoded secrets.
+2. **Sustain**: Near-zero operational cost, 10–30 MB lean RAM footprint, single static binary embed, permanent MIT open core.
+3. **Scalable**: Additive progressive pipeline, reversible provider swapping, decoupled lateral gateways.
+
+> [!IMPORTANT]
+> The three pillars must remain explicitly named **Secure**, **Sustain**, and **Scalable**. They serve as the definitive qualification criteria for promoting any capability to `Stable`.
