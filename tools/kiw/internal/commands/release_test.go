@@ -69,3 +69,24 @@ func TestRunReleaseProjectMissingConfigFails(t *testing.T) {
 		t.Error("expected failure when no Krewire project is present")
 	}
 }
+
+func TestRunReleaseQualify(t *testing.T) {
+	releaseQualify = true
+	releaseJSON = false
+	releaseOut = filepath.Join(t.TempDir(), "qualification.json")
+	defer func() {
+		releaseQualify = false
+		releaseJSON = false
+		releaseOut = ""
+	}()
+
+	fs := flag.NewFlagSet("release", flag.ContinueOnError)
+	code := RunRelease(fs)
+	if code != errs.ExitCodeSuccess {
+		t.Fatalf("RunRelease --qualify returned exit code %v, want success", code)
+	}
+
+	if _, err := os.Stat(releaseOut); err != nil {
+		t.Fatalf("expected qualification artifact at %s: %v", releaseOut, err)
+	}
+}

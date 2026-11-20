@@ -148,6 +148,9 @@ jobs:
       - name: Pure-Go Compilation Invariant
         run: CGO_ENABLED=0 go build ./...
 
+      - name: Cross-Repository Release Qualification
+        run: go test -v ./tools/kiw/internal/release -run TestRunQualification
+
   build-binaries:
     name: Cross-Compile kiw CLI
     needs: [classify, quality-gate]

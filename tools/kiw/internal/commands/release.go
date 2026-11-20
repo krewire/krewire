@@ -26,12 +26,16 @@ func (s *releaseModuleSlice) Set(v string) error {
 }
 
 var (
-	releaseModules releaseModuleSlice
-	releaseAll     bool
-	releaseBump    string
-	releaseTrack   string
-	releaseApply   bool
-	releaseNotes   bool
+	releaseModules    releaseModuleSlice
+	releaseAll        bool
+	releaseBump       string
+	releaseTrack      string
+	releaseApply      bool
+	releaseNotes      bool
+	releaseQualify    bool
+	releaseJSON       bool
+	releaseOut        string
+	releaseIncludeExp bool
 )
 
 // RegisterRelease declares the flags for the release command.
@@ -42,6 +46,10 @@ func RegisterRelease(fs *flag.FlagSet) {
 	fs.StringVar(&releaseTrack, "track", "stable", "release track: lts, stable, rc, beta, alpha, nightly, experimental, dev")
 	fs.BoolVar(&releaseApply, "apply", false, "write the changes (default is a dry run)")
 	fs.BoolVar(&releaseNotes, "notes", false, "print release notes from git log since the last tag")
+	fs.BoolVar(&releaseQualify, "qualify", false, "run cross-repository release qualification checks against compatibility matrix")
+	fs.BoolVar(&releaseJSON, "json", false, "output qualification report in machine-readable JSON format")
+	fs.StringVar(&releaseOut, "out", "", "output file path to write qualification report artifact")
+	fs.BoolVar(&releaseIncludeExp, "include-experimental", false, "include experimental and canary boundaries in release qualification")
 }
 
 // RunRelease stages a release. There are two audiences:
@@ -55,6 +63,10 @@ func RegisterRelease(fs *flag.FlagSet) {
 //
 // It is a dry run unless --apply is given.
 func RunRelease(fs *flag.FlagSet) errs.ExitCode {
+	if releaseQualify || (fs != nil && len(fs.Args()) > 0 && fs.Args()[0] == "qualify") {
+		return runReleaseQualification(releaseJSON, releaseOut, releaseIncludeExp)
+	}
+
 	bump, err := release.ParseBump(releaseBump)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -302,4 +314,38 @@ func lastGitTag(dir string) string {
 		return ""
 	}
 	return strings.TrimSpace(string(out))
+}
+
+func runReleaseQualification(asJSON bool, outFile string, includeExp bool) errs.ExitCode {
+	ctx := &release.QualificationContext{
+		IncludeExperimental: includeExp,
+	}
+	report, err := release.RunQualification(ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "release qualification error: %v\n", err)
+		return errs.ExitCodeFailure
+	}
+
+	if asJSON {
+		if err := release.ExportJSON(report, os.Stdout); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to export JSON: %v\n", err)
+			return errs.ExitCodeFailure
+		}
+	} else {
+		fmt.Print(release.FormatHumanReadable(report))
+	}
+
+	if outFile != "" {
+		if err := os.MkdirAll(filepath.Dir(outFile), 0o755); err == nil {
+			if f, err := os.Create(outFile); err == nil {
+				defer f.Close()
+				_ = release.ExportJSON(report, f)
+			}
+		}
+	}
+
+	if !report.OverallPassed {
+		return errs.ExitCodeFailure
+	}
+	return errs.ExitCodeSuccess
 }

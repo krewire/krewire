@@ -23,7 +23,7 @@ Krewire adheres strictly to [Semantic Versioning 2.0.0](https://semver.org/):
 - **Pre-1.0.0 Phase (`0.y.z`)**:
   - `0.y.0` (Minor): Introduces additive features, new domain packages, or minor behavioral improvements. Breaking changes require migration notes in `docs/overview/upgrade-guide.md`.
   - `0.y.z` (Patch): Backwards-compatible bug fixes, security patches, and performance optimizations.
-  - Automated compatibility checking is enforced by `version.IsCompatible()` (for `0.y.z`, minor versions must match).
+  - Automated compatibility checking is enforced by `version.IsCompatible()` (for `0.y.z`, minor versions must match) and the ecosystem [Cross-Repository Compatibility Matrix](./cross-repo-compatibility-matrix.md).
 - **Post-1.0.0 Phase (`x.y.z`)**:
   - `x.0.0` (Major): Incompatible public API changes.
   - `x.y.0` (Minor): Backwards-compatible functionality additions.
@@ -90,6 +90,11 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
    go test -v -run TestPlatform_BitwiseReproducibility .
    ```
    *Verifies consecutive clean builds produce bitwise identical binaries.*
+7. **Cross-Repository Release Qualification Gate**:
+   ```bash
+   kiw release qualify
+   ```
+   *Validates supported repository pairs, version constraints, and contract tests (see [Compatibility Matrix](./cross-repo-compatibility-matrix.md)).*
 
 ---
 
