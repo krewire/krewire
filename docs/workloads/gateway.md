@@ -2,7 +2,7 @@
 
 The `gateway` kind is a standalone reverse proxy and ingress controller that fronts one or more upstream microservices or lateral platforms. It owns a declarative route table, applies defensive middleware (rate limiting, CORS, distributed tracing, circuit breakers), and resolves upstream addresses through the service registry or static target URLs.
 
-In accordance with [ADR-E8P9D](../../../internal/docs/adr/ADR-E8P9D-pyramid-architecture-and-bridge-gateway-decoupling.md), the API Gateway acts as the decoupled bridge between lateral Layer 4 platforms (`auth`, `cloud`, `forge`, `dash`), enforcing Zero Peer Coupling.
+In accordance with [ADR-E8P9D](../../../internal/docs/adr/ADR-E8P9D-pyramid-architecture-and-bridge-gateway-decoupling.md), the API Gateway acts as the decoupled bridge between lateral Layer 4 platforms (`auth`, `cloud`, `dash`), enforcing Zero Peer Coupling.
 
 ---
 

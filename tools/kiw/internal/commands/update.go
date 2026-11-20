@@ -186,8 +186,6 @@ func expandKrewireShortcut(pkg string) string {
 		return "github.com/krewire/cloud"
 	case "dash", "@krewire/dash":
 		return "github.com/krewire/dash"
-	case "forge", "panel", "@krewire/forge":
-		return "github.com/krewire/forge"
 	default:
 		return pkg
 	}

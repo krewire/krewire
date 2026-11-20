@@ -54,7 +54,6 @@ func main() {
 		Command(tui.NewCommand("db:seed", "alias for kiw seed", commands.RegisterSeed, commands.RunSeed).WithGroup("project").WithHidden(true).WithExample("kiw db:seed")).
 		Command(tui.NewCommand("ui", "browse, install, and diff kui components: list, info <name>, add <name|pack:x>, diff <name>", commands.RegisterUI, commands.RunUI).WithGroup("project").WithExample("kiw ui list")).
 		Command(tui.NewCommand("pkg", "manage standalone .kiw component packages: init <name>, pack [dir], add <src>, list, export", commands.RegisterPkg, commands.RunPkg).WithGroup("project").WithCore().WithExample("kiw pkg pack ./my-ui")).
-		Command(tui.NewCommand("forge", "declarative web, form, and admin panel builder: panel <name>, resource <name>, form <name>, studio", commands.RegisterForge, commands.RunForge).WithGroup("project").WithCore().WithExample("kiw forge panel admin")).
 		Command(tui.NewCommand("kiw", "easter egg: playful client catcalls to developers", commands.RegisterKiw, commands.RunKiw).WithHidden(true).WithExample("kiw kiw"))
 	for name, hint := range commands.Hints {
 		app.WithHint(name, hint)

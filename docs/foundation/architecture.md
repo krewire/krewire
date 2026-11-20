@@ -8,17 +8,16 @@ System architecture, layering rules, module hierarchy, and design decisions acro
 
 Krewire is an integrated, full-stack application and developer ecosystem built in Go (1.27.1+). It unifies eight distinct software workload kinds under a single declarative control plane, standard-library-aligned domain packages, a consolidated developer CLI, and an AI-native agent constitution.
 
-The ecosystem spans ten repositories:
+The ecosystem spans nine repositories:
 1. **`krewire`** (Core Monorepo): Domain packages, kernel executor, developer CLI (`kiw`), first-party apps, and templates.
 2. **`krew`**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
 3. **`cloud`**: Private enterprise hybrid PaaS engine and control plane.
 4. **`auth`**: Private enterprise identity, SSO, MFA, and RBAC platform.
 5. **`dash`**: Krewire Dash — AI-native virtual workspace, execution sandboxes, and collaboration console.
-6. **`forge`**: Krewire Forge — Declarative web, form, resource, and admin panel builder for Go & `.kiw`.
-7. **`ui`**: Pop-Brutalist `.kiw` design system (66 components, pure Go embed.FS, zero npm runtime).
-8. **`internal`**: Documentation hub: ADRs, roadmaps, contributor guides.
-9. **`krewire.com`**: Public marketing and documentation website built with the `site` workload.
-10. **`krewire.github.io`**: Community portal and distribution hub.
+6. **`ui`**: Pop-Brutalist `.kiw` design system (66 components, pure Go embed.FS, zero npm runtime).
+7. **`internal`**: Documentation hub: ADRs, roadmaps, contributor guides.
+8. **`krewire.com`**: Public marketing and documentation website built with the `site` workload.
+9. **`krewire.github.io`**: Community portal and distribution hub.
 
 ---
 

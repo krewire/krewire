@@ -12,7 +12,7 @@ The Krewire ecosystem follows a strict downward dependency hierarchy:
 Layer 5: Applications & Portals (krewire.com, krewire.github.io)
    ↓
 Layer 4: Platform Engines & Standalone Products
-   ├── Parallel Products: Dash (Virtual Workspace) || Forge (Panel & Form Builder)
+   ├── Standalone Products: Dash (Virtual Workspace)
    └── Horizontal Platform Capabilities: Cloud (PaaS) || Auth (IAM/SSO)
    ↓
 Layer 3: Developer Driver & CLI (tools/kiw)
@@ -32,23 +32,22 @@ A critical architectural distinction is maintained between **compile-time depend
 
 ### Compile-Time Dependencies (Go Module Imports)
 - **Strict Downward-Only**: A higher layer may import a lower layer (`Layer N → Layer < N`). Lower layers must **never** import higher layers.
-- **Zero Peer Coupling (Lateral Independence)**: Parallel Layer 4 products (`forge` and `dash`) are lateral peers. They **never** import each other's Go packages or private source trees.
+- **Zero Peer Coupling (Lateral Independence)**: Lateral Layer 4 and 5 platforms (`cloud`, `auth`, `krew`, `dash`) are lateral peers. They **never** import each other's Go packages or private source trees directly.
 - **Tooling Isolation Guard**: Domain libraries (`pkg/*`) must never import the CLI tool (`tools/kiw`).
 
 ### Runtime / Service Integrations (Decoupled Protocols)
-- **Horizontal Services**: `cloud` and `auth` are horizontal platform capabilities. Products (`dash`, `forge`, or third-party applications) integrate with them over standard decoupled interfaces:
+- **Horizontal Services**: `cloud` and `auth` are horizontal platform capabilities. Products (`dash` or third-party applications) integrate with them over standard decoupled interfaces:
   - OpenID Connect (OIDC) / OAuth 2.0 / JWKS public token verification.
   - HTTP REST APIs via edge reverse proxy / gateway (`https://api.krewire.com/auth`, `https://api.krewire.com/cloud`).
   - Asynchronous event bus / SSE event streams.
-- **No Mandatory Coupling**: Hosted `cloud` and `auth` are never mandatory prerequisites for standalone product operation. Both `forge` and `dash` can operate completely self-hosted and standalone without hosted cloud subscriptions.
+- **No Mandatory Coupling**: Hosted `cloud` and `auth` are never mandatory prerequisites for standalone product operation. `dash` can operate completely self-hosted and standalone without hosted cloud subscriptions.
 
 ---
 
-## 3. Product Ownership & Parallelism
+## 3. Product Ownership & Autonomy
 
-- **Forge**: Declarative web, form, resource, and admin panel builder for Go and `.kiw`.
 - **Dash**: Virtual developer workspace, execution sandboxes, and collaboration console.
-- Neither `forge` nor `dash` depends on the other at compile time or deployment time.
+- Sibling platforms never couple at compile time or deployment time.
 
 ---
 

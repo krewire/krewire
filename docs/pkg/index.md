@@ -15,7 +15,7 @@ $$\text{Workspace} \supset \text{Module} \supset \text{Domain / Package} \supset
   - Unifies all 10 ecosystem repositories with seamless local cross-module dependency resolution.
 - **Go Module (`go.mod`)**:
   - The canonical unit of versioning (Semantic Versioning `vX.Y.Z`), external dependency tracking, and independent distribution.
-  - Each ecosystem platform repository (`krewire`, `krew`, `cloud`, `auth`, `dash`, `forge`, `ui`, `internal`, `krewire.com`, `krewire.github.io`) is an independent Go Module with its own `go.mod`.
+  - Each ecosystem platform repository (`krewire`, `krew`, `cloud`, `auth`, `dash`, `ui`, `internal`, `krewire.com`, `krewire.github.io`) is an independent Go Module with its own `go.mod`.
 - **Go Package (`package <name>`)**:
   - A directory of Go source files sharing the same `package <name>` declaration.
   - Every library under `krewire/pkg/*` (`pkg/web`, `pkg/orm`, `pkg/cache`, `pkg/model`, `pkg/errs`, etc.) is a **Go Package**, *not* a separate Go module. Consumers import them under the `github.com/krewire/krewire` module namespace:

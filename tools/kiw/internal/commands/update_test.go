@@ -34,8 +34,6 @@ func TestExpandKrewireShortcut(t *testing.T) {
 		{"auth", "github.com/krewire/auth"},
 		{"cloud", "github.com/krewire/cloud"},
 		{"dash", "github.com/krewire/dash"},
-		{"forge", "github.com/krewire/forge"},
-		{"panel", "github.com/krewire/forge"},
 		{"github.com/foo/bar", "github.com/foo/bar"},
 	}
 

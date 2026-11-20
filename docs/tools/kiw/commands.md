@@ -12,7 +12,7 @@ in full, everything else is listed by name under its group. `kiw help --all`
 
 ```text
 CORE WORKFLOW
-  new · dev · build · test · add · dash · make · forge
+  new · dev · build · test · add · dash · make
 
 ADVANCED CAPABILITIES
   project   init · remove · update · migrate · seed · ui
@@ -447,19 +447,3 @@ Bumps semver versions and coordinates multi-module releases. Module names come f
 kiw release krewire --bump minor --apply
 kiw release --all --bump patch
 ```
-
-### `kiw forge <subcommand>`
-Declarative web, form, resource, and admin panel builder for Go and `.kiw`.
-```bash
-kiw forge panel admin
-kiw forge resource product --model=Product
-kiw forge form contact --fields="name:string,email:string,message:textarea"
-kiw forge studio --port=8089
-```
-
-**Options & Subcommands:**
-- `panel <name>`: Scaffolds a full administrative dashboard panel with navigation, layout, and overview metrics.
-- `resource <name> [--model=<Model>]`: Scaffolds a CRUD resource with data table views, detail panels, and edit forms.
-- `form <name> [--fields=<field:type,...>]`: Generates a declarative `.kiw` component form backed by typed validation struct rules.
-- `studio [--port=8089]`: Launches the interactive local visual builder studio for panels and forms.
-- `--dry-run`: Previews generated scaffold files without writing to disk.

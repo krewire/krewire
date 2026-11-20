@@ -24,21 +24,19 @@ type Manifest struct {
 // Modules lists the ecosystem modules in dependency order (dependencies first).
 var Modules = []Manifest{
 	{Name: "krewire", Dir: "krewire", VersionFile: "version.go", Tier: model.TierFree},
-	{Name: "krew", Dir: "krew", VersionFile: "version.go", Tier: model.TierFree},
+	{Name: "krew", Dir: "krew", VersionFile: "version.go", Tier: model.TierEnterprise},
 	{Name: "auth", Dir: "auth", VersionFile: "version.go", Tier: model.TierFree},
 	{Name: "cloud", Dir: "cloud", VersionFile: "version.go", Tier: model.TierFree},
 	{Name: "dash", Dir: "dash", VersionFile: "version.go", Tier: model.TierFree},
-	{Name: "forge", Dir: "forge", VersionFile: "version.go", Tier: model.TierFree},
 }
 
 // dependents maps each module to the modules that require it.
 var dependents = map[string][]string{
-	"krewire": {"krew", "auth", "cloud", "dash", "forge"},
+	"krewire": {"krew", "auth", "cloud", "dash"},
 	"krew":    {"dash"},
-	"auth":    {"cloud", "dash", "forge"},
+	"auth":    {"cloud", "dash"},
 	"cloud":   {},
 	"dash":    {},
-	"forge":   {},
 }
 
 // DefaultRequirements maps each module to the static default versions of ecosystem modules it requires.
@@ -57,10 +55,6 @@ var DefaultRequirements = map[string]map[string]version.Version{
 	"dash": {
 		"krewire": krewire.Version,
 		"krew":    krewire.Version,
-		"auth":    krewire.Version,
-	},
-	"forge": {
-		"krewire": krewire.Version,
 		"auth":    krewire.Version,
 	},
 }
@@ -198,7 +192,9 @@ func CurrentTier(name string) (model.Tier, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Tier, nil
-	case ModuleKrew, ModuleCloud, ModuleAuth, ModuleDash, ModuleForge:
+	case ModuleKrew:
+		return model.TierEnterprise, nil
+	case ModuleCloud, ModuleAuth, ModuleDash:
 		return model.TierFree, nil
 	default:
 		return "", fmt.Errorf("unknown module %q", name)
@@ -225,8 +221,14 @@ func CheckTierCompliance(root string) error {
 			}
 			if data, err := os.ReadFile(licPath); err == nil {
 				content := string(data)
-				if !strings.Contains(content, "MIT License") && !strings.Contains(content, "Permission is hereby granted") {
-					return fmt.Errorf("module %q license at %s must be open source", m.Name, licPath)
+				if m.Tier == model.TierFree {
+					if !strings.Contains(content, "MIT License") && !strings.Contains(content, "Permission is hereby granted") {
+						return fmt.Errorf("module %q license at %s must be open source", m.Name, licPath)
+					}
+				} else {
+					if !strings.Contains(content, "Proprietary License") && !strings.Contains(content, "All rights reserved") {
+						return fmt.Errorf("module %q license at %s must be proprietary", m.Name, licPath)
+					}
 				}
 			}
 		}
@@ -248,7 +250,7 @@ func CurrentVersion(name string) (version.Version, error) {
 	switch ModuleName(name) {
 	case ModuleKrewire:
 		return krewire.Version, nil
-	case ModuleKrew, ModuleCloud, ModuleAuth, ModuleDash, ModuleForge:
+	case ModuleKrew, ModuleCloud, ModuleAuth, ModuleDash:
 		return krewire.Version, nil
 	default:
 		return version.Version{}, fmt.Errorf("unknown module %q", name)

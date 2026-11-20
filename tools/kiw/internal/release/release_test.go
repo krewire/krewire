@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/krewire/krewire/pkg/model"
 	"github.com/krewire/krewire/pkg/version"
 )
 
@@ -129,8 +128,8 @@ func TestCheckTierCompliance(t *testing.T) {
 		if err != nil {
 			t.Fatalf("CurrentTier(%s) err = %v", m.Name, err)
 		}
-		if tier != model.TierFree {
-			t.Errorf("expected module %s to be free-tier, got %s", m.Name, tier)
+		if tier != m.Tier {
+			t.Errorf("expected module %s to be tier %s, got %s", m.Name, m.Tier, tier)
 		}
 	}
 }

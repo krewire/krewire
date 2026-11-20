@@ -175,27 +175,6 @@ func DefaultCompatibilityMatrix() []IntegrationBoundary {
 			},
 		},
 		{
-			ID:                "krewire-forge",
-			SourceModule:      "krewire",
-			TargetModule:      "forge",
-			VersionConstraint: "^0.2.0",
-			Status:            StatusSupported,
-			Owner:             "@krewire/team-forge",
-			Description:       "Verify forge panel builder consumes krewire UI, forms, and ORM abstractions",
-			ContractCheck: func(ctx *QualificationContext) error {
-				forgeDir := filepath.Join(ctx.WorkspaceRoot, "forge")
-				goModPath := filepath.Join(forgeDir, "go.mod")
-				modData, err := os.ReadFile(goModPath)
-				if err != nil {
-					return fmt.Errorf("missing forge/go.mod: %w", err)
-				}
-				if !strings.Contains(string(modData), "github.com/krewire/krewire") {
-					return fmt.Errorf("forge/go.mod must depend on github.com/krewire/krewire")
-				}
-				return nil
-			},
-		},
-		{
 			ID:                "krewire-dash",
 			SourceModule:      "krewire",
 			TargetModule:      "dash",

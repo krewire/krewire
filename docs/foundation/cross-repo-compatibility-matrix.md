@@ -14,7 +14,7 @@ Release qualification validates that all supported components across the 10 Krew
    - **`Beta`**: Pre-release preview, feature-complete for evaluation, actively tested.
    - **`Experimental`**: Architectural canary/spike, explicitly excluded from release failure gates by default.
    - **`Planned`**: Forward-looking roadmap item, not yet declared shipped.
-3. **Decoupled Peer Boundaries**: Sibling platforms at Layer 4 (`cloud`, `auth`, `krew`, `forge`) and Layer 5 (`dash`) never import private code laterally. Integration occurs exclusively via decoupled contracts (public interfaces, standard CLI flags, OIDC/JWKS tokens, and edge gateways).
+3. **Decoupled Peer Boundaries**: Sibling platforms at Layer 4 (`cloud`, `auth`, `krew`) and Layer 5 (`dash`) never import private code laterally. Integration occurs exclusively via decoupled contracts (public interfaces, standard CLI flags, OIDC/JWKS tokens, and edge gateways).
 4. **Traceable Results**: Every qualification run records tested commit SHA, resolved module versions, execution timestamp, and per-boundary diagnostic results.
 
 ---
@@ -27,7 +27,6 @@ Release qualification validates that all supported components across the 10 Krew
 | `krewire-krew` | `krewire` (Core SDK) | `krew` (Agent Engine) | `^0.2.0` | `Supported` | `@krewire/team-agent` | `pkg/ai` provider interfaces, tool registries, and lifecycle |
 | `krewire-cloud` | `krewire` (Core/Web) | `cloud` (PaaS Control) | `^0.2.0` | `Supported` | `@krewire/team-cloud` | `pkg/cloud/runner`, `pkg/cloud/service`, and `pkg/web/gateway` |
 | `krewire-auth` | `krewire` (Core/Sec) | `auth` (IAM Platform) | `^0.2.0` | `Supported` | `@krewire/team-iam` | `pkg/auth`, `pkg/sec`, PBKDF2/JWT claims, and password hashing |
-| `krewire-forge` | `krewire` (Core/ORM) | `forge` (Form Builder) | `^0.2.0` | `Supported` | `@krewire/team-forge` | `pkg/ui/form`, `pkg/ui/panel`, and `pkg/orm` schema interfaces |
 | `krewire-dash` | `krewire` (Core/TUI) | `dash` (Workspace) | `^0.2.0` | `Supported` | `@krewire/team-workspace` | `pkg/tui`, `pkg/term`, and PTY terminal process contracts |
 | `auth-cloud` | `auth` (Identity) | `cloud` (PaaS Gateway) | `^0.2.0` | `Supported` | `@krewire/team-iam` | Token federation, public JWKS verification, and edge headers |
 | `auth-dash` | `auth` (Identity) | `dash` (Workspace) | `^0.2.0` | `Supported` | `@krewire/team-iam` | Session claims, user identity context, and RBAC policies |
@@ -55,19 +54,15 @@ Release qualification validates that all supported components across the 10 Krew
 - **Contract**: `auth` implements token issuance and cryptographic verification matching `pkg/auth` claims and `pkg/sec` defensive guards.
 - **Validation**: Cryptographic random entropy generation, constant-time password comparisons (`subtle.ConstantTimeCompare`), and JWT header validation pass without security regressions.
 
-### Boundary 5: `krewire` ──► `forge`
-- **Contract**: `forge` consumes `pkg/ui/form` declarative field builders and `pkg/orm` schema inspection.
-- **Validation**: Schema-driven CRUD generators generate validated Go types and responsive `.kiw` resource tables.
-
-### Boundary 6: `krewire` ──► `dash`
+### Boundary 5: `krewire` ──► `dash`
 - **Contract**: `dash` consumes `pkg/tui` widget layouts, `pkg/term` ANSI color rendering, and execution sandboxes.
 - **Validation**: Terminal sessions allocate virtual PTYs and stream outputs safely without leaking host credentials.
 
-### Boundary 7: `auth` ──► `cloud`
+### Boundary 6: `auth` ──► `cloud`
 - **Contract**: Decoupled token federation. `cloud` verifies identity tokens using public JWKS discovery endpoints without importing private `auth` database models.
 - **Validation**: Bearer token parsing and role-based route gating (`cloud/pkg/gateway`) succeed with valid cryptographic signatures.
 
-### Boundary 8: `krew` + `auth` ──► `dash`
+### Boundary 7: `krew` + `auth` ──► `dash`
 - **Contract**: Dash acts as the human control plane for Krew agents operating with Auth-authenticated user credentials.
 - **Validation**: Task execution profiles, approval requests, and diff reviews execute without unauthorized escalation.
 
@@ -97,7 +92,6 @@ kiw release qualify --json --out dist/qualification-results.json
     "cloud": "0.2.0",
     "auth": "0.2.0",
     "dash": "0.2.0",
-    "forge": "0.2.0",
     "ui": "0.2.0"
   },
   "total_boundaries": 11,

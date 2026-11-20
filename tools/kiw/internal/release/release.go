@@ -22,7 +22,6 @@ const (
 	ModuleCloud   ModuleName = "cloud"
 	ModuleAuth    ModuleName = "auth"
 	ModuleDash    ModuleName = "dash"
-	ModuleForge   ModuleName = "forge"
 )
 
 func ident(name string) string {
