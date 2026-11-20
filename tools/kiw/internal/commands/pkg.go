@@ -11,6 +11,7 @@ import (
 
 	"github.com/krewire/krewire/pkg/errs"
 	kiwdsl "github.com/krewire/krewire/pkg/kiw"
+	"github.com/krewire/krewire/pkg/model"
 )
 
 // RegisterPkg registers command-line flags for the pkg command.
@@ -24,6 +25,7 @@ const pkgUsage = `usage:
   kiw pkg pack [dir]                bundle package into a distributable .kpkg archive
   kiw pkg add <source>              install package from local dir or .kpkg archive
   kiw pkg list                      list installed component packages in ./.krewire/pkg
+  kiw pkg health [name]             assess package health, stability tier, and compatibility
   kiw pkg export <comp|dir>         export standalone component or package`
 
 // RunPkg dispatches standalone component package commands.
@@ -64,6 +66,13 @@ func RunPkg(fs *flag.FlagSet) errs.ExitCode {
 
 	case "list", "ls":
 		return pkgList(root, flagBool(fs, "json"))
+
+	case "health", "status":
+		pkgName := ""
+		if len(args) > 1 {
+			pkgName = args[1]
+		}
+		return pkgHealth(pkgName, flagBool(fs, "json"))
 
 	case "export":
 		if len(args) < 2 {
@@ -350,4 +359,75 @@ func pkgExport(root, target string) errs.ExitCode {
 	}
 
 	return pkgPack(targetPath, "")
+}
+
+func pkgHealth(name string, jsonOutput bool) errs.ExitCode {
+	if name != "" {
+		pkg, found := GetPackageMetadata(name)
+		if !found {
+			fmt.Fprintf(os.Stderr, "kiw pkg health: unknown package %q (run 'kiw pkg health' without arguments to see all)\n", name)
+			return errs.ExitCodeUsage
+		}
+
+		if jsonOutput {
+			enc := json.NewEncoder(os.Stdout)
+			enc.SetIndent("", "  ")
+			_ = enc.Encode(pkg)
+			return errs.ExitCodeSuccess
+		}
+
+		fmt.Printf("\n── Package Health Assessment: %s ──────────────────────────\n", pkg.Name)
+		fmt.Printf("  • Import Path:     %s\n", pkg.ImportPath)
+		fmt.Printf("  • Layer:           Layer %d\n", pkg.Layer)
+		fmt.Printf("  • Stability:       %s\n", formatStability(pkg.Stability))
+		fmt.Printf("  • Purpose:         %s\n", pkg.Purpose)
+		fmt.Printf("  • License:         %s\n", pkg.License)
+		fmt.Printf("  • Min Go Version:  %s\n", pkg.MinGoVersion)
+
+		if len(pkg.ThirdPartyDeps) == 0 {
+			fmt.Printf("  • Dependencies:    0 external dependencies (100%% pure Go standard library)\n")
+		} else {
+			fmt.Printf("  • Dependencies:    %s\n", strings.Join(pkg.ThirdPartyDeps, ", "))
+		}
+
+		fmt.Printf("  • Breaking Policy: %s\n", pkg.BreakingChangePolicy)
+		if pkg.MigrationGuide != "" {
+			fmt.Printf("  • Migration Guide: %s\n", pkg.MigrationGuide)
+		}
+		fmt.Println()
+		return errs.ExitCodeSuccess
+	}
+
+	catalog := CanonicalPackageCatalog()
+	if jsonOutput {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		_ = enc.Encode(catalog)
+		return errs.ExitCodeSuccess
+	}
+
+	fmt.Printf("\n── Canonical First-Party Package Health Catalog ────────────\n")
+	fmt.Printf("  Total Packages: %d\n\n", len(catalog))
+
+	for _, pkg := range catalog {
+		fmt.Printf("  %-12s [Layer %d] [%-12s] %s\n", pkg.Name, pkg.Layer, pkg.Stability, pkg.Purpose)
+	}
+
+	fmt.Printf("\nRun 'kiw pkg health <name>' for detailed dependency, compatibility, and migration contracts.\n\n")
+	return errs.ExitCodeSuccess
+}
+
+func formatStability(tier model.StabilityTier) string {
+	switch tier {
+	case model.StabilityStable:
+		return "✓ STABLE (Production Ready · Strict Backward Compatibility)"
+	case model.StabilityBeta:
+		return "⚠ BETA (Feature Complete · Pre-1.0 Stabilization)"
+	case model.StabilityExperimental:
+		return "ℹ EXPERIMENTAL (Active Exploration · API May Evolve)"
+	case model.StabilityDeprecated:
+		return "✗ DEPRECATED (Slated for Removal · Migration Required)"
+	default:
+		return string(tier)
+	}
 }

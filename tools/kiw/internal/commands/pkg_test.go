@@ -90,3 +90,35 @@ func TestPkgCommandLifecycle(t *testing.T) {
 		t.Fatalf("kiw pkg list failed with code %v", code)
 	}
 }
+
+func TestPkgHealthCommand(t *testing.T) {
+	// 1. All packages catalog
+	fsCatalog := flag.NewFlagSet("pkg", flag.ContinueOnError)
+	RegisterPkg(fsCatalog)
+	if err := fsCatalog.Parse([]string{"health"}); err != nil {
+		t.Fatal(err)
+	}
+	if code := RunPkg(fsCatalog); code != errs.ExitCodeSuccess {
+		t.Fatalf("kiw pkg health failed with code %v", code)
+	}
+
+	// 2. Specific package lookup
+	fsSec := flag.NewFlagSet("pkg", flag.ContinueOnError)
+	RegisterPkg(fsSec)
+	if err := fsSec.Parse([]string{"health", "sec"}); err != nil {
+		t.Fatal(err)
+	}
+	if code := RunPkg(fsSec); code != errs.ExitCodeSuccess {
+		t.Fatalf("kiw pkg health sec failed with code %v", code)
+	}
+
+	// 3. Unknown package lookup -> ExitCodeUsage
+	fsUnknown := flag.NewFlagSet("pkg", flag.ContinueOnError)
+	RegisterPkg(fsUnknown)
+	if err := fsUnknown.Parse([]string{"health", "non_existent_pkg"}); err != nil {
+		t.Fatal(err)
+	}
+	if code := RunPkg(fsUnknown); code != errs.ExitCodeUsage {
+		t.Fatalf("expected ExitCodeUsage for unknown package, got: %v", code)
+	}
+}
