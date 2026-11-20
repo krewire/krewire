@@ -1,0 +1,10 @@
+---
+title: Regression Null Props Fixture
+layout: Base
+---
+<div>
+  <!-- Pure static island with no props declared must omit data-kiw-props attribute -->
+  <StaticBadge:svelte hydrate="visible">Static Badge Text</StaticBadge:svelte>
+  <!-- Null props must not emit 'null' or empty brackets string -->
+  <IconWidget:vue hydrate="load" />
+</div>

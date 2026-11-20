@@ -196,6 +196,25 @@ func DefaultCompatibilityMatrix() []IntegrationBoundary {
 			},
 		},
 		{
+			ID:                "kiw-runtime-conformance",
+			SourceModule:      "krewire",
+			TargetModule:      "runtime",
+			VersionConstraint: ">=0.2.0",
+			Status:            StatusSupported,
+			Owner:             "@krewire/team-runtime",
+			Description:       "Verify .kiw compiler, SSR/SSG rendering, and client-island hydration conformance matrix",
+			ContractCheck: func(ctx *QualificationContext) error {
+				krewireDir := filepath.Join(ctx.WorkspaceRoot, "krewire")
+				conformancePkg := "./pkg/runtime/conformance"
+				cmd := exec.Command("go", "test", "-short", conformancePkg)
+				cmd.Dir = krewireDir
+				if out, err := cmd.CombinedOutput(); err != nil {
+					return fmt.Errorf("runtime conformance tests failed: %w (output: %s)", err, string(out))
+				}
+				return nil
+			},
+		},
+		{
 			ID:                "auth-cloud",
 			SourceModule:      "auth",
 			TargetModule:      "cloud",

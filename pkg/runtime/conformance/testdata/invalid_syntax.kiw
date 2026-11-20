@@ -1,0 +1,9 @@
+---
+title: Invalid Syntax Fixture
+layout: Base
+---
+<div>
+  <h1>Header</h1>
+  {#if condition > 10}
+    <p>Unclosed conditional block
+</div>

@@ -1,0 +1,65 @@
+---
+title: Full Grammar Conformance
+layout: BaseLayout
+props:
+  headline:
+    type: string
+    default: "Hello World"
+    required: true
+  count:
+    type: number
+    default: 42
+  active:
+    type: boolean
+    default: true
+slots:
+  - default
+  - header
+  - footer
+---
+<script lang="ts">
+  export let count: number = 42;
+  console.log("TypeScript initialized", count);
+</script>
+
+<style scoped>
+  .headline { font-weight: bold; color: var(--color-primary); }
+  .active { text-decoration: underline; }
+</style>
+
+<div class="container">
+  <header>
+    <slot name="header">
+      <h1 class="headline" class:active={active}>{headline}</h1>
+    </slot>
+  </header>
+
+  <main>
+    {#if count > 50}
+      <p class="status-high">Count is high: {count}</p>
+    {:else if count > 0}
+      <p class="status-normal">Count is normal: {count}</p>
+    {:else}
+      <p class="status-zero">Count is zero</p>
+    {/if}
+
+    <section class="items">
+      {#each items as item, index}
+        <div class="item-row" data-index={index}>
+          <span>{item.name}</span>
+          <span>{item.value}</span>
+        </div>
+      {/each}
+    </section>
+
+    <slot>
+      <p>Default slot body fallback</p>
+    </slot>
+  </main>
+
+  <footer>
+    <slot name="footer">
+      <p>Footer fallback content</p>
+    </slot>
+  </footer>
+</div>

@@ -1,0 +1,17 @@
+---
+title: Contextual Escaping Vectors
+layout: Base
+---
+<div class="security-vectors">
+  <!-- Body text interpolation must escape angle brackets and script tags -->
+  <p id="body-text">{{.PayloadScript}}</p>
+
+  <!-- Attribute value interpolation must escape quotes and attribute breaks -->
+  <input type="text" id="attr-input" value="{{.PayloadAttr}}" />
+
+  <!-- URL attribute interpolation must prevent javascript: execution -->
+  <a id="url-link" href="{{.PayloadURI}}">Link</a>
+
+  <!-- Nested entity check -->
+  <span id="entity-check">{{.PayloadEntities}}</span>
+</div>

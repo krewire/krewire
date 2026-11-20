@@ -1,0 +1,12 @@
+---
+title: Regression Nested Islands Fixture
+layout: Base
+---
+<div class="outer-shell">
+  <!-- Parent island containing a nested child island -->
+  <DashboardShell:svelte hydrate="load">
+    <div class="nested-wrapper">
+      <AnalyticsChart:vue hydrate="visible" metric="cpu" />
+    </div>
+  </DashboardShell:svelte>
+</div>

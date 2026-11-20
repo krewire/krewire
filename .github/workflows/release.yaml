@@ -145,6 +145,9 @@ jobs:
       - name: Unit & Integration Tests
         run: go test -v ./...
 
+      - name: .kiw Conformance Suite (Runtime & Hydration)
+        run: go test -v ./pkg/runtime/conformance/...
+
       - name: Pure-Go Compilation Invariant
         run: CGO_ENABLED=0 go build ./...
 

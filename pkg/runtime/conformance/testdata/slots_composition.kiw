@@ -1,0 +1,17 @@
+---
+title: Slots and Compound Composition
+layout: Base
+---
+<Card.Container variant="elevated" />
+
+<Card.Header title="Card Title" />
+
+<Card.Body>
+  <p>Card main body contents</p>
+</Card.Body>
+
+<Card.Footer>
+  <p>Card footer</p>
+</Card.Footer>
+
+<ui:Button variant="primary" size="md">Save</ui:Button>

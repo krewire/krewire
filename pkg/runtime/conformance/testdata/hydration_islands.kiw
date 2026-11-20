@@ -1,0 +1,14 @@
+---
+title: Client Island Hydration Fixture
+layout: Base
+---
+<main>
+  <!-- Load immediate hydration -->
+  <Counter:svelte hydrate="load" initial=10 step=1 />
+
+  <!-- Idle deferred hydration -->
+  <SearchBar:vue hydrate="idle" placeholder="Search docs..." />
+
+  <!-- Visible viewport hydration -->
+  <DataGrid:wasm hydrate="visible" endpoint="/api/v1/metrics" />
+</main>
