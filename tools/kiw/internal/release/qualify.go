@@ -215,6 +215,28 @@ func DefaultCompatibilityMatrix() []IntegrationBoundary {
 			},
 		},
 		{
+			ID:                "core-performance-baseline",
+			SourceModule:      "krewire",
+			TargetModule:      "benchmarks",
+			VersionConstraint: ">=0.2.0",
+			Status:            StatusSupported,
+			Owner:             "@krewire/team-runtime",
+			Description:       "Verify core performance benchmarks against canonical baseline without critical regression",
+			ContractCheck: func(ctx *QualificationContext) error {
+				krewireDir := filepath.Join(ctx.WorkspaceRoot, "krewire")
+				baselinePath := filepath.Join(krewireDir, "docs", "benchmarks", "baseline-v0.2.0.json")
+				if _, err := os.Stat(baselinePath); err != nil {
+					return fmt.Errorf("missing baseline report: %w", err)
+				}
+				cmd := exec.Command("go", "test", "-short", "./tools/kiw/internal/bench/...")
+				cmd.Dir = krewireDir
+				if out, err := cmd.CombinedOutput(); err != nil {
+					return fmt.Errorf("bench tests failed: %w (output: %s)", err, string(out))
+				}
+				return nil
+			},
+		},
+		{
 			ID:                "auth-cloud",
 			SourceModule:      "auth",
 			TargetModule:      "cloud",

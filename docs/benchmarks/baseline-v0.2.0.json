@@ -1,0 +1,112 @@
+{
+  "environment": {
+    "os": "linux",
+    "arch": "amd64",
+    "num_cpu": 2,
+    "go_version": "go1.27.3",
+    "git_commit": "local",
+    "timestamp": "2026-11-20T22:03:13.147924329Z"
+  },
+  "results": [
+    {
+      "id": "CORE-CFG-001",
+      "name": "Project Configuration Loading",
+      "category": "core",
+      "iterations": 500,
+      "ns_per_op": 31042,
+      "bytes_per_op": 10221,
+      "allocs_per_op": 82,
+      "target_ns": 500000,
+      "passed": true
+    },
+    {
+      "id": "CORE-MOD-001",
+      "name": "Model \u0026 Kind Dependency Resolution",
+      "category": "core",
+      "iterations": 5000,
+      "ns_per_op": 1471,
+      "bytes_per_op": 48,
+      "allocs_per_op": 1,
+      "target_ns": 1000000,
+      "passed": true
+    },
+    {
+      "id": "CORE-KIW-001",
+      "name": "Single-File Component Parsing (.kiw)",
+      "category": "core",
+      "iterations": 1000,
+      "ns_per_op": 185491,
+      "bytes_per_op": 23448,
+      "allocs_per_op": 290,
+      "target_ns": 350000,
+      "passed": true
+    },
+    {
+      "id": "CORE-DSG-001",
+      "name": "Template Desugaring \u0026 Clean Interpolation",
+      "category": "core",
+      "iterations": 1000,
+      "ns_per_op": 24835,
+      "bytes_per_op": 11765,
+      "allocs_per_op": 120,
+      "target_ns": 200000,
+      "passed": true
+    },
+    {
+      "id": "CORE-MDN-001",
+      "name": "Documentation Markdown Rendering",
+      "category": "core",
+      "iterations": 500,
+      "ns_per_op": 33832,
+      "bytes_per_op": 4296,
+      "allocs_per_op": 40,
+      "target_ns": 800000,
+      "passed": true
+    },
+    {
+      "id": "CLI-LAT-001",
+      "name": "kiw version Cold-Start Latency",
+      "category": "cli",
+      "iterations": 10,
+      "ns_per_op": 5640447,
+      "bytes_per_op": 0,
+      "allocs_per_op": 0,
+      "target_ns": 30000000,
+      "passed": true
+    },
+    {
+      "id": "CLI-LAT-002",
+      "name": "kiw help Command Discovery Latency",
+      "category": "cli",
+      "iterations": 10,
+      "ns_per_op": 5696934,
+      "bytes_per_op": 0,
+      "allocs_per_op": 0,
+      "target_ns": 35000000,
+      "passed": true
+    },
+    {
+      "id": "CLI-LAT-003",
+      "name": "kiw tier Pre-Commit Check Latency",
+      "category": "cli",
+      "iterations": 5,
+      "ns_per_op": 5302649,
+      "bytes_per_op": 0,
+      "allocs_per_op": 0,
+      "target_ns": 60000000,
+      "passed": true
+    },
+    {
+      "id": "WFK-SSG-001",
+      "name": "SSG Multi-Page Site Compilation",
+      "category": "workflow",
+      "iterations": 5,
+      "ns_per_op": 926870,
+      "bytes_per_op": 322078,
+      "allocs_per_op": 4761,
+      "target_ns": 150000000,
+      "passed": true
+    }
+  ],
+  "summary": "Krewire Benchmark Run: 9/9 within budget (linux amd64, go1.27.3, 2026-11-20 22:03:13 UTC)"
+}

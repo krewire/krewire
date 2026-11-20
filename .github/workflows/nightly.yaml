@@ -77,6 +77,9 @@ jobs:
       - name: .kiw Conformance Suite (Runtime & Hydration)
         run: go test -v ./pkg/runtime/conformance/...
 
+      - name: Core & Runtime Benchmark Verification
+        run: go test -v -short ./tools/kiw/internal/bench/...
+
       - name: Pure-Go Compilation Invariant
         run: CGO_ENABLED=0 go build ./...
 
