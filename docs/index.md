@@ -12,6 +12,7 @@ Core architectural blueprint, canonical definitions, and system philosophy:
 - **[Vision, Mission, and The Three Pillars](./foundation/vision-mission-and-pillars.md)** — Strategic hierarchy, approved vision & mission statements, and the three pillars (Secure, Sustain, Scalable).
 - **[Market Positioning & Value Proposition](./foundation/market-positioning.md)** — Target audience segments, Fragmented SDLC Tax problem definition, and verifiable proof points.
 - **[Product & Brand Architecture](./foundation/product-and-brand-architecture.md)** — First-party component catalog, naming standards, and multi-repository boundaries.
+- **[Open-Source & Commercial Boundaries](./foundation/open-source-and-commercial-boundaries.md)** — Licensing matrix, permanent open-core covenant, and self-hosting guarantees.
 - **[Architecture Specification](./foundation/architecture.md)** — Monorepo structure, strict downward-only layering invariants, domain models, and quality gates.
 - **[Philosophy & Guiding Principles](./foundation/philosophy.md)** — Core tenets, Go language rationale, stdlib-first policy, and single source of truth (SSOT).
 
