@@ -63,6 +63,7 @@ Scaffolding blueprints and autonomous multi-agent engineering workflows:
 
 ## 6. [Guides & Best Practices](./guides/security-best-practices.md)
 Operational and quality assurance playbooks:
+- **[Workload Architecture Guide](./guides/workload-architecture-guide.md)** — Idiomatic Go blueprints, convention tiers, and anti-pattern avoidance for all 8 workloads.
 - **[AI-Native Engineering Model](./guides/ai-engineering-model.md)** — Governed AI development model across Krew, Boost, and the `kiw` toolchain.
 - [Project Context Model & Precedence](./guides/project-context-model.md) — Authoritative machine-readable context discovery and source precedence hierarchy.
 - [Conformance & Quality Matrices](./guides/kiw-conformance-matrix.md) — Browser compatibility and template rendering conformance.
