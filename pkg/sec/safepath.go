@@ -25,6 +25,9 @@ func SafePath(baseDir, untrustedPath string) (string, error) {
 	if strings.TrimSpace(baseDir) == "" || strings.TrimSpace(untrustedPath) == "" {
 		return "", ErrInvalidPath
 	}
+	if strings.ContainsRune(untrustedPath, 0) || strings.ContainsRune(baseDir, 0) {
+		return "", ErrInvalidPath
+	}
 
 	absBase, err := filepath.Abs(baseDir)
 	if err != nil {

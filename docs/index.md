@@ -63,6 +63,7 @@ Scaffolding blueprints and autonomous multi-agent engineering workflows:
 
 ## 6. [Guides & Best Practices](./guides/security-best-practices.md)
 Operational and quality assurance playbooks:
+- **[Security Assurance Baseline](./guides/security-assurance-baseline.md)** — Canonical threat models, verified controls, fail-closed defaults, and regression audits.
 - **[Progressive Workload Transitions](./guides/progressive-workload-transitions.md)** — Tested migration paths, modular monolith vs service trade-offs, and 7-stage pipeline.
 - **[Workload Architecture Guide](./guides/workload-architecture-guide.md)** — Idiomatic Go blueprints, convention tiers, and anti-pattern avoidance for all 8 workloads.
 - **[AI-Native Engineering Model](./guides/ai-engineering-model.md)** — Governed AI development model across Krew, Boost, and the `kiw` toolchain.

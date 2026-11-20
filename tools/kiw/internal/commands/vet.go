@@ -91,17 +91,12 @@ func RunVet(fs *flag.FlagSet) errs.ExitCode {
 	}
 
 	if secCheck {
-		fmt.Fprintln(os.Stdout, "\n── Security Posture Audit ──────────────────────────────────")
-		issues := auditSecurityPosture(dir)
-		if len(issues) > 0 {
-			for _, iss := range issues {
-				fmt.Fprintf(os.Stderr, "  ✗ [SEC] %s\n", iss)
-			}
+		regressions := renderSecurityAssuranceReport(os.Stdout, dir)
+		if len(regressions) > 0 {
+			fmt.Fprintf(os.Stderr, "\n✗ Security assurance quality gate failed with %d regression(s).\n", len(regressions))
 			return errs.ExitCodeFailure
 		}
-		fmt.Fprintln(os.Stdout, "  ✓ Secrets hygiene: verified (no plaintext credentials found)")
-		fmt.Fprintln(os.Stdout, "  ✓ Environment referencing: ${env:...} contract upheld")
-		fmt.Fprintln(os.Stdout, "  ✓ Security posture: passed")
+		fmt.Fprintln(os.Stdout, "\n  ✓ Security assurance baseline: passed (zero regressions)")
 	}
 
 	if vulnCheck {

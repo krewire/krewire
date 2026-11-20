@@ -327,6 +327,24 @@ func DefaultCompatibilityMatrix() []IntegrationBoundary {
 			},
 		},
 		{
+			ID:                "security-assurance-baseline",
+			SourceModule:      "krewire",
+			TargetModule:      "sec",
+			VersionConstraint: ">=0.2.0",
+			Status:            StatusSupported,
+			Owner:             "@krewire/team-security",
+			Description:       "Verify end-to-end security assurance baseline, cryptographic primitives, and safe path bounds",
+			ContractCheck: func(ctx *QualificationContext) error {
+				krewireDir := filepath.Join(ctx.WorkspaceRoot, "krewire")
+				cmd := exec.Command("go", "test", "-short", "./pkg/sec/...")
+				cmd.Dir = krewireDir
+				if out, err := cmd.CombinedOutput(); err != nil {
+					return fmt.Errorf("security assurance tests failed: %w (output: %s)", err, string(out))
+				}
+				return nil
+			},
+		},
+		{
 			ID:                "dash-p2p",
 			SourceModule:      "dash",
 			TargetModule:      "edge-peering",
