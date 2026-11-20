@@ -63,6 +63,7 @@ Scaffolding blueprints and autonomous multi-agent engineering workflows:
 
 ## 6. [Guides & Best Practices](./guides/security-best-practices.md)
 Operational and quality assurance playbooks:
+- **[Reproducible AI Verification](./guides/reproducible-ai-verification.md)** — Verification evidence model, anti-fabrication invariants, execution sandboxing, and `kiw verify`.
 - **[Package Health & Compatibility](./guides/package-health-and-compatibility.md)** — Stability tiers, metadata catalog, SemVer compatibility guarantees, breaking change policies, and upgrade workflows.
 - **[Operational Visibility & Recovery](./guides/operational-visibility-and-recovery.md)** — Production observability, distinct health/readiness probes, graceful shutdown, backup/restore, and rollback runbooks.
 - **[Security Assurance Baseline](./guides/security-assurance-baseline.md)** — Canonical threat models, verified controls, fail-closed defaults, and regression audits.
