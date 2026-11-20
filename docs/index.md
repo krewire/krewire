@@ -63,6 +63,7 @@ Scaffolding blueprints and autonomous multi-agent engineering workflows:
 
 ## 6. [Guides & Best Practices](./guides/security-best-practices.md)
 Operational and quality assurance playbooks:
+- **[First-Time Developer Onboarding](./guides/first-time-developer-onboarding.md)** — Clean-environment quickstart, empirical cohort benchmarks (5/5 personas, 100% completion, ~1,436ms TTFR), and actionable diagnostics.
 - **[Reproducible AI Verification](./guides/reproducible-ai-verification.md)** — Verification evidence model, anti-fabrication invariants, execution sandboxing, and `kiw verify`.
 - **[Package Health & Compatibility](./guides/package-health-and-compatibility.md)** — Stability tiers, metadata catalog, SemVer compatibility guarantees, breaking change policies, and upgrade workflows.
 - **[Operational Visibility & Recovery](./guides/operational-visibility-and-recovery.md)** — Production observability, distinct health/readiness probes, graceful shutdown, backup/restore, and rollback runbooks.

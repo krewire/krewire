@@ -94,6 +94,8 @@ Every library, tool, and service in Krewire is engineered to pass the **Three Pi
 
 ## Getting Started
 
+For a comprehensive walkthrough, empirical cohort benchmarks, and actionable diagnostics, see the **[First-Time Developer Onboarding Guide](docs/guides/first-time-developer-onboarding.md)**.
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/krewire/krewire.git
