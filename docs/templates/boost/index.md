@@ -48,6 +48,11 @@ your-project/
 
 ## 3. Boost System Guides
 
+- **[AI-Native Engineering Model](../../guides/ai-engineering-model.md)** — Governed interoperability across Krew, Boost, and `kiw`.
+- **[21 Autonomous Agent Roles](./agents.md)** — Specialized subagents across planning, development, testing, and operations.
+- **[Autonomous SDLC & Multi-Agent Workflow](./workflow.md)** — The 7-phase governed development lifecycle and slash command mappings.
+- **[Agent Conventions & Safety Guardrails](./conventions.md)** — Coding style, pure-Go invariant, and zero-secrets security rules.
+
 - **[Autonomous Agent Roster & Specializations](./agents.md)**: Directory of all 21 specialized agents covering planning, architecture, coding, testing, refactoring, security auditing, and operations.
 - **[Agentic SDLC & Execution Workflows](./workflow.md)**: 6-phase development lifecycle, slash commands, role delegation, and gate enforcement.
 - **[Agent Conventions & Safety Boundaries](./conventions.md)**: Code style invariants, Conventional Commits, destructive command prevention, and secret masking.
