@@ -10,6 +10,7 @@ Central technical documentation portal for the Krewire core monorepo (`github.co
 Core architectural blueprint, canonical definitions, and system philosophy:
 - **[Canonical Definition & Identity](./foundation/canonical-definition.md)** — Canonical one-sentence definition, communication tiers (short, standard, extended), and taxonomy.
 - **[Vision, Mission, and The Three Pillars](./foundation/vision-mission-and-pillars.md)** — Strategic hierarchy, approved vision & mission statements, and the three pillars (Secure, Sustain, Scalable).
+- **[Market Positioning & Value Proposition](./foundation/market-positioning.md)** — Target audience segments, Fragmented SDLC Tax problem definition, and verifiable proof points.
 - **[Architecture Specification](./foundation/architecture.md)** — Monorepo structure, strict downward-only layering invariants, domain models, and quality gates.
 - **[Philosophy & Guiding Principles](./foundation/philosophy.md)** — Core tenets, Go language rationale, stdlib-first policy, and single source of truth (SSOT).
 
