@@ -168,7 +168,6 @@ To maintain consistency across code, documentation, and public dialogue:
    - Official titles use the `Krewire <Product>` form: *Krewire Cloud*, *Krewire Auth*, *Krewire Dash*, *Krewire Krew*, *Krewire UI*.
    - Never use colloquial variations like *KrewCloud* or *KrewAuth*.
 3. **Retired Components**:
-   - *Krewire Forge* has been completely decommissioned and excised from active documentation.
    - *Admin Panel* has been merged into *Krewire Dash*.
 4. **Cross-Linking Invariant**:
    - When referencing repository source code in documentation, always use standard GitHub links or local markdown relative links without hardcoding private secrets.

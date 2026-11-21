@@ -24,7 +24,7 @@ var lastNames = []string{
 
 var domains = []string{
 	"example.com", "krewire.com", "cloud.io", "techcorp.net", "devstudio.org",
-	"nexusapp.io", "alphaflow.dev", "synthetix.co", "byteforge.io", "datadock.com",
+	"nexusapp.io", "alphaflow.dev", "synthetix.co", "byteflow.io", "datadock.com",
 }
 
 var freeEmailDomains = []string{
