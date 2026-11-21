@@ -42,7 +42,6 @@ Metadata for foundational (Layer 1) and domain (Layer 2) libraries in `krewire`:
 | `pkg/storage` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: `storage.Provider` interface compatibility. |
 | `pkg/kiw` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: compiler produces deterministic Go template bytecode. |
 | `pkg/runtime` | Layer 2 | `BETA` | MIT | 1.22+ | 0 (Stdlib only) | Beta: WebAssembly VDOM diffing API stabilizing towards v1.0. |
-| `pkg/ai` | Layer 2 | `BETA` | MIT | 1.22+ | 0 (Stdlib only) | Beta: LLM provider adapters and streaming abstractions add capabilities additively. |
 
 ---
 

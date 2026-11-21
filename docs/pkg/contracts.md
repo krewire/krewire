@@ -57,8 +57,6 @@ The libraries under `pkg/` provide reusable primitives without embedding applica
 | `pkg/collab` | Layer 3 | Team workspace membership, hierarchical roles, and per-environment deployment policies. | Stable |
 | `pkg/testing` | Layer 3 | Test assertions, HTTP testing harnesses, and headless browser automation. | Stable |
 | `pkg/app` | Layer 3 | Dependency injection container, service provider lifecycle, and application assembly. | Stable |
-| `pkg/ai` | Layer 3 | Provider-agnostic native AI SDK: streaming, tools, schema, and object generation. | Stable |
-| `pkg/boost` | Layer 3 | Embedded autonomous AI agent team template and constitution installer. | Stable |
 
 ---
 

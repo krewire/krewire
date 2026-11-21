@@ -171,14 +171,3 @@ Payment gateway integration focusing on secure checkout, tokenization, and const
 
 - **Midtrans Client**: Snap checkout tokenization, charge requests, and transaction status queries.
 - **Webhook Security**: Constant-time SHA-512 signature verification (`crypto/subtle.ConstantTimeCompare`) blocking timing attacks.
-
----
-
-## 12. Boost AI Agent Coordination (`pkg/boost`)
-
-Import: `github.com/krewire/krewire/pkg/boost`
-
-Package `pkg/boost` embeds the multi-agent AI pair-programming team constitution (`templates/boost/` via `go:embed`):
-
-- **`Install(targetDir)`**: Installs the full agent roster, commands, skills, and rule constitution into `.agents/` and `.cursor/`.
-- **`Status(targetDir)`**: Inspects whether the active project has installed and verified Boost agent rules.

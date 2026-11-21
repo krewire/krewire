@@ -24,13 +24,13 @@ Release qualification validates that all supported components across the 10 Krew
 | Boundary ID | Producer (Source) | Consumer (Target) | Supported Versions | Status | Owner | Contract Scope |
 |---|---|---|---|---|---|---|
 | `krewire-ui` | `krewire` (Core/CLI) | `ui` (Design System) | `^0.2.0` | `Supported` | `@krewire/team-runtime` | `.kiw` component compilation, tokens, and hydration directives |
-| `krewire-krew` | `krewire` (Core SDK) | `krew` (Agent Engine) | `^0.2.0` | `Supported` | `@krewire/team-agent` | `pkg/ai` provider interfaces, tool registries, and lifecycle |
+| `krewire-krew` | `krewire` (Core SDK) | `krew` (Agent Engine) | `^0.2.0` | `Supported` | `@krewire/team-agent` | Core kernel models, lifecycle supervisors, and errs |
 | `krewire-cloud` | `krewire` (Core/Web) | `cloud` (PaaS Control) | `^0.2.0` | `Supported` | `@krewire/team-cloud` | `pkg/cloud/runner`, `pkg/cloud/service`, and `pkg/web/gateway` |
 | `krewire-auth` | `krewire` (Core/Sec) | `auth` (IAM Platform) | `^0.2.0` | `Supported` | `@krewire/team-iam` | `pkg/auth`, `pkg/sec`, PBKDF2/JWT claims, and password hashing |
 | `krewire-dash` | `krewire` (Core/TUI) | `dash` (Workspace) | `^0.2.0` | `Supported` | `@krewire/team-workspace` | `pkg/tui`, `pkg/term`, and PTY terminal process contracts |
 | `auth-cloud` | `auth` (Identity) | `cloud` (PaaS Gateway) | `^0.2.0` | `Supported` | `@krewire/team-iam` | Token federation, public JWKS verification, and edge headers |
 | `auth-dash` | `auth` (Identity) | `dash` (Workspace) | `^0.2.0` | `Supported` | `@krewire/team-iam` | Session claims, user identity context, and RBAC policies |
-| `krew-dash` | `krew` (Agent Core) | `dash` (AI Workspace) | `^0.2.0` | `Supported` | `@krewire/team-agent` | Agent task orchestration, streaming events, and approval gates |
+| `krew-dash` | `krew` (Agent Core) | `dash` (AI Workspace) | `^0.2.0` | `Supported` | `@krewire/team-agent` | AI inference, agent task orchestration, streaming events, and approval gates |
 | `cloud-mesh` | `cloud` (PaaS) | Distributed Workers | `0.3.x-exp` | `Experimental` | `@krewire/team-cloud` | Multi-node worker clustering and overlay mesh |
 | `dash-p2p` | `dash` (Workspace) | Edge Peering | `unreleased` | `Planned` | `@krewire/team-workspace` | Peer-to-peer workspace sync over WebRTC |
 
@@ -43,8 +43,8 @@ Release qualification validates that all supported components across the 10 Krew
 - **Validation**: `.kiw` component syntax compiles through `pkg/kiw` parser without syntax regressions; CSS tokens in `styles/krewire.css` exist and map to Pop-Brutalist color and border standards.
 
 ### Boundary 2: `krewire` ──► `krew`
-- **Contract**: `krew` consumes `github.com/krewire/krewire/pkg/ai` provider abstractions, `pkg/lifecycle` supervisors, and `pkg/errs` diagnostic exit codes.
-- **Validation**: Autonomous agent tool dispatch, session memories, and streaming callbacks execute against the stable Go AI SDK.
+- **Contract**: `krew` consumes `github.com/krewire/krewire/pkg/model`, `pkg/lifecycle` supervisors, and `pkg/errs` diagnostic exit codes.
+- **Validation**: Autonomous agent tool dispatch, session memories, and streaming callbacks execute against stable Go core primitives.
 
 ### Boundary 3: `krewire` ──► `cloud`
 - **Contract**: `cloud` consumes `pkg/cloud/runner`, `pkg/cloud/service`, and `pkg/web/gateway`.
