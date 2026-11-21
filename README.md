@@ -2,18 +2,18 @@
 
 > **Krewire is an end-to-end, Go-first digital SDLC ecosystem engineered to build, run, and scale secure, sustainable, and scalable software products from specification to production.**
 
-Official open-source core monorepo for the Krewire ecosystem (`github.com/krewire/krewire`), providing modular domain packages, the `kiw` developer CLI toolchain, official application runtimes, and agentic engineering blueprints.
+Official open-source core monorepo for the Krewire ecosystem (`github.com/krewire/krewire`), providing modular domain packages, foundational kernel primitives, official application runtimes, and agentic engineering blueprints.
 
 For the canonical brand definition, communication variants, and taxonomical guide, see **[Canonical Definition & Identity](docs/foundation/canonical-definition.md)**.
 
 ## Architecture & Layout
 
-The monorepo contains four main structural areas:
+The monorepo contains foundational and reusable domain packages:
 
 ```text
 krewire/
 ├── docs/         # Ecosystem documentation (foundation, pkg, tools, templates, guides)
-├── pkg/          # Domain libraries and control plane (37 modular packages)
+├── pkg/          # Reusable domain libraries and control plane (33 modular packages)
 │   ├── model/    # Declarative domain models, workload matrix, scopes, tiers, opt-in rules
 │   ├── lifecycle/# Workload execution dispatch, registry resolution, and supervisor
 │   ├── errs/     # POSIX-compatible exit codes, diagnostic attributes, and stack traces
@@ -22,8 +22,6 @@ krewire/
 │   ├── log/      # Structured slog logging tailored to environments and source tagging
 │   ├── web/      # HTTP router, middleware, SSR, SSG, gateway, HMR
 │   ├── app/      # Dependency injection container & application assembly
-│   ├── ui/       # UI components, layout, styling tokens, CSS theme palettes
-│   ├── tui/      # Terminal UI toolkit powering the kiw CLI
 │   ├── runtime/  # Client WebAssembly VDOM engine, component mounting, island hydration (WASM, Svelte, Vue)
 │   ├── ai/       # Native AI SDK: providers, streaming, tools, schema, object generation
 │   ├── sec/      # SafePath traversal guard, PBKDF2 hashing, SafeHTTPClient (SSRF), headers, CORS, CSRF
@@ -38,11 +36,9 @@ krewire/
 │   ├── functional/ # Generic collection and functional utilities (Map, Filter, Reduce)
 │   ├── hub/      # Plugin registry and package resolver (Tailwind, Svelte 5, Vue 3 modular plugins)
 │   ├── i18n/     # Internationalization, message bundles, pluralization, middleware
-│   ├── kiw/      # .kiw DSL compiler, parser, AST desugaring, component engine
 │   ├── markdown/ # Markdown parsing & rendering with link prefixing
 │   ├── book/     # Markdown content compiler (chapters, TOC, search, book sites)
 │   ├── resilience/ # Bulkhead concurrency bounds, RateLimiter token bucket, retry with jitter, circuit breaker
-│   ├── term/     # Terminal detection, ANSI colors, and output formatting
 │   ├── testing/  # Test harnesses and browser automation utilities
 │   ├── boost/    # Boost coordination package & embedded AI agent template
 │   ├── cache/    # Multi-driver cache (memory, file, Redis, Memcached)
@@ -52,8 +48,6 @@ krewire/
 │   ├── commerce/ # Payment gateway integration (Midtrans) with constant-time webhook verification
 │   └── collab/   # Team roles and per-environment collaboration policies
 ├── apps/         # Deployable services and applications
-├── tools/        # Developer tooling
-│   └── kiw/      # Unified developer CLI for project scaffolding, build, and deploy
 └── templates/    # Starter templates and scaffolding blueprints
     ├── boost/    # AI-agent workflow template and constitution
     ├── init/     # In-place project initialization templates
@@ -62,23 +56,24 @@ krewire/
 
 ## Role in the 10-Repository Ecosystem & Battery Architecture
 
-All workloads, libraries, and platforms advance along the **Ecosystem Architectural Battery**, fully driven by the `kiw` devtool CLI and declarative `krewire.yaml` configuration:
+All workloads, libraries, and platforms advance along the **Ecosystem Architectural Battery**, fully driven by the `krew` unified toolchain CLI and declarative `krewire.yaml` configuration:
 
 ```text
 Go Stdlib ──► Krewire Libraries ──► Krewire UI | Krewire Auth | Krewire Krew ──► Krewire Cloud ──► Krewire Dash
                                                                                                  (Unified Workspace)
 ```
 
-Krewire is the core monorepo in the 9-repository ecosystem:
-1. **krewire** (this repository): Core monorepo containing packages, apps, CLI tooling (`kiw`), and starters.
-2. **krew**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
-3. **cloud**: Private enterprise hybrid PaaS engine and control plane.
-4. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform.
-5. **dash**: Krewire Dash — AI-native virtual workspace, execution sandboxes, and collaboration console.
-6. **ui**: Pop-Brutalist `.kiw` design system (66 components, pure Go embed.FS, zero npm runtime).
-7. **internal**: Documentation hub: ADRs, roadmaps, contributor guides.
-8. **krewire.com**: Official product website and documentation portal.
-9. **krewire.github.io**: Community portal and guides hub.
+Krewire is the foundational monorepo in the 10-repository ecosystem:
+1. **krewire** (this repository): Foundational Go monorepo (kernel primitives and 33 modular domain libraries).
+2. **krew**: Autonomous ReAct AI agent engine & unified developer toolchain (CLI, dev server, build, MCP, embed).
+3. **tui**: Lightweight, pure-Go Terminal User Interface (TUI) framework and terminal design primitives.
+4. **ui**: Pop-Brutalist `.kiw` design system, Go-native UI primitives, and `.kiw` template compiler & DSL engine.
+5. **cloud**: Private enterprise hybrid PaaS engine and control plane.
+6. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform.
+7. **dash**: AI-native virtual workspace, execution sandboxes, and collaboration console.
+8. **internal**: Private engineering governance hub: ADRs, roadmaps, technical specifications.
+9. **krewire.com**: Official production website and documentation portal.
+10. **krewire.github.io**: Community launchpad, release hub, and open-source sponsorship portal.
 
 ## The Three Pillars (Secure, Sustain, and Scalable)
 
@@ -102,12 +97,7 @@ For a comprehensive walkthrough, empirical cohort benchmarks, and actionable dia
    cd krewire
    ```
 
-2. Build the CLI:
-   ```bash
-   go build -o bin/kiw ./tools/kiw/cmd/kiw
-   ```
-
-3. Run quality gates:
+2. Run quality gates:
    ```bash
    gofmt -l .
    go vet ./...
