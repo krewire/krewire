@@ -1,6 +1,6 @@
 # Package Reference: `ui`
 
-Import: `github.com/krewire/krewire/pkg/ui`
+Import: `github.com/krewire/ui`
 
 ## 1. Purpose & Architecture
 
@@ -28,7 +28,7 @@ package main
 
 import (
     "fmt"
-    "github.com/krewire/krewire/pkg/ui/widget"
+    "github.com/krewire/ui/widget"
 )
 
 func RenderUserProfileCard(username string) string {

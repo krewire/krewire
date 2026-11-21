@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
 )
 
 func TestLayoutFromUIBuildsPage(t *testing.T) {

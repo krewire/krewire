@@ -1,6 +1,6 @@
 # Package Reference: `term`
 
-Import: `github.com/krewire/krewire/pkg/term`
+Import: `github.com/krewire/tui/term`
 
 ## 1. Purpose & Architecture
 
@@ -33,7 +33,7 @@ package main
 
 import (
     "os"
-    "github.com/krewire/krewire/pkg/term"
+    "github.com/krewire/tui/term"
 )
 
 func main() {

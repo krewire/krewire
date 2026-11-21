@@ -94,7 +94,7 @@ package ui_test
 import (
     "testing"
     ftest "github.com/krewire/krewire/pkg/testing"
-    "github.com/krewire/krewire/pkg/ui/widget"
+    "github.com/krewire/ui/widget"
 )
 
 func TestButtonComponent(t *testing.T) {

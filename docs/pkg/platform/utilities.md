@@ -88,7 +88,7 @@ Lightweight, zero-dependency localization engine supporting message bundles, var
 
 ## 6. Terminal Presentation & ANSI Colors (`pkg/term`)
 
-Import: `github.com/krewire/krewire/pkg/term`
+Import: `github.com/krewire/tui/term`
 
 Terminal detection, ANSI colors, text styles, and console formatting for CLI applications:
 

@@ -1,6 +1,6 @@
 # `kiw` (DSL Engine)
 
-Import: `github.com/krewire/krewire/pkg/kiw`
+Import: `github.com/krewire/ui/kiw`
 
 ## Purpose
 
@@ -166,7 +166,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/krewire/krewire/pkg/kiw"
+	"github.com/krewire/ui/kiw"
 )
 
 func main() {

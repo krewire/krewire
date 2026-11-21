@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	kiwdsl "github.com/krewire/krewire/pkg/kiw"
+	kiwdsl "github.com/krewire/ui/kiw"
 )
 
 func TestLoadFromDir_Landing(t *testing.T) {

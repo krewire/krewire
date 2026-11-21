@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"net/http"
 
-	"github.com/krewire/krewire/pkg/ui"
 	"github.com/krewire/krewire/pkg/web/ssg"
+	"github.com/krewire/ui"
 )
 
 // App assembles a monolith: it composes routes, middleware, pages, static

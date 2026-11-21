@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	kiwdsl "github.com/krewire/krewire/pkg/kiw"
 	"github.com/krewire/krewire/pkg/runtime/mount"
+	kiwdsl "github.com/krewire/ui/kiw"
 )
 
 func (s *Site) resolveComponentName(name string) (string, *Component, bool) {

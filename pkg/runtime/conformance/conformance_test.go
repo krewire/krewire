@@ -11,11 +11,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/pkg/kiw"
 	"github.com/krewire/krewire/pkg/runtime/mount"
 	ftest "github.com/krewire/krewire/pkg/testing"
 	"github.com/krewire/krewire/pkg/testing/browser"
 	"github.com/krewire/krewire/pkg/web/ssg"
+	"github.com/krewire/ui/kiw"
 )
 
 // ── 1. Matrix Catalog Self-Verification ─────────────────────────────────────

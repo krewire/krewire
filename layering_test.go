@@ -252,29 +252,6 @@ func TestPackagesNeverImportKiw(t *testing.T) {
 	}
 }
 
-// TestUIDoesNotImportWeb asserts the one sibling direction the architecture
-// pins explicitly: pkg/web may use pkg/ui, but pkg/ui must never reach for
-// pkg/web.
-func TestUIDoesNotImportWeb(t *testing.T) {
-	root := repoRoot(t)
-	mod := modulePath(t, root)
-	web := mod + "/pkg/web"
-
-	checked := 0
-	for _, file := range goFiles(t, filepath.Join(root, "pkg", "ui")) {
-		rel, _ := filepath.Rel(root, file)
-		for _, imp := range parseImports(t, file) {
-			if imp == web || strings.HasPrefix(imp, web+"/") {
-				t.Errorf("%s imports %q: pkg/ui must not depend on pkg/web", rel, imp)
-			}
-		}
-		checked++
-	}
-	if checked == 0 {
-		t.Fatal("no pkg/ui files checked; the sibling-direction guard did not run")
-	}
-}
-
 // TestSQLiteDriverIsOptIn asserts that the bundled SQLite driver stays opt-in:
 // only pkg/orm/sqlite imports modernc.org/sqlite, and no other library under
 // pkg/ imports pkg/orm/sqlite. Binaries (an app's main, tools/kiw) choose to

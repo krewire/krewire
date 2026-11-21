@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/pkg/i18n"
-	kiwdsl "github.com/krewire/krewire/pkg/kiw"
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
+	kiwdsl "github.com/krewire/ui/kiw"
 )
 
 func setupI18n(site *Site, root string, meta *meta) {

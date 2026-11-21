@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
 )
 
 // Component is a reusable piece of UI. Body is the html/template source;

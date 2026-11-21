@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
 )
 
 func testConfig() *Config {

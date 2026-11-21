@@ -8,8 +8,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/krewire/krewire/pkg/ui"
 	"github.com/krewire/krewire/pkg/web/ssg"
+	"github.com/krewire/ui"
 )
 
 const shellLayout = `<!DOCTYPE html><html><head><title>{{.Title}}</title></head><body>{{.Content}}</body></html>`

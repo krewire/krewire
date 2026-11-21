@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"sort"
 
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
 )
 
 // Funcs registers template functions available to components and layouts.

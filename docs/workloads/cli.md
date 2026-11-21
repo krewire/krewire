@@ -60,8 +60,8 @@ import (
     "fmt"
     "os"
     "github.com/krewire/krewire/pkg/errs"
-    "github.com/krewire/krewire/pkg/term"
-    "github.com/krewire/krewire/pkg/tui"
+    "github.com/krewire/tui/term"
+    "github.com/krewire/tui"
 )
 
 func main() {

@@ -1,6 +1,6 @@
 # Package Reference: `tui`
 
-Import: `github.com/krewire/krewire/pkg/tui`
+Import: `github.com/krewire/tui`
 
 ## 1. Purpose & Architecture
 
@@ -29,7 +29,7 @@ package main
 import (
     "context"
     "os"
-    "github.com/krewire/krewire/pkg/tui"
+    "github.com/krewire/tui"
 )
 
 func main() {

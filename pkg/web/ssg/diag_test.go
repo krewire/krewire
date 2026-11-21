@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	kiwdsl "github.com/krewire/krewire/pkg/kiw"
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
+	kiwdsl "github.com/krewire/ui/kiw"
 )
 
 func writeSite(t *testing.T, files map[string]string) string {

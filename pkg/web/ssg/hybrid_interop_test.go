@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/pkg/ui"
-	"github.com/krewire/krewire/pkg/ui/node"
 	"github.com/krewire/krewire/pkg/web/ssg"
+	"github.com/krewire/ui"
+	"github.com/krewire/ui/node"
 )
 
 // UserMetricsProps defines typed props for a Go component.

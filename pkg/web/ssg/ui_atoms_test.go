@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	ui "github.com/krewire/krewire/pkg/ui"
+	ui "github.com/krewire/ui"
 )
 
 // uiComponents lists the component names load.go will register.

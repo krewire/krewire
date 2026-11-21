@@ -38,7 +38,7 @@ package main
 
 import (
     "fmt"
-    "github.com/krewire/krewire/pkg/ui/widget"
+    "github.com/krewire/ui/widget"
 )
 
 func BuildDashboardCard() string {
@@ -71,7 +71,7 @@ Construct validated HTML forms with automatic CSRF fields and error state stylin
 package main
 
 import (
-    "github.com/krewire/krewire/pkg/ui/form"
+    "github.com/krewire/ui/form"
 )
 
 func CreateLoginForm(csrfToken string) string {
@@ -150,7 +150,7 @@ import (
     "context"
     "fmt"
     "os"
-    "github.com/krewire/krewire/pkg/tui"
+    "github.com/krewire/tui"
 )
 
 func main() {

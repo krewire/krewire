@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"reflect"
 
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
 )
 
 // Config describes a static site declaratively. Decode it from the `ssg:` block

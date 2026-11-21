@@ -1,8 +1,8 @@
 package web
 
 import (
-	"github.com/krewire/krewire/pkg/ui"
 	"github.com/krewire/krewire/pkg/web/ssg"
+	"github.com/krewire/ui"
 )
 
 // Export writes the App's static pages as a complete website into outDir,

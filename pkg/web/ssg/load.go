@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	kiwdsl "github.com/krewire/krewire/pkg/kiw"
 	"github.com/krewire/krewire/pkg/model"
-	"github.com/krewire/krewire/pkg/ui"
+	"github.com/krewire/ui"
+	kiwdsl "github.com/krewire/ui/kiw"
 	"gopkg.in/yaml.v3"
 )
 
