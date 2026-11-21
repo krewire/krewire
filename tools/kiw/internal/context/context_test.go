@@ -124,39 +124,6 @@ func TestLint_MissingFiles(t *testing.T) {
 	}
 }
 
-func TestLint_StaleReferences(t *testing.T) {
-	tempDir := t.TempDir()
-
-	// Write AGENTS.md with stale keyword
-	agentsContent := `# Operational Guide
-- **Old Platform**: Do not reference admin.krewire.com directly.
-`
-	if err := os.WriteFile(filepath.Join(tempDir, "AGENTS.md"), []byte(agentsContent), 0644); err != nil {
-		t.Fatalf("failed to write AGENTS.md: %v", err)
-	}
-
-	ctx := &model.ProjectContext{
-		Workspace: tempDir,
-		Rules:     nil,
-	}
-
-	diags := context.Lint(ctx, tempDir)
-	foundStale := false
-	for _, d := range diags {
-		if d.Severity == model.DiagStale && filepath.Base(d.File) == "AGENTS.md" {
-			foundStale = true
-			if d.Line != 2 {
-				t.Errorf("expected stale reference on line 2, got %d", d.Line)
-			}
-			break
-		}
-	}
-
-	if !foundStale {
-		t.Errorf("expected DiagStale diagnostic for 'admin.krewire.com'")
-	}
-}
-
 func TestLint_DuplicateRules(t *testing.T) {
 	ctx := &model.ProjectContext{
 		Rules: []model.ContextRule{

@@ -1,22 +1,14 @@
 package context
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/krewire/krewire/pkg/model"
 )
 
-// RetiredKeywords are terms for decommissioned platforms or components that should not appear in active context.
-var RetiredKeywords = []string{
-	"admin.krewire.com",
-	"internal/apps/admin",
-}
-
-// Lint checks a ProjectContext for missing sources, conflicts, duplicate rules, and stale references.
+// Lint checks a ProjectContext for missing sources, conflicts, and duplicate rules.
 func Lint(ctx *model.ProjectContext, targetDir string) []model.ContextDiagnostic {
 	var diags []model.ContextDiagnostic
 
@@ -74,61 +66,6 @@ func Lint(ctx *model.ProjectContext, targetDir string) []model.ContextDiagnostic
 			})
 		} else {
 			seenRules[rule.ID] = rule
-		}
-	}
-
-	// 3. Check for stale references in AGENTS.md and krewire.yaml
-	filesToCheck := []string{
-		filepath.Join(targetDir, "krewire.yaml"),
-		filepath.Join(targetDir, "AGENTS.md"),
-		filepath.Join(ctx.Workspace, "AGENTS.md"),
-	}
-
-	checkedFiles := make(map[string]bool)
-	for _, fPath := range filesToCheck {
-		if checkedFiles[fPath] {
-			continue
-		}
-		checkedFiles[fPath] = true
-
-		if _, err := os.Stat(fPath); err != nil {
-			continue
-		}
-
-		staleDiags := checkStaleFile(fPath)
-		diags = append(diags, staleDiags...)
-	}
-
-	return diags
-}
-
-func checkStaleFile(filePath string) []model.ContextDiagnostic {
-	var diags []model.ContextDiagnostic
-
-	f, err := os.Open(filePath)
-	if err != nil {
-		return diags
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	lineNum := 0
-	for scanner.Scan() {
-		lineNum++
-		line := scanner.Text()
-		lineLower := strings.ToLower(line)
-
-		for _, keyword := range RetiredKeywords {
-			if strings.Contains(lineLower, keyword) {
-				diags = append(diags, model.ContextDiagnostic{
-					Severity: model.DiagStale,
-					Scope:    model.ScopeWorkspace,
-					File:     filePath,
-					Line:     lineNum,
-					Message:  fmt.Sprintf("Stale reference to retired platform component '%s'", keyword),
-					Hint:     "Remove or update references to retired ecosystem components.",
-				})
-			}
 		}
 	}
 

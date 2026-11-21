@@ -105,5 +105,4 @@ kiw context --scope module
    - Continuous integration runs `kiw context --lint` as part of the release qualification pipeline.
    - Code reviews ensure PRs do not introduce conflicting rules or bypass quality gates.
 4. **Retire**:
-   - When a component or platform is decommissioned, add its identifier to `RetiredKeywords` in `linter.go`.
-   - `kiw context --lint` ensures that stale references across documentation and instructions are completely excised.
+   - Deprecated rules or components are removed directly from configuration and documentation without retaining legacy dead code or obsolete keyword lists.
