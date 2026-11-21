@@ -134,8 +134,8 @@ func CanonicalWorkloadReadiness() []WorkloadReadiness {
 			Title:    "Command-Line Tool",
 			Status:   StatusShipped,
 			Maturity: MaturityStable,
-			Package:  "tools/kiw, pkg/tui, pkg/term",
-			Evidence: "Unified devtool kiw drives all ecosystem workflows. Reproducible pure-Go binary compilation verified.",
+			Package:  "pkg/tui, pkg/term",
+			Evidence: "Unified toolchain krew drives all ecosystem workflows. Reproducible pure-Go binary compilation verified.",
 			Limitations: []string{
 				"Terminal graphics protocols (Sixel, Kitty) are unbundled and optional.",
 			},

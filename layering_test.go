@@ -241,8 +241,8 @@ func TestPackagesNeverImportKiw(t *testing.T) {
 	for _, file := range goFiles(t, filepath.Join(root, "pkg")) {
 		rel, _ := filepath.Rel(root, file)
 		for _, imp := range parseImports(t, file) {
-			if strings.HasPrefix(imp, mod+"/tools/") || strings.HasPrefix(imp, "github.com/krewire/kiw") {
-				t.Errorf("%s imports %q: pkg/ may never import tools/kiw", rel, imp)
+			if strings.HasPrefix(imp, mod+"/tools/") || strings.HasPrefix(imp, "github.com/krewire/kiw") || imp == "github.com/krewire/krew" || strings.HasPrefix(imp, "github.com/krewire/krew/") {
+				t.Errorf("%s imports %q: pkg/ may never import CLI tooling or krew", rel, imp)
 			}
 		}
 		checked++
