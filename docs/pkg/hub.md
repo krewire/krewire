@@ -40,4 +40,4 @@ func main() {
 
 ## Design Boundary
 
-Powers `kiw add` and `kiw remove`. Allows developers to opt in to modern frontend ecosystems (Tailwind, Svelte, Vue) without breaking pure-Go zero-JS defaults.
+Powers `krew add` and `krew remove`. Allows developers to opt in to modern frontend ecosystems (Tailwind, Svelte, Vue) without breaking pure-Go zero-JS defaults.

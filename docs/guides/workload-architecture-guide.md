@@ -61,7 +61,7 @@ To eliminate confusion between language best practices and framework requirement
 
 ## 3. Workload-by-Workload Reference Blueprints
 
-Every workload can be scaffolded using `kiw new <project> --<kind>` or equipped into an existing folder via `kiw init --<kind>`.
+Every workload can be scaffolded using `krew new <project> --<kind>` or equipped into an existing folder via `krew init --<kind>`.
 
 ### 3.1 Fullstack Web Application (`app`)
 - **Primary Package**: `pkg/web`, `pkg/app`, `pkg/runtime`, `pkg/ui`.
@@ -86,7 +86,7 @@ Every workload can be scaffolded using `kiw new <project> --<kind>` or equipped 
 ---
 
 ### 3.2 Command-Line Tool (`cli`)
-- **Primary Package**: `tools/kiw`, `pkg/tui`, `pkg/term`, `pkg/errs`.
+- **Primary Package**: `krew`, `pkg/tui`, `pkg/term`, `pkg/errs`.
 - **Reference Layout**:
   ```text
   my-cli/
@@ -183,7 +183,7 @@ Every workload can be scaffolded using `kiw new <project> --<kind>` or equipped 
   ```text
   my-infra/
   ├── krewire.yaml          # Infrastructure topology definition
-  └── main.go               # Provisioning plan executor (kiw build --plan)
+  └── main.go               # Provisioning plan executor (krew build --plan)
   ```
 - **When to Use**: Managing environment topology, container process definitions, and deployment artifacts.
 - **When NOT to Use**: General application logic.
@@ -209,7 +209,7 @@ Every workload can be scaffolded using `kiw new <project> --<kind>` or equipped 
 
 ## 5. Escape Hatches: 100% Native Go Interoperability
 
-Krewire projects never lock developers into the `kiw` CLI. Every project compiles and runs using standard Go toolchain commands:
+Krewire projects never lock developers into the `krew` CLI. Every project compiles and runs using standard Go toolchain commands:
 
 ```bash
 # Build binary directly with Go stdlib toolchain
@@ -223,7 +223,7 @@ gofmt -l -w .
 go vet ./...
 ```
 
-The `kiw` tool acts as a developer accelerator—automating scaffolding, configuration validation, and release qualification—while leaving the underlying Go project 100% standard and dependency-free.
+The `krew` tool acts as a developer accelerator—automating scaffolding, configuration validation, and release qualification—while leaving the underlying Go project 100% standard and dependency-free.
 
 ---
 

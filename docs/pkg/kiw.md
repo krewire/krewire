@@ -1,4 +1,4 @@
-# `kiw` (DSL Engine)
+# `krew` (DSL Engine)
 
 Import: `github.com/krewire/ui/kiw`
 
@@ -35,7 +35,7 @@ the renderer stores every prop under all aliases from `kiw.PropAliases`:
 
 An alias never overwrites a prop that was passed explicitly. The child content
 of a paired tag is the `body` prop (`{body}`); `<slot name="footer">` passes the
-`footer` prop. `kiw make component <Name>` generates a component that follows
+`footer` prop. `krew make component <Name>` generates a component that follows
 this convention.
 
 ## Loops
@@ -128,18 +128,18 @@ pages/index.kiw:6:16: {#if on} inside an attribute of <Button>: component props 
 
 - `kiw.Lint(file, src)` reports, with exact line and column: control blocks
   inside component tag attributes, unbalanced or mismatched `{#if}`/`{#each}`
-  blocks, and invalid YAML frontmatter. `kiw vet` runs it on every `.kiw` file
+  blocks, and invalid YAML frontmatter. `krew vet` runs it on every `.kiw` file
   of the project.
 - `kiw.Explain(file, name, src, funcs, err)` maps a `text/template` or
   `html/template` parse or execution error back to the source line (via the
   line-preserving `kiw.AlignedBody`) and column, and adds a hint.
   `pkg/web/ssg` does this for every component, page and layout it loads from
-  `.kiw` files, so `kiw build` and `kiw dev` print source positions.
+  `.kiw` files, so `krew build` and `krew dev` print source positions.
 
 ## Editor support
 
 A TextMate grammar and VS Code extension for `.kiw` live in
-[`tools/kiw/editors/vscode`](../../tools/kiw/editors/vscode): frontmatter,
+[`krew/editors/vscode`](../../krew/editors/vscode): frontmatter,
 template blocks, interpolation, component tags, scoped `<style>`, `<script>`
 and `<markdown>`, plus bracket matching and folding.
 
@@ -187,4 +187,4 @@ title: Welcome
 
 ## Design boundary
 
-Pure Go parser. It is imported by `pkg/web/ssg` and `tools/kiw`; it never imports `tools/kiw`.
+Pure Go parser. It is imported by `pkg/web/ssg` and `krew`; it never imports `krew`.

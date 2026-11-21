@@ -1,29 +1,29 @@
-# Development & Build Pipelines in `kiw`
+# Development & Build Pipelines in `krew`
 
-Detailed execution model for local development, watch mode, compilation pipelines, and artifact staging managed by the `kiw` toolchain.
+Detailed execution model for local development, watch mode, compilation pipelines, and artifact staging managed by the `krew` toolchain.
 
 ---
 
 ## 1. Local Development Modes
 
-### A. Live Watch & Reload (`kiw dev`)
+### A. Live Watch & Reload (`krew dev`)
 Monitors the filesystem for changes across Go source files, `.kiw` templates, markdown files, and configuration. When changes occur:
 1. **Apps, Services, Workers, Gateways, and CLIs**: Sends `SIGINT` to cancel the active running process, recompiles the binary with `CGO_ENABLED=0`, and restarts the supervised process immediately.
 2. **Static Sites & Books**: Re-evaluates templates or markdown chapters and broadcasts hot reload updates over WebSockets.
 
-### B. Static Site Live Preview (`kiw serve`)
+### B. Static Site Live Preview (`krew serve`)
 Serves pre-built static content from `.krewire/build` and injects a lightweight WebSocket script into HTML pages:
 - Changes to Markdown files trigger instant partial DOM re-renders.
 - Changes to CSS trigger instant style sheet swaps without full page reloads.
 
 ---
 
-## 2. Compilation Pipelines (`kiw build`)
+## 2. Compilation Pipelines (`krew build`)
 
-`kiw build` automatically detects the active project shape ([`shape.Detect`](../../../tools/kiw/internal/shape/shape.go)) and routes execution to the appropriate pipeline:
+`krew build` automatically detects the active project shape ([`shape.Detect`](../../../krew/internal/shape/shape.go)) and routes execution to the appropriate pipeline:
 
 ```text
-kiw build
+krew build
   ├── 1. Run Pre-Build Dependencies (build.depends_on in krewire.yaml)
   ├── 2. Shape & Invariant Validation (pkg/model)
   └── 3. Workload Pipeline Execution:
@@ -38,7 +38,7 @@ kiw build
 ```
 
 ### Progressive Fluid Hybrid Compilation
-Krewire supports fluid co-located workloads. If an `app`, `service`, or `worker` project also contains a `pages/` directory or static content, `kiw build` builds both:
+Krewire supports fluid co-located workloads. If an `app`, `service`, or `worker` project also contains a `pages/` directory or static content, `krew build` builds both:
 1. Compiles the Go application binary into `.krewire/build/bin/<name>`.
 2. Generates the static web pages into `.krewire/build/`.
 3. Records all generated files in `.krewire/build/manifest.json`.
@@ -60,7 +60,7 @@ Krewire supports fluid co-located workloads. If an `app`, `service`, or `worker`
 
 ---
 
-## 4. Production Staging & Deployment (`kiw deploy`)
+## 4. Production Staging & Deployment (`krew deploy`)
 
 Stages verified deployable artifacts inside `.krewire/dist/`:
 - **Binary Target**: Copies production binary and assets into `.krewire/dist/`.

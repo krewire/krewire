@@ -24,14 +24,14 @@ Rather than conflicting, Krewire provides first-class primitives for:
 
 ## 2. Directory Layout & Side-by-Side Scaffolding
 
-When equipping a Go service inside an existing Node.js or Laravel codebase, use `kiw new <name> --dir <host-dir>`:
+When equipping a Go service inside an existing Node.js or Laravel codebase, use `krew new <name> --dir <host-dir>`:
 
 ```bash
 # In a Node.js project:
-kiw new api --dir .
+krew new api --dir .
 
 # In a Laravel project:
-kiw new worker --dir .
+krew new worker --dir .
 ```
 
 ### Resulting Coexistent Structure
@@ -51,16 +51,16 @@ my-project/
     └── .gitignore            # Subdirectory .gitignore (.krewire)
 ```
 
-Host files (`package.json`, `node_modules/`, `composer.json`, `app/`, `config/`) are completely isolated. `kiw` never overwrites or mutates foreign manifests.
+Host files (`package.json`, `node_modules/`, `composer.json`, `app/`, `config/`) are completely isolated. `krew` never overwrites or mutates foreign manifests.
 
 ---
 
 ## 3. Host Ecosystem & Co-located Project Discovery
 
-Running `kiw info` from anywhere in the project tree inspects both the local environment and foreign host manifests:
+Running `krew info` from anywhere in the project tree inspects both the local environment and foreign host manifests:
 
 ```text
-$ kiw info
+$ krew info
 ─ Environment ─────────────────────────────────
   CLI              kiw v0.1.0
   Ecosystem        Krewire v0.1.0 (dev)
@@ -85,7 +85,7 @@ $ kiw info
   Krewire port     8080 (krewire.yaml)
 ```
 
-`kiw info` automatically detects:
+`krew info` automatically detects:
 - Package managers: `npm`, `pnpm`, `yarn`, `bun`, `composer`.
 - Frontend & backend frameworks: `SvelteKit`, `Nuxt`, `Next.js`, `Remix`, `Astro`, `Fastify`, `Express`, `Laravel`.
 - Co-located Krewire workloads in immediate subdirectories.
@@ -95,8 +95,8 @@ $ kiw info
 ## 4. Port Conflict Prevention
 
 When Node.js dev servers (`:3000`, `:5173`) and Krewire servers (`:8080`) run simultaneously:
-1. `kiw` scans `package.json`, `composer.json`, and `.env` for declared ports.
-2. If both runtimes attempt to bind to the same port, `kiw` logs an explicit conflict warning (`FRK-CONF-030`).
+1. `krew` scans `package.json`, `composer.json`, and `.env` for declared ports.
+2. If both runtimes attempt to bind to the same port, `krew` logs an explicit conflict warning (`FRK-CONF-030`).
 3. Port resolution precedence:
    - CLI flag: `--addr :<port>` (highest priority)
    - Configuration: `server.port` in `krewire.yaml`
@@ -107,7 +107,7 @@ When Node.js dev servers (`:3000`, `:5173`) and Krewire servers (`:8080`) run si
 
 ## 5. Process Bridge Pattern (JSON IPC)
 
-For lightweight, zero-network inter-process communication between Node.js or Laravel and Go, `kiw run` provides a standard process bridge:
+For lightweight, zero-network inter-process communication between Node.js or Laravel and Go, `krew run` provides a standard process bridge:
 - Standard input (`os.Stdin`) is connected directly to the spawned binary.
 - Standard output (`os.Stdout`) and standard error (`os.Stderr`) stream back to the caller.
 
@@ -168,7 +168,7 @@ logger.Info("processing order", "order_id", 1234)
 
 ## 8. AI Boost Non-Interference
 
-Running `kiw boost install <dir>` installs the AI Agent Constitution (`AGENTS.md`), OpenCode configuration (`opencode.json`), and triad skills (`.agents/`) into any Node.js or Laravel project without modifying host code:
+Running `krew boost install <dir>` installs the AI Agent Constitution (`AGENTS.md`), OpenCode configuration (`opencode.json`), and triad skills (`.agents/`) into any Node.js or Laravel project without modifying host code:
 - The top-level `AGENTS.md` contains an explicit project-agnostic disclaimer:
   > *If the current project is not a Krewire project, follow the generic principles and skip Krewire-specific sections marked Krewire.*
 - Agents will safely operate on JavaScript, TypeScript, and PHP codebases using universal SDLC principles.
@@ -181,14 +181,14 @@ Krewire provides first-class modular plugins for embedding **Svelte 5** and **Vu
 
 ### Adding Modular Svelte or Vue
 
-Activate the modular plugin in any Krewire project using `kiw add`:
+Activate the modular plugin in any Krewire project using `krew add`:
 
 ```bash
 # Add Svelte 5 modular plugin
-kiw add svelte
+krew add svelte
 
 # Add Vue 3 modular plugin
-kiw add vue
+krew add vue
 ```
 
 Adding the plugin automatically:
@@ -264,6 +264,6 @@ When a page contains framework islands, Krewire automatically generates and inje
 
 ## Quick References
 
-- [`krewire.yaml` Configuration Reference](../tools/kiw/configuration.md) — Multi-runtime and port options.
-- [`kiw` Commands Reference](../tools/kiw/commands.md) — CLI commands and flags.
+- [`krewire.yaml` Configuration Reference](../krew/configuration.md) — Multi-runtime and port options.
+- [`krew` Commands Reference](../krew/commands.md) — CLI commands and flags.
 - [Architecture Blueprint](../foundation/architecture.md) — Core layering and dependency rules.

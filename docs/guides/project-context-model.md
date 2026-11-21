@@ -96,7 +96,7 @@ kiw context --scope module
 ## 6. Context Lifecycle: Create, Update, Review, Retire
 
 1. **Create**:
-   - Running `kiw init` or `kiw new` establishes the baseline `krewire.yaml` and `go.mod`.
+   - Running `krew init` or `krew new` establishes the baseline `krewire.yaml` and `go.mod`.
    - Workspace rules are recorded in `AGENTS.md`.
 2. **Update**:
    - Architecture decisions are recorded via new ADR documents (`docs/adr/`).

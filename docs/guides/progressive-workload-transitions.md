@@ -82,7 +82,7 @@ Premature microservice decomposition introduces severe distributed systems overh
 - **Use Case**: Offloading asynchronous tasks from web request handlers without splitting the repository.
 - **Migration Steps**:
   1. In the existing project, create a `worker` entrypoint under `cmd/worker/main.go` or sub-package `worker/`.
-  2. Equip worker boilerplate: `kiw init --worker` in the worker directory.
+  2. Equip worker boilerplate: `krew init --worker` in the worker directory.
   3. Share common domain entities and database models (`internal/domain/`).
   4. Web handlers push job payloads to Redis or PostgreSQL queue (`pkg/cloud/worker`); the worker daemon consumes them asynchronously.
 - **Rollback Strategy**: If worker deployment fails, background tasks can temporarily run in-process using Go goroutines via `worker.NewMemoryQueue()`.
@@ -93,7 +93,7 @@ Premature microservice decomposition introduces severe distributed systems overh
 - **Use Case**: Extracting a specialized subsystem (e.g. billing engine) into an independent service.
 - **Migration Steps**:
   1. Define clean request/response schemas and repository interfaces in `pkg/model`.
-  2. Scaffold a new headless service: `kiw new billing-service --service`.
+  2. Scaffold a new headless service: `krew new billing-service --service`.
   3. Move domain logic into the new service.
   4. Replace internal monolithic function calls in `app` with resilient HTTP/JSON RPC calls using `pkg/resilience` (circuit breaker and exponential backoff).
 - **Rollback Strategy**: Maintain domain interface compatibility so the service can be re-embedded as a monolithic Go package if network overhead exceeds performance gains.
@@ -103,7 +103,7 @@ Premature microservice decomposition introduces severe distributed systems overh
 ### 4.4 Transition Path 4: Multi-Service $\rightarrow$ Unified Edge Gateway (`services` $\rightarrow$ `gateway + services`)
 - **Use Case**: Centralizing public routing, authentication verification, and rate limiting across multiple services.
 - **Migration Steps**:
-  1. Scaffold gateway: `kiw new api-gateway --gateway`.
+  1. Scaffold gateway: `krew new api-gateway --gateway`.
   2. Define declarative route table in `gateway/krewire.yaml`:
      ```yaml
      gateway:
@@ -133,7 +133,7 @@ Premature microservice decomposition introduces severe distributed systems overh
 To protect developers from architectural traps, the following transitions are explicitly unsupported:
 
 1. **In-Place Overwrite of Populated Projects**:
-   - `kiw init --app` will refuse to overwrite a populated directory containing custom `main.go` code without explicit confirmation (`--force`).
+   - `krew init --app` will refuse to overwrite a populated directory containing custom `main.go` code without explicit confirmation (`--force`).
 2. **Direct Conversion of CLI to Static Site**:
    - `cli` and `site` represent fundamentally different execution models. Rather than morphing a CLI binary project in-place, create a companion `site` project in the workspace (`docs/` or `site/`) to host the documentation.
 3. **Premature Distributed Mesh (Jumping P0 $\rightarrow$ P6)**:

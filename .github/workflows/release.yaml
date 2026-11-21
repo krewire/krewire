@@ -148,67 +148,12 @@ jobs:
       - name: .kiw Conformance Suite (Runtime & Hydration)
         run: go test -v ./pkg/runtime/conformance/...
 
-      - name: Core & Runtime Benchmark Verification
-        run: go test -v -short ./tools/kiw/internal/bench/...
-
       - name: Pure-Go Compilation Invariant
         run: CGO_ENABLED=0 go build ./...
 
-      - name: Cross-Repository Release Qualification
-        run: go test -v ./tools/kiw/internal/release -run TestRunQualification
-
-  build-binaries:
-    name: Cross-Compile kiw CLI
-    needs: [classify, quality-gate]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.27.x"
-          cache: true
-
-      - name: Compile Multi-Platform Binaries
-        env:
-          VER: ${{ needs.classify.outputs.version }}
-          TRACK: ${{ needs.classify.outputs.track }}
-        run: |
-          mkdir -p dist
-          LDFLAGS="-s -w -X 'github.com/krewire/krewire/tools/kiw/internal/buildinfo.Version=${VER}' -X 'github.com/krewire/krewire/tools/kiw/internal/buildinfo.Track=${TRACK}'"
-          
-          PLATFORMS=(
-            "linux/amd64/kiw-linux-amd64"
-            "linux/arm64/kiw-linux-arm64"
-            "darwin/amd64/kiw-darwin-amd64"
-            "darwin/arm64/kiw-darwin-arm64"
-            "windows/amd64/kiw-windows-amd64.exe"
-          )
-          
-          for target in "${PLATFORMS[@]}"; do
-            IFS="/" read -r OS ARCH OUT <<< "$target"
-            echo "▶ Compiling ${OUT} (${OS}/${ARCH})..."
-            GOOS=$OS GOARCH=$ARCH CGO_ENABLED=0 go build -ldflags="$LDFLAGS" -o "dist/${OUT}" ./tools/kiw/cmd/kiw
-          done
-
-      - name: Generate Checksums
-        run: |
-          cd dist
-          sha256sum * > checksums.txt
-          cat checksums.txt
-
-      - name: Upload Distribution Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: kiw-binaries-${{ needs.classify.outputs.version }}
-          path: dist/
-          retention-days: 7
-
   publish-github-release:
-    name: Publish Release Artifacts
-    needs: [classify, build-binaries]
+    name: Publish Release
+    needs: [classify, quality-gate]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     steps:
@@ -217,12 +162,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: kiw-binaries-${{ needs.classify.outputs.version }}
-          path: dist/
-
       - name: Generate Release Notes
         id: notes
         run: |
@@ -230,17 +169,12 @@ jobs:
           VER="${{ needs.classify.outputs.version }}"
           
           cat << EOF > release_notes.md
-          ## Krewire Core & kiw CLI — ${VER}
+          ## Krewire Core Libraries — ${VER}
           
           **Release Track**: \`${TRACK}\`
           **Commit**: \`${{ github.sha }}\`
           
-          ### Distribution Binaries & Integrity
-          All release binaries are standalone, statically linked, and CGO-free (\`CGO_ENABLED=0\`).
-          
-          \`\`\`
-          $(cat dist/checksums.txt)
-          \`\`\`
+          Foundational modular Go libraries (\`github.com/krewire/krewire/pkg/...\`).
           EOF
 
       - name: Create GitHub Release
@@ -251,6 +185,5 @@ jobs:
           body_path: release_notes.md
           prerelease: ${{ needs.classify.outputs.is_prerelease == 'true' }}
           draft: false
-          files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

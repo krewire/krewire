@@ -9,7 +9,7 @@ System architecture, layering rules, module hierarchy, and design decisions acro
 Krewire is an integrated, full-stack application and developer ecosystem built in Go (1.27.1+). It unifies eight distinct software workload kinds under a single declarative control plane, standard-library-aligned domain packages, a consolidated developer CLI, and an AI-native agent constitution.
 
 The ecosystem spans nine repositories:
-1. **`krewire`** (Core Monorepo): Domain packages, kernel executor, developer CLI (`kiw`), first-party apps, and templates.
+1. **`krewire`** (Core Monorepo): Domain packages, kernel executor, developer CLI (`krew`), first-party apps, and templates.
 2. **`krew`**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
 3. **`cloud`**: Private enterprise hybrid PaaS engine and control plane.
 4. **`auth`**: Private enterprise identity, SSO, MFA, and RBAC platform.
@@ -28,7 +28,7 @@ krewire/
 ├── docs/                 # Ecosystem documentation (foundation, pkg, tools, templates, guides)
 │   ├── foundation/       # Unified architecture & philosophy specifications
 │   ├── pkg/              # Domain package reference (core, mod, web-runtime, system, platform)
-│   ├── tools/kiw/        # Developer CLI documentation
+│   ├── krew/        # Developer CLI documentation
 │   ├── templates/        # Starter template and Boost documentation
 │   └── guides/           # Operational and quality playbooks
 ├── pkg/                  # Domain libraries and control plane (37 modular packages)
@@ -41,7 +41,7 @@ krewire/
 │   ├── web/              # HTTP router, middleware, SSR, SSG, gateway, HMR
 │   ├── app/              # Dependency injection container & application assembly
 │   ├── ui/               # UI components, layout, styling tokens, CSS theme palettes
-│   ├── tui/              # Terminal UI toolkit powering the kiw CLI
+│   ├── tui/              # Terminal UI toolkit powering the krew CLI
 │   ├── runtime/          # WebAssembly client runtime (VDOM, mounting, widgets)
 │   ├── ai/               # Native AI SDK: providers, streaming, tools, schema, object generation
 │   ├── sec/              # Secure defaults (headers, CSRF, CORS, SSRF, PII redaction)
@@ -95,7 +95,7 @@ flowchart TD
     end
 
     subgraph L4 ["Layer 4: Unified Developer Tooling"]
-        KiwCLI["tools/kiw (CLI Binary)"]
+        KiwCLI["krew (CLI Binary)"]
     end
 
     subgraph L3 ["Layer 3: Modular Domain Libraries"]
@@ -135,8 +135,8 @@ flowchart TD
 | Layer | Layer Name | Module Scope | Allowed Imports | Strictly Prohibited Imports |
 |---|---|---|---|---|
 | **Layer 5** | Scaffolding & Agentic Blueprints | `templates/boost`, `templates/init`, `templates/new` | Layers 0, 1, 2, 3, 4 | External project application code |
-| **Layer 4** | Developer Tooling | `tools/kiw` | Layers 0, 1, 2, 3 | Layer 5, Consumer application binaries |
-| **Layer 3** | Domain Libraries | `pkg/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`tools/kiw` or `templates/*`) |
+| **Layer 4** | Developer Tooling | `krew` | Layers 0, 1, 2, 3 | Layer 5, Consumer application binaries |
+| **Layer 3** | Domain Libraries | `pkg/*` (`web`, `sec`, `cloud`, `storage`, `ui`, etc.) | Layers 0, 1, 2, Sibling Layer 3 (strictly acyclic) | Layers 4, 5 (`krew` or `templates/*`) |
 | **Layer 2** | Execution & Supervision | `pkg/lifecycle`, `pkg/env`, `pkg/log` | Layers 0, 1, and `pkg/env` for `pkg/log` | Layers 3, 4, 5 (Zero domain package imports) |
 | **Layer 1** | Declarative Core & Base Primitives | `pkg/errs`, `pkg/model`, `pkg/version` | Layer 0 (stdlib only; `model` and `version` may import `errs`) | Layers 2, 3, 4, 5, Third-party packages |
 | **Layer 0** | Platform Runtime | Go Standard Library | None (Compiler runtime) | Any non-stdlib package |
@@ -167,8 +167,8 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 - **Rationale:** Ensures that business models, workload definitions, and scope hierarchies are 100% portable, pure, and immune to third-party vulnerability churn.
 - **Enforcement:** Verified in [`pkg/model/dependency_test.go`](../../pkg/model/dependency_test.go) (`TestModel_StdlibBoundary`) and [`pkg/errs/dependency_test.go`](../../pkg/errs/dependency_test.go) (`TestImportBoundary`).
 
-#### Invariant 5: Complete Tooling Isolation (No `kiw` Imports)
-- **Rule:** No package under `pkg/` or `templates/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
+#### Invariant 5: Complete Tooling Isolation (No `krew` Imports)
+- **Rule:** No package under `pkg/` or `templates/` may ever import `krew` or `github.com/krewire/kiw`.
 - **Rationale:** Developer tooling consumes domain libraries; libraries never consume developer tooling. Logic needed by both must reside in a domain package (e.g. `pkg/hub/resolver`, `pkg/tui`), never inside CLI commands.
 - **Enforcement:** Verified via AST analysis in [`layering_test.go`](../../layering_test.go) (`TestPackagesNeverImportKiw`).
 
@@ -192,7 +192,7 @@ Every project in the ecosystem belongs to one of eight canonical kinds:
 - **`gateway`**: API gateways that proxy requests along a declarative route table and discover upstreams.
 - **`infra`**: Declarative cloud infrastructure blueprints and state management.
 
-A pre-scaffold bootstrap project (only `go.mod`, `krewire.yaml`, and the starter `main.go`) is **not** a kind: detection reports `none` with the marker `pre-init`, and workload commands require `kiw init` first.
+A pre-scaffold bootstrap project (only `go.mod`, `krewire.yaml`, and the starter `main.go`) is **not** a kind: detection reports `none` with the marker `pre-init`, and workload commands require `krew init` first.
 
 ### Scope Hierarchy as Code (`model.Scope`)
 System boundaries are codified through five explicit scope levels:
@@ -233,9 +233,9 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 - **Storage & Cloud (`pkg/storage`, `pkg/cloud`):** Pluggable object storage abstractions (local filesystem and cloud object stores) with deployment runners, service discovery, and worker queues.
 - **Config & Validation (`pkg/config`, `pkg/validation`):** Type-safe YAML unmarshaling with struct tag validation (`validate:"required"`).
 
-### C. Developer Tooling — `kiw` (`tools/kiw`)
-- **Unified Entry Point:** A single binary (`kiw`) replacing fragmented shell scripts or separate CLI binaries.
-- **Pipeline Dispatch:** `kiw` inspects project markers and `krewire.yaml` to detect project kind (`shape`) and route commands:
+### C. Developer Tooling — `krew` (`krew`)
+- **Unified Entry Point:** A single binary (`krew`) replacing fragmented shell scripts or separate CLI binaries.
+- **Pipeline Dispatch:** `krew` inspects project markers and `krewire.yaml` to detect project kind (`shape`) and route commands:
   - `build` / `serve`: Dispatches SSG pipeline for `site`, book pipeline for `book`, or Go binary builds for `app`/`cli`.
   - `run` / `dev`: Executes local apps, standalone scripts, or defined tasks with hot-reload.
   - `deploy`: Prepares and stages production artifacts into `.krewire/dist/`.
@@ -245,7 +245,7 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 ### D. AI-Native Boost Engine (`pkg/boost` & `templates/boost`)
 - **Embedded Agent Constitution:** Embedded via `//go:embed` into `pkg/boost`, providing a pre-configured multi-agent orchestration team (`.agents/`).
 - **21 Specialized Agents & Workflows:** Covers planning, architecture, implementation, refactoring, security auditing, and continuous learning.
-- **Project Governance:** Standardized rules and templates installed via `kiw boost install` into any new or existing repository.
+- **Project Governance:** Standardized rules and templates installed via `krew boost install` into any new or existing repository.
 
 ---
 
@@ -260,5 +260,5 @@ Every contribution must cleanly pass the monorepo quality gates:
 gofmt -l .        # Must output nothing
 go vet ./...      # Must pass without lint warnings
 go test ./...     # All unit and integration tests must pass
-go build -o bin/kiw ./tools/kiw/cmd/kiw # CLI binary must build cleanly
+go build -o bin/krew ./github.com/krewire/krew/cmd/krew # CLI binary must build cleanly
 ```

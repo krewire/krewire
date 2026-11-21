@@ -17,8 +17,8 @@ To ensure developers and AI agents can assess implementation readiness accuratel
 
 - **`Stable` (Production-Ready)**:
   - 100% automated unit and integration test coverage passing in CI.
-  - Reproducible benchmark baselines verified against performance regressions (`kiw bench`).
-  - Active, verified production use (e.g., [`krewire.com`](https://krewire.com) or `kiw` CLI binary).
+  - Reproducible benchmark baselines verified against performance regressions (`krew bench`).
+  - Active, verified production use (e.g., [`krewire.com`](https://krewire.com) or `krew` CLI binary).
   - Backward compatibility guaranteed under Semantic Versioning (SemVer).
   - Pure-Go invariant (`CGO_ENABLED=0`) verified without external runtime dependencies.
 - **`Usable` (Functional / Single-Node)**:
@@ -46,11 +46,11 @@ Every workload status below is backed by concrete test fixtures and implementati
 | **`site`** | **Stable** | `pkg/web/ssg` | Powers [`krewire.com`](https://krewire.com) in production. SSG compilation, assets pipeline, client HMR, and multi-locale i18n. | Dynamic server-side API routes require pairing with an `app` entrypoint or gateway. | `@krewire/team-runtime` |
 | **`book`** | **Stable** | `pkg/book` | Powers official ecosystem documentation in English & Indonesian with automated search indexing and TOC. | Manuscript compilation currently focuses on Markdown; AsciiDoc support is planned. | `@krewire/team-runtime` |
 | **`app`** | **Stable** | `pkg/app`, `pkg/web`, `pkg/runtime` | Fullstack SSR + WebAssembly islands compilation. Standard library HTTP router. 18 `.kiw` conformance tests pass. | SSR state hydration for deeply nested reactive loops is under ongoing optimization. | `@krewire/team-runtime` |
-| **`cli`** | **Stable** | `tools/kiw`, `pkg/tui`, `pkg/term` | The `kiw` developer CLI itself is built as a Krewire CLI workload. Bitwise reproducible pure-Go binary compilation verified. | Terminal graphics protocols (Sixel, Kitty) are unbundled and optional. | `@krewire/team-runtime` |
+| **`cli`** | **Stable** | `krew`, `pkg/tui`, `pkg/term` | The `krew` developer CLI itself is built as a Krewire CLI workload. Bitwise reproducible pure-Go binary compilation verified. | Terminal graphics protocols (Sixel, Kitty) are unbundled and optional. | `@krewire/team-runtime` |
 | **`gateway`** | **Stable** | `pkg/web/gateway` | High-throughput reverse proxy ingress routing, token bucket rate limiting, header rewriting, and health check pass-through. | Dynamic service discovery beyond static route tables requires external DNS or consul adapters. | `@krewire/team-runtime` |
 | **`worker`** | **Usable** | `pkg/cloud/worker`, `pkg/lifecycle` | Priority queue execution, bulkhead concurrency management, exponential backoff retries, and graceful OS signal shutdown. | Redis and PostgreSQL queue backends supported; distributed Kafka/RabbitMQ adapters planned. | `@krewire/team-cloud` |
 | **`service`** | **Usable** | `pkg/cloud/service`, `pkg/resilience` | Headless REST microservice runtime with correlation request tracing, circuit breakers, and bulkhead limits. | Direct HTTP/REST and SSE supported; gRPC protobuf generation integration is in roadmap. | `@krewire/team-cloud` |
-| **`infra`** | **Experimental** | `pkg/cloud/infra`, `pkg/cloud/deploy` | Declarative resource topology planning (`kiw build --plan`) and state reconciliation parser. | Provider drivers currently target local Docker and Linux systemd; cloud PaaS drivers are experimental. | `@krewire/team-cloud` |
+| **`infra`** | **Experimental** | `pkg/cloud/infra`, `pkg/cloud/deploy` | Declarative resource topology planning (`krew build --plan`) and state reconciliation parser. | Provider drivers currently target local Docker and Linux systemd; cloud PaaS drivers are experimental. | `@krewire/team-cloud` |
 
 ---
 
@@ -94,9 +94,9 @@ A workload's top-level maturity does not imply that every pluggable provider sha
    - Cloud workloads (`worker`, `service`, `infra`) are maintained by `@krewire/team-cloud`.
 2. **Promotion Gate**:
    - A capability moves from `Experimental` to `Usable` only after automated integration tests and documented starter blueprints exist.
-   - A capability moves from `Usable` to `Stable` only when verified in live production workloads and qualified by `kiw release --qualify`.
+   - A capability moves from `Usable` to `Stable` only when verified in live production workloads and qualified by `krew release --qualify`.
 3. **Automated Verification**:
-   - The release qualification engine (`tools/kiw/internal/release/qualify.go`) verifies cross-repository boundary conformance on every release tag.
+   - The release qualification engine (`krew/internal/release/qualify.go`) verifies cross-repository boundary conformance on every release tag.
 
 ---
 

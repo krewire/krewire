@@ -66,4 +66,4 @@ go tool cover -func=coverage.out
 ```
 
 ### Continuous Integration (CI)
-The conformance suite runs automatically on every pull request, nightly build (`.github/workflows/nightly.yaml`), and release qualification pipeline (`kiw qualify`).
+The conformance suite runs automatically on every pull request, nightly build (`.github/workflows/nightly.yaml`), and release qualification pipeline (`krew qualify`).

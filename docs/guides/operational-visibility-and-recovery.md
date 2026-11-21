@@ -20,7 +20,7 @@ Every canonical workload in Krewire (`pkg/model.AllKinds`) adheres to an explici
 | **Site** (`site`) | `GET /` (200 OK) | `GET /` (200 OK) | Edge access logs | N/A | Edge CDN request analytics | Instant | Cloudflare Pages / Alpine Nginx | Stateless (Git SSOT) |
 | **Book** (`book`) | `GET /index.html` (200 OK) | `GET /index.html` (200 OK) | Edge access logs | N/A | Edge CDN request analytics | Instant | Git-backed documentation host | Stateless (Git SSOT) |
 | **Infra** (`infra`) | Container health check exit 0 | Dependent health conditions met | JSON (`journald`) | N/A | cAdvisor / Node Exporter | Yes (30s LIFO) | Docker Engine / Compose | Volume snapshots + env vault |
-| **CLI** (`cli`) | Exit code 0 on completion | Toolchain check (`kiw doctor`) | Stdout / Stderr | N/A | Execution duration & status | Yes (2s drain) | Pure-Go static binary in PATH | Stateless |
+| **CLI** (`cli`) | Exit code 0 on completion | Toolchain check (`krew doctor`) | Stdout / Stderr | N/A | Execution duration & status | Yes (2s drain) | Pure-Go static binary in PATH | Stateless |
 
 ---
 

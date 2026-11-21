@@ -15,7 +15,7 @@ The `service` workload targets headless backend microservices, RPC endpoints, an
 
 ## 2. Directory Layout
 
-The `kiw new my-service --service` or `kiw init --service` scaffold writes:
+The `krew new my-service --service` or `krew init --service` scaffold writes:
 
 ```text
 my-service/
@@ -131,15 +131,15 @@ func main() {
 
 ```bash
 # Start service with hot reload on code changes
-kiw dev
+krew dev
 
 # Run service once directly
-kiw run
+krew run
 
 # Build production binary into .krewire/build/bin/my-service
-kiw build
+krew build
 
 # Run security posture check and tests
-kiw vet --sec
-kiw test
+krew vet --sec
+krew test
 ```

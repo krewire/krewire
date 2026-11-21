@@ -2,7 +2,7 @@
 
 This document establishes the canonical verification evidence model, execution sandboxing boundaries, and anti-hallucination guarantees enforced for autonomous AI agents across the Krewire digital SDLC ecosystem per the **Three Pillars (3S)**:
 - **Secure (S1)**: Hard filesystem sandboxes (`SafePath`), blocked destructive commands, mandatory human approval for high-impact actions, and automatic secret redaction.
-- **Sustain (S2)**: Deterministic, pure-Go verification toolchain (`kiw verify`) executable locally on any standard machine without proprietary SaaS gateways.
+- **Sustain (S2)**: Deterministic, pure-Go verification toolchain (`krew verify`) executable locally on any standard machine without proprietary SaaS gateways.
 - **Scalable (S3)**: Evidence-backed verification records that scale across multi-agent workflows, CI/CD qualification gates, and human peer review.
 
 ---
@@ -30,7 +30,7 @@ Every task evaluated under the verification framework is checked against an expl
 | `test` | Automated Testing | `go test -v ./...` | Yes | Exit code 0, all unit and integration tests pass |
 | `build` | Compilation Check | `CGO_ENABLED=0 go build ./...` | Yes | Exit code 0, successful pure-Go static binary compile |
 | `layering` | Architecture Guard | `go test -v ./layering_test.go` | Yes (when present) | Exit code 0, downward-only dependency invariants upheld |
-| `sec` | Security Assurance | `kiw vet --sec` | Conditional | Exit code 0, zero hardcoded secrets or CORS misconfigurations |
+| `sec` | Security Assurance | `krew vet --sec` | Conditional | Exit code 0, zero hardcoded secrets or CORS misconfigurations |
 
 ### The Verification Invariant
 ```text
@@ -115,13 +115,13 @@ Autonomous AI agents operate under bounded execution policies defined in `pkg/se
 
 ---
 
-## 5. Running Verification via `kiw verify`
+## 5. Running Verification via `krew verify`
 
-Developers and autonomous agents execute reproducible verification checks using the `kiw` CLI:
+Developers and autonomous agents execute reproducible verification checks using the `krew` CLI:
 
 ### Human-Readable Execution
 ```bash
-kiw verify --task issue-123 --agent krew-agent-01
+krew verify --task issue-123 --agent krew-agent-01
 ```
 
 Example Output:
@@ -155,6 +155,6 @@ Example Output:
 
 ### Machine-Readable JSON Pipeline Output
 ```bash
-kiw verify --json --task issue-123 > .krewire/evidence.json
+krew verify --json --task issue-123 > .krewire/evidence.json
 ```
 If any gate fails, the command terminates with `errs.ExitCodeFailure` (code 1), preventing broken code from being committed, merged, or deployed.

@@ -21,7 +21,7 @@ While slogans like *"The Go-First Software Engineering Ecosystem"* and *"One Eco
 
 ## 2. Positioning Statement
 
-For independent developers and small engineering teams who face severe toolchain fragmentation and escalating cloud hosting costs, **Krewire** is an end-to-end, Go-first digital SDLC ecosystem that unifies eight software workload kinds under a single developer CLI (`kiw`) and declarative configuration (`krewire.yaml`). Unlike disconnected multi-language stacks and bloated framework ecosystems, Krewire engineers near-zero cost software ownership with 10–30 MB RAM footprints, single static binaries, and a permanent MIT-licensed open-core foundation governed by three immutable pillars: **Secure**, **Sustain**, and **Scalable**.
+For independent developers and small engineering teams who face severe toolchain fragmentation and escalating cloud hosting costs, **Krewire** is an end-to-end, Go-first digital SDLC ecosystem that unifies eight software workload kinds under a single developer CLI (`krew`) and declarative configuration (`krewire.yaml`). Unlike disconnected multi-language stacks and bloated framework ecosystems, Krewire engineers near-zero cost software ownership with 10–30 MB RAM footprints, single static binaries, and a permanent MIT-licensed open-core foundation governed by three immutable pillars: **Secure**, **Sustain**, and **Scalable**.
 
 ---
 
@@ -34,7 +34,7 @@ For independent developers and small engineering teams who face severe toolchain
 > **One Ecosystem. Every Workload.**
 
 ### Descriptive Sub-Headline
-> **One compiled Go toolchain (`kiw`) and declarative configuration (`krewire.yaml`) spanning sites, books, apps, workers, microservices, gateways, and infrastructure.**
+> **One compiled Go toolchain (`krew`) and declarative configuration (`krewire.yaml`) spanning sites, books, apps, workers, microservices, gateways, and infrastructure.**
 
 ---
 
@@ -82,7 +82,7 @@ Traditional Fragmented Stack                  Krewire Unified Go Battery
 │ Workers: Celery / Python     │ ──► Versus ──► Workers: kiw (worker kind)   │
 │ Gateway: Nginx / Kong        │              │ Gateway: kiw (gateway kind)  │
 │ Infra: Terraform HCL         │              │ Infra:   kiw (infra kind)    │
-│ CLI: Custom Bash scripts     │              │ Driver:  kiw CLI             │
+│ CLI: Custom Bash scripts     │              │ Driver:  krew CLI             │
 └──────────────────────────────┘              └──────────────────────────────┘
   • 4+ Language runtimes                        • 1 Unified Go runtime
   • 10,000+ npm/pip dependencies                • Pure-Go (stdlib-first)
@@ -102,9 +102,9 @@ The friction manifests in four dimensions:
 
 | Differentiator | The Promise | Verifiable Proof Points (Implementation Evidence) |
 |---|---|---|
-| **Go-First & Pure Go** | Single compiled runtime across all software concerns. Zero CGO dependencies. | Compiles cleanly with `CGO_ENABLED=0`. Enforced by `layering_test.go` and release qualification pipeline (`kiw release --qualify`). |
-| **8 Unified Workloads** | One declarative configuration file (`krewire.yaml`) drives sites, books, apps, workers, services, gateways, and infrastructure. | Canonical matrix in `pkg/model/workload.go`. Single CLI `kiw dev` and `kiw build` automatically dispatches appropriate workload pipeline via `pkg/lifecycle`. |
-| **Near-Zero Cost (Sustain)** | Production software engineered to run on a minimal $5/month VPS indefinitely. | Memory benchmarks demonstrate 10–30 MB resident set size (RSS). Sub-millisecond cold starts verified by `kiw bench` baselines (`baseline-report.md`). |
+| **Go-First & Pure Go** | Single compiled runtime across all software concerns. Zero CGO dependencies. | Compiles cleanly with `CGO_ENABLED=0`. Enforced by `layering_test.go` and release qualification pipeline (`krew release --qualify`). |
+| **8 Unified Workloads** | One declarative configuration file (`krewire.yaml`) drives sites, books, apps, workers, services, gateways, and infrastructure. | Canonical matrix in `pkg/model/workload.go`. Single CLI `krew dev` and `krew build` automatically dispatches appropriate workload pipeline via `pkg/lifecycle`. |
+| **Near-Zero Cost (Sustain)** | Production software engineered to run on a minimal $5/month VPS indefinitely. | Memory benchmarks demonstrate 10–30 MB resident set size (RSS). Sub-millisecond cold starts verified by `krew bench` baselines (`baseline-report.md`). |
 | **Zero-NPM Web Runtime** | Web components, server-side rendering, and client WebAssembly islands compile purely in Go without `node_modules` or webpack. | The `.kiw` component compiler in `pkg/kiw` desugars Pop-Brutalist components into standard Go `html/template` and WASM VDOM. 18 conformance tests pass in `pkg/runtime/conformance/`. |
 | **Safety by Default (Secure)** | Security is an architectural invariant, never an expensive commercial tier. | Built-in `SafePath` path traversal guards in `pkg/sec`, contextual auto-escaping, automated OWASP security headers (CSP, HSTS), and static secret leak prevention. |
 | **Progressive Scaling (Scalable)** | Start as a simple modular monolith and grow to distributed services without rewrites. | 7-stage progressive pipeline. Database and cache layers abstract clean Go interfaces (`orm.DB`, `cache.Driver`) allowing reversible driver swaps. |
@@ -118,7 +118,7 @@ To maintain absolute credibility, Krewire communication must never overclaim mat
 
 ### Shipped & Production-Ready (Current)
 - Core modular libraries (`krewire/pkg/*`): Web, ORM, Cache, Sec, Runtime, Lifecycle, AI, TUI.
-- Developer CLI toolchain (`tools/kiw`): Scaffolding, building, running, benching, qualifying.
+- Developer CLI toolchain (`krew`): Scaffolding, building, running, benching, qualifying.
 - Component System (`ui`): Pop-Brutalist `.kiw` component catalog with pure Go embed distribution.
 - Official Production Portal (`krewire.com`): Live production workload running on origin Nginx reverse proxy.
 - Release Qualification Suite: Cross-repo boundary validation and benchmark baselines.

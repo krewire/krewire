@@ -13,7 +13,7 @@
 
 ## 1. Executive Summary
 
-This specification defines the unified, governed AI engineering model across **Krewire Krew**, **Krewire Boost**, and the **`kiw` devtool CLI**.
+This specification defines the unified, governed AI engineering model across **Krewire Krew**, **Krewire Boost**, and the **`krew` devtool CLI**.
 
 Autonomous AI coding agents can dramatically accelerate software delivery, but without strict contracts, they risk introducing hallucinated dependencies, violating architectural invariants, and reporting false success.
 
@@ -42,24 +42,24 @@ The Krewire AI engineering battery divides responsibilities strictly across thre
 │  • 21 Specialized persona definitions (planner, builder, tester, etc.) │
 │  • Architectural conventions & safety constitutions (AGENTS.md)        │
 │  • Workflow slash commands (/plan, /test, /build, /commit)             │
-│  • Reusable project initializer (kiw boost install)                    │
+│  • Reusable project initializer (krew boost install)                    │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ drives & verifies through
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│                   KIW DEVTOOL (krewire/tools/kiw)                      │
+│                   KIW DEVTOOL (github.com/krewire/krew)                      │
 │               Deterministic Toolchain & Context SSOT                   │
 │  • Project context inspection & linting (kiw context --json, --lint)   │
 │  • Declarative configuration engine (krewire.yaml)                     │
-│  • Workload lifecycle execution & build runner (kiw dev, kiw build)    │
-│  • Objective quality gates (gofmt, go vet, go test, kiw qualify)       │
+│  • Workload lifecycle execution & build runner (krew dev, krew build)    │
+│  • Objective quality gates (gofmt, go vet, go test, krew qualify)       │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.1 The `kiw` Toolchain (The Truth Provider)
+### 2.1 The `krew` Toolchain (The Truth Provider)
 - **Role**: Deterministic CLI driver, build runner, and project truth provider.
-- **Contract**: `kiw` exposes the machine-readable single source of truth via `kiw context --json` and validates integrity via `kiw context --lint`.
-- **Independence**: `kiw` is 100% pure Go and operates deterministically without requiring an AI provider, API key, or network connection.
+- **Contract**: `krew` exposes the machine-readable single source of truth via `kiw context --json` and validates integrity via `kiw context --lint`.
+- **Independence**: `krew` is 100% pure Go and operates deterministically without requiring an AI provider, API key, or network connection.
 
 ### 2.2 Krewire Boost (The Engineering Constitution)
 - **Role**: Declarative multi-agent template, persona catalog, and behavioral constitution.
@@ -68,7 +68,7 @@ The Krewire AI engineering battery divides responsibilities strictly across thre
 
 ### 2.3 Krewire Krew (The Cognitive Engine)
 - **Role**: Autonomous agent runtime and execution coordinator.
-- **Contract**: Krew consumes the context provided by `kiw`, follows the constitution defined by Boost, and interacts with tools via the Model Context Protocol (MCP).
+- **Contract**: Krew consumes the context provided by `krew`, follows the constitution defined by Boost, and interacts with tools via the Model Context Protocol (MCP).
 
 ---
 
@@ -111,7 +111,7 @@ To ensure safety and human sovereignty, agent actions are strictly bounded:
 ### 4.1 Level 1: Fully Autonomous Actions
 Agents may perform the following without requesting interactive human approval:
 - Reading files, documentation, and directory structures.
-- Running read-only inspections (`kiw info`, `kiw context`, `git status`).
+- Running read-only inspections (`krew info`, `kiw context`, `git status`).
 - Executing tests and static analysis (`go test`, `go vet`, `gofmt`).
 - Creating and editing source files within the active task scope.
 - Executing local atomic git commits once all four quality gates pass.
@@ -159,7 +159,7 @@ An agent's self-reported claim of success is never considered proof of correctne
 - **Commits**: `cc6ea95` feat(kiw): establish canonical agent context (ref #108)
 - **Files Modified**:
   • [context.go](file:///home/krewire/workspace/krewire/krewire/pkg/model/context.go)
-  • [loader.go](file:///home/krewire/workspace/krewire/krewire/tools/kiw/internal/context/loader.go)
+  • [loader.go](file:///home/krewire/workspace/krewire/github.com/krewire/krew/internal/context/loader.go)
 ```
 
 ---
@@ -168,7 +168,7 @@ An agent's self-reported claim of success is never considered proof of correctne
 
 Krewire projects are never dependent on proprietary AI providers:
 - Removing or disabling Boost (`AGENTS.md`, `.agents/`) has zero impact on application runtime.
-- The `kiw` devtool CLI and all 37 modular libraries (`pkg/*`) compile, run, test, and deploy identically with or without AI agents.
+- The `krew` devtool CLI and all 37 modular libraries (`pkg/*`) compile, run, test, and deploy identically with or without AI agents.
 - Developers can swap agent engines (Krew, Claude Code, Cursor, Copilot, OpenCode) seamlessly because all agents consume the same open standard (`kiw context --json`).
 
 ---

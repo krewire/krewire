@@ -23,59 +23,59 @@ Every project in the Krewire ecosystem declares a primary `kind` in its [`krewir
 
 ## 2. Kind Detection (`shape`)
 
-When executing commands like `kiw info` or `kiw build`, the CLI uses the `shape` detector ([`shape.Detect`](../../tools/kiw/internal/shape/shape.go)) in this order:
+When executing commands like `krew info` or `krew build`, the CLI uses the `shape` detector ([`shape.Detect`](../../krew/internal/shape/shape.go)) in this order:
 1. **Explicit Config (`krewire.yaml`):** the `project.kind` field holds highest precedence.
 2. **Declarative battery keys:** `worker:`, `service:`, `gateway:`, or `infra:` in `krewire.yaml` selects that kind.
-3. **Pre-init bootstrap (not a kind):** `go.mod` + `krewire.yaml` + the starter `main.go` (containing `hello, krewire`) and none of `pages/`, `content/`, `cmd/`, `internal/`, `components/`. Detection reports `KindNone` with the marker `pre-init`; workload commands refuse to run and point at `kiw init`.
+3. **Pre-init bootstrap (not a kind):** `go.mod` + `krewire.yaml` + the starter `main.go` (containing `hello, krewire`) and none of `pages/`, `content/`, `cmd/`, `internal/`, `components/`. Detection reports `KindNone` with the marker `pre-init`; workload commands refuse to run and point at `krew init`.
 4. **Application entry point:** `main.go`, or a `cmd/*` package declaring `func main` $\rightarrow$ `app`.
 5. **Declarative site:** `pages/` or the `ssg:` key $\rightarrow$ `site`.
 6. **Content directory:** `content/` $\rightarrow$ `book`.
 
-`cli` is not inferred from the filesystem; it is declared explicitly through `project.kind` (for example by `kiw init --cli`).
+`cli` is not inferred from the filesystem; it is declared explicitly through `project.kind` (for example by `krew init --cli`).
 
 ---
 
-## 3. Progressive Kind Evolution (`kiw init`)
+## 3. Progressive Kind Evolution (`krew init`)
 
-A project starts from the minimal pre-init bootstrap layout and gains workload capabilities without rewrites. `kiw new` writes that layout and equips a variant in one step (fullstack `app` by default); `kiw init` equips an existing directory.
+A project starts from the minimal pre-init bootstrap layout and gains workload capabilities without rewrites. `krew new` writes that layout and equips a variant in one step (fullstack `app` by default); `krew init` equips an existing directory.
 
 ```bash
 # New project: choose the variant up front (default is app)
-kiw new my-site --site
-kiw new my-app
+krew new my-site --site
+krew new my-app
 
 # Existing directory: initialize, then equip a kind
 cd my-project
-kiw init              # git, .gitignore, krewire.yaml only
-kiw init --site       # Equips SSG layout & pages
-kiw init --book       # Equips content/ structure & book configuration
-kiw init --cli        # Equips TUI app runner & flag parsing
-kiw init --gateway    # Equips the API gateway route table
-kiw init --template https://github.com/example/starter.git  # Installs a custom starter template
+krew init              # git, .gitignore, krewire.yaml only
+krew init --site       # Equips SSG layout & pages
+krew init --book       # Equips content/ structure & book configuration
+krew init --cli        # Equips TUI app runner & flag parsing
+krew init --gateway    # Equips the API gateway route table
+krew init --template https://github.com/example/starter.git  # Installs a custom starter template
 ```
 
 ---
 
-## 4. Workload Dispatching in `kiw`
+## 4. Workload Dispatching in `krew`
 
-The unified CLI (`kiw`) routes tasks based on the active kind:
+The unified CLI (`krew`) routes tasks based on the active kind:
 
-- **`kiw build`**:
+- **`krew build`**:
   - `site` $\rightarrow$ Executes the SSG build pipeline into `.krewire/build`.
   - `book` $\rightarrow$ Invokes the native book builder to render content chapters.
   - `app` / `cli` / `service` / `worker` / `gateway` $\rightarrow$ Compiles the Go binary into `.krewire/build/bin/<name>`.
   - `infra` $\rightarrow$ Compiles and validates the infrastructure execution plan.
-- **`kiw dev`**:
+- **`krew dev`**:
   - `site` / `book` $\rightarrow$ Serves a preview and rebuilds on change.
   - `app` / `cli` / `worker` / `service` / `gateway` $\rightarrow$ Rebuilds and restarts the supervised process on change.
-  - `infra` is not a dev target; use `kiw build --plan` or `kiw deploy`.
-- **`kiw serve`**:
+  - `infra` is not a dev target; use `krew build --plan` or `krew deploy`.
+- **`krew serve`**:
   - `app` $\rightarrow$ Boots the local web server.
   - `cli` $\rightarrow$ Executes the command tree.
   - `site` / `book` $\rightarrow$ Serves the rendered output over HTTP.
-  - `worker` / `service` / `gateway` / `infra` are not servable; use `kiw run` or `kiw dev`.
-- **`kiw run`**:
+  - `worker` / `service` / `gateway` / `infra` are not servable; use `krew run` or `krew dev`.
+- **`krew run`**:
   - `app` / `worker` / `service` / `gateway` $\rightarrow$ Builds to a temp binary and runs it.
   - `cli` $\rightarrow$ Runs the command tree with the remaining arguments.
-  - `site` / `book` / `infra` are rejected with a hint to `kiw build` + `kiw serve` or `kiw deploy`.
-  - A pre-init bootstrap project is rejected with a hint to `kiw init`.
+  - `site` / `book` / `infra` are rejected with a hint to `krew build` + `krew serve` or `krew deploy`.
+  - A pre-init bootstrap project is rejected with a hint to `krew init`.

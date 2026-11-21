@@ -57,14 +57,14 @@ Every repository, documentation portal, CLI command, presentation, and marketing
 *Intended for executive summaries, whitepapers, keynote addresses, contributor guides, and institutional partnerships.*
 
 - **English**:
-  "Krewire is an end-to-end digital SDLC ecosystem engineered in Go to bridge the divide between software consumption and sovereign software creation. Modern engineering is plagued by deep toolchain fragmentation, bloated runtime dependencies, fragile build systems, and prohibitive operational costs. Krewire replaces this complexity with a unified, standard-library-aligned battery driven by a single developer CLI (`kiw`).
+  "Krewire is an end-to-end digital SDLC ecosystem engineered in Go to bridge the divide between software consumption and sovereign software creation. Modern engineering is plagued by deep toolchain fragmentation, bloated runtime dependencies, fragile build systems, and prohibitive operational costs. Krewire replaces this complexity with a unified, standard-library-aligned battery driven by a single developer CLI (`krew`).
   
   The ecosystem spans the entire software development lifecycle—from early specification and autonomous AI agents, to typed domain libraries, pure-Go UI rendering, enterprise identity (SSO/RBAC), hybrid PaaS, and self-hosted server orchestration.
   
   Everything in Krewire is governed by three non-negotiable architectural pillars: **Secure** (safety by default, stdlib-first, zero hardcoded secrets), **Sustain** (near-zero cost engineering, 10–30 MB lean RAM footprints, single static binary embed, permanent MIT open core), and **Scalable** (additive growth across seven pipeline stages without rewrites). Through this cohesive architecture, Krewire ensures that a single developer or small engineering team can build and afford sovereign, world-class digital products a decade into the future."
 
 - **Indonesian**:
-  "Krewire adalah ekosistem SDLC digital menyeluruh berbasis Go yang dirancang untuk menjembatani jurang antara konsumsi perangkat lunak dan kedaulatan penciptaan perangkat lunak. Rekayasa perangkat lunak modern kerap terbebani oleh fragmentasi perkakas, ketergantungan runtime yang membengkak, sistem build yang rapuh, dan biaya operasional yang mahal. Krewire menggantikan kompleksitas tersebut dengan rangkaian pustaka terpadu selaras pustaka standar Go yang digerakkan oleh satu CLI pengembang (`kiw`).
+  "Krewire adalah ekosistem SDLC digital menyeluruh berbasis Go yang dirancang untuk menjembatani jurang antara konsumsi perangkat lunak dan kedaulatan penciptaan perangkat lunak. Rekayasa perangkat lunak modern kerap terbebani oleh fragmentasi perkakas, ketergantungan runtime yang membengkak, sistem build yang rapuh, dan biaya operasional yang mahal. Krewire menggantikan kompleksitas tersebut dengan rangkaian pustaka terpadu selaras pustaka standar Go yang digerakkan oleh satu CLI pengembang (`krew`).
   
   Ekosistem ini mencakup seluruh siklus hidup pengembangan perangkat lunak—mulai dari perumusan spesifikasi awal dan agen AI otonom, hingga pustaka domain bertipe, rendering UI murni Go, identitas enterprise (SSO/RBAC), hybrid PaaS, dan orkestrasi server mandiri.
   
@@ -82,7 +82,7 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 
 ### 3.2 Core Monorepo (`Inti / Core`)
 - **Definition**: The repository [`krewire/krewire`](https://github.com/krewire/krewire).
-- **Contents**: Foundational kernel packages (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), modular domain packages (`pkg/*`), the developer CLI driver (`tools/kiw`), and official starter blueprints (`templates/`).
+- **Contents**: Foundational kernel packages (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), modular domain packages (`pkg/*`), the developer CLI driver (`krew`), and official starter blueprints (`templates/`).
 - **Licensing**: 100% MIT Open Source forever.
 
 ### 3.3 Framework & Modular Libraries (`Pustaka Modular`)
@@ -90,8 +90,8 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 - **Rule**: Krewire is distributed as modular, composable libraries, not an inflexible mega-framework. Projects import only what they need; unreferenced packages add zero bytes and zero runtime cost.
 
 ### 3.4 Toolchain (`Toolchain / Perkakas Pengembang`)
-- **Definition**: The unified developer CLI `kiw` (`tools/kiw`), declarative configuration engine (`krewire.yaml`), code generators, formatters, and release qualification runners.
-- **Rule**: `kiw` drives all eight workload kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`).
+- **Definition**: The unified developer CLI `krew` (`krew`), declarative configuration engine (`krewire.yaml`), code generators, formatters, and release qualification runners.
+- **Rule**: `krew` drives all eight workload kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`).
 
 ### 3.5 Platform Products (`Produk Platform`)
 - **Definition**: Distinct higher-tier applications, services, and portals built on top of the Krewire core:
@@ -108,7 +108,7 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 
 | Repository | Scope | License | Posture / Tier | Maturity Level |
 |---|---|---|---|---|
-| `krewire` | Core monorepo (`pkg/`, `tools/kiw`) | MIT | Open Core Foundation | Production-Ready |
+| `krewire` | Core monorepo (`pkg/`, `krew`) | MIT | Open Core Foundation | Production-Ready |
 | `ui` | Component catalog & design tokens | MIT | Open Core Foundation | Production-Ready |
 | `krewire.github.io` | Community and sponsorship hub | MIT | Open Source Community | Production-Ready |
 | `krewire.com` | Official website & documentation portal | Proprietary | Official Production Workload | Production-Ready |

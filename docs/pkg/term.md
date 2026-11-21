@@ -4,7 +4,7 @@ Import: `github.com/krewire/tui/term`
 
 ## 1. Purpose & Architecture
 
-The `pkg/term` package provides terminal I/O detection, ANSI color palettes, text styles, and output stream separation for Krewire CLI developer tools (`tools/kiw`, `pkg/tui`).
+The `pkg/term` package provides terminal I/O detection, ANSI color palettes, text styles, and output stream separation for Krewire CLI developer tools (`krew`, `pkg/tui`).
 
 It automatically detects interactive TTY terminals (`isatty`) and suppresses color escape codes when stdout is redirected to a pipe, file, or non-interactive CI runner.
 

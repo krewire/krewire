@@ -43,7 +43,7 @@ The Krewire product federation is structured as an architectural battery governe
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │              LAYER 3: UNIVERSAL DEVELOPER DRIVER & CLI                 │
-│  • kiw devtool (tools/kiw) - Single CLI driving 8 workload kinds       │
+│  • krew devtool (krew) - Single CLI driving 8 workload kinds       │
 │  • krewire.yaml            - Unified declarative configuration SSOT    │
 │  • Krewire Boost (templates/boost) - Embedded AI agent constitution    │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -90,9 +90,9 @@ Every first-party component in Krewire belongs to one of six architectural categ
   - **Repository**: `github.com/krewire/krewire` (Public, MIT License).
   - **Scope**: Foundational kernel (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), 37 domain libraries (`pkg/*`), and starter blueprints (`templates/`).
   - **Maturity**: Production-Ready.
-- **`kiw` Devtool** (`kiw`):
+- **`krew` Devtool** (`krew`):
   - **Category**: Universal Developer CLI Toolchain.
-  - **Path**: `krewire/tools/kiw` (Public, MIT License).
+  - **Path**: `github.com/krewire/krew` (Public, MIT License).
   - **Scope**: Unified build runner, code generator, formatter, benchmarking suite, release qualifier, and context inspector (`kiw context`).
   - **Maturity**: Production-Ready.
 - **Krewire Boost** (`Boost`):
@@ -161,7 +161,7 @@ To maintain consistency across code, documentation, and public dialogue:
 
 1. **Brand Capitalization**:
    - Always capitalize **Krewire** with a capital `K`.
-   - The CLI tool is strictly lowercase: `kiw`.
+   - The CLI tool is strictly lowercase: `krew`.
    - The autonomous AI agent is capitalized as **Krew** (or **Krewire Krew**).
    - Component files use `.kiw` extension (lowercase).
 2. **First-Party Product Naming**:

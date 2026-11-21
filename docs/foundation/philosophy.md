@@ -68,13 +68,13 @@ Importing a base model or kernel must never inflict transitive bloat.
 - **Opt-In Rules (`OptInRule`):** Batteries (such as cloud storage or worker queues) belong to their owning workload kind and are blocked from unintended kinds unless explicitly opted in. A lightweight CLI tool or static site remains ultra-fast and lightweight.
 
 ### 7. Progressive Support & Pipeline Scaling
-Projects evolve. A Krewire project starts from a clean pre-init bootstrap layout and progressively equips new workload capabilities (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) via `kiw init`. At each stage, the project's configuration and toolchain adapt seamlessly without requiring a rewrite or migration to different frameworks.
+Projects evolve. A Krewire project starts from a clean pre-init bootstrap layout and progressively equips new workload capabilities (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) via `krew init`. At each stage, the project's configuration and toolchain adapt seamlessly without requiring a rewrite or migration to different frameworks.
 
 ### 8. Local-First & Dogfooding Discipline
 Developers must be able to develop, preview, test, and audit their entire stack locally, offline, and rapidly:
-- The developer CLI (`kiw`) dogfoods the monorepo's own terminal UI toolkit (`pkg/tui`) and error handling (`pkg/errs`).
-- `kiw dev` and `kiw serve` deliver instantaneous feedback loops via local servers and WebSocket-driven Hot Module Replacement (HMR).
-- Releases are verified locally against the built binary (`bin/kiw`) before being published.
+- The developer CLI (`krew`) dogfoods the monorepo's own terminal UI toolkit (`pkg/tui`) and error handling (`pkg/errs`).
+- `krew dev` and `krew serve` deliver instantaneous feedback loops via local servers and WebSocket-driven Hot Module Replacement (HMR).
+- Releases are verified locally against the built binary (`bin/krew`) before being published.
 
 ### 9. AI-Native Engineering (Boost Constitution)
 AI coding agents are treated as first-class team members:
@@ -93,7 +93,7 @@ To maintain high code quality and architectural integrity:
    - `gofmt -l .` — Zero unformatted files.
    - `go vet ./...` — Zero static analysis warnings.
    - `go test ./...` — Zero failing tests.
-   - `go build -o bin/kiw ./tools/kiw/cmd/kiw` — CLI builds cleanly.
+   - `go build -o bin/krew ./github.com/krewire/krew/cmd/krew` — CLI builds cleanly.
 
 2. **Commit Discipline:**
    - Use Conventional Commits: `feat|fix|docs|test|refactor|perf|security|chore(scope): description`.

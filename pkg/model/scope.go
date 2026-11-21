@@ -10,7 +10,7 @@ import (
 // Ordered: Workspace < Module < Domain < Service < Unit.
 // See KWL-ARCH-J2K9Q.
 //
-// Workspace is the Krewire Workspace (hub dir ~/Workspace/Dev/krewire with bin/kiw + repos),
+// Workspace is the Krewire Workspace (hub dir ~/Workspace/Dev/krewire with bin/krew + repos),
 // which is also the Go `go.work` workspace at the hub root (see `go.work` and `AGENTS.md`).
 // Domain is a DDD bounded context (e.g. catalog, user) — a cohesive set of Services
 // inside a Module (internal/<domain>/). Pre-extraction it is a Service set, post-extraction

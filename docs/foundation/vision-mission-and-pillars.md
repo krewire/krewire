@@ -80,7 +80,7 @@ Software creation has become artificially complex and expensive. Teams are force
 > **Menjadikan rekayasa perangkat lunak mudah diakses, berdaulat, dan berkelanjutan dengan mengeliminasi fragmentasi perkakas serta merekayasa kepemilikan perangkat lunak berbiaya mendekati nol mulai dari spesifikasi awal hingga produksi.**
 
 ### Core Objectives
-1. **Eliminate Toolchain Fragmentation**: Replace incompatible multi-language stacks with one cohesive, compiled Go toolchain (`kiw`) spanning sites, books, apps, workers, microservices, gateways, and infrastructure.
+1. **Eliminate Toolchain Fragmentation**: Replace incompatible multi-language stacks with one cohesive, compiled Go toolchain (`krew`) spanning sites, books, apps, workers, microservices, gateways, and infrastructure.
 2. **Engineer Near-Zero Cost Software Ownership**: Guarantee that production workloads run reliably with 10–30 MB RAM footprints on a minimal $5/month VPS, making software affordable for anyone in the world.
 3. **Bridge Upstream Specification to Downstream Production**: Provide an unbroken path from the first written requirement to automated testing, deployment, and live monitoring without fragile handoffs.
 
@@ -132,4 +132,4 @@ To execute the Mission while honoring the Three Pillars, Krewire enforces four c
 3. **Strict Downward-Only Layering (ADR-E8P9D)**:
    - Architecture follows the 6-layer pyramid: `Layer N` may import only `Layer < N`. Circular dependencies are physically prohibited.
 4. **Autonomous AI-Native Ergonomics**:
-   - Native integration with AI coding agents (`krew`, `boost`, IDE agents) via Model Context Protocol (MCP) and deterministic quality gates (`gofmt`, `go vet`, `go test`, `kiw release --qualify`).
+   - Native integration with AI coding agents (`krew`, `boost`, IDE agents) via Model Context Protocol (MCP) and deterministic quality gates (`gofmt`, `go vet`, `go test`, `krew release --qualify`).

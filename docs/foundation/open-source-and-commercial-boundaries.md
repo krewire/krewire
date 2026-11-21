@@ -25,7 +25,7 @@ The 9 repositories comprising the Krewire ecosystem operate under distinct licen
 
 | Repository | Visibility | License | Tier / Role | Self-Hosting Status |
 |---|---|---|---|---|
-| **`krewire`** | **Public** | **MIT** | Open Core Foundation (`pkg/`, `tools/kiw`) | 100% Free & Self-Hostable |
+| **`krewire`** | **Public** | **MIT** | Open Core Foundation (`pkg/`, `krew`) | 100% Free & Self-Hostable |
 | **`ui`** | **Public** | **MIT** | Design System & `.kiw` Components | 100% Free & Self-Hostable |
 | **`krewire.github.io`** | **Public** | **MIT** | Community Portal & Distribution Hub | Publicly Hosted & Distributable |
 | **`krewire.com`** | **Public Workload** | **Proprietary** | Official Production Portal & Documentation | Hosted Official Workload |
@@ -42,7 +42,7 @@ The 9 repositories comprising the Krewire ecosystem operate under distinct licen
 Krewire adheres to an uncompromising, permanent Open-Core Covenant:
 
 1. **Permanent MIT Open Core**:
-   - Architectural Layers 0 through 3—including the core kernel (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), all 37 modular domain packages (`pkg/*`), the universal developer CLI (`tools/kiw`), starter templates (`templates/`), and the UI design system (`ui`)—are **100% MIT-licensed forever**.
+   - Architectural Layers 0 through 3—including the core kernel (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), all 37 modular domain packages (`pkg/*`), the universal developer CLI (`krew`), starter templates (`templates/`), and the UI design system (`ui`)—are **100% MIT-licensed forever**.
 2. **Zero Artificial Crippleware**:
    - No feature in the open-core free tier will ever be crippled, seat-limited, time-bombed, or telemetry-gated to force upgrades to commercial tiers.
    - An independent builder or team can build, compile, deploy, and operate any of the eight workload kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) indefinitely without purchasing any commercial license.
@@ -55,7 +55,7 @@ Krewire adheres to an uncompromising, permanent Open-Core Covenant:
 ## 4. Self-Hosting Guarantees and Prerequisites
 
 ### 4.1 What Is 100% Self-Hostable?
-Any software built using Krewire's open-core toolchain (`kiw`) is completely sovereign:
+Any software built using Krewire's open-core toolchain (`krew`) is completely sovereign:
 - **No License Keys**: Binaries require zero activation keys or account registrations.
 - **Zero Phone-Home Telemetry**: Compiled binaries make zero network requests to Krewire servers.
 - **Single Static Executable**: Applications compile to standalone binaries with static assets embedded via Go `embed.FS` (`CGO_ENABLED=0`, `-ldflags="-s -w"`).

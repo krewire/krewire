@@ -230,10 +230,10 @@ func TestFoundationNamesNoHigherPackage(t *testing.T) {
 	}
 }
 
-// TestPackagesNeverImportKiw asserts that no package under pkg/ imports the
-// developer tool. Libraries are consumed by the CLI, never the other way
-// around; logic both need belongs in a package, not in tools/kiw.
-func TestPackagesNeverImportKiw(t *testing.T) {
+// TestPackagesNeverImportTooling asserts that no package under pkg/ imports the
+// developer tool or agent engine (krew). Libraries are consumed by the CLI, never the other way
+// around; logic both need belongs in a package, not in the CLI or krew.
+func TestPackagesNeverImportTooling(t *testing.T) {
 	root := repoRoot(t)
 	mod := modulePath(t, root)
 
@@ -254,7 +254,7 @@ func TestPackagesNeverImportKiw(t *testing.T) {
 
 // TestSQLiteDriverIsOptIn asserts that the bundled SQLite driver stays opt-in:
 // only pkg/orm/sqlite imports modernc.org/sqlite, and no other library under
-// pkg/ imports pkg/orm/sqlite. Binaries (an app's main, tools/kiw) choose to
+// pkg/ imports pkg/orm/sqlite. Binaries (an app's main, krew CLI) choose to
 // link the driver; a library never forces it on its importers.
 func TestSQLiteDriverIsOptIn(t *testing.T) {
 	root := repoRoot(t)

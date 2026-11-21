@@ -71,4 +71,4 @@ func main() {
 - **Tenant-aware by construction:** roles and environment policies are explicit
   values, so callers cannot silently fall back to an implicit superuser.
 - **Downward only:** imports `pkg/model` and the standard library; never imports
-  `tools/kiw` or a web framework.
+  `krew` or a web framework.

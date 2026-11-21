@@ -39,7 +39,7 @@ The `pkg/errs` package provides POSIX-compatible exit codes, structured diagnost
 ### Attaching Diagnostics
 - **`WithAttrs(err, attrs...)`**: Attaches structured key/value attributes (`Attr{Key, Value}`) without mutating the underlying error message.
 - **`AttrsOf(err)`**: Traverses the wrap chain and extracts all accumulated attributes from outermost to innermost.
-- **`WithHint(err, hint)`**: Attaches an actionable user recommendation (e.g. `"Run 'kiw init' to initialize the workspace"`).
+- **`WithHint(err, hint)`**: Attaches an actionable user recommendation (e.g. `"Run 'krew init' to initialize the workspace"`).
 - **`HintOf(err)`**: Extracts the nearest hint from the error wrap chain.
 - **`WithStack(err)`**: Captures the current execution call stack (up to 32 frames).
 - **`FormatTree(err)`**: Formats the complete error chain, attached attributes, stack frames, and hints into a human-readable diagnostic report.

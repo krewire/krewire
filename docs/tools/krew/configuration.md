@@ -1,20 +1,20 @@
 # Configuration Reference — `krewire.yaml` Specification
 
 ## Description
-The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects. The schema is owned by [`tools/kiw/internal/config/config.go`](../../../tools/kiw/internal/config/config.go) and published as a JSON Schema (see below).
+The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects. The schema is owned by [`krew/internal/config/config.go`](../../../krew/internal/config/config.go) and published as a JSON Schema (see below).
 
 ---
 
 ## JSON Schema and Editor Validation
 
 The canonical JSON Schema (Draft-07) for `krewire.yaml` is
-[`tools/kiw/internal/config/krewire.schema.json`](../../../tools/kiw/internal/config/krewire.schema.json),
+[`krew/internal/config/krewire.schema.json`](../../../krew/internal/config/krewire.schema.json),
 published at `https://krewire.com/schemas/krewire.json` (its `$id`). It
 documents every key with descriptions, allowed values (`project.kind`, `env`,
 `theme.default`, `auto_assets.js_placement`), defaults, port ranges, and
-deprecations. `kiw config schema` prints it.
+deprecations. `krew config schema` prints it.
 
-`kiw new` and `kiw init` start every generated `krewire.yaml` with a modeline
+`krew new` and `krew init` start every generated `krewire.yaml` with a modeline
 that the YAML language server (VS Code YAML extension, Neovim, JetBrains,
 Helix, Zed) uses for completion, hover docs and instant validation:
 
@@ -26,22 +26,22 @@ project:
 
 Add the same first line to an existing file, or use a top-level
 `$schema: "https://krewire.com/schemas/krewire.json"` key. For an offline
-editor, save the schema locally (`kiw config schema > krewire.schema.json`) and
+editor, save the schema locally (`krew config schema > krewire.schema.json`) and
 point the modeline at the file.
 
 Validate from the command line:
 
 ```bash
-kiw config                 # validate ./krewire.yaml (same as: kiw config validate)
-kiw config --strict        # also fail on warnings
-kiw config --json          # machine-readable issues
-kiw vet                    # go vet + krewire.yaml + .kiw templates
-kiw doctor                 # reports schema issues in the Project section
+krew config                 # validate ./krewire.yaml (same as: krew config validate)
+krew config --strict        # also fail on warnings
+krew config --json          # machine-readable issues
+krew vet                    # go vet + krewire.yaml + .kiw templates
+krew doctor                 # reports schema issues in the Project section
 ```
 
 Issues carry line and column. Wrong types, values outside an enum or range,
 and pattern mismatches are **errors**; unknown and deprecated keys are
-**warnings** (they are ignored by `kiw`), with a suggestion when one is likely:
+**warnings** (they are ignored by `krew`), with a suggestion when one is likely:
 
 ```text
 krewire.yaml:6:3: warning: unknown key "outdir" in build; did you mean "build.output"? (ignored)
@@ -139,7 +139,7 @@ server:
 database:
   driver: sqlite            # database/sql driver; kiw links only "sqlite"
   dsn: app.db               # SQLite file relative to the project root, or a connection URL
-  migrations: migrations    # where `kiw make migration` writes (default)
+  migrations: migrations    # where `krew make migration` writes (default)
 
 # Multi-runtime coordination & environment binding
 runtime:
@@ -223,7 +223,7 @@ infra:
       properties:
         image: "krewire/api:latest"
 
-# Custom project tasks executable via `kiw run <task>`
+# Custom project tasks executable via `krew run <task>`
 scripts:
   migrate: "go run ./cmd/migrate"
   seed: "go run ./cmd/seed"
@@ -231,7 +231,7 @@ scripts:
   test-e2e: "go test -tags=e2e ./..."
 ```
 
-> The `ssg:` block carries only the keys `tools/kiw/internal/config` parses: `description`, `layouts`, `components`, `pages`, `assets`, and `auto_assets`. Content collections, asset pipelines, and draft/future toggles exist on `pkg/web/ssg.Config` for programmatic callers; `kiw` does not read them from `krewire.yaml`. A file-based site (`pages/`, `layouts/`, `components/`, `public/`) needs no `ssg:` block at all.
+> The `ssg:` block carries only the keys `krew/internal/config` parses: `description`, `layouts`, `components`, `pages`, `assets`, and `auto_assets`. Content collections, asset pipelines, and draft/future toggles exist on `pkg/web/ssg.Config` for programmatic callers; `krew` does not read them from `krewire.yaml`. A file-based site (`pages/`, `layouts/`, `components/`, `public/`) needs no `ssg:` block at all.
 
 ---
 
@@ -240,9 +240,9 @@ scripts:
 Krewire coordinates cleanly with other runtimes (Node.js, Laravel/PHP) in the same directory:
 
 ### 1. Dotenv Loading & Precedence
-- `kiw` loads `.env` files automatically on boot (`kiw run`, `kiw dev`, `kiw build`).
+- `krew` loads `.env` files automatically on boot (`krew run`, `krew dev`, `krew build`).
 - If `runtime.env_file` is specified, that file is loaded with higher precedence over `.env`.
-- If the target env file is missing but `.env.example` exists, `kiw` logs a warning and scaffolds a template `.env`.
+- If the target env file is missing but `.env.example` exists, `krew` logs a warning and scaffolds a template `.env`.
 
 ### 2. Namespace Prefixing & Synchronization
 When `runtime.namespace` is declared (e.g. `namespace: "api"`):
@@ -251,13 +251,13 @@ When `runtime.namespace` is declared (e.g. `namespace: "api"`):
 - This eliminates variable collisions between Node.js/Laravel host applications and co-located Go services.
 
 ### 3. Port Allocation & Conflict Detection
-- `kiw info` and runtime boot (`kiw dev`, `kiw run`) automatically detect ports declared across:
+- `krew info` and runtime boot (`krew dev`, `krew run`) automatically detect ports declared across:
   - `krewire.yaml` (`runtime.port`, `dev.port`, `server.port`, `services[].port`)
   - Node.js `package.json` (scripts containing `--port`, `PORT=`)
   - Laravel/PHP `composer.json` or `artisan serve` defaults (:8000)
   - Active `.env` files (`PORT=`, `APP_PORT=`, `SERVER_PORT=`)
-- If two services or runtimes claim the same port without explicit disambiguation, `kiw` warns of the conflict immediately (`FRK-CONF-030`).
-- The `--addr` command-line flag (`kiw run --addr :9000`) always takes precedence over all configuration and environment declarations.
+- If two services or runtimes claim the same port without explicit disambiguation, `krew` warns of the conflict immediately (`FRK-CONF-030`).
+- The `--addr` command-line flag (`krew run --addr :9000`) always takes precedence over all configuration and environment declarations.
 
 ---
 
@@ -271,9 +271,9 @@ keys follow the same environment overlay an app gets from `pkg/config`
 | :--- | :--- | :--- | :--- |
 | `database.driver` | `APP_DATABASE_DRIVER` | `sqlite` | `database/sql` driver name |
 | `database.dsn` | `APP_DATABASE_DSN` | — (required) | SQLite file path relative to the project root, or a connection URL |
-| `database.migrations` | `APP_DATABASE_MIGRATIONS` | `migrations` | Directory `kiw make migration` writes and `kiw migrate` reads |
+| `database.migrations` | `APP_DATABASE_MIGRATIONS` | `migrations` | Directory `krew make migration` writes and `kiw migrate` reads |
 
-Command-line flags (`--driver`, `--dsn`, `--dir`) win over both. `kiw` itself
+Command-line flags (`--driver`, `--dsn`, `--dir`) win over both. `krew` itself
 links only the SQLite driver; a project on PostgreSQL runs `migrate.Up` from
 its own binary, where its driver is imported.
 
@@ -283,13 +283,13 @@ When building fullstack applications composed of a Node.js frontend and a Go bac
 - Commands are executed sequentially in the project root prior to Go compilation.
 - If any command fails with a non-zero exit code, the build aborts immediately with that exact exit code.
 - Control flags:
-  - `kiw build --skip-deps`: Skips pre-build dependencies and builds only Krewire targets.
-  - `kiw build --deps-only`: Executes pre-build dependency scripts without running Krewire compiler.
+  - `krew build --skip-deps`: Skips pre-build dependencies and builds only Krewire targets.
+  - `krew build --deps-only`: Executes pre-build dependency scripts without running Krewire compiler.
 
 ---
 
 ## Quick References
 
-- [`kiw` Commands Reference](./commands.md) — CLI flags and operational commands.
+- [`krew` Commands Reference](./commands.md) — CLI flags and operational commands.
 - [Development & Build Pipelines](./dev-and-build.md) — Compilation, dev watch mode, and artifact staging.
 - [Multi-Runtime Coexistence Guide](../../guides/multi-runtime-coexistence.md) — Node.js and Laravel architectural patterns.

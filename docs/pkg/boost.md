@@ -39,4 +39,4 @@ func main() {
 
 ## Design boundary
 
-Driven by `kiw boost install` during project initialization. The package reads the template tree from disk; it never imports `tools/kiw`.
+Driven by `krew boost install` during project initialization. The package reads the template tree from disk; it never imports `krew`.

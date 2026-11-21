@@ -19,7 +19,7 @@ In accordance with [ADR-E8P9D](../../../internal/docs/adr/ADR-E8P9D-pyramid-arch
 
 ## 2. Standard Directory Layout
 
-Scaffolded via `kiw new <gateway-name> --gateway` or `kiw init --gateway`:
+Scaffolded via `krew new <gateway-name> --gateway` or `krew init --gateway`:
 
 ```text
 my-gateway/
@@ -117,16 +117,16 @@ func main() {
 
 ```bash
 # 1. Start gateway with live watching
-kiw dev
+krew dev
 
 # 2. Run ad-hoc gateway directly from the CLI
 kiw gateway --port 8080 --routes "/api/auth=http://localhost:8081,/api/cloud=http://localhost:8082"
 
 # 3. Compile static pure-Go binary
-kiw build --minify
+krew build --minify
 
 # 4. Deploy gateway via systemd service
-kiw deploy --target systemd
+krew deploy --target systemd
 ```
 
 ---

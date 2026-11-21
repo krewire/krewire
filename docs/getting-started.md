@@ -1,6 +1,6 @@
 # Getting Started with Krewire Core Monorepo
 
-This guide helps developers get up and running with the **Krewire core monorepo** (`github.com/krewire/krewire`), containing all domain libraries (`pkg/`), the developer CLI (`tools/kiw`), and templates (`templates/`).
+This guide helps developers get up and running with the **Krewire core monorepo** (`github.com/krewire/krewire`), containing all domain libraries (`pkg/`), the developer CLI (`krew`), and templates (`templates/`).
 
 ## Prerequisites
 
@@ -16,14 +16,14 @@ This guide helps developers get up and running with the **Krewire core monorepo*
    cd krewire
    ```
 
-2. **Build the `kiw` CLI**:
-   The `kiw` CLI is the unified entrypoint for the ecosystem:
+2. **Build the `krew` CLI**:
+   The `krew` CLI is the unified entrypoint for the ecosystem:
    ```bash
-   go build -o bin/kiw ./tools/kiw/cmd/kiw
+   go build -o bin/krew ./github.com/krewire/krew/cmd/krew
    ```
-   Verify that `kiw` runs:
+   Verify that `krew` runs:
    ```bash
-   ./bin/kiw version
+   ./bin/krew version
    ```
 
 3. **Verify Go Modules**:
@@ -43,7 +43,7 @@ For package-specific testing:
 
 ```bash
 go test -v ./pkg/web/...
-go test -v ./tools/kiw/...
+go test -v ./krew/...
 ```
 
 ## First-Project Quickstart (Zero to Shipped in 60 Seconds)
@@ -52,7 +52,7 @@ Krewire enables an immediate, reproducible onboarding experience with zero npm/n
 
 ### 1. Scaffold a New Project
 ```bash
-kiw new hello-world
+krew new hello-world
 cd hello-world
 ```
 *Expected Output*:
@@ -63,7 +63,7 @@ Equipped starter template with main.go and krewire.yaml.
 
 ### 2. Inspect Project Shape
 ```bash
-kiw info
+krew info
 ```
 *Expected Output*:
 ```text
@@ -75,7 +75,7 @@ Output:  .krewire/build
 
 ### 3. Build Production Artifacts
 ```bash
-kiw build
+krew build
 ```
 *Expected Output*:
 ```text
@@ -85,7 +85,7 @@ created .krewire/build/bin/hello-world
 
 ### 4. Run the Application
 ```bash
-kiw run
+krew run
 ```
 *Expected Output*:
 ```text
@@ -94,29 +94,29 @@ HTTP server listening on http://127.0.0.1:8080
 ```
 
 ### 5. Everyday Commands
-`kiw help` lists the core workflow first (`new`, `dev`, `build`, `test`, `add`,
-`make`); `kiw help --all` describes every command. While editing, use
-`kiw dev` (watches and reloads); `kiw run` runs once without watching, and
-`kiw serve` previews a finished `kiw build`. Run `kiw new` without arguments to
-be asked for the name and kind, or `kiw init` to set up an existing directory.
-Add ready-made UI components with `kiw add ui/<name>` (browse with `kiw ui list`).
-See the [command reference](tools/kiw/commands.md).
+`krew help` lists the core workflow first (`new`, `dev`, `build`, `test`, `add`,
+`make`); `krew help --all` describes every command. While editing, use
+`krew dev` (watches and reloads); `krew run` runs once without watching, and
+`krew serve` previews a finished `krew build`. Run `krew new` without arguments to
+be asked for the name and kind, or `krew init` to set up an existing directory.
+Add ready-made UI components with `krew add ui/<name>` (browse with `krew ui list`).
+See the [command reference](krew/commands.md).
 
 ### 6. Troubleshooting & FAQ
 - **Error: `kiw: command not found`**: Ensure `$(go env GOPATH)/bin` or `./bin` is added to your `$PATH`.
-- **Port Conflict (`bind: address already in use`)**: Specify a custom port via `PORT=8088 kiw run` or configure `dev.port: 8088` in `krewire.yaml`.
+- **Port Conflict (`bind: address already in use`)**: Specify a custom port via `PORT=8088 krew run` or configure `dev.port: 8088` in `krewire.yaml`.
 - **Pure-Go Invariant**: All builds enforce `CGO_ENABLED=0` by default; no host C compilers or native shared libraries are required.
 
 ---
 
-## Developing with `kiw`
+## Developing with `krew`
 
-Use the local `kiw` binary to test project lifecycle operations:
+Use the local `krew` binary to test project lifecycle operations:
 
-- `bin/kiw new my-app --app`: Scaffolds a new fullstack application.
-- `bin/kiw info`: Inspects the detected project shape and workload kind.
-- `bin/kiw dev`: Starts development server with live reload.
-- `bin/kiw build`: Builds production release artifacts.
+- `bin/krew new my-app --app`: Scaffolds a new fullstack application.
+- `bin/krew info`: Inspects the detected project shape and workload kind.
+- `bin/krew dev`: Starts development server with live reload.
+- `bin/krew build`: Builds production release artifacts.
 
 ## Next Steps
 

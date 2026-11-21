@@ -13,14 +13,14 @@ In production, this workload powers the official [`krewire.com`](https://krewire
 - **Pure-Go SSG Compiler**: Generates clean static HTML without requiring Node.js, npm, webpack, or Vite.
 - **Scoped CSS Isolation**: `<style>` blocks inside `.kiw` components are automatically isolated via deterministic `data-kiw-*` scope attributes, preventing global CSS collisions.
 - **Progressive Hydration Islands**: Static pages can mount interactive reactive islands (Go WASM, Svelte 5, Vue 3) using standard hydration contracts (`load`, `idle`, `visible`).
-- **Live Preview & WebSocket HMR (`kiw serve`)**: In-process development server watches files and pushes instantaneous updates to browser clients without full-page reloads.
+- **Live Preview & WebSocket HMR (`krew serve`)**: In-process development server watches files and pushes instantaneous updates to browser clients without full-page reloads.
 - **Asset Pipeline & Cache Busting**: Scans `public/assets/`, bundles CSS/JS, minifies output, and injects fingerprint queries (`?v=0.2.3`).
 
 ---
 
 ## 2. Standard Directory Layout
 
-Scaffolded via `kiw new <site-name> --site` or `kiw init --site`:
+Scaffolded via `krew new <site-name> --site` or `krew init --site`:
 
 ```text
 my-site/
@@ -125,13 +125,13 @@ title: "Home"
 
 ```bash
 # 1. Start local preview server with instant WebSocket HMR
-kiw serve
+krew serve
 
 # 2. Compile static production output into .krewire/build/
-kiw build --minify
+krew build --minify
 
 # 3. Deploy static site to GitHub Pages or CDN
-kiw deploy --target gh-pages
+krew deploy --target gh-pages
 ```
 
 ---

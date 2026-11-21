@@ -12,7 +12,7 @@ The `pkg/env` package defines canonical target execution environments across the
 
 | Environment Constant | String Value | Purpose |
 | :--- | :--- | :--- |
-| **`env.EnvLocal`** | `"local"` | Local development machines (`kiw dev`, local debug) |
+| **`env.EnvLocal`** | `"local"` | Local development machines (`krew dev`, local debug) |
 | **`env.EnvProduction`** | `"production"` | Production hosting, containers, and live traffic |
 | **`env.EnvTesting`** | `"testing"` | Automated testing (`go test`, CI test pipelines) |
 

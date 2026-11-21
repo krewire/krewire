@@ -77,7 +77,7 @@ The Krewire assurance framework classifies every control into one of three statu
 
 | Control ID | Name | Category | Status | Default Active | Failure Behavior |
 |---|---|---|---|---|---|
-| `SEC-SECRETS-ZERO-CODE` | Zero Hardcoded Secrets | Secrets Management | `VERIFIED` | Yes | `kiw vet --sec` fails quality gate if plaintext credential found in config or tree |
+| `SEC-SECRETS-ZERO-CODE` | Zero Hardcoded Secrets | Secrets Management | `VERIFIED` | Yes | `krew vet --sec` fails quality gate if plaintext credential found in config or tree |
 | `SEC-SUPPLY-CHAIN-VERIFY` | Checksum & Version Pinning | Supply Chain | `VERIFIED` | Yes | `go mod verify` failure halts compilation; pure-Go invariant enforced |
 | `SEC-SAFEPATH-TRAVERSAL` | Path Traversal Guard | Input Handling | `VERIFIED` | Yes | Returns `sec.ErrPathTraversal` and refuses filesystem operation |
 | `SEC-AI-SANDBOX-BOUNDARIES`| AI Agent Workspace Isolation | AI Governance | `VERIFIED` | Yes | Agent tool call outside workspace boundary is blocked and logged |
@@ -126,8 +126,8 @@ Krewire release and verification pipelines enforce multi-tier supply chain integ
 2. **Pure-Go Invariant (`CGO_ENABLED=0`)**:
    - Disallows native dynamic linkages (`.so`, `.dylib`), neutralizing vulnerabilities in unmanaged C libraries.
 3. **Automated AST CVE Auditing (`govulncheck`)**:
-   - Runs `govulncheck ./...` during `kiw vet --vuln` to identify known CVEs affecting imported symbols.
-4. **Cross-Repository Release Qualification (`kiw release --qualify`)**:
+   - Runs `govulncheck ./...` during `krew vet --vuln` to identify known CVEs affecting imported symbols.
+4. **Cross-Repository Release Qualification (`krew release --qualify`)**:
    - Every release candidate commit must pass `security-assurance-baseline` contract checks before tagging.
 5. **SBOM & Provenance Artifacts**:
    - Production releases generate CycloneDX SBOM manifests and SLSA L2+ provenance records.
@@ -150,17 +150,17 @@ Deployment configurations must adhere to defense-in-depth principles:
 
 ## 8. Running Security Assurance Audits
 
-Developers and CI pipelines run security assurance audits via the `kiw` CLI:
+Developers and CI pipelines run security assurance audits via the `krew` CLI:
 
 ```bash
 # Run security posture and baseline assurance audit
-kiw vet --sec
+krew vet --sec
 
 # Run vulnerability and dependency integrity audit
-kiw vet --vuln
+krew vet --vuln
 
 # Run release qualification across ecosystem boundaries
-kiw release --qualify
+krew release --qualify
 ```
 
 If any security regression (e.g. unencrypted plaintext secrets, insecure CORS wildcard with credentials, or failed test) is discovered, the quality gate exits with a non-zero exit code (`ExitCodeFailure`), preventing defective artifacts from reaching production.

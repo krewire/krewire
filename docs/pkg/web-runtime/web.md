@@ -20,7 +20,7 @@ pkg/web/
 ├── ssg/            # Static Site Generation pipeline, asset optimizer & HTML minifier
 │   ├── render.go   # SSR/SSG template rendering engine
 │   ├── mount.go    # Client-side island hydration mounting bridge
-│   ├── hmr/        # WebSocket live-reload dev server for kiw serve
+│   ├── hmr/        # WebSocket live-reload dev server for krew serve
 │   └── assets.go   # Scoped CSS compilation & cache-busting fingerprinting
 └── gateway/        # Decoupled Edge API Gateway & Reverse Proxy
     ├── gateway.go  # Proxy director, path rewrite & upstream connection pooling
@@ -172,7 +172,7 @@ The `web/ssg` engine powers Krewire's `site` and `book` workloads:
 - **Template Compilation**: Parses `.kiw` component files and Markdown content files.
 - **Scoped CSS Isolation**: Generates deterministic scoped class identifiers (`data-kiw-*`).
 - **Asset Optimization**: Inlines critical CSS, minifies HTML, and fingerprints asset URLs with version tags (`?v=0.2.3`).
-- **Hot Module Replacement (`web/ssg/hmr`)**: Embeds a zero-dependency WebSocket client in development (`kiw serve`) to hot-reload templates and styles without full page refreshes.
+- **Hot Module Replacement (`web/ssg/hmr`)**: Embeds a zero-dependency WebSocket client in development (`krew serve`) to hot-reload templates and styles without full page refreshes.
 
 ---
 

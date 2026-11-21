@@ -18,7 +18,7 @@ It produces static, single-binary executables with zero external shared library 
 
 ## 2. Standard Directory Layout
 
-Scaffolded via `kiw new <tool-name> --cli` or `kiw init --cli`:
+Scaffolded via `krew new <tool-name> --cli` or `krew init --cli`:
 
 ```text
 my-tool/
@@ -103,10 +103,10 @@ func main() {
 
 ```bash
 # 1. Run command during development
-kiw run status --host 192.168.1.10
+krew run status --host 192.168.1.10
 
 # 2. Compile static binary for current platform into .krewire/build/bin/my-tool
-kiw build
+krew build
 
 # 3. Cross-compile static Linux and Windows binaries
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/my-tool-linux-amd64 .

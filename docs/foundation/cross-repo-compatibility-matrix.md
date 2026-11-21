@@ -70,14 +70,14 @@ Release qualification validates that all supported components across the 10 Krew
 
 ## 4. Automated Qualification Command & Artifacts
 
-The qualification suite is executed via the `kiw` CLI or automated test runners:
+The qualification suite is executed via the `krew` CLI or automated test runners:
 
 ```bash
 # Human-readable summary
-kiw release qualify
+krew release qualify
 
 # Machine-readable JSON output for CI pipelines
-kiw release qualify --json --out dist/qualification-results.json
+krew release qualify --json --out dist/qualification-results.json
 ```
 
 ### JSON Report Schema
@@ -119,7 +119,7 @@ kiw release qualify --json --out dist/qualification-results.json
 
 ## 5. Maintenance & Ownership Protocol
 
-1. **Adding New Boundaries**: Any new cross-repository dependency must be registered in `tools/kiw/internal/release/qualify.go` with an assigned owner, status, and automated contract test.
+1. **Adding New Boundaries**: Any new cross-repository dependency must be registered in `krew/internal/release/qualify.go` with an assigned owner, status, and automated contract test.
 2. **Promoting Experimental Boundaries**: Moving a boundary from `Experimental` to `Supported` requires:
    - Full implementation in the owning repositories.
    - Comprehensive contract test verifying error handling, timeouts, and edge cases.

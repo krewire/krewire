@@ -163,7 +163,7 @@ not wait for locks, so create the database once (for example with
 
 ## Migrations (`pkg/orm/migrate`)
 
-Applies the files `kiw make migration` (or `kiw migrate create`) generates —
+Applies the files `krew make migration` (or `kiw migrate create`) generates —
 `<version>_<name>.sql` with `-- +up` and `-- +down` sections — and records them
 in `schema_migrations` (`version`, `name`, `checksum`, `applied_at`).
 

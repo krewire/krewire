@@ -43,12 +43,12 @@ Comprehensive technical documentation for all modular libraries:
 
 ---
 
-## 4. [Developer Tooling (`kiw`)](./tools/kiw/index.md)
+## 4. [Developer Tooling & Agent Engine (`krew`)](./krew/index.md)
 The unified developer CLI for scaffolding, building, running, and shipping:
-- [CLI Overview](./tools/kiw/index.md)
-- [Command Reference](./tools/kiw/commands.md)
-- [Configuration Specification (`krewire.yaml`)](./tools/kiw/configuration.md)
-- [Development & Build Pipelines](./tools/kiw/dev-and-build.md)
+- [CLI Overview](./krew/index.md)
+- [Command Reference](./krew/commands.md)
+- [Configuration Specification (`krewire.yaml`)](./krew/configuration.md)
+- [Development & Build Pipelines](./krew/dev-and-build.md)
 
 ---
 
@@ -65,13 +65,13 @@ Scaffolding blueprints and autonomous multi-agent engineering workflows:
 ## 6. [Guides & Best Practices](./guides/security-best-practices.md)
 Operational and quality assurance playbooks:
 - **[First-Time Developer Onboarding](./guides/first-time-developer-onboarding.md)** — Clean-environment quickstart, empirical cohort benchmarks (5/5 personas, 100% completion, ~1,436ms TTFR), and actionable diagnostics.
-- **[Reproducible AI Verification](./guides/reproducible-ai-verification.md)** — Verification evidence model, anti-fabrication invariants, execution sandboxing, and `kiw verify`.
+- **[Reproducible AI Verification](./guides/reproducible-ai-verification.md)** — Verification evidence model, anti-fabrication invariants, execution sandboxing, and `krew verify`.
 - **[Package Health & Compatibility](./guides/package-health-and-compatibility.md)** — Stability tiers, metadata catalog, SemVer compatibility guarantees, breaking change policies, and upgrade workflows.
 - **[Operational Visibility & Recovery](./guides/operational-visibility-and-recovery.md)** — Production observability, distinct health/readiness probes, graceful shutdown, backup/restore, and rollback runbooks.
 - **[Security Assurance Baseline](./guides/security-assurance-baseline.md)** — Canonical threat models, verified controls, fail-closed defaults, and regression audits.
 - **[Progressive Workload Transitions](./guides/progressive-workload-transitions.md)** — Tested migration paths, modular monolith vs service trade-offs, and 7-stage pipeline.
 - **[Workload Architecture Guide](./guides/workload-architecture-guide.md)** — Idiomatic Go blueprints, convention tiers, and anti-pattern avoidance for all 8 workloads.
-- **[AI-Native Engineering Model](./guides/ai-engineering-model.md)** — Governed AI development model across Krew, Boost, and the `kiw` toolchain.
+- **[AI-Native Engineering Model](./guides/ai-engineering-model.md)** — Governed AI development model across Krew, Boost, and the `krew` toolchain.
 - [Project Context Model & Precedence](./guides/project-context-model.md) — Authoritative machine-readable context discovery and source precedence hierarchy.
 - [Conformance & Quality Matrices](./guides/kiw-conformance-matrix.md) — Browser compatibility and template rendering conformance.
 - [Multi-Runtime Coexistence (Node.js & Laravel)](./guides/multi-runtime-coexistence.md)

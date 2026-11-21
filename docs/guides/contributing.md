@@ -29,11 +29,11 @@ Guidelines for contributing code, documentation, and architectural improvements 
 Strict downward-only dependencies are strictly enforced across the codebase:
 
 ```text
-templates/boost → tools/kiw → pkg/* → pkg/model, pkg/errs → Go Stdlib
+templates/boost → krew → pkg/* → pkg/model, pkg/errs → Go Stdlib
 ```
 
 1. **`pkg/model` & `pkg/errs` Boundary**: Sits at Layer 1. Must never import higher-level packages or external frameworks.
-2. **Complete Tooling Isolation**: No library under `pkg/` may ever import `tools/kiw` or `github.com/krewire/kiw`.
+2. **Complete Tooling Isolation**: No library under `pkg/` may ever import `krew` or `github.com/krewire/kiw`.
 3. **No Duplicate Literals**: Constants and configuration keys must be declared once in their owning package (e.g., `model.ConfigFileName = "krewire.yaml"`).
 4. **Pure Go / Zero CGO**: All code must build cleanly with `CGO_ENABLED=0`.
 
@@ -55,7 +55,7 @@ templates/boost → tools/kiw → pkg/* → pkg/model, pkg/errs → Go Stdlib
 
 3. **Build the CLI**:
    ```bash
-   go build -o bin/kiw ./tools/kiw/cmd/kiw
+   go build -o bin/krew ./github.com/krewire/krew/cmd/krew
    ```
 
 4. **Make Changes**:
@@ -66,7 +66,7 @@ templates/boost → tools/kiw → pkg/* → pkg/model, pkg/errs → Go Stdlib
    gofmt -l .        # Must print nothing
    go vet ./...      # Must report no errors
    go test ./...     # All tests must pass
-   go build -o bin/kiw ./tools/kiw/cmd/kiw # CLI must compile cleanly
+   go build -o bin/krew ./github.com/krewire/krew/cmd/krew # CLI must compile cleanly
    ```
 
 6. **Submit Pull Request**:

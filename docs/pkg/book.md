@@ -70,4 +70,4 @@ func main() {
 - **Deterministic output:** chapters are ordered by frontmatter `order`/`weight`
   then slug; `Build` returns sorted paths so repeated builds are reproducible.
 - **Downward only:** imports `pkg/markdown` and `pkg/config`; never imports
-  `tools/kiw` or `pkg/web`.
+  `krew` or `pkg/web`.

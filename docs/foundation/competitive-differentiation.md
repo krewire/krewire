@@ -42,7 +42,7 @@ Krewire addresses a multidisciplinary developer problem that traditionally spans
 
 | Evaluation Dimension | Traditional Fullstack (Next.js / Node) | Go Frameworks (Gin / Fiber) | Self-Hosted PaaS (Coolify / Dokku) | Krewire Ecosystem |
 |---|---|---|---|---|
-| **Language & Toolchain Model** | Multi-runtime (Node.js, npm/pnpm, TypeScript, Rust bundlers). | Single Go binary, standard library aligned. | Shell scripts, Docker daemon, external buildpacks. | **Unified Go Battery**: Single compiled Go CLI (`kiw`) and Go runtime (`CGO_ENABLED=0`). |
+| **Language & Toolchain Model** | Multi-runtime (Node.js, npm/pnpm, TypeScript, Rust bundlers). | Single Go binary, standard library aligned. | Shell scripts, Docker daemon, external buildpacks. | **Unified Go Battery**: Single compiled Go CLI (`krew`) and Go runtime (`CGO_ENABLED=0`). |
 | **Workload Coverage** | Web applications & API routes only. Docs/CLI require separate tools. | HTTP routing and middleware only. Background workers & SSG unbundled. | Deployment and hosting only. Code architecture is out of scope. | **8 Unified Workloads**: `site`, `book`, `app`, `cli`, `worker`, `service`, `gateway`, `infra`. |
 | **Component & UI Engine** | React / JSX with heavy `node_modules` dependency trees. | HTML templates or client SPA (React/Vue) requiring separate build tools. | External frontend container or pre-built static assets. | **Pure-Go `.kiw`**: Pop-Brutalist components compile to Go `html/template` + WASM. Zero npm runtime. |
 | **Operational RAM Footprint** | 500 MB – 2 GB RAM baseline at idle. | 20 – 50 MB RAM for raw API server. | 500 MB – 1 GB RAM for control daemon. | **10 – 30 MB RAM**: Sub-millisecond cold starts, engineered for $5/month VPS hosting. |
@@ -57,9 +57,9 @@ Krewire addresses a multidisciplinary developer problem that traditionally spans
 
 Krewire holds five defensible, evidence-backed advantages:
 
-### 1. One Toolchain for Every Workload (`kiw` + `krewire.yaml`)
-- **Advantage**: A developer configures and runs documentation books, marketing sites, fullstack SSR web apps, CLI utilities, background workers, and API reverse proxies using identical commands (`kiw dev`, `kiw build`, `kiw test`).
-- **Evidence**: Verified by `pkg/lifecycle`, `tools/kiw`, and the 8-starter scaffolding tests in `scaffold_test.go`.
+### 1. One Toolchain for Every Workload (`krew` + `krewire.yaml`)
+- **Advantage**: A developer configures and runs documentation books, marketing sites, fullstack SSR web apps, CLI utilities, background workers, and API reverse proxies using identical commands (`krew dev`, `krew build`, `krew test`).
+- **Evidence**: Verified by `pkg/lifecycle`, `krew`, and the 8-starter scaffolding tests in `scaffold_test.go`.
 
 ### 2. Engineered Near-Zero Operational Cost (Sustain)
 - **Advantage**: Whole production workloads consume between 10–30 MB of memory and cold start in sub-milliseconds, allowing multiple production services to run simultaneously on a minimal $5/month cloud VPS without performance degradation.
@@ -71,11 +71,11 @@ Krewire holds five defensible, evidence-backed advantages:
 
 ### 4. Rigid Architectural Layering Invariants (Scalable)
 - **Advantage**: Large codebases are protected from cyclic dependencies and monolithic rot through enforced downward-only layering (`Layer N → Layer < N`).
-- **Evidence**: Automatically validated on every build and release via `layering_test.go` and `kiw release --qualify`.
+- **Evidence**: Automatically validated on every build and release via `layering_test.go` and `krew release --qualify`.
 
 ### 5. Machine-Readable Context Single Source of Truth
 - **Advantage**: Autonomous AI coding agents read authoritative project context, quality gates, and Three Pillars invariants directly from `kiw context --json`, eliminating hallucinated configuration.
-- **Evidence**: Verified by `pkg/model/context.go`, `tools/kiw/internal/context/`, and `kiw context --lint`.
+- **Evidence**: Verified by `pkg/model/context.go`, `krew/internal/context/`, and `kiw context --lint`.
 
 ---
 

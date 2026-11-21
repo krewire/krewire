@@ -55,4 +55,4 @@ func main() {
 
 ## Design boundary
 
-`app` owns assembly order and lifecycle only. Domain rules stay in `pkg/model`; runtime mechanics stay in `pkg/lifecycle`. It never imports `tools/kiw`.
+`app` owns assembly order and lifecycle only. Domain rules stay in `pkg/model`; runtime mechanics stay in `pkg/lifecycle`. It never imports `krew`.

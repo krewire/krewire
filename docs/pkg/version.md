@@ -65,10 +65,10 @@ func main() {
 
 ## Build-Time Watermark Injection
 
-When building release binaries via `go build` or `kiw build`, the watermark is injected via linker flags (`-ldflags`):
+When building release binaries via `go build` or `krew build`, the watermark is injected via linker flags (`-ldflags`):
 
 ```bash
-go build -ldflags="-s -w -X 'github.com/krewire/krewire/pkg/version.DefaultSignature=krewire-release-2026'" ./tools/kiw/cmd/kiw
+go build -ldflags="-s -w -X 'github.com/krewire/krewire/pkg/version.DefaultSignature=krewire-release-2026'" ./github.com/krewire/krew/cmd/krew
 ```
 
 ---

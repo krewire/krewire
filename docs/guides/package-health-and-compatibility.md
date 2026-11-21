@@ -71,11 +71,11 @@ Krewire enforces semantic versioning per [SemVer 2.0.0](https://semver.org/):
 
 ## 4. Multi-Repository Ecosystem Compatibility Matrix
 
-The 9 platform repositories in the Krewire digital SDLC ecosystem are qualified against a synchronized compatibility matrix verified by `kiw release --qualify`:
+The 9 platform repositories in the Krewire digital SDLC ecosystem are qualified against a synchronized compatibility matrix verified by `krew release --qualify`:
 
 | Repository | Role | Owning Team | Compatible Krewire Core | Ecosystem Dependencies |
 |---|---|---|---|---|
-| `krewire` | Core Monorepo (`pkg/*`, `tools/kiw`) | `@krewire/team-runtime` | `v0.2.0` (Self) | None (Foundational) |
+| `krewire` | Core Monorepo (`pkg/*`, `krew`) | `@krewire/team-runtime` | `v0.2.0` (Self) | None (Foundational) |
 | `ui` | Pop-Brutalist Design System | `@krewire/team-runtime` | `^0.2.0` | `krewire` |
 | `krew` | Autonomous AI Agent Engine | `@krewire/team-agent` | `^0.2.0` | `krewire` |
 | `cloud` | Hybrid PaaS & Control Plane | `@krewire/team-cloud` | `^0.2.0` | `krewire`, `auth` |
@@ -103,19 +103,19 @@ kiw pkg health
 ### Step 2: Update Module Dependencies
 ```bash
 # Update ecosystem dependencies to declared compatibility constraints
-kiw update
+krew update
 ```
 
 ### Step 3: Run Automated Verification Quality Gates
 ```bash
 # 1. Run static posture and security assurance audit
-kiw vet --sec
+krew vet --sec
 
 # 2. Run dependency checksum and vulnerability audit
-kiw vet --vuln
+krew vet --vuln
 
 # 3. Verify cross-repository qualification contracts
-kiw release --qualify
+krew release --qualify
 ```
 
-If `kiw vet --sec` or `kiw vet --vuln` detects a deprecated pattern, unpinned checksum, or security advisory, execution fails closed, blocking broken artifacts before commit or release.
+If `krew vet --sec` or `krew vet --vuln` detects a deprecated pattern, unpinned checksum, or security advisory, execution fails closed, blocking broken artifacts before commit or release.

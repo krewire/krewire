@@ -18,7 +18,7 @@ It produces fast, accessible, offline-capable static documentation sites with au
 
 ## 2. Standard Directory Layout
 
-Scaffolded via `kiw new <book-name> --book` or `kiw init --book`:
+Scaffolded via `krew new <book-name> --book` or `krew init --book`:
 
 ```text
 my-handbook/
@@ -68,13 +68,13 @@ book:
 
 ```bash
 # 1. Preview book locally with live reload and WebSocket HMR
-kiw serve
+krew serve
 
 # 2. Build production static HTML documentation
-kiw build --minify
+krew build --minify
 
 # 3. Deploy to production static hosting / GitHub Pages
-kiw deploy --target gh-pages
+krew deploy --target gh-pages
 ```
 
 ### Build Artifacts Produced

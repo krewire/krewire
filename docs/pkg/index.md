@@ -38,7 +38,7 @@ $$\text{Workspace} \supset \text{Module} \supset \text{Domain / Package} \supset
 All domain packages strictly conform to the downward-only dependency hierarchy described in [Architecture & Layering](../foundation/architecture.md):
 
 ```text
-tools/kiw ──► pkg/* ──► pkg/model, pkg/errs ──► Go Standard Library
+krew ──► pkg/* ──► pkg/model, pkg/errs ──► Go Standard Library
 ```
 
 1. **Strict Downward-Only**: Packages at higher layers import lower layers; lower layers (`pkg/model`, `pkg/errs`) never import domain packages.
@@ -61,7 +61,7 @@ The bedrock runtime executor, declarative domain models, application container, 
 ### B. [Web & Client Runtime](./web-runtime/web.md)
 Fullstack web routing, component templates, static site generation, and interactive client WebAssembly:
 - [HTTP Router, SSG, SSR & Gateway (`web`)](./web.md)
-- [The `.kiw` DSL Engine & Templates (`kiw`)](./kiw.md)
+- [The `.kiw` DSL Engine & Templates (`krew`)](./kiw.md)
 - [WebAssembly VDOM Engine (`runtime`)](./runtime.md)
 - [Web Components & Design Tokens (`ui`)](./ui.md)
 - [Terminal UI Toolkit (`tui`)](./tui.md)
@@ -108,7 +108,7 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 | `functional` | [`functional.md`](./functional.md) | Generic closure-based utilities (`Map`, `Filter`, `Reduce`, `Chunk`, `Find`) |
 | `hub` | [`hub.md`](./hub.md) | Dynamic capability loader, plugin interface, and package resolver |
 | `i18n` | [`i18n.md`](./i18n.md) | Internationalization, localized message catalogs, pluralization, middleware |
-| `kiw` | [`kiw.md`](./kiw.md) | Unified `.kiw` DSL compiler, parser, AST desugaring, component runtime |
+| `krew` | [`kiw.md`](./kiw.md) | Unified `.kiw` DSL compiler, parser, AST desugaring, component runtime |
 | `lifecycle` | [`lifecycle.md`](./lifecycle.md) | Workload execution dispatch, registry resolution, and supervisor lifecycle |
 | `log` | [`log.md`](./log.md) | Structured `slog` logging tailored to environments and source tagging |
 | `mail` | [`mail.md`](./mail.md) | Multi-driver email delivery system (SMTP, Resend, SendGrid, Postmark, Memory) |
@@ -122,7 +122,7 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 | `storage` | [`storage.md`](./storage.md) | Backend-independent object storage (disk, memory, cloud) |
 | `term` | [`term.md`](./term.md) | Terminal detection, ANSI colors, styles, and output formatting |
 | `testing` | [`testing.md`](./testing.md) | Test assertions, HTTP testing harnesses, headless browser automation |
-| `tui` | [`tui.md`](./tui.md) | Terminal UI toolkit powering the `kiw` CLI |
+| `tui` | [`tui.md`](./tui.md) | Terminal UI toolkit powering the `krew` CLI |
 | `ui` | [`ui.md`](./ui.md) | Web UI component library, layout panels, and CSS design tokens |
 | `validation` | [`validation.md`](./validation.md) | Struct-tag validation and extensible rules |
 | `version` | [`version.md`](./version.md) | Semantic versioning, compatibility checks, and build watermark signature |

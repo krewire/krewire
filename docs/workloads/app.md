@@ -30,7 +30,7 @@ Server (Go Binary)
 
 ## 2. Project Layout
 
-The `kiw init --app` scaffold writes:
+The `krew init --app` scaffold writes:
 
 ```text
 my-app/
@@ -82,13 +82,13 @@ wasm:
 
 ```bash
 # Run local development with live-reload
-kiw dev
+krew dev
 
 # Run test suite
-kiw test
+krew test
 
 # Compile the binary into .krewire/build/bin/<name>
-kiw build
+krew build
 
 # Run the built binary
 ./.krewire/build/bin/my-app

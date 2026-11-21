@@ -6,7 +6,7 @@ date: "2026-11-21"
 
 # Performance Benchmark Baseline Report
 
-This document records the official, reproducible performance baseline for Krewire Core primitives, developer CLI commands (`kiw`), and the `.kiw` component runtime.
+This document records the official, reproducible performance baseline for Krewire Core primitives, developer CLI commands (`krew`), and the `.kiw` component runtime.
 
 ---
 
@@ -19,9 +19,9 @@ This document records the official, reproducible performance baseline for Krewir
 | `CORE-KIW-001` | Core | `.kiw` Component Parsing | Landing SFC (frontmatter, styles, script) | < 350 µs, < 40 KB | High-frequency leaf concern executed on every build, dev edit, and test. |
 | `CORE-DSG-001` | Core | Template Desugaring | Nested loops, conditionals, slots & props | < 200 µs, < 30 KB | Converts authoring DSL into pure Go `html/template` trees with 0 npm. |
 | `CORE-MDN-001` | Core | Markdown Rendering | 10 KB technical document with code blocks | < 800 µs, < 150 KB | Powers documentation portals and books across thousands of markdown pages. |
-| `CLI-LAT-001` | CLI | `kiw version` Cold-Start | Bare process spawn from disk | < 30 ms | Measures bare process spawn and Go runtime startup overhead. |
-| `CLI-LAT-002` | CLI | `kiw help` Discovery | Top-level command list overview | < 35 ms | Measures command registration, flag parsing, and help formatting latency. |
-| `CLI-LAT-003` | CLI | `kiw tier` Pre-Commit Check | `kiw tier --check free` | < 60 ms | Ensures pre-commit checks and quality gates remain instantaneous. |
+| `CLI-LAT-001` | CLI | `krew version` Cold-Start | Bare process spawn from disk | < 30 ms | Measures bare process spawn and Go runtime startup overhead. |
+| `CLI-LAT-002` | CLI | `krew help` Discovery | Top-level command list overview | < 35 ms | Measures command registration, flag parsing, and help formatting latency. |
+| `CLI-LAT-003` | CLI | `krew tier` Pre-Commit Check | `krew tier --check free` | < 60 ms | Ensures pre-commit checks and quality gates remain instantaneous. |
 | `WFK-SSG-001` | Workflow | SSG Multi-Page Site Build | 5-page site with layouts & components | < 150 ms, < 10 MB | Production build throughput for continuous deployment and static sites. |
 
 ---
@@ -38,9 +38,9 @@ This document records the official, reproducible performance baseline for Krewir
 | `CORE-KIW-001` | Single-File Component Parsing (.kiw) | Core | **185.49 µs** | 23.4 KB | 290 allocs | < 350 µs | ✅ PASS |
 | `CORE-DSG-001` | Template Desugaring & Clean Interpolation | Core | **24.84 µs** | 11.8 KB | 120 allocs | < 200 µs | ✅ PASS |
 | `CORE-MDN-001` | Documentation Markdown Rendering | Core | **33.83 µs** | 4.3 KB | 40 allocs | < 800 µs | ✅ PASS |
-| `CLI-LAT-001` | `kiw version` Cold-Start Latency | CLI | **5.64 ms** | N/A | N/A | < 30 ms | ✅ PASS |
-| `CLI-LAT-002` | `kiw help` Command Discovery Latency | CLI | **5.70 ms** | N/A | N/A | < 35 ms | ✅ PASS |
-| `CLI-LAT-003` | `kiw tier` Pre-Commit Check Latency | CLI | **5.30 ms** | N/A | N/A | < 60 ms | ✅ PASS |
+| `CLI-LAT-001` | `krew version` Cold-Start Latency | CLI | **5.64 ms** | N/A | N/A | < 30 ms | ✅ PASS |
+| `CLI-LAT-002` | `krew help` Command Discovery Latency | CLI | **5.70 ms** | N/A | N/A | < 35 ms | ✅ PASS |
+| `CLI-LAT-003` | `krew tier` Pre-Commit Check Latency | CLI | **5.30 ms** | N/A | N/A | < 60 ms | ✅ PASS |
 | `WFK-SSG-001` | SSG Multi-Page Site Compilation | Workflow | **926.87 µs** | 322 KB | 4,761 allocs | < 150 ms | ✅ PASS |
 
 ---
@@ -57,30 +57,30 @@ To prevent developer friction from accumulating unnoticed, all future releases a
 3. **Critical Regression Threshold**:
    - Latency increase $\ge +30.0\%$
    - Memory allocation increase $\ge +40.0\%$
-   - *Action:* Blocks release qualification (`kiw release --qualify`) and requires profiling analysis (`pprof`) before merging.
+   - *Action:* Blocks release qualification (`krew release --qualify`) and requires profiling analysis (`pprof`) before merging.
 
 ---
 
 ## 4. Execution & Verification Commands
 
-### Running via `kiw` CLI
+### Running via `krew` CLI
 ```bash
 # Run all benchmarks
-kiw bench
+krew bench
 
 # Run specific categories
-kiw bench --core
-kiw bench --cli
-kiw bench --workflow
+krew bench --core
+krew bench --cli
+krew bench --workflow
 
 # Output machine-readable JSON
-kiw bench --json
+krew bench --json
 
 # Compare against canonical baseline to detect regressions
-kiw bench --compare docs/benchmarks/baseline-v0.2.0.json
+krew bench --compare docs/benchmarks/baseline-v0.2.0.json
 ```
 
 ### Running via Go Toolchain
 ```bash
-go test -v -bench=. -benchmem ./tools/kiw/internal/bench/...
+go test -v -bench=. -benchmem ./krew/internal/bench/...
 ```

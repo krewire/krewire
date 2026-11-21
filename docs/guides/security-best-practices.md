@@ -75,5 +75,5 @@ data, err := os.ReadFile(target)
 - **PII Masking**: Wrap structured slog handlers with `sec.NewPIIHandler` to automatically redact credit card numbers, passwords, JWT tokens, and API keys from terminal and telemetry outputs.
 - Run static security audits before deployment:
   ```bash
-  kiw vet --sec
+  krew vet --sec
   ```

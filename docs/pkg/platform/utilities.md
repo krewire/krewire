@@ -8,7 +8,7 @@ Comprehensive reference for supporting platform utilities, data engines, resilie
 
 Import: `github.com/krewire/krewire/pkg/hub`
 
-The `pkg/hub` package powers package resolution, plugin registry discovery, and dynamic capability loading used by developer CLI tools (`kiw add`, `kiw remove`).
+The `pkg/hub` package powers package resolution, plugin registry discovery, and dynamic capability loading used by developer CLI tools (`krew add`, `krew remove`).
 
 - **`hub/resolver`**: Parses and resolves package paths, git repositories, and semantic version constraints (`@latest`, `@v0.2.0`).
 - **`hub/plugin`**: Lifecycle interface and registry for opt-in framework plugins (such as Tailwind CSS).

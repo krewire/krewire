@@ -53,7 +53,7 @@ err = errs.WithAttrs(err,
 )
 
 // Attach an actionable user hint
-err = errs.WithHint(err, "Run 'kiw doctor' to verify local toolchain prerequisites")
+err = errs.WithHint(err, "Run 'krew doctor' to verify local toolchain prerequisites")
 
 // Attach captured call stack trace
 err = errs.WithStack(err)

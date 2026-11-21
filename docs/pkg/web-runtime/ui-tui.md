@@ -16,7 +16,7 @@ pkg/
 │   ├── form/           # Declarative form builder (TextField, Select, Checkbox, Textarea)
 │   ├── panel/          # Structured dashboard layouts & sidebar navigation panels
 │   └── node/           # UI virtual node tree & .kiw template compiler adapter
-└── tui/                # Terminal UI application builder powering the kiw CLI
+└── tui/                # Terminal UI application builder powering the krew CLI
     ├── tui.go          # App & Command runner, flag parsing, lifecycle
     ├── help.go         # Styled ANSI help screens and usage formatters
     ├── output.go       # Terminal banners, spinners, progress bars & color styles
@@ -120,7 +120,7 @@ Tokens are distributed as native CSS custom properties without requiring CSS pre
 
 ## 3. Terminal UI Toolkit (`pkg/tui`)
 
-`pkg/tui` powers the `kiw` devtool CLI and terminal applications, providing argument parsing, flags, subcommands, interactive prompts, spinners, and help documentation.
+`pkg/tui` powers the `krew` devtool CLI and terminal applications, providing argument parsing, flags, subcommands, interactive prompts, spinners, and help documentation.
 
 ### Core Contracts & Types
 

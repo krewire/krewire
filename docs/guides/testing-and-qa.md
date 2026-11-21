@@ -20,7 +20,7 @@ Krewire mandates rigorous, deterministic test coverage across all layers:
 Verified by [`layering_test.go`](../../layering_test.go):
 - `TestFoundationLayering`: Asserts that foundation packages (`errs`, `model`, `version`, `env`, `lifecycle`, `log`) import only the standard library and lower-ranked foundation packages.
 - `TestFoundationNamesNoHigherPackage`: Verifies that foundation packages name zero higher-layer packages in string literals.
-- `TestPackagesNeverImportKiw`: Ensures no library in `pkg/` ever imports the developer CLI (`tools/kiw`).
+- `TestPackagesNeverImportKiw`: Ensures no library in `pkg/` ever imports the developer CLI (`krew`).
 - `TestUIDoesNotImportWeb`: Validates that `pkg/ui` does not import `pkg/web`.
 - `TestSQLiteDriverIsOptIn`: Verifies that only `pkg/orm/sqlite` imports the modernc SQLite driver.
 - `TestWebDoesNotImportORMOrCloud`: Enforces that `pkg/web` never imports `pkg/orm` or `pkg/cloud`.
@@ -133,10 +133,10 @@ go vet ./...
 go test ./...
 
 # 4. Binary build verification
-go build -o bin/kiw ./tools/kiw/cmd/kiw
+go build -o bin/krew ./github.com/krewire/krew/cmd/krew
 ```
 
-Run filtered tests via `kiw`:
+Run filtered tests via `krew`:
 ```bash
-kiw test --filter TestSupervisor
+krew test --filter TestSupervisor
 ```

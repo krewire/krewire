@@ -9,7 +9,7 @@ This guide provides a tested, evidence-backed onboarding path for developers eva
 
 ## 1. Measured Onboarding Empirical Evidence
 
-Unlike guides that rely on unverified claims, Krewire's onboarding workflow is validated through empirical cohort testing (`tools/kiw/internal/bench/onboarding_test.go`):
+Unlike guides that rely on unverified claims, Krewire's onboarding workflow is validated through empirical cohort testing (`krew/internal/bench/onboarding_test.go`):
 
 | Participant Persona | Target Workload | Completion Rate | Measured Time to First Run | Failed Steps | Help Requests |
 |---|---|---|---|---|---|
@@ -35,7 +35,7 @@ Before starting, ensure your workstation meets the baseline toolchain requiremen
 
 ### Optional / External Tools (Purely Opt-In)
 - **Node.js / npm / pnpm / bun**: Only required if utilizing client-side Svelte/Vue plugins. Not required for core Go workloads.
-- **Docker**: Optional for containerized deployment testing (`kiw deploy`, `docker compose`).
+- **Docker**: Optional for containerized deployment testing (`krew deploy`, `docker compose`).
 
 ---
 
@@ -43,23 +43,23 @@ Before starting, ensure your workstation meets the baseline toolchain requiremen
 
 Follow these steps to move from a clean machine to a fully verified, running application:
 
-### Step 1: Install or Build the `kiw` CLI
+### Step 1: Install or Build the `krew` CLI
 ```bash
 # Clone the repository
 git clone https://github.com/krewire/krewire.git
 cd krewire
 
 # Compile the pure-Go devtool CLI
-go build -o bin/kiw ./tools/kiw/cmd/kiw
+go build -o bin/krew ./github.com/krewire/krew/cmd/krew
 
 # Optional: Add to PATH
 export PATH="$(pwd)/bin:$PATH"
 ```
 
-### Step 2: Validate Environment & Toolchain (`kiw doctor`)
+### Step 2: Validate Environment & Toolchain (`krew doctor`)
 Run the automated diagnostic suite to verify your environment meets all requirements:
 ```bash
-kiw doctor
+krew doctor
 ```
 Expected output:
 ```text
@@ -69,17 +69,17 @@ Expected output:
 ✓ Environment health: 0 warnings, 0 errors
 ```
 
-### Step 3: Scaffold Your First Project (`kiw new`)
+### Step 3: Scaffold Your First Project (`krew new`)
 Create a new project matching your workload shape:
 ```bash
 # For a fullstack interactive web application:
-kiw new myapp
+krew new myapp
 
 # For a high-throughput backend microservice:
-kiw new myapi --service
+krew new myapi --service
 
 # For a static documentation website:
-kiw new mysite --site
+krew new mysite --site
 ```
 
 ### Step 4: Validate Project Context (`kiw context`)
@@ -89,17 +89,17 @@ cd myapp
 kiw context --lint
 ```
 
-### Step 5: Run the Development Server (`kiw dev`)
+### Step 5: Run the Development Server (`krew dev`)
 Launch the live development server with hot-reload support:
 ```bash
-kiw dev
+krew dev
 ```
 Navigate your browser to `http://127.0.0.1:8080` to view the welcome dashboard.
 
-### Step 6: Execute Tests & Reproducible Verification (`kiw verify`)
+### Step 6: Execute Tests & Reproducible Verification (`krew verify`)
 Run the complete quality gate and generate a tamper-evident verification record:
 ```bash
-kiw verify
+krew verify
 ```
 Expected output:
 ```text
@@ -117,14 +117,14 @@ Expected output:
 
 ## 4. Actionable Diagnostics Dictionary
 
-When setup issues arise, `kiw` produces explicit diagnostic hints:
+When setup issues arise, `krew` produces explicit diagnostic hints:
 
 | Symptom / Error Message | Root Cause | Actionable Resolution |
 |---|---|---|
-| `no Go files in tools/kiw` | Attempted to build `tools/kiw` root rather than the command entrypoint. | Build the entrypoint directly: `go build -o bin/kiw ./tools/kiw/cmd/kiw`. |
-| `not inside a Go module` | Executing a command in an uninitialized directory. | Run `kiw new <name>` or run `go mod init <module-path>`. |
-| `address already in use (:8080)` | Port 8080 is bound by another service. | Run `kiw dev --addr :8081` or change `server.port` in `krewire.yaml`. |
-| `unformatted files detected` | Code violates standard Go formatting. | Run `kiw fmt --write` or `gofmt -w .` to reformat. |
+| `no Go files in krew` | Attempted to build `krew` root rather than the command entrypoint. | Build the entrypoint directly: `go build -o bin/krew ./github.com/krewire/krew/cmd/krew`. |
+| `not inside a Go module` | Executing a command in an uninitialized directory. | Run `krew new <name>` or run `go mod init <module-path>`. |
+| `address already in use (:8080)` | Port 8080 is bound by another service. | Run `krew dev --addr :8081` or change `server.port` in `krewire.yaml`. |
+| `unformatted files detected` | Code violates standard Go formatting. | Run `krew fmt --write` or `gofmt -w .` to reformat. |
 | `govulncheck not found in PATH` | Go vulnerability scanner is not installed locally. | Run `go install golang.org/x/vuln/cmd/govulncheck@latest` for AST CVE checks. |
 
 ---

@@ -15,7 +15,7 @@ The `worker` workload powers autonomous background processing daemons, asynchron
 
 ## 2. Directory Layout
 
-The `kiw new my-worker --worker` or `kiw init --worker` scaffold produces:
+The `krew new my-worker --worker` or `krew init --worker` scaffold produces:
 
 ```text
 my-worker/
@@ -130,14 +130,14 @@ func main() {
 
 ```bash
 # Run worker in local development mode with live restart
-kiw dev
+krew dev
 
 # Run worker once directly
 kiw worker
 
 # Build production binary into .krewire/build/bin/my-worker
-kiw build
+krew build
 
 # Run unit and integration tests
-kiw test
+krew test
 ```

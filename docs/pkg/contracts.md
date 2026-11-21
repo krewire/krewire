@@ -37,7 +37,7 @@ The libraries under `pkg/` provide reusable primitives without embedding applica
 | `pkg/runtime` | Layer 3 | Client-side WebAssembly Virtual DOM (VDOM) engine, component mounting, reactive widget islands (`GOOS=js`). | Stable |
 | `pkg/kiw` | Layer 3 | `.kiw` template parsing, AST desugaring, component runtime, and template compilers. | Stable |
 | `pkg/ui` | Layer 3 | Pop-Brutalist UI component library, layout panels, and CSS styling tokens. | Stable |
-| `pkg/tui` | Layer 3 | Terminal UI application builder powering the `kiw` CLI (`tui.NewApp`, `tui.NewCommand`). | Stable |
+| `pkg/tui` | Layer 3 | Terminal UI application builder powering the `krew` CLI (`tui.NewApp`, `tui.NewCommand`). | Stable |
 | `pkg/sec` | Layer 3 | Defensive security middleware, PBKDF2 password hashing, SSRF guards (`SafeHTTPClient`), and `SafePath`. | Stable |
 | `pkg/auth` | Layer 3 | Basic Authentication, HS256 JWT, claims verification, and caller identity binding. | Stable |
 | `pkg/assets` | Layer 3 | Static asset management, pipeline bundling, minification, and cache-busting fingerprinting. | Stable |
@@ -69,6 +69,6 @@ The libraries under `pkg/` provide reusable primitives without embedding applica
 2. **Anti-God-Module Rule**:
    - Each package has a single reason to change. Specific application logic belongs in products or apps, never in `pkg/*`.
 3. **Downward-Only Imports**:
-   - `pkg/*` never imports `tools/kiw` or downstream product applications.
+   - `pkg/*` never imports `krew` or downstream product applications.
 4. **Contract Verification**:
    - All critical shared contracts have automated unit and invariant tests (`go test ./pkg/...`).

@@ -4,7 +4,7 @@ Agent guide for AI agents working inside the `krewire` repository
 (module = `github.com/krewire/krewire`).
 
 This repository contains the core monorepo: `pkg/` (domain libraries),
-`apps/` (services), `tools/kiw` (developer CLI), and `templates/` (Boost AI & starters).
+`apps/` (services), and `templates/` (Boost AI & starters).
 
 ## Language
 
@@ -15,11 +15,10 @@ This repository contains the core monorepo: `pkg/` (domain libraries),
 
 Strict downward-only dependencies:
 ```
-templates/boost → tools/kiw → pkg/* → pkg/model, pkg/errs
+templates/boost → krew → pkg/* → pkg/model, pkg/errs
 ```
 - `pkg/model` may depend only on standard library packages and `pkg/errs`.
-- No package or library may **ever** import `kiw`.
-- `tools/kiw` imports packages from `pkg/*` directly (e.g. `pkg/hub/resolver`). Never duplicate logic between `tools/kiw` and `pkg/`.
+- No package or library under `pkg/` may **ever** import `krew` or CLI tooling.
 - Single Source of Truth (SSOT): no duplicate literals, tables, or constants.
 
 ## Task & Progress Tracking (GitHub Issues SSOT)
@@ -49,7 +48,7 @@ Before finishing any task, run:
 gofmt -l .        # must print nothing
 go vet ./...
 go test ./...
-go build -o bin/kiw ./tools/kiw/cmd/kiw
+CGO_ENABLED=0 go build ./...
 ```
 
 ## Commit Discipline
@@ -62,8 +61,8 @@ go build -o bin/kiw ./tools/kiw/cmd/kiw
 ## Versioning, Release & Hotfix Protocol
 
 - **Module Version Contract**: Every module declares its own version and dependencies in `<module>/version.go` (`Version` and `EcosystemRequires`).
-- **Compatibility Verification**: `kiw compat` validates cross-module compatibility dynamically across all 5 workspace modules.
-- **Release Bumping**: Performed using `kiw release --all --bump <kind> --apply`.
+- **Compatibility Verification**: `krew compat` validates cross-module compatibility dynamically across all workspace modules.
+- **Release Bumping**: Performed using `krew release --all --bump <kind> --apply`.
 - **Production vs Hotfix Deployment**:
   - Production releases require stable SemVer tags (`vX.Y.Z`) on `main`.
   - Emergency hotfixes bypass the release ceremony and tags entirely; they are deployed directly via the dedicated `hotfix` branch (`git checkout hotfix && git merge main --ff-only && git push origin hotfix`). Never tag hotfixes.

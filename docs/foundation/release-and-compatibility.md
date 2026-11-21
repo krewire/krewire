@@ -9,9 +9,9 @@ This specification documents the canonical release procedure, semantic compatibi
 The definitive, single source of truth for the core ecosystem version is declared in:
 - [`pkg/version/version.go`](../../pkg/version/version.go) via `version.CurrentVersion = MustParseVersion("0.2.0")`.
 
-CLI binaries (`tools/kiw`), SSG generators, and metadata reporters derive their version string directly from `pkg/version` or inject it dynamically during build without manual drift:
+CLI binaries (`krew`), SSG generators, and metadata reporters derive their version string directly from `pkg/version` or inject it dynamically during build without manual drift:
 ```bash
-go build -ldflags="-s -w -X 'github.com/krewire/krewire/tools/kiw/internal/buildinfo.Version=v0.2.0'" ./tools/kiw/cmd/kiw
+go build -ldflags="-s -w -X 'github.com/krewire/github.com/krewire/krew/internal/buildinfo.Version=v0.2.0'" ./github.com/krewire/krew/cmd/krew
 ```
 
 ---
@@ -92,7 +92,7 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
    *Verifies consecutive clean builds produce bitwise identical binaries.*
 7. **Cross-Repository Release Qualification Gate**:
    ```bash
-   kiw release qualify
+   krew release qualify
    ```
    *Validates supported repository pairs, version constraints, and contract tests (see [Compatibility Matrix](./cross-repo-compatibility-matrix.md)).*
 
@@ -113,7 +113,7 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
    ```
 4. **Build Distribution Binaries**:
    ```bash
-   GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/kiw-linux-amd64 ./tools/kiw/cmd/kiw
-   GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/kiw-darwin-arm64 ./tools/kiw/cmd/kiw
-   GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/kiw-windows-amd64.exe ./tools/kiw/cmd/kiw
+   GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/krew-linux-amd64 ./github.com/krewire/krew/cmd/krew
+   GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/krew-darwin-arm64 ./github.com/krewire/krew/cmd/krew
+   GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/krew-windows-amd64.exe ./github.com/krewire/krew/cmd/krew
    ```

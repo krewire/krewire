@@ -15,31 +15,31 @@ templates/
 └── boost/                # Autonomous AI agent team, commands, skills & constitution (.agents/)
 ```
 
-1. **Runtime Scaffolds (`tools/kiw/internal/scaffold`)**: The authoritative Go code executed by `kiw new <project>` and `kiw init`. Supports all eight native workloads (`app`, `site`, `book`, `cli`, `worker`, `service`, `gateway`, `infra`) and external remote templates (`--template git@...`).
+1. **Runtime Scaffolds (`krew/internal/scaffold`)**: The authoritative Go code executed by `krew new <project>` and `krew init`. Supports all eight native workloads (`app`, `site`, `book`, `cli`, `worker`, `service`, `gateway`, `infra`) and external remote templates (`--template git@...`).
 2. **Reference Blueprints (`templates/init/`, `templates/new/`)**: In-tree canonical templates documenting project structures, `krewire.yaml` baselines, starter handlers, and component trees.
-3. **AI-Agent Boost Workflows (`templates/boost/`)**: An embedded multi-agent pair-programming team and operational constitution installed via `kiw boost install`.
+3. **AI-Agent Boost Workflows (`templates/boost/`)**: An embedded multi-agent pair-programming team and operational constitution installed via `krew boost install`.
 
 ---
 
 ## 2. Scaffolding Workflows
 
-### Creating a Fresh Project (`kiw new`)
+### Creating a Fresh Project (`krew new`)
 
 ```bash
 # Fullstack Go web application with .kiw components
-kiw new myapp --app
+krew new myapp --app
 
 # Static documentation book
-kiw new mydocs --book
+krew new mydocs --book
 
 # High-performance CLI tool
-kiw new mytool --cli
+krew new mytool --cli
 
 # Background worker daemon
-kiw new myworker --worker
+krew new myworker --worker
 ```
 
-### Initializing an Existing Directory (`kiw init`)
+### Initializing an Existing Directory (`krew init`)
 
 Transforms an existing directory into a Krewire-managed workload without destroying existing files:
 
@@ -47,18 +47,18 @@ Transforms an existing directory into a Krewire-managed workload without destroy
 cd existing-repo
 
 # Initialize as a Static Site
-kiw init --site
+krew init --site
 
 # Initialize as a Microservice
-kiw init --service
+krew init --service
 ```
 
-### Equipping Repositories with AI Agents (`kiw boost install`)
+### Equipping Repositories with AI Agents (`krew boost install`)
 
 Installs the 21 specialized autonomous AI agents, slash commands, domain skills, and constitutional safety rules under `.agents/` and `AGENTS.md`:
 
 ```bash
-kiw boost install .
+krew boost install .
 ```
 
 ---

@@ -8,14 +8,14 @@ The `infra` workload manages cloud infrastructure, provisioning blueprints, depl
 
 - **Declarative Go Blueprints (`pkg/cloud/infra/schema`)**: Strongly-typed Go definitions describing resources (containers, databases, object buckets, network ingress, routing).
 - **Drift Detection & State Reconciliation (`pkg/cloud/infra/state`)**: Tracks desired state versus live cloud state, producing deterministic execution plans.
-- **Plan Inspection (`kiw build --plan`)**: Generates and inspects an execution graph before provisioning changes.
+- **Plan Inspection (`krew build --plan`)**: Generates and inspects an execution graph before provisioning changes.
 - **Provider Modularity**: Pluggable provider drivers supporting local Docker, Linux `systemd`, and cloud PaaS engines.
 
 ---
 
 ## 2. Directory Layout
 
-The `kiw new my-infra --infra` or `kiw init --infra` scaffold writes:
+The `krew new my-infra --infra` or `krew init --infra` scaffold writes:
 
 ```text
 my-infra/
@@ -104,12 +104,12 @@ func GetBlueprint() Blueprint {
 
 ```bash
 # Evaluate infrastructure blueprint and output plan to .krewire/build/plan.json
-kiw build --plan
+krew build --plan
 
 # Preview staging changes without mutating cloud resources
-kiw deploy --plan
-kiw deploy --dry-run
+krew deploy --plan
+krew deploy --dry-run
 
 # Apply and provision infrastructure
-kiw deploy
+krew deploy
 ```

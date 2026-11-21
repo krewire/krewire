@@ -18,17 +18,17 @@ Understand ──► Map (Scout) ──► Plan & Spec ──► Implement ─�
 
 ## 2. Installing Boost in Any Project
 
-Boost is installed into any existing repository using the `kiw` CLI tool:
+Boost is installed into any existing repository using the `krew` CLI tool:
 
 ```bash
 # Install Boost into current repository
-kiw boost install .
+krew boost install .
 
 # Preview files to be created without writing to disk
-kiw boost install . --dry-run
+krew boost install . --dry-run
 
 # Force update / re-align Boost templates
-kiw boost install . --force
+krew boost install . --force
 ```
 
 ### Managed Files & Directory Layout
@@ -48,7 +48,7 @@ your-project/
 
 ## 3. Boost System Guides
 
-- **[AI-Native Engineering Model](../../guides/ai-engineering-model.md)** — Governed interoperability across Krew, Boost, and `kiw`.
+- **[AI-Native Engineering Model](../../guides/ai-engineering-model.md)** — Governed interoperability across Krew, Boost, and `krew`.
 - **[21 Autonomous Agent Roles](./agents.md)** — Specialized subagents across planning, development, testing, and operations.
 - **[Autonomous SDLC & Multi-Agent Workflow](./workflow.md)** — The 7-phase governed development lifecycle and slash command mappings.
 - **[Agent Conventions & Safety Guardrails](./conventions.md)** — Coding style, pure-Go invariant, and zero-secrets security rules.

@@ -7,12 +7,12 @@ Welcome to the **Krewire Core** contributor guide. This document explains the de
 Strict downward-only dependencies are strictly enforced:
 
 ```text
-templates/boost → tools/kiw → pkg/* → pkg/model, pkg/errs
+templates/boost → krew → pkg/* → pkg/model, pkg/errs
 ```
 
-- `pkg/model` may depend only on standard library packages and `pkg/errs` — never on higher-level packages and never on `kiw` (ADR-B7D3A).
-- No package or library under `pkg/` may ever import `kiw`.
-- Generated projects depend on Krewire packages only — never on `kiw`.
+- `pkg/model` may depend only on standard library packages and `pkg/errs` — never on higher-level packages and never on `krew` (ADR-B7D3A).
+- No package or library under `pkg/` may ever import `krew`.
+- Generated projects depend on Krewire packages only — never on `krew`.
 - Sibling packages under `pkg/` are peers, not an arbitrary hierarchy: `web` may use `ui`, but `ui` may not use `web`.
 - Control flow is 100% Go; boundary dialects (HTML, CSS, SQL, YAML, Markdown) remain native at their layer.
 
@@ -47,7 +47,7 @@ go vet ./...
 go test ./...
 
 # 4. Binary build verification
-go build -o bin/kiw ./tools/kiw/cmd/kiw
+go build -o bin/krew ./github.com/krewire/krew/cmd/krew
 ```
 
 ## 4. Single Source of Truth (No Hardcoding)
