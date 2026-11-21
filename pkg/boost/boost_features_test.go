@@ -1,6 +1,7 @@
 package boost_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/krewire/krewire/pkg/boost"
@@ -151,6 +152,51 @@ func TestEvaluatePillarHealth(t *testing.T) {
 	diags = boost.EvaluatePillarHealth(ctx)
 	if len(diags) != 0 {
 		t.Errorf("expected 0 diagnostics for complete pillars, got %d", len(diags))
+	}
+}
+
+func TestTaskBrief_FormatAndParse(t *testing.T) {
+	original := model.TaskBrief{
+		ID:                   "issue-42",
+		Title:                "Implement PKCE authentication",
+		Objective:            "Add PKCE OAuth2 flow to auth package",
+		Repository:           "auth",
+		Scope:                []string{"pkg/auth/pkce.go", "pkg/auth/pkce_test.go"},
+		Constraints:          []string{"pure-Go invariant", "zero third-party dependencies"},
+		AcceptanceCriteria:   []string{"Unit tests pass", "CGO_ENABLED=0 builds successfully"},
+		VerificationCommands: []string{"go test -v ./pkg/auth/...", "go vet ./..."},
+	}
+
+	formatted := boost.FormatTaskBrief(original)
+	if !strings.Contains(formatted, "# Implement PKCE authentication") {
+		t.Errorf("expected title in formatted markdown: %s", formatted)
+	}
+	if !strings.Contains(formatted, "## Objective") {
+		t.Errorf("expected objective in formatted markdown: %s", formatted)
+	}
+
+	parsed, err := boost.ParseTaskBrief("issue-42", "Implement PKCE authentication", formatted)
+	if err != nil {
+		t.Fatalf("failed to parse task brief: %v", err)
+	}
+
+	if parsed.Objective != original.Objective {
+		t.Errorf("expected objective %q, got %q", original.Objective, parsed.Objective)
+	}
+	if parsed.Repository != original.Repository {
+		t.Errorf("expected repository %q, got %q", original.Repository, parsed.Repository)
+	}
+	if len(parsed.Scope) != len(original.Scope) {
+		t.Errorf("expected %d allowed paths, got %d", len(original.Scope), len(parsed.Scope))
+	}
+	if len(parsed.Constraints) != len(original.Constraints) {
+		t.Errorf("expected %d constraints, got %d", len(original.Constraints), len(parsed.Constraints))
+	}
+	if len(parsed.AcceptanceCriteria) != len(original.AcceptanceCriteria) {
+		t.Errorf("expected %d acceptance criteria, got %d", len(original.AcceptanceCriteria), len(parsed.AcceptanceCriteria))
+	}
+	if len(parsed.VerificationCommands) != len(original.VerificationCommands) {
+		t.Errorf("expected %d verification commands, got %d", len(original.VerificationCommands), len(parsed.VerificationCommands))
 	}
 }
 

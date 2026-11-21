@@ -3,9 +3,13 @@ package boost
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io/fs"
 	"sort"
 	"strings"
+	"sync"
+
+	"github.com/krewire/krewire/pkg/model"
 )
 
 var (
@@ -312,6 +316,33 @@ func NewPersonaRegistry(fsys fs.FS) (*PersonaRegistry, error) {
 	return r, nil
 }
 
+var (
+	defaultPersonaRegistry     *PersonaRegistry
+	defaultPersonaRegistryOnce sync.Once
+)
+
+// DefaultRegistry returns the singleton canonical persona registry backed by Template.
+func DefaultRegistry() *PersonaRegistry {
+	defaultPersonaRegistryOnce.Do(func() {
+		reg, err := NewPersonaRegistry(Template)
+		if err != nil {
+			reg = &PersonaRegistry{
+				personas: make(map[string]*Persona),
+				aliases:  make(map[string]string),
+			}
+			for name, p := range canonicalPersonaDefinitions {
+				cp := *p
+				reg.personas[name] = &cp
+			}
+			for alias, canonical := range defaultAliases {
+				reg.aliases[alias] = canonical
+			}
+		}
+		defaultPersonaRegistry = reg
+	})
+	return defaultPersonaRegistry
+}
+
 // loadFromFS scans .agents/agents/*.md or agents/*.md from fsys.
 func (r *PersonaRegistry) loadFromFS(fsys fs.FS) error {
 	candidateDirs := []string{".agents/agents", "agents"}
@@ -418,4 +449,148 @@ func (r *PersonaRegistry) Names() []string {
 // Count returns the number of registered personas.
 func (r *PersonaRegistry) Count() int {
 	return len(r.personas)
+}
+
+// Lookup resolves a persona by exact name or alias (alias for Get).
+func (r *PersonaRegistry) Lookup(nameOrAlias string) (*Persona, bool) {
+	return r.Get(nameOrAlias)
+}
+
+// FormatTaskBrief formats a model.TaskBrief into canonical GitHub Issue markdown.
+func FormatTaskBrief(brief model.TaskBrief) string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("# %s\n\n", brief.Title))
+	sb.WriteString("## Objective\n")
+	sb.WriteString(brief.Objective)
+	sb.WriteString("\n\n")
+
+	if brief.Repository != "" {
+		sb.WriteString("## Repository\n")
+		sb.WriteString(brief.Repository)
+		sb.WriteString("\n\n")
+	}
+
+	if len(brief.Scope) > 0 {
+		sb.WriteString("## Scope\n")
+		for _, p := range brief.Scope {
+			sb.WriteString(fmt.Sprintf("- `%s`\n", p))
+		}
+		sb.WriteString("\n")
+	}
+
+	if len(brief.Constraints) > 0 {
+		sb.WriteString("## Constraints\n")
+		for _, c := range brief.Constraints {
+			sb.WriteString(fmt.Sprintf("- %s\n", c))
+		}
+		sb.WriteString("\n")
+	}
+
+	if len(brief.AcceptanceCriteria) > 0 {
+		sb.WriteString("## Acceptance Criteria\n")
+		for _, a := range brief.AcceptanceCriteria {
+			sb.WriteString(fmt.Sprintf("- [ ] %s\n", a))
+		}
+		sb.WriteString("\n")
+	}
+
+	if len(brief.VerificationCommands) > 0 {
+		sb.WriteString("## Verification Commands\n")
+		for _, v := range brief.VerificationCommands {
+			sb.WriteString(fmt.Sprintf("- `%s`\n", v))
+		}
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
+}
+
+// ParseTaskBrief extracts a structured model.TaskBrief from a markdown issue description.
+func ParseTaskBrief(id, title, body string) (model.TaskBrief, error) {
+	brief := model.TaskBrief{
+		ID:            strings.TrimSpace(id),
+		Title:         strings.TrimSpace(title),
+		MaxAutonomy:   model.AutonomyAutonomous,
+		RequirePlan:   true,
+		RequireReview: true,
+		TimeoutSec:    600,
+		MaxRetries:    2,
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(body))
+	var currentSection string
+	var sectionLines []string
+
+	commitSection := func() {
+		if currentSection == "" {
+			return
+		}
+		text := strings.TrimSpace(strings.Join(sectionLines, "\n"))
+		switch currentSection {
+		case "objective":
+			brief.Objective = text
+		case "repository":
+			brief.Repository = text
+		case "scope":
+			for _, line := range sectionLines {
+				cleaned := cleanListEntry(line)
+				if cleaned != "" {
+					brief.Scope = append(brief.Scope, cleaned)
+				}
+			}
+		case "constraints":
+			for _, line := range sectionLines {
+				cleaned := cleanListEntry(line)
+				if cleaned != "" {
+					brief.Constraints = append(brief.Constraints, cleaned)
+				}
+			}
+		case "acceptance criteria", "acceptance":
+			for _, line := range sectionLines {
+				cleaned := cleanListEntry(line)
+				if cleaned != "" {
+					brief.AcceptanceCriteria = append(brief.AcceptanceCriteria, cleaned)
+				}
+			}
+		case "verification commands", "verification":
+			for _, line := range sectionLines {
+				cleaned := cleanListEntry(line)
+				if cleaned != "" {
+					brief.VerificationCommands = append(brief.VerificationCommands, cleaned)
+				}
+			}
+		}
+		sectionLines = nil
+	}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		trimmed := strings.TrimSpace(line)
+
+		if strings.HasPrefix(trimmed, "#") {
+			commitSection()
+			heading := strings.TrimLeft(trimmed, "# ")
+			currentSection = strings.ToLower(strings.TrimSpace(heading))
+			continue
+		}
+
+		if currentSection != "" {
+			sectionLines = append(sectionLines, line)
+		}
+	}
+	commitSection()
+
+	return brief, nil
+}
+
+func cleanListEntry(line string) string {
+	trimmed := strings.TrimSpace(line)
+	for _, prefix := range []string{"- [ ] ", "- [x] ", "- ", "* ", "• "} {
+		if strings.HasPrefix(trimmed, prefix) {
+			trimmed = strings.TrimPrefix(trimmed, prefix)
+			break
+		}
+	}
+	trimmed = strings.Trim(trimmed, "`")
+	return strings.TrimSpace(trimmed)
 }
