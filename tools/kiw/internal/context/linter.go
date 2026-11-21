@@ -12,7 +12,6 @@ import (
 
 // RetiredKeywords are terms for decommissioned platforms or components that should not appear in active context.
 var RetiredKeywords = []string{
-	"krewire/forge",
 	"admin.krewire.com",
 	"internal/apps/admin",
 }

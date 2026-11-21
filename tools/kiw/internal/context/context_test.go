@@ -129,7 +129,7 @@ func TestLint_StaleReferences(t *testing.T) {
 
 	// Write AGENTS.md with stale keyword
 	agentsContent := `# Operational Guide
-- **Old Platform**: Do not import krewire/forge directly.
+- **Old Platform**: Do not reference admin.krewire.com directly.
 `
 	if err := os.WriteFile(filepath.Join(tempDir, "AGENTS.md"), []byte(agentsContent), 0644); err != nil {
 		t.Fatalf("failed to write AGENTS.md: %v", err)
@@ -153,7 +153,7 @@ func TestLint_StaleReferences(t *testing.T) {
 	}
 
 	if !foundStale {
-		t.Errorf("expected DiagStale diagnostic for 'krewire/forge'")
+		t.Errorf("expected DiagStale diagnostic for 'admin.krewire.com'")
 	}
 }
 
