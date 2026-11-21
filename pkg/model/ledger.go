@@ -3,8 +3,12 @@ package model
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -133,4 +137,86 @@ func (l *VerificationLedger) LatestBlock() (*EvidenceBlock, error) {
 	}
 	b := l.Blocks[len(l.Blocks)-1]
 	return &b, nil
+}
+
+// SaveFile serializes the verification ledger as formatted JSON to the specified path.
+func (l *VerificationLedger) SaveFile(path string) error {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
+	dir := filepath.Dir(path)
+	if dir != "" && dir != "." {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("model: create ledger dir: %w", err)
+		}
+	}
+
+	data, err := json.MarshalIndent(l, "", "  ")
+	if err != nil {
+		return fmt.Errorf("model: marshal ledger: %w", err)
+	}
+
+	return os.WriteFile(path, data, 0644)
+}
+
+// LoadLedgerFile reads and unmarshals a VerificationLedger from disk, validating integrity.
+func LoadLedgerFile(path string) (*VerificationLedger, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("model: read ledger file: %w", err)
+	}
+
+	var l VerificationLedger
+	if err := json.Unmarshal(data, &l); err != nil {
+		return nil, fmt.Errorf("model: unmarshal ledger: %w", err)
+	}
+
+	if len(l.Blocks) > 0 {
+		if ok, err := l.VerifyIntegrity(); !ok || err != nil {
+			return nil, fmt.Errorf("model: ledger integrity verification failed: %w", err)
+		}
+	}
+
+	return &l, nil
+}
+
+// ExportMarkdown generates a human-readable audit transcript of all chained blocks.
+func (l *VerificationLedger) ExportMarkdown() string {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("# Verification Evidence Ledger: %s\n\n", l.TaskID))
+	sb.WriteString(fmt.Sprintf("- **Total Blocks**: %d\n", len(l.Blocks)))
+	if len(l.Blocks) == 0 {
+		sb.WriteString("- **Status**: Empty ledger\n")
+		return sb.String()
+	}
+
+	latest := l.Blocks[len(l.Blocks)-1]
+	sb.WriteString(fmt.Sprintf("- **Latest Commit**: `%s`\n", latest.CommitSHA))
+	sb.WriteString(fmt.Sprintf("- **Latest Block Hash**: `%s`\n\n", latest.BlockHash))
+
+	for _, b := range l.Blocks {
+		statusStr := "PASSED"
+		if !b.AllPassed {
+			statusStr = "FAILED"
+		}
+		sb.WriteString(fmt.Sprintf("## Block #%d [%s]\n", b.Index, statusStr))
+		sb.WriteString(fmt.Sprintf("- **Timestamp**: %s\n", b.Timestamp.Format(time.RFC3339)))
+		sb.WriteString(fmt.Sprintf("- **Commit**: `%s`\n", b.CommitSHA))
+		sb.WriteString(fmt.Sprintf("- **Block Hash**: `%s`\n", b.BlockHash))
+		sb.WriteString(fmt.Sprintf("- **Prev Hash**: `%s`\n\n", b.PrevHash))
+		sb.WriteString("### Evaluated Quality Gates\n")
+		for _, g := range b.Gates {
+			icon := "✓"
+			if g.Status != GatePassed {
+				icon = "✗"
+			}
+			sb.WriteString(fmt.Sprintf("- %s `%s` (%s) — Exit: %d, Hash: `%s`\n", icon, g.GateID, g.Command, g.ExitCode, g.EvidenceHash))
+		}
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
 }

@@ -110,3 +110,65 @@ func TestVerificationLedger_LatestBlock(t *testing.T) {
 		t.Errorf("expected CommitSHA sha-1, got %s", b.CommitSHA)
 	}
 }
+
+func TestVerificationLedger_SaveAndLoadFile(t *testing.T) {
+	dir := t.TempDir()
+	ledgerPath := dir + "/subdir/ledger.json"
+
+	ledger := NewVerificationLedger("TASK-300")
+	_, err := ledger.AppendBlock("commit-1", []VerificationEvidence{
+		{
+			GateID:       "fmt",
+			Command:      "gofmt -l .",
+			Status:       GatePassed,
+			Required:     true,
+			ExitCode:     0,
+			EvidenceHash: "h1",
+		},
+	})
+	if err != nil {
+		t.Fatalf("append block 1 failed: %v", err)
+	}
+	_, err = ledger.AppendBlock("commit-2", []VerificationEvidence{
+		{
+			GateID:       "test",
+			Command:      "go test ./...",
+			Status:       GatePassed,
+			Required:     true,
+			ExitCode:     0,
+			EvidenceHash: "h2",
+		},
+	})
+	if err != nil {
+		t.Fatalf("append block 2 failed: %v", err)
+	}
+
+	// Save to file
+	if err := ledger.SaveFile(ledgerPath); err != nil {
+		t.Fatalf("failed to save ledger file: %v", err)
+	}
+
+	// Load from file
+	loaded, err := LoadLedgerFile(ledgerPath)
+	if err != nil {
+		t.Fatalf("failed to load ledger file: %v", err)
+	}
+
+	if loaded.TaskID != "TASK-300" {
+		t.Errorf("expected task ID TASK-300, got %s", loaded.TaskID)
+	}
+	if len(loaded.Blocks) != 2 {
+		t.Fatalf("expected 2 blocks, got %d", len(loaded.Blocks))
+	}
+
+	ok, err := loaded.VerifyIntegrity()
+	if !ok || err != nil {
+		t.Fatalf("loaded ledger integrity check failed: %v", err)
+	}
+
+	// Markdown export
+	md := loaded.ExportMarkdown()
+	if len(md) == 0 {
+		t.Fatalf("expected non-empty markdown output")
+	}
+}
