@@ -26,8 +26,8 @@ krew new my-docs --book          # Scaffolds documentation book
 ```
 
 ### The Pre-Init Bootstrap State
-The minimal bootstrap files alone represent a `pre-init` state, **not** an operational workload kind:
-- Shape detection reports `KindNone` with the marker `pre-init`.
+The minimal bootstrap files alone represent a `pre-init` state:
+- Shape detection reports the project as `pre-init` when no capabilities are configured.
 - Workload commands (`krew build`, `krew dev`, `krew run`) refuse to run and point the developer to `krew init`.
 - `krew new` immediately transitions out of this state by equipping the chosen variant.
 

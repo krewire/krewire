@@ -9,7 +9,7 @@
 //
 //   - Layer 1: Core Foundation & Kernel
 //
-//   - pkg/model: Declarative domain models, workload kinds, architectural scopes.
+//   - pkg/model: Declarative domain models, architectural scopes, licensing tiers, project invariants.
 //
 //   - pkg/errs: POSIX-compatible exit codes, structured error wrapping, diagnostics.
 //

@@ -57,7 +57,7 @@ cd hello-world
 ```
 *Expected Output*:
 ```text
-Created project hello-world (kind: app, module: example.com/hello-world)
+Created project hello-world (module: example.com/hello-world)
 Equipped starter template with main.go and krewire.yaml.
 ```
 

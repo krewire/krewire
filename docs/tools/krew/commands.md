@@ -257,7 +257,7 @@ kiw self-update --force  # Force reinstall
 ## 3. Build & Serve Commands
 
 ### `krew build [flags]`
-Builds the project according to its detected kind:
+Builds the project according to its detected capabilities:
 - `site` / `book` $\rightarrow$ Compiles static assets into `.krewire/build`.
 - `app` / `cli` / `service` / `worker` / `gateway` $\rightarrow$ Compiles standalone Go binary with embedded `-ldflags` signature (`build with krewire`).
 - `infra` $\rightarrow$ Compiles and plans infrastructure state.

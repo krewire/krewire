@@ -35,7 +35,6 @@ my-worker/
 version: "0.1.0"
 project:
   name: my-worker
-  kind: worker
 
 worker:
   concurrency: 10

@@ -72,27 +72,26 @@ Every agent and command executes in five distinct phases:
 
 ## Identify the Project Kind (Krewire)
 
-Krewire projects use a single config file (`krewire.yaml`) and eight workload
-shapes. Detect the kind before executing workflows:
+Krewire projects use a single config file (`krewire.yaml`) and progressive capabilities.
+Inspect project capabilities before executing workflows:
 
-| Kind | Detection Marker | Driven by | Needs `main.go` |
+| Capability | Detection Marker | Driven by | Needs `main.go` |
 |---|---|---|---|
-| `app` | `project.kind: app`, root `main.go`, or `cmd/*` | `kiw run`, `kiw dev` | yes |
-| `cli` | `project.kind: cli` | `kiw run <args>` | yes |
-| `site` | `project.kind: site`, `ssg:` key, or `pages/` | `kiw build`, `kiw serve` | no |
-| `book` | `project.kind: book` or `content/` dir | `kiw build`, `kiw serve` | no |
-| `worker` | `project.kind: worker`, `worker:` key | `kiw run`, `kiw worker`, `kiw dev` | yes |
-| `service` | `project.kind: service`, `service:` key | `kiw run`, `kiw dev` | yes |
-| `gateway` | `project.kind: gateway`, `gateway:` key | `kiw run`, `kiw gateway`, `kiw dev` | yes |
-| `infra` | `project.kind: infra`, `infra:` key | `kiw deploy`, `kiw build --plan` | no |
+| Binary Application | root `main.go` or `cmd/*` | `kiw run`, `kiw dev` | yes |
+| SSG / Static Site | `pages/` directory or `ssg:` key | `kiw build`, `kiw serve` | no |
+| Book / Documentation | `content/` directory or `book:` key | `kiw build`, `kiw serve` | no |
+| Worker Queue | `worker:` key | `kiw run`, `kiw worker`, `kiw dev` | yes |
+| Microservice | `service:` key | `kiw run`, `kiw dev` | yes |
+| API Gateway | `gateway:` key | `kiw run`, `kiw gateway`, `kiw dev` | yes |
+| Infrastructure | `infra:` key | `kiw deploy`, `kiw build --plan` | no |
 
-Validate with `kiw info`. Never guess kind: read `krewire.yaml` or inspect file markers.
+Validate with `kiw info`. Inspect `krewire.yaml` or project directory markers.
 
 ## The `kiw` Command Matrix (Krewire)
 
 The `kiw` CLI is the unified entry point:
 
-| Command | Purpose | Target Kinds |
+| Command | Purpose | Target |
 |---|---|---|
 | `kiw new <name>` | Scaffold a new project (fullstack `app` by default) | any |
 | `kiw init [<variant>]` | Equip a pre-init bootstrap project with layout (see `kiw init --help`) | any |

@@ -58,14 +58,13 @@ Control flow in Krewire separates **what is valid** from **how it runs**:
 
 ### 5. Single Source of Truth (SSOT)
 Duplication breeds drift. Across the entire ecosystem:
-- **Configuration SSOT:** [`krewire.yaml`](../../pkg/model/project.go) is the single configuration authority for all eight workload kinds. Ad-hoc or tool-specific configuration formats are prohibited.
-- **Workload Matrix SSOT:** Canonical kinds and matrix entries are defined once in `pkg/model/workload.go`.
+- **Configuration SSOT:** [`krewire.yaml`](../../pkg/model/project.go) is the single configuration authority for the project. Ad-hoc or tool-specific configuration formats are prohibited.
 - **Specification SSOT:** Requirements and progress tracking live in GitHub Issues tagged `spec`, eliminating out-of-sync markdown checkboxes.
 
-### 6. Zero-Cost Abstractions & Opt-In Batteries
+### 6. Zero-Cost Abstractions & Modular Batteries
 Importing a base model or kernel must never inflict transitive bloat.
 - Core types are zero-value usable without complex factory ceremonies.
-- **Opt-In Rules (`OptInRule`):** Batteries (such as cloud storage or worker queues) belong to their owning workload kind and are blocked from unintended kinds unless explicitly opted in. A lightweight CLI tool or static site remains ultra-fast and lightweight.
+- **Modular Decoupling:** Batteries (such as cloud storage or worker queues) are decoupled modular packages. Importing `pkg/web` pays only for web primitives, keeping applications ultra-fast and lightweight.
 
 ### 7. Progressive Support & Pipeline Scaling
 Projects evolve. A Krewire project starts from a clean pre-init bootstrap layout and progressively equips new workload capabilities (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) via `krew init`. At each stage, the project's configuration and toolchain adapt seamlessly without requiring a rewrite or migration to different frameworks.

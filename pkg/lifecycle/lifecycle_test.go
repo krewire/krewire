@@ -2,6 +2,7 @@ package lifecycle
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/krewire/krewire/pkg/errs"
@@ -176,5 +177,103 @@ func TestSupervisor_StopContinuesOnError(t *testing.T) {
 	}
 	if !stopped1 || !stopped2 {
 		t.Errorf("all modules should be stopped: m1=%v, m2=%v", stopped1, stopped2)
+	}
+}
+
+type startableModule struct {
+	testModule
+	started bool
+	stopped bool
+}
+
+func (m *startableModule) Start(context.Context) error { m.started = true; return nil }
+func (m *startableModule) Stop(context.Context) error  { m.stopped = true; return nil }
+
+type startErrModule struct{}
+
+func (m startErrModule) Start(context.Context) error { return errs.FailureError("start failed") }
+func (m startErrModule) Stop(context.Context) error  { return nil }
+
+func TestKernel_StartableAndShutdown(t *testing.T) {
+	k, _ := New(model.Project{Name: "demo"})
+	sm := &startableModule{testModule: testModule{name: "daemon"}}
+	k.Use(sm)
+
+	if err := k.Boot(context.Background()); err != nil {
+		t.Fatalf("Boot error: %v", err)
+	}
+	if err := k.Supervisor.Start(context.Background()); err != nil {
+		t.Fatalf("Supervisor.Start error: %v", err)
+	}
+	if !sm.started {
+		t.Errorf("expected startableModule to be started")
+	}
+
+	health := k.Supervisor.Health()
+	if len(health) == 0 {
+		t.Errorf("expected non-empty health map")
+	}
+
+	if err := k.Shutdown(context.Background()); err != nil {
+		t.Fatalf("Shutdown error: %v", err)
+	}
+	if !sm.stopped {
+		t.Errorf("expected startableModule to be stopped")
+	}
+}
+
+func TestKernel_BootErrors(t *testing.T) {
+	// Boot error with *errs.Error
+	k1, _ := New(model.Project{Name: "demo"})
+	k1.Use(testModule{name: "err1", init: func(*Kernel) error {
+		return errs.UsageError("err1-usage")
+	}})
+	if err := k1.Boot(context.Background()); err == nil {
+		t.Errorf("expected Boot error for *errs.Error")
+	}
+
+	// Boot error with generic error
+	k2, _ := New(model.Project{Name: "demo"})
+	k2.Use(testModule{name: "err2", init: func(*Kernel) error {
+		return errors.New("err2-generic")
+	}})
+	if err := k2.Boot(context.Background()); err == nil {
+		t.Errorf("expected Boot error for generic error")
+	}
+}
+
+func TestExecutor_NilHandler(t *testing.T) {
+	e := newExecutor()
+	if code := e.Execute(context.Background()); code != errs.ExitCodeSuccess {
+		t.Errorf("Execute with nil handler = %v, want ExitCodeSuccess", code)
+	}
+}
+
+func TestSupervisor_StartError(t *testing.T) {
+	s := NewSupervisor()
+	s.Add(startErrModule{})
+	if err := s.Start(context.Background()); err == nil {
+		t.Errorf("expected Start error")
+	}
+	health := s.Health()
+	if health["0"] == nil {
+		t.Errorf("expected health[0] to have error")
+	}
+}
+
+func TestRegistry_ValidationErrors(t *testing.T) {
+	r := NewRegistry()
+	if err := r.Register(nil); err == nil {
+		t.Errorf("expected error registering nil module")
+	}
+	if err := r.Register(testModule{name: ""}); err == nil {
+		t.Errorf("expected error registering empty name module")
+	}
+
+	// Module with non-existent dependency is safely ignored in ordering
+	_ = r.Register(depModule{name: "orphan", deps: []string{"ghost"}})
+	ordered := r.Ordered()
+	if len(ordered) != 1 || ordered[0].Name() != "orphan" {
+		t.Errorf("expected orphan module in ordered list")
 	}
 }

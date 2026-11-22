@@ -68,7 +68,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 - **Reference Layout**:
   ```text
   my-app/
-  ├── krewire.yaml          # Workload configuration (kind: app, port: 8080)
+  ├── krewire.yaml          # Project configuration (port: 8080)
   ├── main.go               # Entry point: initializes app.Container & routes
   ├── internal/
   │   ├── domain/           # Core domain entities & business rules (pure Go)
@@ -90,7 +90,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 - **Reference Layout**:
   ```text
   my-cli/
-  ├── krewire.yaml          # Workload configuration (kind: cli)
+  ├── krewire.yaml          # CLI tool configuration
   ├── main.go               # Command dispatcher & exit code handler
   ├── cmd/                  # Subcommands (flags, help texts, validation)
   └── internal/
@@ -107,7 +107,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 - **Reference Layout**:
   ```text
   my-site/
-  ├── krewire.yaml          # SSG configuration (kind: site, output: .krewire/build)
+  ├── krewire.yaml          # SSG configuration (output: .krewire/build)
   ├── pages/                # File-based routing pages (index.kiw, about.kiw)
   ├── components/           # Modular .kiw components (Navbar.kiw, Footer.kiw)
   └── public/               # Static assets (favicons, images, robots.txt)
@@ -122,7 +122,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 - **Reference Layout**:
   ```text
   my-book/
-  ├── krewire.yaml          # Book config (kind: book, title: "API Reference")
+  ├── krewire.yaml          # Book config (title: "API Reference")
   ├── content/              # Markdown chapters ordered by prefix (01-intro.md)
   └── assets/               # Diagrams, screenshots, and illustrations
   ```
@@ -152,7 +152,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 - **Reference Layout**:
   ```text
   my-service/
-  ├── krewire.yaml          # Service config (kind: service, port: 8081)
+  ├── krewire.yaml          # Service config (port: 8081)
   ├── main.go               # HTTP/JSON RPC server startup
   ├── internal/
   │   ├── api/              # Route endpoints & request schemas

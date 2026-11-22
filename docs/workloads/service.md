@@ -36,7 +36,6 @@ my-service/
 version: "0.1.0"
 project:
   name: my-service
-  kind: service
 
 server:
   host: "0.0.0.0"

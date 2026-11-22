@@ -15,21 +15,14 @@ The `pkg/model` library declares pure data structures, validation invariants, wo
 
 ## 2. Key Primitives
 
-### Workload Kind (`Kind`)
-Enumerates the eight canonical workload kinds:
+### Project Identity (`Project`)
+Represents the declarative project descriptor:
 ```go
-const (
-	KindApp     Kind = "app"
-	KindCLI     Kind = "cli"
-	KindSite    Kind = "site"
-	KindBook    Kind = "book"
-	KindWorker  Kind = "worker"
-	KindService Kind = "service"
-	KindGateway Kind = "gateway"
-	KindInfra   Kind = "infra"
-)
-
-var AllKinds = []Kind{KindApp, KindCLI, KindSite, KindBook, KindWorker, KindService, KindGateway, KindInfra}
+type Project struct {
+	Name       string
+	Module     string
+	ConfigPath string
+}
 ```
 
 ### Scope Hierarchy (`Scope`)

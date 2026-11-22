@@ -55,7 +55,6 @@ Teams can invoke and orchestrate existing frontend build tools, package managers
 ```yaml
 project:
   name: hybrid-app
-  kind: app
 
 server:
   port: 8080

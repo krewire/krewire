@@ -47,7 +47,6 @@ my-site/
 ```yaml
 project:
   name: "my-site"
-  kind: "site"
   version: "0.2.0"
 
 output: ".krewire/build"

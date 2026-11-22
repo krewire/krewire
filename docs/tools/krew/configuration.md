@@ -59,13 +59,12 @@ down. Tests keep the schema in step with `config.go` and validate the
 
 ## Minimal Configuration
 
-Every Krewire project requires a minimal `krewire.yaml` defining the project name and workload kind:
+Every Krewire project requires a minimal `krewire.yaml` defining the project name:
 
 ```yaml
 version: "0.1.0"
 project:
   name: my-app
-  kind: app
 ```
 
 ---
@@ -77,10 +76,9 @@ A complete `krewire.yaml` schema with all supported options and multi-runtime co
 ```yaml
 version: "0.1.0"          # Top-level product version (injected into builds)
 
-# Project metadata & workload invariants
+# Project metadata
 project:
   name: my-service          # Required: kebab-case ^[a-z][a-z0-9-]*$
-  kind: service             # app | cli | site | book | worker | service | gateway | infra
   version: "v0.1.0"         # Alternative version location (folds into top-level version)
   dirs:
     cmd: "cmd/app"          # Custom entrypoint directory
@@ -147,7 +145,7 @@ runtime:
   env_file: ".env.local"    # Custom dotenv file path (defaults to .env)
   port: 8080                # Default runtime port
 
-# Single microservice descriptor (kind: service)
+# Single microservice descriptor
 service:
   name: "auth"
   port: 8081
@@ -177,14 +175,14 @@ gateway:
       prefix: true
       middleware: ["cors"]
 
-# Internationalization settings (kind: site, book)
+# Internationalization settings
 i18n:
   default_locale: "en"
   fallback_locale: "en"
   base_path: "lang"
   locales: ["en", "id"]
 
-# SSG static site settings (kind: site)
+# SSG static site settings
 ssg:
   description: "Product documentation"
   layouts: []               # {name, body, style} or {name, ui}
@@ -195,14 +193,14 @@ ssg:
     enabled: true
     bundle: true
 
-# Technical book settings (kind: book)
+# Technical book settings
 # Title, author, input, output, base, version, nav, footer, and theme are
 # shared top-level keys. The book block only controls placement and TOC.
 book:
   mount: "/docs"            # Export the book under a sub-path
   toc: true                 # Force the generated root table of contents
 
-# Background worker settings (kind: worker)
+# Background worker settings
 worker:
   concurrency: 4
   queues: ["default", "critical"]
@@ -212,7 +210,7 @@ wasm:
   entry: "./wasm"           # Main package path (default: ./wasm)
   name: "runtime"           # Output module name (default: runtime)
 
-# Cloud infrastructure blueprint (kind: infra)
+# Cloud infrastructure blueprint
 infra:
   provider: "aws"
   region: "ap-southeast-1"

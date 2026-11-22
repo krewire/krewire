@@ -68,7 +68,7 @@ func TestMount_KiwDSLSyntax(t *testing.T) {
 	dir := t.TempDir()
 
 	// Write krewire.yaml
-	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  kind: site\n"), 0o644)
+	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  name: site\n"), 0o644)
 
 	// Layouts
 	layoutDir := filepath.Join(dir, "layouts")

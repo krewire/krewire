@@ -11,7 +11,7 @@ import (
 func TestIslands_LoaderInjectedForSvelte(t *testing.T) {
 	dir := t.TempDir()
 
-	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  kind: site\n"), 0o644)
+	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  name: site\n"), 0o644)
 
 	layoutDir := filepath.Join(dir, "layouts")
 	_ = os.MkdirAll(layoutDir, 0o755)
@@ -91,7 +91,7 @@ layout: Base
 func TestIslands_CoexistenceWasmAndVue(t *testing.T) {
 	dir := t.TempDir()
 
-	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  kind: site\n"), 0o644)
+	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  name: site\n"), 0o644)
 
 	layoutDir := filepath.Join(dir, "layouts")
 	_ = os.MkdirAll(layoutDir, 0o755)
@@ -194,7 +194,7 @@ func TestIslands_CustomLoaderURL(t *testing.T) {
 func TestIslands_EndToEndDSLDirectives(t *testing.T) {
 	dir := t.TempDir()
 
-	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  kind: site\n"), 0o644)
+	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  name: site\n"), 0o644)
 
 	layoutDir := filepath.Join(dir, "layouts")
 	_ = os.MkdirAll(layoutDir, 0o755)

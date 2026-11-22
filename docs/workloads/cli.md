@@ -39,7 +39,6 @@ my-tool/
 ```yaml
 project:
   name: "my-tool"
-  kind: "cli"
   version: "1.0.0"
 
 output: ".krewire/build"

@@ -60,7 +60,6 @@ my-app/
 ```yaml
 project:
   name: my-app
-  kind: app
   version: "0.1.0"
 
 dev:

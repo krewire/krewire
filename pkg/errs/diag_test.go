@@ -35,14 +35,17 @@ func TestWithAttrs(t *testing.T) {
 }
 
 func TestHintOf(t *testing.T) {
+	if WithHint(nil, "hint") != nil {
+		t.Error("WithHint(nil) should be nil")
+	}
 	base := FailureError("config invalid")
-	deep := WithHint(base, "check project.kind in krewire.yaml")
+	deep := WithHint(base, "check configuration in krewire.yaml")
 	wrapped := WithHint(deep, "run 'kiw init' to create one")
 
 	if got := HintOf(wrapped); got != "run 'kiw init' to create one" {
 		t.Errorf("HintOf(nearest) = %q", got)
 	}
-	if got := HintOf(deep); got != "check project.kind in krewire.yaml" {
+	if got := HintOf(deep); got != "check configuration in krewire.yaml" {
 		t.Errorf("HintOf(deep) = %q", got)
 	}
 	if got := HintOf(base); got != "" {

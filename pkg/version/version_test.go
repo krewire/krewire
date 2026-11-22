@@ -167,3 +167,52 @@ func TestCheckCompatibility(t *testing.T) {
 		t.Fatal("CheckEcosystemCompatibility expected missing module error, got nil")
 	}
 }
+
+func TestVersion_MustParsePanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("expected MustParseVersion to panic on invalid input")
+		}
+	}()
+	MustParseVersion("invalid-version")
+}
+
+func TestVersion_LessAndEqual(t *testing.T) {
+	v1 := MustParseVersion("1.0.0")
+	v2 := MustParseVersion("2.0.0")
+	v1Clone := MustParseVersion("1.0.0")
+
+	if !v1.Less(v2) {
+		t.Errorf("expected v1.Less(v2) == true")
+	}
+	if v2.Less(v1) {
+		t.Errorf("expected v2.Less(v1) == false")
+	}
+	if !v1.Equal(v1Clone) {
+		t.Errorf("expected v1.Equal(v1Clone) == true")
+	}
+	if v1.Equal(v2) {
+		t.Errorf("expected v1.Equal(v2) == false")
+	}
+
+	// Numeric prerelease comparisons of differing lengths
+	vPre1 := MustParseVersion("1.0.0-1")
+	vPre2 := MustParseVersion("1.0.0-10")
+	vPre3 := MustParseVersion("1.0.0-2")
+	if !vPre1.Less(vPre2) {
+		t.Errorf("expected 1.0.0-1 < 1.0.0-10")
+	}
+	if !vPre1.Less(vPre3) {
+		t.Errorf("expected 1.0.0-1 < 1.0.0-2")
+	}
+	if vPre2.Less(vPre1) {
+		t.Errorf("expected 1.0.0-10 not < 1.0.0-1")
+	}
+
+	// Minor and patch comparisons
+	vPatch1 := MustParseVersion("1.0.1")
+	vPatch2 := MustParseVersion("1.0.2")
+	if !vPatch1.Less(vPatch2) {
+		t.Errorf("expected 1.0.1 < 1.0.2")
+	}
+}

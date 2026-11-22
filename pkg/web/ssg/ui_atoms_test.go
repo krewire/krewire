@@ -48,7 +48,7 @@ func atomicProbeSite(t *testing.T, names ...string) string {
 			t.Fatal(err)
 		}
 	}
-	write("krewire.yaml", "project:\n  name: atoms\n  kind: site\n  version: \"v1.2.3\"\n")
+	write("krewire.yaml", "project:\n  name: atoms\n  version: \"v1.2.3\"\n")
 	write("layouts/Base.kiw", `<!DOCTYPE html><html><head><title>t</title></head><body>{{.Content}}</body></html>`)
 	write("components/Probe.kiw", `<div data-kiw-component="Probe">{{.Body}}</div>`)
 	body := "<p>probed</p>"

@@ -38,7 +38,6 @@ my-gateway/
 ```yaml
 project:
   name: "api-gateway"
-  kind: "gateway"
   version: "1.0.0"
 
 server:

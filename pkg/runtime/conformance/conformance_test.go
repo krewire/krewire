@@ -446,7 +446,7 @@ func TestConformance_Hydration_FrameworkMarkers(t *testing.T) {
 func TestConformance_Hydration_LoaderInjection(t *testing.T) {
 	dir := t.TempDir()
 
-	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  kind: site\n"), 0o644)
+	_ = os.WriteFile(filepath.Join(dir, "krewire.yaml"), []byte("project:\n  name: site\n"), 0o644)
 	_ = os.MkdirAll(filepath.Join(dir, "layouts"), 0o755)
 	_ = os.WriteFile(filepath.Join(dir, "layouts", "Base.kiw"), []byte("<!DOCTYPE html><html><head></head><body>{{.Content}}</body></html>"), 0o644)
 

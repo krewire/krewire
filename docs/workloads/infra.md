@@ -33,7 +33,6 @@ my-infra/
 version: "0.1.0"
 project:
   name: my-infra
-  kind: infra
 
 infra:
   provider: "krewire-cloud"

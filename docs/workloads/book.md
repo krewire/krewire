@@ -43,7 +43,6 @@ my-handbook/
 ```yaml
 project:
   name: "krewire-handbook"
-  kind: "book"
   version: "0.2.0"
 
 title: "Krewire Handbook"

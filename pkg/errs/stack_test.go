@@ -26,6 +26,9 @@ func TestWithStack(t *testing.T) {
 	if !strings.Contains(formatted, "stack_test.go") {
 		t.Errorf("FormatStack missing file name: %s", formatted)
 	}
+	if s := frames[0].String(); !strings.Contains(s, "stack_test.go") {
+		t.Errorf("StackFrame.String() missing file: %s", s)
+	}
 	if StackOf(base) != nil {
 		t.Error("StackOf(unstacked) should be nil")
 	}

@@ -21,17 +21,14 @@ Every project in the Krewire ecosystem declares a primary `kind` in its [`krewir
 
 ---
 
-## 2. Kind Detection (`shape`)
+## 2. Capability Detection (`shape`)
 
-When executing commands like `krew info` or `krew build`, the CLI uses the `shape` detector ([`shape.Detect`](../../krew/internal/shape/shape.go)) in this order:
-1. **Explicit Config (`krewire.yaml`):** the `project.kind` field holds highest precedence.
-2. **Declarative battery keys:** `worker:`, `service:`, `gateway:`, or `infra:` in `krewire.yaml` selects that kind.
-3. **Pre-init bootstrap (not a kind):** `go.mod` + `krewire.yaml` + the starter `main.go` (containing `hello, krewire`) and none of `pages/`, `content/`, `cmd/`, `internal/`, `components/`. Detection reports `KindNone` with the marker `pre-init`; workload commands refuse to run and point at `krew init`.
-4. **Application entry point:** `main.go`, or a `cmd/*` package declaring `func main` $\rightarrow$ `app`.
-5. **Declarative site:** `pages/` or the `ssg:` key $\rightarrow$ `site`.
-6. **Content directory:** `content/` $\rightarrow$ `book`.
-
-`cli` is not inferred from the filesystem; it is declared explicitly through `project.kind` (for example by `krew init --cli`).
+When executing commands like `krew info` or `krew build`, the CLI uses the `shape` detector ([`shape.Detect`](../../krew/internal/shape/shape.go)):
+1. **Declarative battery keys:** `worker:`, `service:`, `gateway:`, or `infra:` in `krewire.yaml` selects that capability.
+2. **Pre-init bootstrap:** `go.mod` + `krewire.yaml` + the starter `main.go` (containing `hello, krewire`) and none of `pages/`, `content/`, `cmd/`, `internal/`, `components/`. Detection reports marker `pre-init`; workload commands point at `krew init`.
+3. **Application entry point:** `main.go`, or a `cmd/*` package declaring `func main`.
+4. **Declarative site:** `pages/` or the `ssg:` key.
+5. **Content directory:** `content/` or the `book:` key.
 
 ---
 
@@ -58,7 +55,7 @@ krew init --template https://github.com/example/starter.git  # Installs a custom
 
 ## 4. Workload Dispatching in `krew`
 
-The unified CLI (`krew`) routes tasks based on the active kind:
+The unified CLI (`krew`) routes tasks based on active capabilities:
 
 - **`krew build`**:
   - `site` $\rightarrow$ Executes the SSG build pipeline into `.krewire/build`.

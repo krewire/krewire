@@ -160,10 +160,6 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 - **Rationale:** Developer tooling consumes domain libraries; libraries never consume developer tooling. Logic needed by both must reside in a domain package (e.g. `pkg/hub/resolver`, `pkg/tui`), never inside CLI commands.
 - **Enforcement:** Verified via AST analysis in [`layering_test.go`](../../layering_test.go) (`TestPackagesNeverImportKiw`).
 
-#### Invariant 6: Opt-In Battery Boundaries (`OptInRule`)
-- **Rule:** Packages classified as specialized batteries for a specific workload kind (e.g. `cloud/worker`, `web/ssg`) are blocked from uninvited cross-import by non-owning kinds unless explicitly opted in.
-- **Rationale:** Guarantees that lightweight workloads (such as CLI tools or static sites) incur zero binary weight or initialization cost from features they do not use.
-
 ---
 
 ## 4. Domain Model & Workload Spectrum
@@ -193,12 +189,9 @@ Workspace  ───►  Module  ───►  Domain  ───►  Service  �
 Scope levels structure architecture and testing across the workspace.
 
 ### Single Configuration Authority (`krewire.yaml`)
-- `krewire.yaml` is the sole declarative configuration authority for every workload. Obsolete formats (e.g., `ssg.yaml`) are strictly disallowed.
+- `krewire.yaml` is the sole declarative configuration authority for the project. Obsolete formats (e.g., `ssg.yaml`) are strictly disallowed.
 - Project name must follow kebab-case `^[a-z][a-z0-9-]*$`.
 - Module path is validated against directory traversal risks (`CWE-22`).
-
-### Opt-In Batteries (`OptInRule`)
-Batteries are opt-in per workload kind. A project of kind `For` cannot import packages owned by kind `Owner` unless explicitly opted in. This guarantees zero bloat and zero-cost abstraction for lightweight kinds (such as `cli` or `site`).
 
 ---
 
@@ -208,7 +201,7 @@ Batteries are opt-in per workload kind. A project of kind `For` cannot import pa
 - **Lifecycle & Module Registry (`pkg/lifecycle`):** Provides structured lifecycle phases (`Init`, `Start`, `Stop`) with supervisor capabilities, graceful shutdown, and context propagation.
 - **Error Handling & Exit Codes (`pkg/errs`):** Structured error categorization (`UsageError`, `FailureError`), stack trace capture, and deterministic process exit codes (`0`, `1`, `2`).
 - **Environment & Logging (`pkg/env`, `pkg/log`):** Standard-library-based structured logging (`log/slog`) with environment-aware formatting (JSON in production, styled text in local development) and automatic PII redaction.
-- **Declarative Models & Workload Matrix (`pkg/model`):** Canonical workload kinds, scope hierarchy, licensing tiers, and opt-in import constraints.
+- **Declarative Models & Boundaries (`pkg/model`):** Scope hierarchy, licensing tiers, and project validation constraints.
 - **Versioning & Watermark (`pkg/version`):** Semantic version contracts, compatibility validation, and build signature watermarking.
 
 ### B. Domain Libraries (`pkg/*`)

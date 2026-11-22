@@ -70,7 +70,7 @@ Premature microservice decomposition introduces severe distributed systems overh
 ### 4.1 Transition Path 1: Static Site/Docs $\rightarrow$ Fullstack App (`site/book` $\rightarrow$ `app`)
 - **Use Case**: A documentation book or marketing site needs user login, newsletter subscriptions, or dynamic dashboards.
 - **Migration Steps**:
-  1. Update `krewire.yaml` to declare `project.kind: app`.
+  1. Update `krewire.yaml` to configure server port.
   2. Add `server:` block specifying HTTP port.
   3. Create standard Go entrypoint (`main.go`) importing `pkg/web` and `pkg/app`.
   4. Move existing `.kiw` static pages into `web/pages/`.
