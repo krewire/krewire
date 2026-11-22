@@ -38,7 +38,8 @@ func (p Project) Validate() error {
 			return err
 		}
 	}
-	// Kind is optional. When provided, it must not consist solely of whitespace.
+	// Kind is optional copywriting metadata (ADR-R8C2P). Projects may omit it entirely.
+	// When provided, it must not consist solely of whitespace.
 	if p.Kind != "" && strings.TrimSpace(string(p.Kind)) == "" {
 		return errs.UsageError("invalid project kind")
 	}

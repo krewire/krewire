@@ -5,8 +5,10 @@ import (
 	"strings"
 )
 
-// Kind is a Krewire project kind. The canonical kinds cover common starters,
-// while custom and fluid workloads are supported without artificial restriction.
+// Kind is a descriptive copywriting taxonomy for common starter archetypes.
+// Per ADR-R8C2P, workload kinds exist exclusively as educational and documentation
+// copywriting, never as programmatic execution constraints or architectural silos.
+// Krewire projects are fluid, composable Go packages that can evolve without restriction.
 type Kind string
 
 const (
