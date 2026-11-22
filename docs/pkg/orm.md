@@ -31,7 +31,7 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
 - **Transactions**:
   - `DB.Begin(ctx context.Context) (*Tx, error)`, `DB.BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error)`
   - `DB.Transaction(ctx context.Context, fn func(tx *Tx) error) error`
-  - `Tx.Exec`, `Tx.Query`, `Tx.QueryRow` (same signatures as on `DB`), `Tx.Dialect()`, `Tx.SQLTx() *sql.Tx`, `Tx.Commit()`, `Tx.Rollback()`
+  - `Tx.Exec`, `Tx.Query`, `Tx.QueryRow`, `Tx.Raw` (same signatures as on `DB`), `Tx.Dialect()`, `Tx.SQLTx() *sql.Tx`, `Tx.Commit()`, `Tx.Rollback()`
 - **Fluent Query Builder & CRUD**:
   - `Query.Where(col, op string, val interface{}) *Query`
   - `Query.OrWhere(col, op string, val interface{}) *Query`
@@ -44,8 +44,11 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
   - `Query.Limit(n int) *Query`, `Query.Offset(n int) *Query`
   - `Query.Select(cols ...string) *Query`, `Query.Distinct() *Query`
   - `Query.Scope(fn func(q *Query) *Query) *Query`
+  - `Query.Preload(relation string, conditions ...func(*Query) *Query) *Query`
   - `Query.WithTrashed() *Query`, `Query.OnlyTrashed() *Query`
   - `Query.Insert(record interface{}) (int64, error)`
+  - `Query.InsertMany(slice interface{}) (int64, error)`
+  - `Query.Upsert(record interface{}, conflictCols, updateCols []string) (int64, error)`
   - `Query.Find(dest interface{}, id ...interface{}) error`
   - `Query.FindOrFail(dest interface{}, id interface{}) error`
   - `Query.First(dest interface{}) error`, `Query.FirstOrFail(dest interface{}) error`
@@ -58,6 +61,17 @@ A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder lib
   - `Query.ForceDelete(record interface{}, id ...interface{}) (int64, error)`
   - `Query.Restore(record interface{}, id ...interface{}) (int64, error)`
   - `Query.Count() (int64, error)`
+- **Raw SQL Engine**:
+  - `DB.Raw(sql string, args ...interface{}) *RawQuery`
+  - `Tx.Raw(sql string, args ...interface{}) *RawQuery`
+  - `RawQuery.Scan(dest interface{}) error` (supports scalar primitive, struct pointer, and slice of structs/primitives)
+  - `RawQuery.Exec() (sql.Result, error)`
+  - `RawQuery.Pluck(dest interface{}) error`
+- **Diagnostics & Telemetry**:
+  - `DB.Stats() sql.DBStats`
+  - `DB.Health(ctx context.Context) error`
+  - `DB.SetLogger(logger *slog.Logger)`
+  - `DB.SetSlowQueryThreshold(d time.Duration)`
 - **Schema & Migrations**:
   - `ParseModel(v interface{}) (*TableModel, error)`
   - `GenerateCreateTableSQL(model interface{}, dialect Dialect) (string, error)`
@@ -421,6 +435,127 @@ err = repo.Transaction(ctx, func(txRepo repository.Repository[User]) error {
     }
     return txRepo.Create(ctx, u2) // committed on return nil
 })
+```
+
+## Model Relationships & Associations
+
+`pkg/orm` provides first-class model relationships with zero third-party dependencies:
+- **`has_one`**: Declares a one-to-one relationship (e.g. User has one Profile).
+- **`has_many`**: Declares a one-to-many relationship (e.g. User has many Posts).
+- **`belongs_to`**: Declares an inverse one-to-one or one-to-many relationship (e.g. Post belongs to User).
+- **`many_to_many`**: Declares a many-to-many relationship joined via a pivot table (e.g. Post has many Tags via `post_tags`).
+
+```go
+type User struct {
+    orm.BaseModel
+    Name    string    `orm:"column:name"`
+    Email   string    `orm:"column:email;unique"`
+    Profile *Profile  `orm:"has_one;foreign_key:user_id"`
+    Posts   []Post    `orm:"has_many;foreign_key:user_id"`
+}
+
+type Profile struct {
+    orm.BaseModel
+    UserID  int64     `orm:"column:user_id;index"`
+    Bio     string    `orm:"column:bio"`
+    User    *User     `orm:"belongs_to;foreign_key:user_id"`
+}
+
+type Post struct {
+    orm.BaseModel
+    UserID    int64   `orm:"column:user_id;index"`
+    Title     string  `orm:"column:title"`
+    Published bool    `orm:"column:published"`
+    Author    *User   `orm:"belongs_to;foreign_key:user_id"`
+    Tags      []Tag   `orm:"many_to_many;join_table:post_tags;join_fk:post_id;join_ref:tag_id"`
+}
+```
+
+## Eager Loading (Preload)
+
+Eager loading batches relationship lookups into single `WHERE IN (...)` queries, completely solving the $N+1$ query problem:
+
+```go
+// 1. Eager load single association
+var user User
+err := db.Model(&User{}).Preload("Profile").Find(&user, userID)
+
+// 2. Eager load slice of models
+var users []User
+err := db.Model(&User{}).Preload("Posts").FindAll(&users)
+
+// 3. Scoped eager loading (conditional preload)
+err := db.Model(&User{}).Preload("Posts", func(q *orm.Query) *orm.Query {
+    return q.Where("published", "=", true).OrderBy("created_at", "DESC")
+}).Find(&user, userID)
+
+// 4. Many-to-many eager loading with pivot join
+var post Post
+err := db.Model(&Post{}).Preload("Tags").Find(&post, postID)
+```
+
+## Batch Operations
+
+### Multi-Row Batch Insert (`InsertMany`)
+Efficiently inserts a slice of structs in a single SQL statement while executing lifecycle hooks and populating timestamps:
+
+```go
+tags := []Tag{
+    {Name: "Go"},
+    {Name: "PostgreSQL"},
+    {Name: "SQLite"},
+}
+rowsAffected, err := db.Model(&Tag{}).InsertMany(tags)
+```
+
+### Dialect-Specific Upsert (`Upsert`)
+Inserts records or updates conflicting columns when key constraints trigger (Postgres/SQLite `ON CONFLICT DO UPDATE`, MySQL `ON DUPLICATE KEY UPDATE`):
+
+```go
+affected, err := db.Model(&Tag{}).Upsert(&Tag{
+    BaseModel: orm.BaseModel{ID: 1},
+    Name:      "Golang",
+}, []string{"id"}, []string{"name"})
+```
+
+## Raw SQL Execution (`RawQuery`)
+
+Execute arbitrary SQL statements and scan directly into structs, primitive scalars, or slices with full query parameterization:
+
+```go
+// Scan single struct
+var user User
+err := db.Raw("SELECT id, name, email FROM users WHERE id = ?", id).Scan(&user)
+
+// Scan slice of structs
+var activeUsers []User
+err := db.Raw("SELECT id, name, email FROM users WHERE status = ? ORDER BY id ASC", "active").Scan(&activeUsers)
+
+// Scan primitive scalar
+var totalUsers int64
+err := db.Raw("SELECT COUNT(*) FROM users").Scan(&totalUsers)
+
+// Exec non-query statement
+res, err := db.Raw("UPDATE users SET last_login_at = ? WHERE id = ?", time.Now(), id).Exec()
+```
+
+## Diagnostics, Health & Structured Telemetry
+
+Monitor database connection pools and log query telemetry using standard Go `log/slog`:
+
+```go
+// 1. Connection Pool Stats
+stats := db.Stats()
+fmt.Printf("Open conns: %d, Idle conns: %d\n", stats.OpenConnections, stats.Idle)
+
+// 2. Health check with timeout
+if err := db.Health(ctx); err != nil {
+    log.Fatalf("Database unhealthy: %v", err)
+}
+
+// 3. Structured query logger & slow query detection
+db.SetLogger(slog.Default())
+db.SetSlowQueryThreshold(200 * time.Millisecond) // logs WARN if query takes > 200ms
 ```
 
 ## Security & Architecture Boundaries

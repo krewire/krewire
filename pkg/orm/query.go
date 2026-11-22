@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/krewire/krewire/pkg/errs"
 )
@@ -18,36 +19,61 @@ type Query struct {
 	withTrashed bool
 	onlyTrashed bool
 	forceDelete bool
+	preloads    []preloadItem
 }
 
 func (q *Query) queryRow(query string, args ...interface{}) *sql.Row {
+	start := time.Now()
+	var row *sql.Row
 	if q.tx != nil {
-		return q.tx.QueryRow(q.ctx, query, args...)
+		row = q.tx.QueryRow(q.ctx, query, args...)
+	} else if q.db != nil {
+		row = q.db.QueryRow(q.ctx, query, args...)
 	}
 	if q.db != nil {
-		return q.db.QueryRow(q.ctx, query, args...)
+		q.db.logQuery(q.ctx, query, args, start, nil, -1)
 	}
-	return nil
+	return row
 }
 
 func (q *Query) query(query string, args ...interface{}) (*sql.Rows, error) {
+	start := time.Now()
+	var rows *sql.Rows
+	var err error
 	if q.tx != nil {
-		return q.tx.Query(q.ctx, query, args...)
+		rows, err = q.tx.Query(q.ctx, query, args...)
+	} else if q.db != nil {
+		rows, err = q.db.Query(q.ctx, query, args...)
+	} else {
+		err = errs.FailureError("orm: no database or transaction attached to query")
 	}
 	if q.db != nil {
-		return q.db.Query(q.ctx, query, args...)
+		q.db.logQuery(q.ctx, query, args, start, err, -1)
 	}
-	return nil, errs.FailureError("orm: no database or transaction attached to query")
+	return rows, err
 }
 
 func (q *Query) exec(query string, args ...interface{}) (sql.Result, error) {
+	start := time.Now()
+	var res sql.Result
+	var err error
 	if q.tx != nil {
-		return q.tx.Exec(q.ctx, query, args...)
+		res, err = q.tx.Exec(q.ctx, query, args...)
+	} else if q.db != nil {
+		res, err = q.db.Exec(q.ctx, query, args...)
+	} else {
+		err = errs.FailureError("orm: no database or transaction attached to query")
+	}
+	var rowsAffected int64 = -1
+	if res != nil {
+		if ra, raErr := res.RowsAffected(); raErr == nil {
+			rowsAffected = ra
+		}
 	}
 	if q.db != nil {
-		return q.db.Exec(q.ctx, query, args...)
+		q.db.logQuery(q.ctx, query, args, start, err, rowsAffected)
 	}
-	return nil, errs.FailureError("orm: no database or transaction attached to query")
+	return res, err
 }
 
 // WithTx associates an active transaction with the query.

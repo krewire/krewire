@@ -19,6 +19,7 @@ type Column struct {
 	IsNullable   bool
 	DefaultValue string
 	Unique       bool
+	Index        bool
 	IsSoftDelete bool
 }
 
@@ -33,6 +34,8 @@ type TableModel struct {
 	UpdatedAtCol    *Column
 	DeletedAtCol    *Column
 	IsSoftDeletable bool
+	Relationships   []*Relationship
+	RelationshipMap map[string]*Relationship // key: relationship name lowercased
 }
 
 var (
@@ -69,9 +72,10 @@ func ParseModel(v interface{}) (*TableModel, error) {
 	}
 
 	tm := &TableModel{
-		TableName: tableName,
-		ModelType: typ,
-		ColumnMap: make(map[string]*Column),
+		TableName:       tableName,
+		ModelType:       typ,
+		ColumnMap:       make(map[string]*Column),
+		RelationshipMap: make(map[string]*Relationship),
 	}
 
 	var inspectStruct func(t reflect.Type)
@@ -97,6 +101,15 @@ func ParseModel(v interface{}) (*TableModel, error) {
 			if tag == "" {
 				tag = field.Tag.Get("db")
 				if tag == "-" {
+					continue
+				}
+			}
+
+			if isRelationshipField(field, tag) {
+				rel := parseRelationship(tm, field, tag)
+				if rel != nil {
+					tm.Relationships = append(tm.Relationships, rel)
+					tm.RelationshipMap[strings.ToLower(rel.Name)] = rel
 					continue
 				}
 			}
@@ -184,6 +197,8 @@ func parseColumnTag(field reflect.StructField, tag string) *Column {
 			col.IsAutoInc = true
 		case "unique":
 			col.Unique = true
+		case "index":
+			col.Index = true
 		case "not_null":
 			col.IsNullable = false
 		case "null":
@@ -193,8 +208,8 @@ func parseColumnTag(field reflect.StructField, tag string) *Column {
 		case "soft_delete", "deleted_at":
 			col.IsSoftDelete = true
 		default:
-			// If tag is just a bare name like `db:"user_id"`
-			if len(kv) == 1 && !strings.Contains(part, "=") {
+			// If tag is just a bare name like `db:"user_id"` and col.Name hasn't been set by column:xxx
+			if len(kv) == 1 && !strings.Contains(part, "=") && col.Name == toSnakeCase(field.Name) {
 				col.Name = part
 			}
 		}

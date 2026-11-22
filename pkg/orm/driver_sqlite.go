@@ -113,9 +113,10 @@ func NewSQLite(config SQLiteConfig) (*DB, error) {
 		ConnMaxIdleTime: config.ConnMaxIdleTime,
 	}
 
-	// SQLite typically performs best with serialized or single-writer concurrency in memory
-	if config.InMemory && dbConfig.MaxOpenConns == 0 {
+	// SQLite in-memory databases must use a single connection pool so all queries share the in-memory schema.
+	if config.InMemory || config.Path == ":memory:" {
 		dbConfig.MaxOpenConns = 1
+		dbConfig.MaxIdleConns = 1
 	}
 
 	return OpenWithConfig(dbConfig)

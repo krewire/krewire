@@ -90,7 +90,18 @@ func (q *Query) Find(dest interface{}, id ...interface{}) error {
 		return sql.ErrNoRows
 	}
 
-	return scanRow(rows, dest, tm)
+	if err := scanRow(rows, dest, tm); err != nil {
+		return err
+	}
+	_ = rows.Close()
+
+	if len(q.preloads) > 0 {
+		if err := q.execPreloads(dest, tm); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // First retrieves the first matching record.
@@ -245,5 +256,16 @@ func (q *Query) FindAll(dest interface{}) error {
 		}
 	}
 
-	return rows.Err()
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	_ = rows.Close()
+
+	if len(q.preloads) > 0 {
+		if err := q.execPreloads(dest, tm); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

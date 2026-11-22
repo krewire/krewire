@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -37,9 +38,11 @@ type Config struct {
 
 // DB represents a database connection pool with multi-driver dialect support.
 type DB struct {
-	sqlDB   *sql.DB
-	dialect Dialect
-	driver  string
+	sqlDB              *sql.DB
+	dialect            Dialect
+	driver             string
+	logger             *slog.Logger
+	slowQueryThreshold time.Duration
 }
 
 // Open creates a new DB connection pool using a registered sql driver name and DSN.
@@ -158,6 +161,7 @@ func (db *DB) QueryRow(ctx context.Context, query string, args ...interface{}) *
 type Tx struct {
 	sqlTx   *sql.Tx
 	dialect Dialect
+	db      *DB
 }
 
 // Begin starts a transaction with the driver's default options.
@@ -175,7 +179,7 @@ func (db *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
 	if err != nil {
 		return nil, errs.FailureError(fmt.Sprintf("orm: failed to begin transaction: %v", err))
 	}
-	return &Tx{sqlTx: tx, dialect: db.dialect}, nil
+	return &Tx{sqlTx: tx, dialect: db.dialect, db: db}, nil
 }
 
 // Dialect returns the dialect of the database the transaction runs on.
@@ -234,12 +238,31 @@ func (tx *Tx) Rollback() error {
 
 // Table creates a Query scoped to a table name within this transaction.
 func (tx *Tx) Table(name string) *Query {
-	q := newQuery(nil, name, nil)
+	var db *DB
+	if tx != nil {
+		db = tx.db
+	}
+	q := newQuery(db, name, nil)
 	q.tx = tx
 	if tx != nil && tx.dialect != nil {
 		q.builder = NewQueryBuilder(tx.dialect).Table(name)
 	}
 	return q
+}
+
+// Raw creates a raw SQL query scoped to this transaction.
+func (tx *Tx) Raw(query string, args ...interface{}) *RawQuery {
+	var db *DB
+	if tx != nil {
+		db = tx.db
+	}
+	return &RawQuery{
+		db:   db,
+		tx:   tx,
+		ctx:  context.Background(),
+		sql:  query,
+		args: args,
+	}
 }
 
 // Model creates a Query scoped to a Go model struct within this transaction.
@@ -290,4 +313,14 @@ func (db *DB) Model(v interface{}) *Query {
 		tableName = tm.TableName
 	}
 	return newQuery(db, tableName, v)
+}
+
+// Raw creates a raw SQL query scoped to this database.
+func (db *DB) Raw(query string, args ...interface{}) *RawQuery {
+	return &RawQuery{
+		db:   db,
+		ctx:  context.Background(),
+		sql:  query,
+		args: args,
+	}
 }
