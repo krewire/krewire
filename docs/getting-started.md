@@ -19,11 +19,11 @@ This guide helps developers get up and running with the **Krewire core monorepo*
 2. **Build the `krew` CLI**:
    The `krew` CLI is the unified entrypoint for the ecosystem:
    ```bash
-   go build -o bin/krew ./github.com/krewire/krew/cmd/krew
+   cd ../krew && go build -o ../bin/krew ./cmd/krew
    ```
    Verify that `krew` runs:
    ```bash
-   ./bin/krew version
+   ../bin/krew version
    ```
 
 3. **Verify Go Modules**:
@@ -33,7 +33,7 @@ This guide helps developers get up and running with the **Krewire core monorepo*
 
 ## Running the Automated Test Suite
 
-Run tests across all 37 modular packages:
+Run tests across all modular packages:
 
 ```bash
 go test ./...
@@ -43,7 +43,7 @@ For package-specific testing:
 
 ```bash
 go test -v ./pkg/web/...
-go test -v ./krew/...
+go test -v ./pkg/model/...
 ```
 
 ## First-Project Quickstart (Zero to Shipped in 60 Seconds)

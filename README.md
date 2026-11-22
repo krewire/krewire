@@ -47,12 +47,23 @@ krewire/
 │   ├── mail/     # Multi-driver email delivery (SMTP, Resend, SendGrid, Postmark)
 │   ├── commerce/ # Payment gateway integration (Midtrans) with constant-time webhook verification
 │   └── collab/   # Team roles and per-environment collaboration policies
-├── apps/         # Deployable services and applications
+├── cmd/
+│   └── ai/       # Autonomous AI agent CLI entrypoint
 └── templates/    # Starter templates and scaffolding blueprints
     ├── boost/    # AI-agent workflow template and constitution
     ├── init/     # In-place project initialization templates
     └── new/      # Fresh project scaffolding blueprints
 ```
+
+## Documentation Index
+
+- [Documentation Hub](docs/index.md) — Architectural overview, package index, and guides.
+- [Ecosystem Architecture](docs/foundation/architecture.md) — 6-Layer pyramid architecture, downward dependencies, and layering tests.
+- [Canonical Definition](docs/foundation/canonical-definition.md) — Brand guidelines, naming standards, and taxonomy.
+- [Package Inventory](docs/pkg/index.md) — Comprehensive API reference for all modular domain packages (`pkg/*`).
+- [Workload Guides](docs/guides/workload-architecture-guide.md) — Architectural guide for all 8 software workload kinds.
+- [Getting Started Guide](docs/getting-started.md) — Monorepo setup, Go workspace synchronization, and local testing.
+- [Contributing Guidelines](docs/contributing.md) — Code quality gates, pure-Go invariant, and commit standards.
 
 ## Role in the 10-Repository Ecosystem & Battery Architecture
 
