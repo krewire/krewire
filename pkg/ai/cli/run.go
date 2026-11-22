@@ -13,7 +13,8 @@ import (
 	"github.com/krewire/krewire/pkg/ai/sdlc"
 )
 
-func runSingleShot(args []string) {
+// RunSingleShot executes a single prompt or brief task to completion.
+func RunSingleShot(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
 	personaFlag := fs.String("persona", DefaultPersonaName, "Agent persona")
 	workspaceFlag := fs.String("workspace", DefaultWorkspaceDir, "Workspace directory")
@@ -36,14 +37,14 @@ func runSingleShot(args []string) {
 		os.Exit(2)
 	}
 
-	pers := parsePersona(*personaFlag)
+	pers := ParsePersona(*personaFlag)
 
 	inst, err := embed.New(embed.Options{
 		Workspace: *workspaceFlag,
 		Persona:   &pers,
 		Model:     *modelFlag,
 		MaxSteps:  *maxStepsFlag,
-		OnEvent:   cliEventHandler,
+		OnEvent:   CliEventHandler,
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error initializing agent: %v\n", err)

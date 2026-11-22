@@ -14,7 +14,8 @@ import (
 	"github.com/krewire/krewire/pkg/ai/memory"
 )
 
-func replaySession(w io.Writer, msgs []ai.Message) {
+// ReplaySession formats and writes the session history to w.
+func ReplaySession(w io.Writer, msgs []ai.Message) {
 	for _, msg := range msgs {
 		switch msg.Role {
 		case ai.RoleUser:
@@ -37,7 +38,8 @@ func replaySession(w io.Writer, msgs []ai.Message) {
 	}
 }
 
-func runChat(args []string) {
+// RunChat starts an interactive chat session with the agent.
+func RunChat(args []string) {
 	fs := flag.NewFlagSet("chat", flag.ExitOnError)
 	personaFlag := fs.String("persona", DefaultPersonaName, "Agent persona")
 	workspaceFlag := fs.String("workspace", DefaultWorkspaceDir, "Workspace directory")
@@ -57,14 +59,14 @@ func runChat(args []string) {
 		}
 	}
 
-	pers := parsePersona(*personaFlag)
+	pers := ParsePersona(*personaFlag)
 
 	inst, err := embed.New(embed.Options{
 		Workspace: *workspaceFlag,
 		Persona:   &pers,
 		Model:     *modelFlag,
 		MaxSteps:  *maxStepsFlag,
-		OnEvent:   cliEventHandler,
+		OnEvent:   CliEventHandler,
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error initializing agent: %v\n", err)
@@ -92,7 +94,7 @@ func runChat(args []string) {
 		defer sessLog.Close()
 
 		fmt.Printf("\033[1;36m[Krew Agent]\033[0m Resumed session \033[1m%s\033[0m (%d messages)\n\n", *resumeFlag, len(history))
-		replaySession(os.Stdout, history)
+		ReplaySession(os.Stdout, history)
 	} else {
 		fmt.Printf("\033[1;36m[Krew Agent]\033[0m Initialized persona \033[1m%s\033[0m in workspace \033[1m%s\033[0m\n", pers.Name, *workspaceFlag)
 		fmt.Println("Type your instruction or message. Press Ctrl+C or type 'exit' to quit.")

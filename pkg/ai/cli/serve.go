@@ -13,7 +13,8 @@ import (
 	"github.com/krewire/krewire/pkg/ai/transport"
 )
 
-func runServe(args []string) {
+// RunServe starts the HTTP/SSE daemon server.
+func RunServe(args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
 	portFlag := fs.Int("port", DefaultServePort, "Port to listen on")
 	hostFlag := fs.String("host", DefaultServeHost, "Host address to listen on")
@@ -23,7 +24,7 @@ func runServe(args []string) {
 	noAuthFlag := fs.Bool("no-auth", false, "Disable authentication for local loopback development")
 	_ = fs.Parse(args)
 
-	pers := parsePersona(*personaFlag)
+	pers := ParsePersona(*personaFlag)
 
 	inst, err := embed.New(embed.Options{
 		Workspace: *workspaceFlag,

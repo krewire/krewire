@@ -30,7 +30,7 @@ func TestReplaySession(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	replaySession(&buf, msgs)
+	ReplaySession(&buf, msgs)
 
 	out := buf.String()
 	if !strings.Contains(out, "How do I parse JSON in Go?") {
@@ -64,7 +64,7 @@ func TestPrintSessionList(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	printSessionList(&buf, sessions)
+	PrintSessionList(&buf, sessions)
 
 	out := buf.String()
 	if !strings.Contains(out, "Saved Sessions:") {

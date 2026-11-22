@@ -44,14 +44,16 @@ const (
 	MaxToolPreviewLength = 120
 )
 
-func parsePersona(name string) persona.Persona {
+// ParsePersona resolves a persona by name, falling back to CodingAssistant.
+func ParsePersona(name string) persona.Persona {
 	if p, ok := persona.Lookup(name); ok {
 		return p
 	}
 	return persona.CodingAssistant
 }
 
-func cliEventHandler(ev agent.Event) {
+// CliEventHandler formats and prints agent events to stdout.
+func CliEventHandler(ev agent.Event) {
 	switch ev.Type {
 	case agent.EventThought:
 		fmt.Printf("\033[2m[%s] %s\033[0m\n", ev.Timestamp.Format("15:04:05"), ev.Content)

@@ -9,7 +9,8 @@ import (
 	"github.com/krewire/krewire/pkg/ai/memory"
 )
 
-func printSessionList(w io.Writer, sessions []memory.SessionInfo) {
+// PrintSessionList formats and prints the list of sessions to w.
+func PrintSessionList(w io.Writer, sessions []memory.SessionInfo) {
 	fmt.Fprintln(w, "Saved Sessions:")
 	for _, s := range sessions {
 		fmt.Fprintf(w, "  • %-36s  %s  (%d msgs, %d tokens)\n",
@@ -21,7 +22,8 @@ func printSessionList(w io.Writer, sessions []memory.SessionInfo) {
 	}
 }
 
-func runSessions(args []string) {
+// RunSessions lists past conversation sessions.
+func RunSessions(args []string) {
 	fs := flag.NewFlagSet("sessions", flag.ExitOnError)
 	dirFlag := fs.String("dir", "", "Custom sessions directory")
 	_ = fs.Parse(args)
@@ -47,10 +49,11 @@ func runSessions(args []string) {
 		return
 	}
 
-	printSessionList(os.Stdout, sessions)
+	PrintSessionList(os.Stdout, sessions)
 }
 
-func runExport(args []string) {
+// RunExport exports a session transcript to markdown.
+func RunExport(args []string) {
 	fs := flag.NewFlagSet("export", flag.ExitOnError)
 	formatFlag := fs.String("format", DefaultExportFormat, "Export format (default: markdown)")
 	dirFlag := fs.String("dir", "", "Custom sessions directory")

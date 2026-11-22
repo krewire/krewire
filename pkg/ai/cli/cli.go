@@ -17,17 +17,17 @@ func Run(args []string) int {
 
 	switch cmd {
 	case "chat":
-		runChat(cmdArgs)
+		RunChat(cmdArgs)
 	case "agent", "run":
-		runSingleShot(cmdArgs)
+		RunSingleShot(cmdArgs)
 	case "daemon", "serve":
-		runServe(cmdArgs)
+		RunServe(cmdArgs)
 	case "sessions":
-		runSessions(cmdArgs)
+		RunSessions(cmdArgs)
 	case "export":
-		runExport(cmdArgs)
+		RunExport(cmdArgs)
 	case "mcp":
-		runMCP(cmdArgs)
+		RunMCP(cmdArgs)
 	case "help", "-h", "--help":
 		printUsage()
 	default:

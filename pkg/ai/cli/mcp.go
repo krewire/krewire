@@ -12,13 +12,14 @@ import (
 	"github.com/krewire/krewire/pkg/ai/transport"
 )
 
-func runMCP(args []string) {
+// RunMCP starts the MCP server over stdin/stdout.
+func RunMCP(args []string) {
 	fs := flag.NewFlagSet("mcp", flag.ExitOnError)
 	personaFlag := fs.String("persona", DefaultPersonaName, "Agent persona")
 	workspaceFlag := fs.String("workspace", DefaultWorkspaceDir, "Workspace directory")
 	_ = fs.Parse(args)
 
-	pers := parsePersona(*personaFlag)
+	pers := ParsePersona(*personaFlag)
 
 	inst, err := embed.New(embed.Options{
 		Workspace: *workspaceFlag,
