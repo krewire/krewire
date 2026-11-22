@@ -223,3 +223,267 @@ func QuickCheck(ctx context.Context, db *orm.DB) ([]string, error) {
 	}
 	return messages, errs.FailureError(fmt.Sprintf("sqlite quick check issues detected: %s", strings.Join(messages, "; ")))
 }
+
+// PageStats holds memory and page allocation metrics for a SQLite database.
+type PageStats struct {
+	PageCount     int64 `json:"page_count"`
+	PageSize      int64 `json:"page_size"`
+	TotalBytes    int64 `json:"total_bytes"`
+	FreeListPages int64 `json:"freelist_pages"`
+	UserVersion   int   `json:"user_version"`
+	SchemaVersion int   `json:"schema_version"`
+}
+
+// GetPageStats queries page metrics and storage allocations from SQLite PRAGMAs.
+func GetPageStats(ctx context.Context, db *orm.DB) (*PageStats, error) {
+	if db == nil {
+		return nil, errs.UsageError("sqlite: db connection must not be nil")
+	}
+
+	stats := &PageStats{}
+	if err := db.QueryRow(ctx, "PRAGMA page_count").Scan(&stats.PageCount); err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite page_count failed: %v", err))
+	}
+	if err := db.QueryRow(ctx, "PRAGMA page_size").Scan(&stats.PageSize); err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite page_size failed: %v", err))
+	}
+	stats.TotalBytes = stats.PageCount * stats.PageSize
+
+	if err := db.QueryRow(ctx, "PRAGMA freelist_count").Scan(&stats.FreeListPages); err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite freelist_count failed: %v", err))
+	}
+	if err := db.QueryRow(ctx, "PRAGMA user_version").Scan(&stats.UserVersion); err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite user_version failed: %v", err))
+	}
+	if err := db.QueryRow(ctx, "PRAGMA schema_version").Scan(&stats.SchemaVersion); err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite schema_version failed: %v", err))
+	}
+
+	return stats, nil
+}
+
+// DatabaseSize computes the total allocated database size in bytes.
+func DatabaseSize(ctx context.Context, db *orm.DB) (int64, error) {
+	stats, err := GetPageStats(ctx, db)
+	if err != nil {
+		return 0, err
+	}
+	return stats.TotalBytes, nil
+}
+
+// GetUserVersion returns the integer user_version stored in the database header.
+func GetUserVersion(ctx context.Context, db *orm.DB) (int, error) {
+	if db == nil {
+		return 0, errs.UsageError("sqlite: db connection must not be nil")
+	}
+	var version int
+	if err := db.QueryRow(ctx, "PRAGMA user_version").Scan(&version); err != nil {
+		return 0, errs.FailureError(fmt.Sprintf("sqlite get user_version failed: %v", err))
+	}
+	return version, nil
+}
+
+// SetUserVersion updates the integer user_version stored in the database header.
+func SetUserVersion(ctx context.Context, db *orm.DB, version int) error {
+	if db == nil {
+		return errs.UsageError("sqlite: db connection must not be nil")
+	}
+	query := fmt.Sprintf("PRAGMA user_version = %d", version)
+	if _, err := db.Exec(ctx, query); err != nil {
+		return errs.FailureError(fmt.Sprintf("sqlite set user_version failed: %v", err))
+	}
+	return nil
+}
+
+// ForeignKeysEnabled checks if foreign key constraints are currently enforced.
+func ForeignKeysEnabled(ctx context.Context, db *orm.DB) (bool, error) {
+	if db == nil {
+		return false, errs.UsageError("sqlite: db connection must not be nil")
+	}
+	var fk int
+	if err := db.QueryRow(ctx, "PRAGMA foreign_keys").Scan(&fk); err != nil {
+		return false, errs.FailureError(fmt.Sprintf("sqlite check foreign_keys failed: %v", err))
+	}
+	return fk == 1, nil
+}
+
+// SetJournalMode changes the active journal mode and returns the mode configured by the engine.
+func SetJournalMode(ctx context.Context, db *orm.DB, mode string) (string, error) {
+	if db == nil {
+		return "", errs.UsageError("sqlite: db connection must not be nil")
+	}
+	query := fmt.Sprintf("PRAGMA journal_mode = %s", strings.ToUpper(strings.TrimSpace(mode)))
+	var result string
+	if err := db.QueryRow(ctx, query).Scan(&result); err != nil {
+		return "", errs.FailureError(fmt.Sprintf("sqlite set journal_mode failed: %v", err))
+	}
+	return strings.ToUpper(result), nil
+}
+
+// SetSynchronous sets the PRAGMA synchronous flag (e.g. "NORMAL", "FULL", "OFF").
+func SetSynchronous(ctx context.Context, db *orm.DB, mode string) error {
+	if db == nil {
+		return errs.UsageError("sqlite: db connection must not be nil")
+	}
+	query := fmt.Sprintf("PRAGMA synchronous = %s", strings.ToUpper(strings.TrimSpace(mode)))
+	if _, err := db.Exec(ctx, query); err != nil {
+		return errs.FailureError(fmt.Sprintf("sqlite set synchronous failed: %v", err))
+	}
+	return nil
+}
+
+// Backup creates a clean online hot copy of the database at destPath without blocking concurrent reads/writes.
+func Backup(ctx context.Context, srcDB *orm.DB, destPath string) error {
+	if srcDB == nil {
+		return errs.UsageError("sqlite: srcDB must not be nil")
+	}
+	if strings.TrimSpace(destPath) == "" {
+		return errs.UsageError("sqlite: destPath must not be empty")
+	}
+	escaped := strings.ReplaceAll(destPath, `'`, `''`)
+	query := fmt.Sprintf("VACUUM INTO '%s'", escaped)
+	if _, err := srcDB.Exec(ctx, query); err != nil {
+		return errs.FailureError(fmt.Sprintf("sqlite backup (VACUUM INTO) failed: %v", err))
+	}
+	return nil
+}
+
+// ColumnInfo holds introspection details for a table column.
+type ColumnInfo struct {
+	CID          int     `json:"cid"`
+	Name         string  `json:"name"`
+	Type         string  `json:"type"`
+	NotNull      bool    `json:"not_null"`
+	DefaultValue *string `json:"default_value"`
+	PK           int     `json:"pk"`
+}
+
+// ListTables returns all user-defined table names in the database.
+func ListTables(ctx context.Context, db *orm.DB) ([]string, error) {
+	if db == nil {
+		return nil, errs.UsageError("sqlite: db connection must not be nil")
+	}
+	query := `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name ASC`
+	rows, err := db.Query(ctx, query)
+	if err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite list tables failed: %v", err))
+	}
+	defer rows.Close()
+
+	var tables []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		tables = append(tables, name)
+	}
+	return tables, rows.Err()
+}
+
+// TableExists checks if a specific table exists in the database.
+func TableExists(ctx context.Context, db *orm.DB, tableName string) (bool, error) {
+	if db == nil {
+		return false, errs.UsageError("sqlite: db connection must not be nil")
+	}
+	query := `SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1`
+	var exists int
+	err := db.QueryRow(ctx, query, tableName).Scan(&exists)
+	if err != nil {
+		return false, nil
+	}
+	return exists == 1, nil
+}
+
+// TableInfo returns column introspection metadata for a given table.
+func TableInfo(ctx context.Context, db *orm.DB, tableName string) ([]ColumnInfo, error) {
+	if db == nil {
+		return nil, errs.UsageError("sqlite: db connection must not be nil")
+	}
+	escaped := strings.ReplaceAll(tableName, `"`, `""`)
+	query := fmt.Sprintf(`PRAGMA table_info("%s")`, escaped)
+	rows, err := db.Query(ctx, query)
+	if err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite table_info failed: %v", err))
+	}
+	defer rows.Close()
+
+	var cols []ColumnInfo
+	for rows.Next() {
+		var c ColumnInfo
+		var notNullInt int
+		if err := rows.Scan(&c.CID, &c.Name, &c.Type, &notNullInt, &c.DefaultValue, &c.PK); err != nil {
+			return nil, errs.FailureError(fmt.Sprintf("sqlite scan table_info failed: %v", err))
+		}
+		c.NotNull = notNullInt == 1
+		cols = append(cols, c)
+	}
+	return cols, rows.Err()
+}
+
+// ListIndices returns the index names attached to a specific table.
+func ListIndices(ctx context.Context, db *orm.DB, tableName string) ([]string, error) {
+	if db == nil {
+		return nil, errs.UsageError("sqlite: db connection must not be nil")
+	}
+	escaped := strings.ReplaceAll(tableName, `"`, `""`)
+	query := fmt.Sprintf(`PRAGMA index_list("%s")`, escaped)
+	rows, err := db.Query(ctx, query)
+	if err != nil {
+		return nil, errs.FailureError(fmt.Sprintf("sqlite index_list failed: %v", err))
+	}
+	defer rows.Close()
+
+	var indices []string
+	for rows.Next() {
+		var seq int
+		var name string
+		var unique int
+		var origin string
+		var partial int
+		if err := rows.Scan(&seq, &name, &unique, &origin, &partial); err != nil {
+			return nil, errs.FailureError(fmt.Sprintf("sqlite scan index_list failed: %v", err))
+		}
+		indices = append(indices, name)
+	}
+	return indices, rows.Err()
+}
+
+// RetryOnBusy executes fn, retrying with exponential backoff if a transient "database is locked" error occurs.
+func RetryOnBusy(ctx context.Context, maxRetries int, initialDelay time.Duration, fn func() error) error {
+	if maxRetries <= 0 {
+		maxRetries = 3
+	}
+	if initialDelay <= 0 {
+		initialDelay = 10 * time.Millisecond
+	}
+
+	delay := initialDelay
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		err := fn()
+		if err == nil {
+			return nil
+		}
+		lastErr = err
+
+		msg := strings.ToLower(err.Error())
+		if strings.Contains(msg, "database is locked") || strings.Contains(msg, "busy") {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(delay):
+				delay *= 2
+				continue
+			}
+		}
+		return err
+	}
+	return lastErr
+}

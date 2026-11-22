@@ -163,17 +163,92 @@ registers the pure-Go `modernc.org/sqlite` driver as `"sqlite"` (no cgo, so
 `foreign_keys=on`, `busy_timeout=5000`, and immediate transactions:
 
 - `sqlite.Open(path string) (*orm.DB, error)` — creates the file when missing; `":memory:"` for a private in-memory database
+- `sqlite.OpenProduction(path string) (*orm.DB, error)` — enterprise-tuned WAL, 64MB cache, memory temp store, 256MB mmap
 - `sqlite.OpenConfig(cfg orm.SQLiteConfig) (*orm.DB, error)` — custom pool or pragmas
 - `sqlite.Config(path) orm.SQLiteConfig`, `sqlite.DSN(path) string`, `sqlite.DriverName`
 
+### SQLite Operations & Maintenance
+
 ```go
-db, err := sqlite.Open("app.db")
+// 1. Live Online Backup (zero lock, consistent hot copy)
+err := sqlite.Backup(ctx, db, "/data/backups/live_backup.db")
+
+// 2. Storage & Page Metrics
+stats, err := sqlite.GetPageStats(ctx, db)
+// stats.PageCount, stats.PageSize, stats.TotalBytes, stats.FreeListPages, stats.UserVersion
+totalBytes, err := sqlite.DatabaseSize(ctx, db)
+
+// 3. User Version & Schema Pragmas
+err = sqlite.SetUserVersion(ctx, db, 2)
+v, err := sqlite.GetUserVersion(ctx, db)
+isFK, err := sqlite.ForeignKeysEnabled(ctx, db)
+
+// 4. Schema & Table Introspection
+tables, err := sqlite.ListTables(ctx, db)
+exists, err := sqlite.TableExists(ctx, db, "users")
+columns, err := sqlite.TableInfo(ctx, db, "users")
+indices, err := sqlite.ListIndices(ctx, db, "users")
+
+// 5. Database Optimization & Integrity
+msgs, err := sqlite.IntegrityCheck(ctx, db)
+_ = sqlite.Checkpoint(ctx, db, sqlite.CheckpointTruncate)
+_ = sqlite.Vacuum(ctx, db)
+_ = sqlite.Optimize(ctx, db)
+
+// 6. Resilient Retry on Lock / Busy
+err = sqlite.RetryOnBusy(ctx, 5, 20*time.Millisecond, func() error {
+    return runConcurrentWrite()
+})
 ```
 
-Only binaries opt in: a guard in `layering_test.go` keeps every other package
-under `pkg/` from importing the driver. Switching a brand-new file to WAL does
-not wait for locks, so create the database once (for example with
-`kiw migrate up`) before starting several processes on it.
+## PostgreSQL driver (`pkg/orm/postgres`)
+
+Importing `github.com/krewire/krewire/pkg/orm/postgres` registers the pure-Go `pgx` driver
+(`github.com/jackc/pgx/v5/stdlib`) under the driver name `"pgx"`. Designed for enterprise
+workloads with connection pooling, transaction isolation, and rich diagnostics:
+
+- `postgres.Open(dsn string) (*orm.DB, error)`
+- `postgres.OpenConfig(cfg orm.PostgresConfig) (*orm.DB, error)`
+- `postgres.OpenProduction(host string, port int, user, password, db string) (*orm.DB, error)`
+- `postgres.Config(...)`, `postgres.ProductionConfig(...)`, `postgres.DSN(...)`
+
+### PostgreSQL Enterprise Capabilities
+
+```go
+// 1. Distributed Advisory Locks (No Redis required)
+// Session-level non-blocking lock
+acquired, err := postgres.TryAdvisoryLock(ctx, db, 123456)
+if acquired {
+    defer postgres.AdvisoryUnlock(ctx, db, 123456)
+    // Run distributed singleton task...
+}
+
+// Transaction-level advisory lock (automatically freed on commit/rollback)
+err = db.Transaction(ctx, func(tx *orm.Tx) error {
+    if err := postgres.AdvisoryXactLock(ctx, tx, 987654); err != nil {
+        return err
+    }
+    return executeCriticalOperation(tx)
+})
+
+// 2. Real-Time Pub/Sub Notification (LISTEN / NOTIFY)
+err = postgres.Notify(ctx, db, "user_signup", `{"user_id": 42}`)
+
+// 3. Connection Activity & Diagnostics
+activeCount, err := postgres.ActiveConnections(ctx, db)
+stats, err := postgres.ConnectionStats(ctx, db) // Grouped by active, idle, idle in transaction
+
+// 4. Schema & Table Introspection
+tables, err := postgres.ListTables(ctx, db, "public")
+exists, err := postgres.TableExists(ctx, db, "users", "public")
+columns, err := postgres.ListColumns(ctx, db, "users", "public")
+hasIdx, err := postgres.IndexExists(ctx, db, "idx_users_email")
+tableBytes, err := postgres.TableSize(ctx, db, "users") // Total on-disk size including indices
+
+// 5. Maintenance & Cleanup
+_ = postgres.VacuumAnalyze(ctx, db, "users")
+_ = postgres.TruncateTable(ctx, db, "audit_logs", true) // CASCADE truncate
+```
 
 ## Migrations (`pkg/orm/migrate`)
 
