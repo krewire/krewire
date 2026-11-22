@@ -5,36 +5,37 @@ import (
 	"sync"
 
 	"github.com/krewire/krewire/pkg/errs"
-	"github.com/krewire/krewire/pkg/model"
 )
 
-// Executor dispatches a workload.
+// Handler is an executable project function.
+type Handler func(context.Context) errs.ExitCode
+
+// Executor dispatches project execution.
 type Executor interface {
-	Execute(ctx context.Context, workload model.Workload[string]) errs.ExitCode
+	Execute(ctx context.Context) errs.ExitCode
 }
 
-// executor dispatches to the module that handles the workload's Kind.
 type executor struct {
-	mu       sync.RWMutex
-	handlers map[model.Kind]func(context.Context, model.Workload[string]) errs.ExitCode
+	mu      sync.RWMutex
+	handler Handler
 }
 
 func newExecutor() *executor {
-	return &executor{handlers: make(map[model.Kind]func(context.Context, model.Workload[string]) errs.ExitCode)}
+	return &executor{}
 }
 
-func (e *executor) Register(kind model.Kind, fn func(context.Context, model.Workload[string]) errs.ExitCode) {
+func (e *executor) Register(fn Handler) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	e.handlers[kind] = fn
+	e.handler = fn
 }
 
-func (e *executor) Execute(ctx context.Context, workload model.Workload[string]) errs.ExitCode {
+func (e *executor) Execute(ctx context.Context) errs.ExitCode {
 	e.mu.RLock()
-	fn, ok := e.handlers[workload.Kind]
+	fn := e.handler
 	e.mu.RUnlock()
-	if ok {
-		return fn(ctx, workload)
+	if fn != nil {
+		return fn(ctx)
 	}
-	return errs.ExitCodeUsage
+	return errs.ExitCodeSuccess
 }

@@ -2,10 +2,11 @@ package model
 
 import (
 	"fmt"
-	"github.com/krewire/krewire/pkg/errs"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/krewire/krewire/pkg/errs"
 )
 
 // ConfigFileName is the canonical Single Source of Truth for the configuration file name (SSOT).
@@ -15,7 +16,6 @@ const ConfigFileName = "krewire.yaml"
 type Project struct {
 	Name       string `json:"name"`
 	ModulePath string `json:"modulePath"`
-	Kind       Kind   `json:"kind"`
 	ConfigPath string `json:"configPath"`
 }
 
@@ -37,11 +37,6 @@ func (p Project) Validate() error {
 		if err := validateModulePathSegments(p.ModulePath); err != nil {
 			return err
 		}
-	}
-	// Kind is optional copywriting metadata (ADR-R8C2P). Projects may omit it entirely.
-	// When provided, it must not consist solely of whitespace.
-	if p.Kind != "" && strings.TrimSpace(string(p.Kind)) == "" {
-		return errs.UsageError("invalid project kind")
 	}
 	if p.ConfigPath != "" {
 		if err := ValidateKrewireYamlPath(p.ConfigPath); err != nil {
@@ -82,44 +77,4 @@ func validateModulePathSegments(mp string) error {
 		}
 	}
 	return nil
-}
-
-// OptInRule declares that some packages are opt-in batteries: a project of
-// kind For may not import them directly, because they belong to the kind Owner
-// and must cost the constrained kind nothing.
-//
-// The kernel defines the rule shape only. Which packages are batteries for which
-// kind is ecosystem policy and lives above this layer, so adding a battery never
-// edits the kernel. A rule never constrains its own Owner, so the kind that owns
-// a battery may always import it.
-//
-// P is the caller's own import-path type; the constraint keeps the
-// path-segment matching that stops "cloud/service" from also matching
-// "cloud/serviceless".
-type OptInRule[P ~string] struct {
-	// For is the kind the rule constrains.
-	For Kind
-	// Owner is the kind the blocked packages belong to, and is exempt.
-	Owner Kind
-	// Blocked are the import paths the constrained kind may not import directly.
-	Blocked []P
-}
-
-// ViolatesOptIn reports whether any path in imported breaks a rule declared for
-// the given kind.
-func ViolatesOptIn[P ~string](kind Kind, imported []P, rules []OptInRule[P]) bool {
-	for _, imp := range imported {
-		for _, r := range rules {
-			if r.For != kind || r.Owner == kind {
-				continue
-			}
-			for _, blocked := range r.Blocked {
-				b := string(blocked)
-				if string(imp) == b || strings.HasPrefix(string(imp), b+"/") {
-					return true
-				}
-			}
-		}
-	}
-	return false
 }

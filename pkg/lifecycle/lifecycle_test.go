@@ -22,11 +22,11 @@ func (m testModule) Init(k *Kernel) error {
 }
 
 func TestNewValidatesProject(t *testing.T) {
-	_, err := New(model.Project{Name: "", Kind: model.KindApp})
+	_, err := New(model.Project{Name: ""})
 	if err == nil {
 		t.Error("New should fail for invalid project")
 	}
-	_, err = New(model.Project{Name: "demo", Kind: model.KindApp})
+	_, err = New(model.Project{Name: "demo"})
 	if err != nil {
 		t.Errorf("New error = %v, want nil", err)
 	}
@@ -43,10 +43,10 @@ func TestRegistryDuplicate(t *testing.T) {
 }
 
 func TestKernelBootAndExecute(t *testing.T) {
-	k, _ := New(model.Project{Name: "demo", Kind: model.KindApp})
+	k, _ := New(model.Project{Name: "demo"})
 	called := false
 	k.Use(testModule{name: "mod", init: func(k *Kernel) error {
-		k.RegisterHandler(model.KindApp, func(ctx context.Context, w model.Workload[string]) errs.ExitCode {
+		k.RegisterHandler(func(ctx context.Context) errs.ExitCode {
 			called = true
 			return errs.ExitCodeSuccess
 		})
@@ -55,17 +55,9 @@ func TestKernelBootAndExecute(t *testing.T) {
 	if err := k.Boot(context.Background()); err != nil {
 		t.Fatalf("Boot error = %v", err)
 	}
-	// The lifecycle takes the workload the caller declares; the kernel holds no
-	// roster of its own to look one up in.
-	w := model.Workload[string]{Kind: model.KindApp, Package: "example/app"}
-	code := k.Execute(context.Background(), w)
+	code := k.Execute(context.Background())
 	if code != errs.ExitCodeSuccess || !called {
 		t.Errorf("Execute = %v called=%v, want success true", code, called)
-	}
-	// Unknown workload
-	unknown := model.Workload[string]{Kind: "unknown"}
-	if code := k.Execute(context.Background(), unknown); code != errs.ExitCodeUsage {
-		t.Errorf("Execute unknown = %v, want Usage", code)
 	}
 }
 
@@ -144,10 +136,10 @@ func TestExecutor_ConcurrentAccess(t *testing.T) {
 	done := make(chan bool)
 	for i := 0; i < 10; i++ {
 		go func(id int) {
-			e.Register(model.KindApp, func(ctx context.Context, w model.Workload[string]) errs.ExitCode {
+			e.Register(func(ctx context.Context) errs.ExitCode {
 				return errs.ExitCodeSuccess
 			})
-			_ = e.Execute(context.Background(), model.Workload[string]{Kind: model.KindApp})
+			_ = e.Execute(context.Background())
 			done <- true
 		}(i)
 	}

@@ -100,7 +100,6 @@ type ContextDiagnostic struct {
 type ProjectContext struct {
 	Version     string               `json:"version"` // schema version, e.g. "1.0.0"
 	Name        string               `json:"name"`
-	Workload    Kind                 `json:"workload"`
 	Tier        Tier                 `json:"tier"`
 	GoVersion   string               `json:"go_version"`
 	ModulePath  string               `json:"module_path"`
