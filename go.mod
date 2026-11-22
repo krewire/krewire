@@ -7,7 +7,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/jackc/pgx/v5 v5.12.0
-	github.com/krewire/ui v0.0.0-20261109124147-f8e4d32a0a7c
+	github.com/krewire/ui v0.2.3-0.20261122090259-4a9eb9a8999a
 	github.com/tdewolff/minify/v2 v2.24.19
 	golang.org/x/net v0.62.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -35,5 +35,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
 )
-
-replace github.com/krewire/ui => ../ui

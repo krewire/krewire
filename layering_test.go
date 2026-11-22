@@ -318,3 +318,22 @@ func TestWebDoesNotImportORMOrCloud(t *testing.T) {
 		t.Fatal("no pkg/web files checked; the web isolation guard did not run")
 	}
 }
+
+// TestGoMod_NoRelativeReplaceDirectives asserts that go.mod does not contain
+// machine-layout dependent relative replace directives (e.g. `replace => ../*`).
+// The core module must be buildable, testable, and consumable from an isolated
+// clean checkout (ref #129, ADR-V8M2C).
+func TestGoMod_NoRelativeReplaceDirectives(t *testing.T) {
+	root := repoRoot(t)
+	data, err := os.ReadFile(filepath.Join(root, "go.mod"))
+	if err != nil {
+		t.Fatalf("read go.mod: %v", err)
+	}
+	lines := strings.Split(string(data), "\n")
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "replace ") && strings.Contains(trimmed, "=> ..") {
+			t.Errorf("go.mod:%d contains relative replace directive %q which breaks isolated checkouts (ref #129)", i+1, trimmed)
+		}
+	}
+}
