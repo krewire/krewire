@@ -4,7 +4,7 @@ Import: `github.com/krewire/ui`
 
 ## 1. Purpose & Architecture
 
-The `pkg/ui` package implements Krewire's **Pop-Brutalist** UI design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), strongly typed widgets, declarative form builders, and accessible dark-mode inversion.
+The `ui` package (maintained in `github.com/krewire/ui`) implements Krewire's **Pop-Brutalist** UI design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), strongly typed widgets, declarative form builders, and accessible dark-mode inversion with zero npm dependencies.
 
 For full component specifications and design tokens, see [Web UI Component Toolkit Guide](./web-runtime/ui-tui.md).
 

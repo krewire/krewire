@@ -4,7 +4,7 @@ Import: `github.com/krewire/tui`
 
 ## 1. Purpose & Architecture
 
-The `pkg/tui` package is the Terminal UI application builder powering the `krew` CLI tool. It provides command dispatching, flag parsing, subcommands, interactive terminal spinners, styled banners, progress bars, and Levenshtein-based typo suggestions.
+The `tui` package (maintained in `github.com/krewire/tui`) is the Terminal UI application builder powering the `krew` CLI tool. It provides command dispatching, flag parsing, subcommands, interactive terminal spinners, styled banners, progress bars, and Levenshtein-based typo suggestions with zero external dependencies.
 
 For detailed TUI architecture and examples, see [Web UI & Terminal UI Guide](./web-runtime/ui-tui.md).
 

@@ -1,10 +1,10 @@
-# `krew` (DSL Engine)
+# `kiw` (.kiw DSL Engine)
 
 Import: `github.com/krewire/ui/kiw`
 
 ## Purpose
 
-The parser and desugaring engine for the `.kiw` component template dialect.
+The parser and desugaring engine for the `.kiw` Single-File Component (SFC) template dialect (maintained in `github.com/krewire/ui/kiw`).
 
 ## Features
 

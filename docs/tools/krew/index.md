@@ -9,10 +9,10 @@ The unified command-line toolchain powering every phase of the Krewire digital s
 Rather than juggling fragmented bash scripts, npm build runners, webpack/vite configs, and separate CLI utilities, Krewire developers use a single standalone binary: `krew`.
 
 ```text
-kiw <command> [flags]
+krew <command> [flags]
 ```
 
-`krew` dogfoods the monorepo's own Terminal UI toolkit ([`pkg/tui`](../../pkg/web-runtime/ui-tui.md)), declarative models ([`pkg/model`](../../pkg/core/model.md)), and supervisor lifecycle standards ([`pkg/lifecycle`](../../pkg/lifecycle.md)).
+`krew` dogfoods the ecosystem's Terminal UI toolkit ([`tui`](https://github.com/krewire/tui)), declarative models ([`pkg/model`](../../pkg/core/model.md)), and supervisor lifecycle standards ([`pkg/lifecycle`](../../pkg/lifecycle.md)).
 
 ```text
 Go Stdlib ──► pkg/* ──► krew (Layer 3) ──► krewire.yaml ──► 8 Workload Runtimes

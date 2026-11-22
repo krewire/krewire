@@ -86,19 +86,22 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 - **Licensing**: 100% MIT Open Source forever.
 
 ### 3.3 Framework & Modular Libraries (`Pustaka Modular`)
-- **Definition**: The independent Go packages housed under `krewire/pkg/*` (`web`, `orm`, `cache`, `sec`, `ui`, `ai`, `resilience`, etc.) and the component compiler (`pkg/kiw`).
+- **Definition**: The 32 independent Go packages housed under `krewire/pkg/*` (`web`, `orm`, `cache`, `sec`, `storage`, `ai`, `resilience`, etc.).
 - **Rule**: Krewire is distributed as modular, composable libraries, not an inflexible mega-framework. Projects import only what they need; unreferenced packages add zero bytes and zero runtime cost.
 
 ### 3.4 Toolchain (`Toolchain / Perkakas Pengembang`)
 - **Definition**: The unified developer CLI `krew` (`krew`), declarative configuration engine (`krewire.yaml`), code generators, formatters, and release qualification runners.
 - **Rule**: `krew` drives all eight workload kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`).
 
-### 3.5 Platform Products (`Produk Platform`)
-- **Definition**: Distinct higher-tier applications, services, and portals built on top of the Krewire core:
-  - **Krewire Krew** (`krew`): Autonomous ReAct AI agent engine (Proprietary / Closed Source).
+### 3.5 Platform Products & Design Primitives (`Produk Platform & Primitif Desain`)
+- **Definition**: Distinct higher-tier applications, services, and design primitives built within the Krewire ecosystem:
+  - **Krewire Krew** (`krew`): Unified developer toolchain, CLI driver, and autonomous ReAct AI agent runtime.
+  - **Krewire TUI** (`tui`): Lightweight, pure-Go TUI framework and terminal design primitives with zero external dependencies (Open Source).
+  - **Krewire UI** (`ui`): Pop-Brutalist `.kiw` design system (66 components, Model C Go packages, zero npm runtime) (Open Source).
   - **Krewire Cloud** (`cloud`): Hybrid PaaS control plane, process supervisor, and edge gateway (Private Enterprise).
   - **Krewire Auth** (`auth`): Multi-tenant SSO (OIDC/SAML2), MFA (TOTP), and RBAC platform (Private Enterprise).
   - **Krewire Dash** (`dash`): AI-native virtual workspace, execution sandboxes, and collaboration console (Private Enterprise).
+  - **Krewire Internal** (`internal`): Private engineering governance, ADRs, and roadmaps.
   - **Krewire Portal** (`krewire.com`): Official website and documentation hub.
   - **Community Portal** (`krewire.github.io`): Community sponsorship and public distribution portal.
 
@@ -108,7 +111,8 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 
 | Repository | Scope | License | Posture / Tier | Maturity Level |
 |---|---|---|---|---|
-| `krewire` | Core monorepo (`pkg/`, `krew`) | MIT | Open Core Foundation | Production-Ready |
+| `krewire` | Core monorepo (32 domain `pkg/*` packages) | MIT | Open Core Foundation | Production-Ready |
+| `tui` | Terminal UI framework & ANSI primitives | MIT | Open Core Foundation | Production-Ready |
 | `ui` | Component catalog & design tokens | MIT | Open Core Foundation | Production-Ready |
 | `krewire.github.io` | Community and sponsorship hub | MIT | Open Source Community | Production-Ready |
 | `krewire.com` | Official website & documentation portal | Proprietary | Official Production Workload | Production-Ready |
@@ -116,7 +120,7 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 | `cloud` | Hybrid PaaS & control plane | Commercial | Enterprise PaaS Platform | Staged / Preview |
 | `auth` | Enterprise IAM, SSO & RBAC | Commercial | Enterprise Security Platform | Staged / Preview |
 | `dash` | Virtual workspace & dev sandboxes | Commercial | Enterprise Collaboration | Staged / Preview |
-| `krew` | Autonomous ReAct AI agent engine | Proprietary | Commercial AI Platform | Active Development |
+| `krew` | Autonomous ReAct AI agent & toolchain | Proprietary | Commercial AI Platform | Active Development |
 
 ---
 

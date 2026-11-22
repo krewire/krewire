@@ -13,7 +13,7 @@ The monorepo contains foundational and reusable domain packages:
 ```text
 krewire/
 ├── docs/         # Ecosystem documentation (foundation, pkg, tools, templates, guides)
-├── pkg/          # Reusable domain libraries and control plane (33 modular packages)
+├── pkg/          # Reusable domain libraries and control plane (32 modular packages)
 │   ├── model/    # Declarative domain models, workload matrix, scopes, tiers, opt-in rules
 │   ├── lifecycle/# Workload execution dispatch, registry resolution, and supervisor
 │   ├── errs/     # POSIX-compatible exit codes, diagnostic attributes, and stack traces
@@ -40,7 +40,6 @@ krewire/
 │   ├── book/     # Markdown content compiler (chapters, TOC, search, book sites)
 │   ├── resilience/ # Bulkhead concurrency bounds, RateLimiter token bucket, retry with jitter, circuit breaker
 │   ├── testing/  # Test harnesses and browser automation utilities
-│   ├── boost/    # Boost coordination package & embedded AI agent template
 │   ├── cache/    # Multi-driver cache (memory, file, Redis, Memcached)
 │   ├── redis/    # Pure-Go Redis client (RESP protocol)
 │   ├── orm/      # Pure-Go multi-driver ORM, SQL builder, bounded pool defaults, migrations engine

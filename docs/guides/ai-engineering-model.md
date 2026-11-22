@@ -168,8 +168,8 @@ An agent's self-reported claim of success is never considered proof of correctne
 
 Krewire projects are never dependent on proprietary AI providers:
 - Removing or disabling Boost (`AGENTS.md`, `.agents/`) has zero impact on application runtime.
-- The `krew` devtool CLI and all 37 modular libraries (`pkg/*`) compile, run, test, and deploy identically with or without AI agents.
-- Developers can swap agent engines (Krew, Claude Code, Cursor, Copilot, OpenCode) seamlessly because all agents consume the same open standard (`kiw context --json`).
+- The `krew` devtool CLI and all 32 modular libraries (`pkg/*`) compile, run, test, and deploy identically with or without AI agents.
+- Developers can swap agent engines (Krew, Claude Code, Cursor, Copilot, OpenCode) seamlessly because all agents consume the same open standard (`krew context --json`).
 
 ---
 

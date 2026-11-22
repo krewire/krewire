@@ -86,7 +86,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 ---
 
 ### 3.2 Command-Line Tool (`cli`)
-- **Primary Package**: `krew`, `pkg/tui`, `pkg/term`, `pkg/errs`.
+- **Primary Package**: `krew`, `tui` (`github.com/krewire/tui`), `pkg/errs`.
 - **Reference Layout**:
   ```text
   my-cli/
@@ -96,7 +96,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
   └── internal/
       └── engine/           # Execution logic decoupled from terminal I/O
   ```
-- **Idiomatic Pattern**: Use standard `flag.FlagSet` or `pkg/tui.App`. Return typed POSIX exit codes (`errs.ExitCode`) and print diagnostic trees via `errs.FormatTree`.
+- **Idiomatic Pattern**: Use standard `flag.FlagSet` or `tui.App`. Return typed POSIX exit codes (`errs.ExitCode`) and print diagnostic trees via `errs.FormatTree`.
 - **When to Use**: Developer devtools, administrative utilities, code generators, and automation scripts.
 - **When NOT to Use**: Background daemon workers (use `worker`) or continuous network servers (use `service`).
 

@@ -1,6 +1,6 @@
 # Workload: Command-Line Tool (`cli`)
 
-The `cli` workload targets standalone developer utilities, administrative tools, system automation scripts, and interactive terminal applications powered by `pkg/tui`, `pkg/term`, and `pkg/errs`.
+The `cli` workload targets standalone developer utilities, administrative tools, system automation scripts, and interactive terminal applications powered by `tui` (`github.com/krewire/tui`) and `pkg/errs`.
 
 It produces static, single-binary executables with zero external shared library dependencies (`CGO_ENABLED=0`), sub-millisecond startup times, and deterministic POSIX exit codes.
 

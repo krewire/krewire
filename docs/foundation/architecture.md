@@ -8,16 +8,17 @@ System architecture, layering rules, module hierarchy, and design decisions acro
 
 Krewire is an integrated, full-stack application and developer ecosystem built in Go (1.27.1+). It unifies eight distinct software workload kinds under a single declarative control plane, standard-library-aligned domain packages, a consolidated developer CLI, and an AI-native agent constitution.
 
-The ecosystem spans nine repositories:
-1. **`krewire`** (Core Monorepo): Domain packages, kernel executor, developer CLI (`krew`), first-party apps, and templates.
-2. **`krew`**: Autonomous AI agent monorepo (in-process embed, CLI, HTTP/SSE, MCP).
-3. **`cloud`**: Private enterprise hybrid PaaS engine and control plane.
-4. **`auth`**: Private enterprise identity, SSO, MFA, and RBAC platform.
-5. **`dash`**: Krewire Dash — AI-native virtual workspace, execution sandboxes, and collaboration console.
-6. **`ui`**: Pop-Brutalist `.kiw` design system (66 components, pure Go embed.FS, zero npm runtime).
-7. **`internal`**: Documentation hub: ADRs, roadmaps, contributor guides.
-8. **`krewire.com`**: Public marketing and documentation website built with the `site` workload.
-9. **`krewire.github.io`**: Community portal and distribution hub.
+The ecosystem spans ten repositories:
+1. **`krewire`** (Core Monorepo): 32 modular domain packages, foundational kernel primitives, and starter templates.
+2. **`krew`**: Unified developer toolchain, CLI driver, and autonomous AI agent runtime (`github.com/krewire/krew`).
+3. **`tui`**: Lightweight, pure-Go TUI framework and terminal primitives with zero external dependencies (`github.com/krewire/tui`).
+4. **`ui`**: Pop-Brutalist `.kiw` design system, component catalog, and Model C package distribution (`github.com/krewire/ui`).
+5. **`cloud`**: Private enterprise hybrid PaaS engine, runner supervisor, and multi-tenant control plane (`github.com/krewire/cloud`).
+6. **`auth`**: Private enterprise identity, Single Sign-On (OIDC/SAML2), MFA (TOTP), and hierarchical RBAC platform (`github.com/krewire/auth`).
+7. **`dash`**: Krewire Dash — AI-native virtual workspace, execution sandboxes, and collaboration presence (`github.com/krewire/dash`).
+8. **`internal`**: Documentation hub: Architecture Decision Records (ADRs), roadmaps, and contributor guides (`github.com/krewire/internal`).
+9. **`krewire.com`**: Public marketing and documentation website built with the `site` workload (`github.com/krewire/krewire.com`).
+10. **`krewire.github.io`**: Community portal and open-source sponsorship portal (`github.com/krewire/krewire.github.io`).
 
 ---
 
@@ -28,10 +29,9 @@ krewire/
 ├── docs/                 # Ecosystem documentation (foundation, pkg, tools, templates, guides)
 │   ├── foundation/       # Unified architecture & philosophy specifications
 │   ├── pkg/              # Domain package reference (core, mod, web-runtime, system, platform)
-│   ├── krew/        # Developer CLI documentation
 │   ├── templates/        # Starter template and Boost documentation
 │   └── guides/           # Operational and quality playbooks
-├── pkg/                  # Domain libraries and control plane (37 modular packages)
+├── pkg/                  # Reusable domain libraries and control plane (32 modular packages)
 │   ├── model/            # Declarative domain models, workload matrix, scopes, tiers, opt-in rules
 │   ├── lifecycle/        # Workload execution dispatch, registry, executor, supervisor
 │   ├── errs/             # POSIX-compatible exit codes, diagnostics, stack traces
@@ -40,8 +40,6 @@ krewire/
 │   ├── log/              # Structured slog logging tailored to environments
 │   ├── web/              # HTTP router, middleware, SSR, SSG, gateway, HMR
 │   ├── app/              # Dependency injection container & application assembly
-│   ├── ui/               # UI components, layout, styling tokens, CSS theme palettes
-│   ├── tui/              # Terminal UI toolkit powering the krew CLI
 │   ├── runtime/          # WebAssembly client runtime (VDOM, mounting, widgets)
 │   ├── ai/               # Native AI SDK: providers, streaming, tools, schema, object generation
 │   ├── sec/              # Secure defaults (headers, CSRF, CORS, SSRF, PII redaction)
@@ -56,22 +54,18 @@ krewire/
 │   ├── functional/       # Generic collection and functional utilities (Map, Filter, Reduce)
 │   ├── hub/              # Plugin registry and package resolver
 │   ├── i18n/             # Internationalization, message bundles, pluralization, middleware
-│   ├── kiw/              # .kiw DSL compiler, parser, AST desugaring, component engine
 │   ├── markdown/         # Markdown parsing & rendering with link prefixing
 │   ├── book/             # Markdown content compiler (chapters, TOC, search)
 │   ├── resilience/       # Retry policies with exponential backoff & circuit breakers
-│   ├── term/             # Terminal detection, ANSI colors, and output formatting
 │   ├── testing/          # Test harnesses and browser automation utilities
-│   ├── boost/            # Boost coordination package & embedded agentic template
 │   ├── cache/            # Multi-driver cache (memory, file, Redis, Memcached)
 │   ├── redis/            # Pure-Go Redis client (RESP protocol)
 │   ├── orm/              # Pure-Go multi-driver ORM & SQL query builder
 │   ├── mail/             # Multi-driver email delivery (SMTP, Resend, SendGrid, Postmark)
 │   ├── commerce/         # Payment gateway integration (Midtrans)
 │   └── collab/           # Team roles and per-environment collaboration policies
-├── apps/                 # Deployable first-party services and applications
-├── tools/                # Developer tooling
-│   └── kiw/              # Unified developer CLI for scaffolding, build, and deploy
+├── cmd/
+│   └── ai/               # AI engine entrypoint and CLI driver
 └── templates/            # Starter templates and scaffolding blueprints
     ├── boost/            # AI-agent workflow template and constitution (.agents/)
     ├── init/             # In-place project initialization templates (app, book, cli, static)
@@ -90,41 +84,35 @@ The Krewire architecture strictly enforces a **topological Directed Acyclic Grap
 
 ```mermaid
 flowchart TD
-    subgraph L5 ["Layer 5: Scaffolding & Agentic Blueprints"]
-        Templates["templates/boost, templates/init, templates/new"]
+    subgraph L5 ["Layer 5: Unified Apex Portals & Workspaces"]
+        Portals["dash · internal · krewire.com · krewire.github.io · templates"]
     end
 
-    subgraph L4 ["Layer 4: Unified Developer Tooling"]
-        KiwCLI["krew (CLI Binary)"]
+    subgraph L4 ["Layer 4: Application Engines & PaaS"]
+        Engines["cloud (PaaS) · auth (Identity & SSO)"]
     end
 
-    subgraph L3 ["Layer 3: Modular Domain Libraries"]
-        WebRuntime["web, runtime, ui, tui"]
-        SecuritySys["sec, auth, config, validation, storage, fs, file"]
-        PlatformUtil["cloud, testing, hub, resilience, markdown, i18n"]
+    subgraph L3 ["Layer 3: Universal Developer Driver & CLI"]
+        Driver["krew (driven by krewire.yaml)"]
     end
 
-    subgraph L2 ["Layer 2: Execution & Supervision"]
-        KernLifecycle["pkg/lifecycle, pkg/env, pkg/log"]
+    subgraph L2 ["Layer 2: Modular Domain Libraries"]
+        DomainLibs["pkg/* (web, orm, cache, sec, storage, ai) · ui · tui"]
     end
 
-    subgraph L1 ["Layer 1: Declarative Core & Base Primitives"]
-        KernModel["pkg/model, pkg/errs, pkg/version"]
+    subgraph L1 ["Layer 1: Core Foundation & Kernel"]
+        KernModel["pkg/model · pkg/lifecycle · pkg/errs · pkg/version"]
     end
 
     subgraph L0 ["Layer 0: Platform Foundation"]
         StdLib["Go Standard Library (1.27.1+)"]
     end
 
-    Templates --> KiwCLI
-    Templates --> L3
-    KiwCLI --> L3
-    KiwCLI --> L2
-    KiwCLI --> L1
-    WebRuntime --> KernLifecycle
-    SecuritySys --> KernLifecycle
-    PlatformUtil --> KernLifecycle
-    KernLifecycle --> KernModel
+    Portals --> Engines
+    Portals --> Driver
+    Engines --> Driver
+    Driver --> DomainLibs
+    DomainLibs --> KernModel
     KernModel --> StdLib
 ```
 

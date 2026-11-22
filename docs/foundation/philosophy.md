@@ -72,13 +72,13 @@ Projects evolve. A Krewire project starts from a clean pre-init bootstrap layout
 
 ### 8. Local-First & Dogfooding Discipline
 Developers must be able to develop, preview, test, and audit their entire stack locally, offline, and rapidly:
-- The developer CLI (`krew`) dogfoods the monorepo's own terminal UI toolkit (`pkg/tui`) and error handling (`pkg/errs`).
+- The developer CLI (`krew`) dogfoods the ecosystem terminal UI toolkit (`tui`) and error handling (`pkg/errs`).
 - `krew dev` and `krew serve` deliver instantaneous feedback loops via local servers and WebSocket-driven Hot Module Replacement (HMR).
 - Releases are verified locally against the built binary (`bin/krew`) before being published.
 
 ### 9. AI-Native Engineering (Boost Constitution)
 AI coding agents are treated as first-class team members:
-- The Krewire Boost template (`pkg/boost`, `templates/boost`) codifies an autonomous, multi-agent development workflow directly into the repository structure (`.agents/`).
+- The Krewire Boost template (`templates/boost`) codifies an autonomous, multi-agent development workflow directly into the repository structure (`.agents/`).
 - Agents operate under an explicit constitution (`AGENTS.md`) with role specializations (planning, designing, building, decomposing, testing, auditing).
 - Agents respect project boundaries, test-driven requirements, and automated quality gates without human babysitting.
 
