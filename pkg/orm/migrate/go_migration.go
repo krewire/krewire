@@ -348,3 +348,22 @@ func UpGo(ctx context.Context, db *orm.DB) error {
 	_, err := RunGo(ctx, db, "up", 0)
 	return err
 }
+
+// DownGo rolls back registered Go migrations (default 1 step).
+func DownGo(ctx context.Context, db *orm.DB, steps ...int) error {
+	n := 1
+	if len(steps) > 0 && steps[0] > 0 {
+		n = steps[0]
+	}
+	_, err := RunGo(ctx, db, "down", n)
+	return err
+}
+
+// StatusGo returns the migration status for all registered Go migrations.
+func StatusGo(ctx context.Context, db *orm.DB) ([]Status, error) {
+	gm, err := NewGoMigrator(db, Options{})
+	if err != nil {
+		return nil, err
+	}
+	return gm.Status(ctx)
+}
