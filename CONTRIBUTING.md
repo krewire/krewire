@@ -1,108 +1,110 @@
 # Contributing to Krewire
 
-This guide covers *how* to contribute: the workflow, conventions, and quality
-gates every change must pass. It assumes you've completed
-[internal/docs/getting-started.md](../internal/docs/getting-started.md) and have a working local workspace.
+Welcome! This guide covers *how* to contribute to the **Krewire Core Monorepo** (`github.com/krewire/krewire`): the workflow, architectural invariants, conventions, and quality gates every change must pass.
 
 > All stored code, comments, docstrings, commit messages, specifications, and repository docs are in **English**.
-> If the human writes in Indonesian or another language, reply in that language during conversational dialogue,
-> but keep all repository files and code artifacts strictly in English.
+> If communicating in Indonesian or another language in chat dialogue, reply in that language, but keep all repository files and code artifacts strictly in English.
 
-## Communication & scope
+---
 
-- Write and discuss in the human's preferred language during conversational dialogue (Indonesian, English, etc.), while maintaining all code, comments, docs, and git commit messages strictly in English.
-- Work in small, focused increments. One logical change per PR. Don't bundle
-  unrelated work or secrets.
-- The agent (and you) may push back on a request that conflicts with the project's
-  current condition. Respectful dissent is part of planning, not insubordination.
+## 1. Architectural Rules & Invariants (Do Not Violate)
 
-## Branching model (trunk-based)
+Strict downward-only dependencies are strictly enforced across the ecosystem (ADR-E8P9D, ADR-B7D3A):
 
-- `main` is protected; short-lived feature branches are created from it.
-- Branch names are descriptive (e.g. `fix/ssg-scoped-css`, `feat/wasm-events`).
-- Open a PR against `main`; require review before merge.
-- Non-trivial work is tracked via GitHub Issues.
-
-## Conventional Commits
-
-Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-feat:     new feature
-fix:      bug fix
-refactor: change without behavior change
-docs:     documentation
-test:     tests
-chore:    other supporting work
+```text
+Layer 3: krew (CLI Toolchain) ──► Layer 2: pkg/* ──► Layer 1: pkg/model, pkg/errs ──► Layer 0: Go Stdlib
 ```
 
-The PR title/commit becomes the release note (used by `kiw release --notes`).
+1. **Kernel Boundary (`pkg/model`, `pkg/errs`)**:
+   - `pkg/model` may depend only on standard library packages and `pkg/errs` — never on higher-level packages and never on `krew`.
+2. **Complete Tooling Isolation**:
+   - No package or library under `pkg/` may ever import the CLI toolchain (`krew`). Enforced via AST in `layering_test.go`.
+3. **Pure Go / Zero CGO (`CGO_ENABLED=0`)**:
+   - All Go code must compile cleanly with `CGO_ENABLED=0`. Never introduce native C dependencies or shared library linkages.
+4. **Single Source of Truth (SSOT)**:
+   - A fact or configuration default that the ecosystem agrees on is declared once in the owning layer (`pkg/model` for domain rules, owning packages for behaviors).
+   - Copying a literal or constant into a second package is prohibited. Export and call the resolver function instead.
+5. **Decoupled Peers**:
+   - Sibling packages under `pkg/` are peers, not an arbitrary hierarchy: `web` may use `ui`, but `ui` may not use `web`.
 
-## Quality gates (per module)
+---
 
-Run these before every PR; CI runs the same:
+## 2. Development Workflow
+
+1. **GitHub Issues Single Source of Truth**:
+   - Every pull request must be linked to an active GitHub Issue (`ref #<IssueNumber>`).
+   - Mark off completed checklist items (`- [ ]` to `- [x]`) in the issue body.
+
+2. **Branching Model (Trunk-Based)**:
+   - `main` is protected; short-lived feature and bugfix branches are created from it.
+   - Branch naming: `feat/<name>`, `fix/<name>`, `refactor/<name>`, `docs/<name>`.
+   - Work in small, focused increments. One logical change per PR with atomic commits ($\le$ ~300 LOC per commit).
+
+3. **Conventional Commits**:
+   Commit messages strictly follow [Conventional Commits](https://www.conventionalcommits.org/):
+   ```text
+   feat(web): add support for chunked transfer encoding (ref #102)
+   fix(kiw): resolve relative path handling in static builds
+   test(model): assert workload kind detection precedence
+   docs(core): update monorepo layout and architecture index
+   ```
+
+---
+
+## 3. Quality Gates (Per Module)
+
+Run these checks before submitting every PR:
 
 ```bash
-gofmt -l .                      # must output nothing
-go vet ./...                    # must pass
-go test ./...                   # must pass
-kiw compat                      # must print ok (after version.go changes)
+# 1. Format check (must output nothing)
+gofmt -l .
+
+# 2. Static analysis
+go vet ./...
+
+# 3. Unit and layering tests
+go test ./...
+
+# 4. Cross-module compatibility check
+krew compat
 ```
 
-For `site`/`book` projects additionally run `kiw build`/`kiw serve` and spot-check
-the `.krewire/build` output.
+---
 
-## The `version.go` compatibility contract
+## 4. The `version.go` Compatibility Contract
 
-Each module declares its version and its minimum required versions in
-`<module>/version.go`:
+Each module declares its version and its minimum required versions in `<module>/version.go`:
 
 - `Version` — the module's own semantic version (kept in sync with its `go.mod` pin).
-- `EcosystemRequires` — `map[ModuleName]Version` of the minimum versions of the
-  modules it depends on.
+- `EcosystemRequires` — `map[ModuleName]Version` of the minimum versions of the modules it depends on.
 
 Rules:
-
 - Never leave `Version` and the `go.mod` pin disagreeing.
-- When you bump a module, bump every dependent module's `EcosystemRequires` that
-  references it. `kiw release` does this for you (maintainer mode).
-- Run `kiw compat` after any `version.go` change — it must print `ok`.
+- When you bump a module, bump every dependent module's `EcosystemRequires` that references it. `krew release` does this for you (maintainer mode).
+- Run `krew compat` after any `version.go` change — it must print `ok`.
 
-## Releasing
+---
 
-`kiw release` is the single release orchestrator and is a **dry run by default**
-(pass `--apply` to write). It serves two audiences:
+## 5. Releasing
 
-- **Maintainer mode** (inside the workspace, `--module`/`--all`) — bumps a module's
-  `version.go` `Version` and propagates the new minimum into dependent contracts.
-  Example: `kiw release --all --bump minor --apply`.
-- **Developer mode** (inside a Krewire project, no `--module` flag) — bumps the
-  project's `version:` in `krewire.yaml` and builds it. Example:
-  `kiw release --bump patch --apply`.
+`krew release` is the single release orchestrator and is a **dry run by default** (pass `--apply` to write):
 
-Run `kiw compat` after version updates to ensure full compatibility across the
-ecosystem.
+- **Maintainer mode** (inside the workspace, `--module`/`--all`) — bumps a module's `version.go` `Version` and propagates the new minimum into dependent contracts. Example: `krew release --all --bump minor --apply`.
+- **Developer mode** (inside a Krewire project, no `--module` flag) — bumps the project's `version:` in `krewire.yaml` and builds it. Example: `krew release --bump patch --apply`.
 
-## Code style
+---
 
-- Idiomatic Go: clear names, `(value,error)` signatures, zero-value usability,
-  `Option`/functional options where suitable.
-- Don't add comments unless asked; clear code beats comments.
-- Respect each package's existing conventions; mimic neighboring files.
-- Keep modules cohesive — one module, one reason to change (SRP). Don't build a
-  "god module".
-- Prefer safe, stdlib-first code; reach for `unsafe` only with a measured,
-  documented need.
+## 6. Code Style & Engineering Discipline
 
-## Agent notes (for AI-assisted work)
+- **Idiomatic Go**: Clear names, `(value, error)` signatures, zero-value usability, and functional options where suitable.
+- **Anti-God-Module Rule**: Each unit and package must have exactly one reason to change. Never bundle unrelated helpers, handlers, and registries into single monolithic files.
+- **Stdlib-First**: Always prefer Go standard library packages over third-party dependencies.
+- **SafePath Traversal Guard**: Any file system operation receiving user or workspace input must be bounded via `SafePath`.
 
-- The workspace `AGENTS.md` is the constitution — read it first.
-- Useful skills: `specwriting`, `featurebuilding`, `testdriving`, `qualitygate`,
-  `release`.
-- Never commit unless explicitly asked; never commit secrets or large unrelated
-  changes.
+---
 
-## Need help?
+## 7. Additional Resources
 
-Ask in the project's discussion channels or open an issue. Start from
-[internal/docs/getting-started.md](../internal/docs/getting-started.md) if your environment isn't set up yet.
+- [**`README.md`**](README.md): Core monorepo overview and package map.
+- [**`docs/index.md`**](docs/index.md): Master documentation hub for `pkg/` and runtime guides.
+- [**`docs/getting-started.md`**](docs/getting-started.md): Onboarding and local development setup.

@@ -78,7 +78,7 @@ Operational and quality assurance playbooks:
 - [Interoperability & Incremental Adoption](./guides/interoperability-and-migration.md)
 - [Security Best Practices](./guides/security-best-practices.md)
 - [Testing & Quality Assurance](./guides/testing-and-qa.md)
-- [Contributing Guide](./guides/contributing.md)
+- [Contributing Guide](../CONTRIBUTING.md)
 
 ---
 

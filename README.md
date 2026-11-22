@@ -63,7 +63,7 @@ krewire/
 - [Package Inventory](docs/pkg/index.md) — Comprehensive API reference for all modular domain packages (`pkg/*`).
 - [Workload Guides](docs/guides/workload-architecture-guide.md) — Architectural guide for all 8 software workload kinds.
 - [Getting Started Guide](docs/getting-started.md) — Monorepo setup, Go workspace synchronization, and local testing.
-- [Contributing Guidelines](docs/contributing.md) — Code quality gates, pure-Go invariant, and commit standards.
+- [Contributing Guidelines](CONTRIBUTING.md) — Code quality gates, pure-Go invariant, and commit standards.
 
 ## Role in the 10-Repository Ecosystem & Battery Architecture
 

@@ -121,4 +121,4 @@ Use the local `krew` binary to test project lifecycle operations:
 ## Next Steps
 
 - Explore the [Architecture Specification](foundation/architecture.md) for layering rules.
-- Review [Contributing Guidelines](contributing.md) before submitting code changes.
+- Review [Contributing Guidelines](../CONTRIBUTING.md) before submitting code changes.
