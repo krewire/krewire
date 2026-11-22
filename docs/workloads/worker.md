@@ -106,7 +106,6 @@ func main() {
 
 	proj := model.Project{
 		Name: "my-worker",
-		Kind: model.KindWorker,
 	}
 
 	kernel, err := lifecycle.New(proj)

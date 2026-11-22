@@ -162,25 +162,22 @@ The monorepo enforces six non-negotiable architectural invariants via automated 
 
 #### Invariant 6: Opt-In Battery Boundaries (`OptInRule`)
 - **Rule:** Packages classified as specialized batteries for a specific workload kind (e.g. `cloud/worker`, `web/ssg`) are blocked from uninvited cross-import by non-owning kinds unless explicitly opted in.
-- **Rationale:** Guarantees that lightweight workloads (such as `cli` or `site`) incur zero binary weight or initialization cost from features they do not use.
-- **Enforcement:** Enforced via declarative opt-in policies in [`pkg/model/project.go`](../../pkg/model/project.go#L105) (`ViolatesOptIn`).
+- **Rationale:** Guarantees that lightweight workloads (such as CLI tools or static sites) incur zero binary weight or initialization cost from features they do not use.
 
 ---
 
 ## 4. Domain Model & Workload Spectrum
 
-### The Eight Workload Kinds (`model.Kind`)
-Every project in the ecosystem belongs to one of eight canonical kinds:
-- **`app`**: Full-stack dynamic web applications (HTTP router, DI container, SSR, client WASM).
-- **`cli`**: Standalone terminal commands and developer utilities.
-- **`site`**: Content and marketing sites with static site generation (SSG) and HMR.
-- **`book`**: Structured multi-chapter technical documentation books (powered by native `pkg/book`).
-- **`worker`**: Background processing queues, event consumers, and scheduled jobs.
-- **`service`**: Headless backend microservices and RPC/REST APIs.
-- **`gateway`**: API gateways that proxy requests along a declarative route table and discover upstreams.
-- **`infra`**: Declarative cloud infrastructure blueprints and state management.
-
-A pre-scaffold bootstrap project (only `go.mod`, `krewire.yaml`, and the starter `main.go`) is **not** a kind: detection reports `none` with the marker `pre-init`, and workload commands require `krew init` first.
+### The Workload Spectrum
+The Krewire ecosystem progressively handles 8 canonical software capabilities without rigid silos or artificial kind boundaries:
+- **Web Applications**: Full-stack dynamic web applications (HTTP router, DI container, SSR, client WASM).
+- **CLI Tools**: Standalone terminal commands and developer utilities.
+- **Static Sites**: Content and marketing sites with static site generation (SSG) and HMR.
+- **Documentation Books**: Structured multi-chapter technical documentation books (powered by native `pkg/book`).
+- **Workers**: Background processing queues, event consumers, and scheduled jobs.
+- **Backend Services**: Headless backend microservices and RPC/REST APIs.
+- **Gateways**: API gateways that proxy requests along a declarative route table and discover upstreams.
+- **Infrastructure**: Declarative cloud infrastructure blueprints and state management.
 
 ### Scope Hierarchy as Code (`model.Scope`)
 System boundaries are codified through five explicit scope levels:

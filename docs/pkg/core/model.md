@@ -80,23 +80,9 @@ Ensures project metadata satisfies naming and security invariants:
 proj := model.Project{
     Name:       "my-service",
     ModulePath: "example.com/my-service",
-    Kind:       model.KindService,
 }
 
 if err := proj.Validate(); err != nil {
     return err
 }
 ```
-
-### Workload Matrix & Opt-In Batteries (`OptInRule`)
-Prevents unintended package bloat across kinds:
-```go
-type OptInRule[P ~string] struct {
-	For     Kind
-	Owner   Kind
-	Blocked []P
-}
-
-func ViolatesOptIn[P ~string](kind Kind, imported []P, rules []OptInRule[P]) bool
-```
-Lightweight kinds (like `cli` or `site`) are guarded against accidentally importing heavy batteries owned by `app` or `worker` unless explicitly opted in.

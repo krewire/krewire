@@ -21,14 +21,14 @@ The package is composed of four coordinated subsystems:
          ▼                   ▼                   ▼
 ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
 │    Registry     │ │   Supervisor    │ │    Executor     │
-│ (Topo ordering) │ │ (Health & Stop) │ │ (Kind dispatch) │
+│ (Topo ordering) │ │ (Health & Stop) │ │(Task dispatch)  │
 └─────────────────┘ └─────────────────┘ └─────────────────┘
 ```
 
 1. **Kernel (`Kernel`)**: Central orchestrator initialized with a validated `model.Project`. Coordinates module initialization and runtime dispatch.
 2. **Registry (`Registry`)**: Manages modular components (`Module`), resolving dependencies into an acyclic topological startup sequence.
 3. **Supervisor (`Supervisor`)**: Manages long-running concurrent processes (`Startable`), handling graceful cancellation upon signals and health reporting.
-4. **Executor (`Executor`)**: Dispatches workload tasks according to the project's `model.Kind`.
+4. **Executor (`Executor`)**: Dispatches project execution tasks and handlers.
 
 ---
 
@@ -106,7 +106,6 @@ func (w *WorkerService) Stop(ctx context.Context) error {
 func main() {
 	proj := model.Project{
 		Name: "task-worker",
-		Kind: model.KindWorker,
 	}
 
 	kernel, err := lifecycle.New(proj)
