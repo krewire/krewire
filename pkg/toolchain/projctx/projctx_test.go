@@ -206,6 +206,15 @@ func TestLintMissingConflictingMalformed(t *testing.T) {
 	}
 }
 
+func TestCrossCompileGatesAreDistinct(t *testing.T) {
+	src := contract.Provenance{}
+	host, _ := gateFromLine("CGO_ENABLED=0 go build ./...", src)
+	wasm, _ := gateFromLine("GOOS=js GOARCH=wasm CGO_ENABLED=0 go build ./pkg/runtime/...", src)
+	if host.ID != "build" || wasm.ID != "build-js-wasm" || wasm.Type != host.Type {
+		t.Fatalf("ids: host %q, wasm %q (%s/%s)", host.ID, wasm.ID, host.Type, wasm.Type)
+	}
+}
+
 func TestCodesRegistry(t *testing.T) {
 	for code, spec := range Codes {
 		if len(code) != 7 || !strings.HasPrefix(code, "KWC") || spec.Title == "" {

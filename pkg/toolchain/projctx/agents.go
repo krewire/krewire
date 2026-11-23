@@ -64,8 +64,32 @@ func gateFromLine(line string, src contract.Provenance) (contract.Gate, bool) {
 		case "build":
 			gate.Type = model.GateTypeBuild
 		}
+		gate.ID += targetSuffix(env)
 	}
 	return gate, true
+}
+
+// targetSuffix distinguishes cross-compilation gates (for example
+// `GOOS=js GOARCH=wasm go build ./...` next to a host `go build ./...`) so
+// they get distinct IDs instead of colliding as duplicates.
+func targetSuffix(env []string) string {
+	var goos, goarch string
+	for _, kv := range env {
+		k, v, _ := strings.Cut(kv, "=")
+		switch k {
+		case "GOOS":
+			goos = v
+		case "GOARCH":
+			goarch = v
+		}
+	}
+	suffix := ""
+	for _, part := range []string{goos, goarch} {
+		if part != "" {
+			suffix += "-" + part
+		}
+	}
+	return suffix
 }
 
 // agentsMD reads architecture rules and quality gates from AGENTS.md.
