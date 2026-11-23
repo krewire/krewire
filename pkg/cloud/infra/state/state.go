@@ -1,6 +1,9 @@
 // Package state manages infrastructure state persistence and locking
 // (KWF-B7N3D FRK-INFRA-020/021/022/023). State is JSON, stored locally or in a
 // remote backend. Locking prevents concurrent mutations.
+//
+// This is the legacy surface. The versioned lifecycle contract lives in
+// pkg/cloud/infra/contract and is executed by pkg/cloud/infra/engine.
 package state
 
 import (

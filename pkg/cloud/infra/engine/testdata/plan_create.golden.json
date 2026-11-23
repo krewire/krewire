@@ -1,0 +1,117 @@
+{
+  "formatVersion": 1,
+  "contract": "infra.krewire.dev/v1",
+  "provider": "memory",
+  "providerVersion": "1.0.0",
+  "environment": "dev",
+  "mode": "apply",
+  "baseSerial": 0,
+  "actions": [
+    {
+      "address": "bucket/assets",
+      "op": "create",
+      "risk": "low",
+      "reason": "not in recorded state",
+      "changes": [
+        {
+          "path": "region",
+          "after": "ap-southeast-1"
+        }
+      ],
+      "resource": {
+        "kind": "bucket",
+        "name": "assets",
+        "schemaVersion": "v1",
+        "properties": {
+          "region": "ap-southeast-1"
+        }
+      }
+    },
+    {
+      "address": "service/api",
+      "op": "create",
+      "risk": "low",
+      "reason": "not in recorded state",
+      "changes": [
+        {
+          "path": "image",
+          "after": "app:1"
+        },
+        {
+          "path": "port",
+          "after": 8080
+        },
+        {
+          "path": "replicas",
+          "after": 2
+        },
+        {
+          "path": "secrets.token",
+          "after": "(sensitive)"
+        },
+        {
+          "path": "dependsOn",
+          "after": [
+            "bucket/assets"
+          ]
+        }
+      ],
+      "resource": {
+        "kind": "service",
+        "name": "api",
+        "schemaVersion": "v1",
+        "properties": {
+          "image": "app:1",
+          "port": 8080,
+          "replicas": 2
+        },
+        "secrets": {
+          "token": {
+            "source": "env",
+            "key": "API_TOKEN"
+          }
+        },
+        "dependsOn": [
+          "bucket/assets"
+        ]
+      }
+    },
+    {
+      "address": "dns/www",
+      "op": "create",
+      "risk": "high",
+      "reason": "not in recorded state",
+      "changes": [
+        {
+          "path": "target",
+          "after": "api"
+        },
+        {
+          "path": "dependsOn",
+          "after": [
+            "service/api"
+          ]
+        }
+      ],
+      "resource": {
+        "kind": "dns",
+        "name": "www",
+        "schemaVersion": "v1",
+        "properties": {
+          "target": "api"
+        },
+        "dependsOn": [
+          "service/api"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "create": 3,
+    "update": 0,
+    "replace": 0,
+    "delete": 0,
+    "noop": 0
+  },
+  "digest": "sha256:8199e283e23802aa75afdda397c837fe2f0e9f6fe044c0b3ac6eecaf201726e2"
+}

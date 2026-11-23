@@ -1,0 +1,243 @@
+name: CI
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Krewire core quality-gate contract (docs/guides/testing-and-qa.md §6).
+# Every gate is its own job so a failure names the gate that failed.
+# Branch protection should require the aggregate `ci-ok` check; the per-gate
+# check names below are stable and documented as well.
+# Runs on every pull request (no path filter, so required checks always
+# report), on pushes to main, in the merge queue, and as a reusable workflow
+# from the release and nightly pipelines. No secrets are used.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  GOTOOLCHAIN: local        # test exactly the toolchain setup-go installed
+  GOWORK: "off"             # never pick up a developer go.work
+  GOFLAGS: -mod=readonly    # go.mod/go.sum must already be complete
+
+jobs:
+  gofmt:
+    name: gofmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: gofmt -l .
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "${unformatted}" ]; then
+            echo "::error title=gofmt::unformatted files (run gofmt -w):"
+            echo "${unformatted}"
+            exit 1
+          fi
+
+  mod-tidy:
+    name: mod-tidy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: go mod tidy -diff
+        env:
+          GOFLAGS: ""
+        run: go mod tidy -diff
+      - name: go mod verify
+        run: go mod verify
+
+  vet:
+    name: vet
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: go vet ./...
+        run: go vet ./...
+
+  architecture:
+    name: architecture
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: Layering, peer-decoupling, and platform guards
+        run: go test -count=1 -v . ./pkg/errs ./pkg/model
+
+  ai-native:
+    name: ai-native
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      # AI-native criterion (#130/#131): the toolchain contract suite must pass
+      # against the deterministic reference engine, in-process, over in-memory
+      # stdio and as a spawned engine process, with no model credentials.
+      - name: Toolchain contract conformance (reference engine, no LLM credentials)
+        env:
+          KREW_ENGINE: ""
+          ANTHROPIC_API_KEY: ""
+          OPENAI_API_KEY: ""
+        run: |
+          go test -count=1 -v \
+            -run 'TestReferenceEngineConforms|TestSpawnedEngineProcess|TestEndToEndFlow' \
+            ./pkg/toolchain/fakeengine ./pkg/toolchain/adapter ./pkg/toolchain/workflow
+
+  test:
+    name: test (${{ matrix.go }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # min = the go directive in go.mod (canonical minimum); stable = latest release.
+        go: [min, stable]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: ${{ matrix.go == 'min' && 'go.mod' || '' }}
+          go-version: ${{ matrix.go == 'stable' && 'stable' || '' }}
+      - name: go test ./... (CGO_ENABLED=0)
+        env:
+          CGO_ENABLED: "0"
+        run: go test -count=1 ./...
+
+  race:
+    name: race
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: go test -race
+        env:
+          CGO_ENABLED: "1"   # the race detector requires cgo; only this gate enables it
+        run: go test -race -count=1 ./...
+
+  build-purego:
+    name: build-purego
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: CGO_ENABLED=0 go build ./... (clean checkout)
+        env:
+          CGO_ENABLED: "0"
+        run: go build ./...
+
+  build-wasm:
+    name: build-wasm
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: GOOS=js GOARCH=wasm go build ./pkg/runtime/...
+        env:
+          CGO_ENABLED: "0"
+          GOOS: js
+          GOARCH: wasm
+        run: go build -trimpath ./pkg/runtime/...
+
+  release-snapshot:
+    name: release-snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      - name: Build every release target
+        run: .github/scripts/build-release.sh v0.0.0-ci "dev" "${RUNNER_TEMP}/a"
+      - name: Rebuild and compare (bit-for-bit reproducibility)
+        run: |
+          .github/scripts/build-release.sh v0.0.0-ci "dev" "${RUNNER_TEMP}/b"
+          if ! diff "${RUNNER_TEMP}/a/SHA256SUMS" "${RUNNER_TEMP}/b/SHA256SUMS"; then
+            echo "::error title=reproducibility::two builds of the same commit differ"
+            exit 1
+          fi
+      - name: Smoke test linux/amd64 binary
+        run: |
+          bin="${RUNNER_TEMP}/a/ai_v0.0.0-ci_linux_amd64"
+          (cd "${RUNNER_TEMP}/a" && sha256sum -c --ignore-missing SHA256SUMS)
+          "${bin}" --version | tee version.txt
+          grep -q "v0.0.0-ci" version.txt
+          grep -q "${GITHUB_SHA}" version.txt
+          "${bin}" --help >/dev/null
+
+  ci-ok:
+    name: ci-ok
+    if: always()
+    needs: [gofmt, mod-tidy, vet, architecture, ai-native, test, race, build-purego, build-wasm, release-snapshot]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All quality gates passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "gate results: ${RESULTS}"
+          for r in ${RESULTS}; do
+            if [ "${r}" != "success" ]; then
+              echo "::error title=ci-ok::at least one quality gate did not succeed"
+              exit 1
+            fi
+          done

@@ -20,6 +20,10 @@ Go Stdlib ──► pkg/* ──► krew (Layer 3) ──► krewire.yaml ──
 
 ---
 
+AI-native engineering is part of this same toolchain, not a separate CLI. Agentic commands (`krew plan`, `krew agent`, `krew review`, `krew flow`) share the project context, task, policy, and evidence contracts with deterministic commands. Deterministic commands never need an LLM. See the [AI-Native Toolchain Contract](./ai-native-contract.md) and the [Krew engine integration note](./krew-integration.md).
+
+---
+
 ## 2. Command Taxonomy & Categories
 
 `krew` groups commands into cohesive operational categories:

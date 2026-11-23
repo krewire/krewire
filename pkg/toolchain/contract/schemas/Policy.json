@@ -1,0 +1,64 @@
+{
+  "$defs": {
+    "Policy": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_file_write": {
+          "type": "boolean"
+        },
+        "allow_network": {
+          "type": "boolean"
+        },
+        "api_version": {
+          "const": "toolchain.krewire.dev/v1"
+        },
+        "approval_required": {
+          "items": {
+            "enum": [
+              "READ",
+              "WRITE",
+              "DELETE",
+              "COMMAND",
+              "NETWORK",
+              "GIT_PUSH",
+              "DEPLOY"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "deny_destructive": {
+          "type": "boolean"
+        },
+        "kind": {
+          "const": "Policy"
+        },
+        "max_output_bytes": {
+          "type": "integer"
+        },
+        "max_tool_calls": {
+          "type": "integer"
+        },
+        "tool_timeout_sec": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "allow_file_write",
+        "allow_network",
+        "deny_destructive",
+        "max_tool_calls",
+        "tool_timeout_sec",
+        "max_output_bytes"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://krewire.dev/schemas/toolchain/v1/Policy.json",
+  "$ref": "#/$defs/Policy",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Krewire toolchain contract Policy, toolchain.krewire.dev/v1 (contract 1.0.0).",
+  "title": "Policy"
+}

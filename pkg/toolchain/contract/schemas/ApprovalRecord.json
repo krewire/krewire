@@ -1,0 +1,50 @@
+{
+  "$defs": {
+    "ApprovalRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "const": "toolchain.krewire.dev/v1"
+        },
+        "approved_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "approver_id": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "ApprovalRecord"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "valid_until": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "approver_id",
+        "scope",
+        "approved_at",
+        "valid_until",
+        "verified"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://krewire.dev/schemas/toolchain/v1/ApprovalRecord.json",
+  "$ref": "#/$defs/ApprovalRecord",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Krewire toolchain contract ApprovalRecord, toolchain.krewire.dev/v1 (contract 1.0.0).",
+  "title": "ApprovalRecord"
+}

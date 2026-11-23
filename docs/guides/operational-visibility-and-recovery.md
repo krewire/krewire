@@ -40,6 +40,10 @@ Production systems must never conflate process survival with service availabilit
   - When any check fails: returns HTTP `503 Service Unavailable` (`{"status":"degraded","checks":{"db":"connection refused"}}`).
 - **Orchestrator Action**: If `/readyz` fails, the reverse proxy or load balancer immediately removes the instance from the routing pool. The process is **never killed**, allowing it to reconnect to the database or recover gracefully without cascading restart loops.
 
+### Startup Probe (`/startupz`) and the shared contract
+- **Semantic purpose**: "Has initialization finished?" Until it passes, orchestrators ignore liveness and readiness verdicts, so slow migrations or cache warm-up never trigger restart loops.
+- The cross-workload contract for all three probes, including the shared `Report` JSON, optional (`warn`) checks, the `starting` and `draining` states, and worker heartbeats, is [`pkg/observe`](../pkg/observe.md). Its `/healthz` and `/readyz` paths match `web.Health`.
+
 ---
 
 ## 3. Structured Logging & Telemetry Correlation
@@ -211,3 +215,32 @@ To maintain simplicity and zero lock-in, the following architectures are explici
 - **Distributed ACID Transactions across Multi-Cloud**: Avoid distributed two-phase commits across heterogeneous providers; prefer decoupled event queues.
 - **Ephemeral Serverless Without Local Disk**: Serverless runtimes that forbid disk caching or background goroutine drains are incompatible with stateful workers.
 - **Proprietary Kernel Extensions**: Custom kernel modules or CGO-dependent drivers violating pure-Go portability.
+
+---
+
+## 9. Diagnosis Runbooks (`pkg/observe`)
+
+Each runbook starts from the same evidence: the diagnostics bundle (`krew doctor --json`, or `GET /debug/diagnostics` on the admin listener), the probe `Report`s, and logs filtered by `trace_id`. Bundle findings carry a stable `code` and a `trace_id`, and their hints link to the sections below. See [`pkg/observe`](../pkg/observe.md) for the full contract.
+
+### Diagnosing startup failure
+1. **Symptom:** `/startupz` returns `503` with `"reason":"starting"`, or the bundle reports `health.startup.incomplete` or `health.startup.<check>`.
+2. Read the failing startup checks in the report. Their errors are redacted but keep the host, port, and cause.
+3. Filter logs by the bundle's `trace_id` and by `workload`/`resource`. The last record before the stall names the step that failed (config load, migration, dependency dial).
+4. Check the `config` section of the bundle for a missing or wrong (redacted) setting.
+5. **Fix and verify:** after a successful init the process calls `Health.MarkStarted()`, and `/startupz` returns `200`.
+
+### Diagnosing readiness failure
+1. **Symptom:** `/readyz` returns `503` while `/healthz` returns `200`. The load balancer has removed the instance, but nothing restarts it.
+2. Each failing required check in the report has a `health.readiness.<check>` finding. Optional checks show `warn` and leave the instance serving.
+3. Correlate in metrics. Look at `krewire_health_check_status{probe="readiness"}` over time, `krewire_resilience_breaker_state` (a value of 2 means the breaker is open), and the 5xx rate in `krewire_http_server_requests_total` by `status_class`.
+4. Readiness returns on its own when the dependency recovers. If `/healthz` also fails (for example a stale worker `Heartbeat`), the orchestrator restarts the process. Check `krewire_go_goroutines` and `krewire_go_heap_alloc_bytes` for exhaustion.
+
+### Diagnosing retries
+1. **Signals:** `krewire_resilience_retries_total{operation}`, `krewire_worker_jobs_total{outcome="retry"|"dead_letter"}`, and the bundle findings `resilience.retries`, `worker.dead_letters`, and `resilience.breaker_open`.
+2. Every retry attempt runs inside the job's trace. Use `observe.WrapJob` at enqueue and filter logs by the `trace_id` to see each attempt's error.
+3. Classify by `failure_class`. Provider failures (`provider`) call for backoff or a breaker. Workload failures (`workload`) usually call for a code or data fix. Inspect the DLQ for poison messages before requeueing.
+
+### Diagnosing shutdown
+1. **Expected sequence:** `Health.MarkDraining()`, readiness fails with `"reason":"draining"`, the load balancer drains, the `lifecycle.Supervisor` LIFO drain runs within the profile's `DrainTimeout`, and the process exits.
+2. A `health.readiness.draining` finding that persists, or a process killed at the timeout, means in-flight work outlived the drain. Check `krewire_http_server_in_flight_requests` and `krewire_worker_job_duration_seconds` against the timeout.
+3. CLI and infra workloads report through their exit code. A non-zero exit together with the bundle's `findings` is the evidence that AI workflow reports cite, not a narrative summary.

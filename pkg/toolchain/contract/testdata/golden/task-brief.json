@@ -1,0 +1,22 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "TaskBrief",
+  "id": "131",
+  "title": "Add a greeting helper",
+  "objective": "Add Greet(name) to pkg/greet",
+  "expected_outcome": "pkg/greet exposes Greet and its tests pass",
+  "repository": "github.com/krewire/krewire",
+  "scope": {
+    "allowed": ["pkg/greet"],
+    "prohibited": ["pkg/greet/testdata"],
+    "commands": [["go", "test"]]
+  },
+  "depends_on": ["130"],
+  "constraints": ["no new third-party dependencies"],
+  "risk": "low",
+  "max_autonomy": "AUTONOMOUS",
+  "approval": {"plan": true, "actions": ["DELETE", "GIT_PUSH"], "approvers": ["maintainer"]},
+  "verification": {"gates": ["fmt", "test"], "condition": "all_required_passed"},
+  "deliverables": ["pkg/greet/greet.go"],
+  "limits": {"timeout_sec": 600, "max_tool_calls": 16, "max_retries": 1}
+}

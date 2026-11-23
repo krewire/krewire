@@ -120,21 +120,47 @@ func TestInMemoryFileSystem(t *testing.T) {
 
 ## 6. Mandatory Quality Gates
 
-Before committing changes or creating a pull request, run all four quality gates:
+The quality-gate contract below is executable: `.github/workflows/ci.yaml`
+runs exactly these commands on every pull request, every push to `main`, the
+merge queue, and (via `workflow_call`) before every stable and nightly
+release. Each gate is a separate job, so a red check names the gate that
+failed. No secrets or model-provider credentials are needed.
+
+| CI check (job name) | Command | Notes |
+|---|---|---|
+| `gofmt` | `gofmt -l .` | Must print nothing. |
+| `mod-tidy` | `go mod tidy -diff` and `go mod verify` | Module files are tidy; downloaded dependencies match `go.sum`. |
+| `vet` | `go vet ./...` | |
+| `architecture` | `go test -count=1 -v . ./pkg/errs ./pkg/model` | Layering, peer-decoupling, pure-Go and wasm platform guards (`layering_test.go`, `platform_test.go`) plus the stdlib-boundary tests. |
+| `ai-native` | `go test -count=1 -v -run 'TestReferenceEngineConforms\|TestSpawnedEngineProcess\|TestEndToEndFlow' ./pkg/toolchain/{fakeengine,adapter,workflow}` | AI-native criterion: the toolchain contract conformance suite against the deterministic reference engine in-process, over stdio and as a spawned process, plus the end-to-end workflow, with `KREW_ENGINE` and model API keys empty. |
+| `test (min)`, `test (stable)` | `CGO_ENABLED=0 go test -count=1 ./...` | `min` = the `go` directive in `go.mod` (canonical minimum, currently 1.27.1); `stable` = latest Go release. |
+| `race` | `CGO_ENABLED=1 go test -race -count=1 ./...` | The race detector needs cgo; this is the only gate that enables it. No package is excluded. |
+| `build-purego` | `CGO_ENABLED=0 go build ./...` | Clean-checkout build: `GOFLAGS=-mod=readonly`, `GOWORK=off`, `GOTOOLCHAIN=local`. |
+| `build-wasm` | `GOOS=js GOARCH=wasm CGO_ENABLED=0 go build -trimpath ./pkg/runtime/...` | Dedicated WebAssembly target check. |
+| `release-snapshot` | `.github/scripts/build-release.sh v0.0.0-ci dev <dir>` twice | Every release target builds, two builds are bit-for-bit identical, and `ai --version` / `--help` work. |
+| `ci-ok` | — | Aggregate: succeeds only if every gate above succeeded. |
+
+**Branch protection.** Require the `ci-ok` check on `main` (it stays stable
+when individual gates are added or renamed). The per-gate names above are also
+stable and may be required individually.
+
+Run the same gates locally before pushing:
 
 ```bash
-# 1. Format verification (must produce no output)
-gofmt -l .
-
-# 2. Static analysis & vet
+gofmt -l .                                   # must print nothing
+go mod tidy -diff && go mod verify
 go vet ./...
-
-# 3. Unit, integration, and layering test suite
-go test ./...
-
-# 4. Binary build verification
-go build -o bin/krew ./github.com/krewire/krew/cmd/krew
+go test -count=1 -v . ./pkg/errs ./pkg/model # architecture guards
+CGO_ENABLED=0 go test ./...
+go test -race ./...                          # needs cgo
+CGO_ENABLED=0 go build ./...
+GOOS=js GOARCH=wasm CGO_ENABLED=0 go build ./pkg/runtime/...
 ```
+
+Only deterministic command results satisfy these checks; an agent reporting
+success is never a substitute for a green gate. Cross-module compatibility
+(`krew compat`) runs from the `krew` toolchain repository and is not part of
+this repository's CI.
 
 Run filtered tests via `krew`:
 ```bash

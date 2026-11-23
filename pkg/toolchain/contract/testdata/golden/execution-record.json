@@ -1,0 +1,10 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "ExecutionRecord",
+  "call": {"id": "c1", "step_id": "s1", "tool": "write_file", "path": "pkg/greet/greet.go", "content_sha256": "9f2b", "rationale": "implement Greet"},
+  "decision": {"allowed": true, "reason": "inside scope pkg/greet"},
+  "status": "applied",
+  "exit_code": 0,
+  "duration_ms": 3,
+  "mutation": {"path": "pkg/greet/greet.go", "action": "created", "lines_added": 7, "lines_removed": 0, "content_hash": "9f2b"}
+}

@@ -1,6 +1,6 @@
 # Krewire Packages — Technical Reference
 
-Comprehensive catalog and architectural guide for all 32 Go domain packages in `github.com/krewire/krewire`.
+Comprehensive catalog and architectural guide for all 36 Go domain packages in `github.com/krewire/krewire`.
 
 ---
 
@@ -54,6 +54,7 @@ The bedrock runtime executor, declarative domain models, application container, 
 - [Execution & Lifecycle Supervision (`lifecycle`)](./lifecycle.md)
 - [Declarative Models & Workload Matrix (`model`)](./model.md)
 - [Errors & Diagnostic Exit Codes (`errs`)](./errs.md)
+- [Workload Observability & Diagnostics (`observe`)](./observe.md)
 - [Environment Resolution & Structured Logging (`env`, `log`)](./log.md)
 - [Ecosystem Versioning & Signature (`version`)](./version.md)
 - [Application Assembly & Container (`app`)](./app.md)
@@ -61,6 +62,7 @@ The bedrock runtime executor, declarative domain models, application container, 
 ### B. [Web & Client Runtime](./web-runtime/web.md)
 Fullstack web routing, component templates, static site generation, and interactive client WebAssembly:
 - [HTTP Router, SSG, SSR & Gateway (`web`)](./web.md)
+- [Typed Service Contracts, OpenAPI & Compatibility (`apicontract`)](./apicontract.md)
 - [WebAssembly VDOM Engine (`runtime`)](./runtime.md)
 - [Asset Management & Bundling Pipeline (`assets`)](./assets.md)
 - [Markdown Content & Book Compiler (`book`)](./book.md)
@@ -74,7 +76,11 @@ Defensive security, configuration parsing, and persistence abstractions:
 ### D. [Platform, AI & Utilities](./platform/cloud.md)
 Cloud orchestration, AI capabilities, testing infrastructure, and modular utilities:
 - [Native AI SDK (`ai`)](./ai.md)
+- [AI-Native Toolchain Contract (`toolchain`)](./toolchain.md)
 - [Cloud Orchestration & Infra Blueprints (`cloud`)](./cloud.md)
+  - [Local Application Host & Topology Orchestrator (`cloud/apphost`)](./apphost.md)
+  - [Infrastructure Engine: Plan, Apply, Drift & Providers (`cloud/infra`)](../workloads/infra.md)
+- [Workspace Graph & Affected-Task Engine (`workgraph`)](./workgraph.md)
 - [Test Harness & Browser Automation (`testing`)](./testing.md)
 - [Caching, Redis & ORM (`cache`, `redis`, `orm`)](./orm.md)
 - [Mail Delivery & Commerce (`mail`, `commerce`)](./mail.md)
@@ -83,17 +89,18 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 
 ---
 
-## 4. Comprehensive Core Package Catalog (32 Packages in `pkg/*`)
+## 4. Comprehensive Core Package Catalog (36 Packages in `pkg/*`)
 
 | Package | Documentation | Focus |
 |---|---|---|
 | `ai` | [`ai.md`](./ai.md) | Native AI SDK: providers, streaming, tools, schema, object generation |
+| `apicontract` | [`apicontract.md`](./apicontract.md) | Typed service contracts, OpenAPI 3.1, typed clients, compatibility checks |
 | `app` | [`app.md`](./app.md) | Application container, dependency injection, and service provider lifecycle |
 | `assets` | [`assets.md`](./assets.md) | Static asset pipeline, bundling, minification, and fingerprinting |
 | `auth` | [`auth.md`](./auth.md) | Basic Authentication, JWT, identity, claims, and HTTP errors |
 | `book` | [`book.md`](./book.md) | Markdown content compiler: chapters, TOC, search, and book-shaped sites |
 | `cache` | [`cache.md`](./cache.md) | Multi-driver caching (Memory, File, Redis/Valkey, Memcached) with TTL eviction |
-| `cloud` | [`cloud.md`](./cloud.md) | Cloud execution plane: runners, microservices, workers, infra blueprints |
+| `cloud` | [`cloud.md`](./cloud.md) | Cloud execution plane: runners, microservices, workers, infra blueprints; [`cloud/apphost`](./apphost.md) local topology orchestrator; [`cloud/infra`](../workloads/infra.md) plan/apply/drift engine with versioned provider contract |
 | `collab` | [`collab.md`](./collab.md) | Team membership, hierarchical roles, and per-environment deploy policies |
 | `commerce` | [`commerce.md`](./commerce.md) | Payment gateway integration (Midtrans), tokenization, and webhook verification |
 | `config` | [`config.md`](./config.md) | Declarative configuration loader (`krewire.yaml`), `.env`, environment overlays |
@@ -109,6 +116,7 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 | `mail` | [`mail.md`](./mail.md) | Multi-driver email delivery system (SMTP, Resend, SendGrid, Postmark, Memory) |
 | `markdown` | [`markdown.md`](./markdown.md) | Markdown-to-HTML rendering and relative link prefixing |
 | `model` | [`model.md`](./model.md) | Pure data models, workload matrix, scopes, tiers, and opt-in rules |
+| `observe` | [`observe.md`](./observe.md) | Cross-workload observability contract: W3C trace context, redacting logs, bounded metrics, health probes, diagnostics bundle |
 | `orm` | [`orm.md`](./orm.md) | Pure-Go multi-driver ORM & SQL Query Builder (SQLite, Postgres, MySQL); opt-in SQLite driver (`orm/sqlite`) and migration runner (`orm/migrate`) |
 | `redis` | [`redis.md`](./redis.md) | Pure-Go Redis client: RESP protocol, Strings, Hashes, Lists, Sets, and Pub/Sub |
 | `resilience` | [`resilience.md`](./resilience.md) | Retry policies with exponential backoff and circuit breakers |
@@ -116,9 +124,11 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 | `sec` | [`sec.md`](./sec.md) | Security middleware, policies, SSRF validation, and PII masking |
 | `storage` | [`storage.md`](./storage.md) | Backend-independent object storage (disk, memory, cloud) |
 | `testing` | [`testing.md`](./testing.md) | Test assertions, HTTP testing harnesses, headless browser automation |
+| `toolchain` | [`toolchain.md`](./toolchain.md) | AI-native toolchain contract: project context, task briefs, policy, engine adapter protocol, governed workflow, evidence reports |
 | `validation` | [`validation.md`](./validation.md) | Struct-tag validation and extensible rules |
 | `version` | [`version.md`](./version.md) | Semantic versioning, compatibility checks, and build watermark signature |
 | `web` | [`web.md`](./web.md) | HTTP router, middleware stack, SSG, SSR, HMR, and API Gateway |
+| `workgraph` | [`workgraph.md`](./workgraph.md) | Workspace graph (`krewire.workspace.yaml`), affected-task selection, deterministic task ordering |
 
 ---
 

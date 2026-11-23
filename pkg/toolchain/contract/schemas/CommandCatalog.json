@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "Command": {
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "enum": [
+            "deterministic",
+            "agentic",
+            "orchestrated"
+          ],
+          "type": "string"
+        },
+        "consumes": {
+          "items": {
+            "enum": [
+              "ProjectContext",
+              "TaskBrief",
+              "Plan",
+              "Policy",
+              "ApprovalRecord",
+              "ExecutionRecord",
+              "EvidenceReport",
+              "CommandCatalog"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "group": {
+          "type": "string"
+        },
+        "mutating": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "produces": {
+          "items": {
+            "enum": [
+              "ProjectContext",
+              "TaskBrief",
+              "Plan",
+              "Policy",
+              "ApprovalRecord",
+              "ExecutionRecord",
+              "EvidenceReport",
+              "CommandCatalog"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "requires_engine": {
+          "type": "boolean"
+        },
+        "stages": {
+          "items": {
+            "enum": [
+              "discover",
+              "plan",
+              "decompose",
+              "implement",
+              "verify",
+              "review",
+              "report"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "group",
+        "class",
+        "summary",
+        "requires_engine",
+        "mutating"
+      ],
+      "type": "object"
+    },
+    "CommandCatalog": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "const": "toolchain.krewire.dev/v1"
+        },
+        "commands": {
+          "items": {
+            "$ref": "#/$defs/Command"
+          },
+          "type": "array"
+        },
+        "contract_version": {
+          "type": "string"
+        },
+        "executable": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "CommandCatalog"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "executable",
+        "contract_version",
+        "commands"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://krewire.dev/schemas/toolchain/v1/CommandCatalog.json",
+  "$ref": "#/$defs/CommandCatalog",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Krewire toolchain contract CommandCatalog, toolchain.krewire.dev/v1 (contract 1.0.0).",
+  "title": "CommandCatalog"
+}

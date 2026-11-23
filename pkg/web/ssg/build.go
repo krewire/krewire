@@ -311,26 +311,65 @@ func (s *Site) Handler() http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		})
 	}
-	mux := http.NewServeMux()
+	// Routes match exactly. A ServeMux pattern such as "/" would match every
+	// unknown path and serve the index page with 200, which a static host
+	// never does; unknown paths are 404, rendered with the site's own 404
+	// page when it defines one ("/404.html" or "/404").
+	pages := make(map[string]*Page, 2*len(s.pages))
 	for _, p := range s.pages {
-		pp := p
-		mux.HandleFunc(p.Path, func(w http.ResponseWriter, r *http.Request) {
-			body, err := s.renderPage(pp)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+		pages[p.Path] = p
+	}
+	// The emitted file names ("/" -> index.html, "/about" -> about.html)
+	// resolve too, so preview URLs match what a static host serves.
+	for _, p := range s.pages {
+		alias := p.Path + ".html"
+		if p.Path == "/" {
+			alias = "/index.html"
+		}
+		if !strings.HasSuffix(p.Path, ".html") {
+			if _, taken := pages[alias]; !taken {
+				pages[alias] = p
+			}
+		}
+	}
+	notFound := pages["/404.html"]
+	if notFound == nil {
+		notFound = pages["/404"]
+	}
+	render := func(w http.ResponseWriter, p *Page, status int) {
+		body, err := s.renderPage(p)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(status)
+		_, _ = io.WriteString(w, body)
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		if body, ok := s.assets[strings.TrimPrefix(path, "/")]; ok && path != "/" {
+			http.ServeContent(w, r, path, time.Time{}, strings.NewReader(body))
+			return
+		}
+		// The collected component CSS is generated, not registered; serve it
+		// like Build writes it so previewed pages are styled.
+		if path == "/assets/style.css" && !s.auto.bundle {
+			if css := s.assetContent("assets/style.css", ""); css != "" {
+				http.ServeContent(w, r, path, time.Time{}, strings.NewReader(css))
 				return
 			}
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			_, _ = io.WriteString(w, body)
-		})
-	}
-	for name, body := range s.assets {
-		assetName, assetBody := name, body
-		mux.HandleFunc("/"+assetName, func(w http.ResponseWriter, r *http.Request) {
-			http.ServeContent(w, r, assetName, time.Time{}, strings.NewReader(assetBody))
-		})
-	}
-	return mux
+		}
+		if p, ok := pages[path]; ok {
+			render(w, p, http.StatusOK)
+			return
+		}
+		if notFound != nil {
+			render(w, notFound, http.StatusNotFound)
+			return
+		}
+		http.NotFound(w, r)
+	})
 }
 
 // RenderPage renders a page's root component inside its layout as a complete

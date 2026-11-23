@@ -1,0 +1,12 @@
+infra:
+  resources:
+    web:
+      compute:
+        image: ghcr.io/krewire/demo:1.0.0
+        runtime: fargate
+        replicas: 2
+    db:
+      database:
+        engine: postgres
+        storage: 20
+        secretId: db-credentials

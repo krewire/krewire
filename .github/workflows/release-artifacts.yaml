@@ -1,0 +1,175 @@
+name: Release Artifacts
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Single artifact path shared by the stable/pre-release pipeline (release.yaml)
+# and the nightly pipeline (nightly.yaml). Callers differ only by the version
+# and channel they pass in. Steps:
+#   build    reproducible cross-compilation, SBOMs, manifest, SHA256SUMS,
+#            and a GitHub artifact attestation (SLSA build provenance)
+#   smoke    every published platform verifies its checksum and runs
+#            --version / --help on a native runner
+#   publish  create or update the GitHub release with all assets
+#   verify   download the published release, re-check SHA256SUMS and
+#            attestations, and run the binary
+# Callers must have already passed the CI quality gates (ci.yaml).
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Release version / tag, e.g. v0.2.0 or v0.3.0-nightly.20261123
+        required: true
+        type: string
+      channel:
+        description: Release channel (stable, lts, rc, beta, alpha, nightly, experimental, dev)
+        required: true
+        type: string
+      prerelease:
+        description: Mark the GitHub release as a pre-release
+        required: false
+        type: boolean
+        default: true
+      publish:
+        description: Publish a GitHub release (false = build, attest, and smoke-test only)
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  GOTOOLCHAIN: local
+  GOWORK: "off"
+  VERSION: ${{ inputs.version }}
+  CHANNEL: ${{ inputs.channel }}
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write       # sigstore signing for the attestation
+      attestations: write   # store the attestation on GitHub
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+          cache: false      # release builds never reuse a cache another workflow wrote
+      - name: Build all declared targets
+        run: .github/scripts/build-release.sh "${VERSION}" "${CHANNEL}" dist
+      - name: Attest build provenance
+        id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-checksums: dist/SHA256SUMS
+      - name: Include the attestation bundle in the release assets
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: cp "${BUNDLE}" dist/provenance.sigstore.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-${{ inputs.version }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  smoke:
+    name: smoke (${{ matrix.target }})
+    needs: build
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, target: linux_amd64, ext: "" }
+          - { os: ubuntu-24.04-arm, target: linux_arm64, ext: "" }
+          - { os: macos-15-intel, target: darwin_amd64, ext: "" }
+          - { os: macos-latest, target: darwin_arm64, ext: "" }
+          - { os: windows-latest, target: windows_amd64, ext: .exe }
+          - { os: windows-11-arm, target: windows_arm64, ext: .exe }
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-${{ inputs.version }}
+          path: dist
+      - name: Verify checksum, --version, and --help
+        shell: bash
+        working-directory: dist
+        env:
+          FILE: ai_${{ inputs.version }}_${{ matrix.target }}${{ matrix.ext }}
+        run: |
+          if command -v sha256sum >/dev/null; then sum="sha256sum"; else sum="shasum -a 256"; fi
+          grep -F "  ${FILE}" SHA256SUMS | ${sum} -c -
+          chmod +x "${FILE}"
+          "./${FILE}" --version | tee version.txt
+          grep -qF "${VERSION}" version.txt
+          grep -qF "channel ${CHANNEL}" version.txt
+          grep -qF "${GITHUB_SHA}" version.txt
+          "./${FILE}" --help | grep -q "Usage:"
+
+  publish:
+    name: publish
+    if: inputs.publish
+    needs: [build, smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write       # create the release and upload assets
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-${{ inputs.version }}
+          path: dist
+      - name: Generate release notes
+        run: .github/scripts/release-notes.sh "${VERSION}" "${CHANNEL}" dist > release_notes.md
+      - name: Create or update the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          title="Krewire ${VERSION} [${CHANNEL}]"
+          if gh release view "${VERSION}" >/dev/null 2>&1; then
+            gh release edit "${VERSION}" --title "${title}" --notes-file release_notes.md \
+              --prerelease="${PRERELEASE}"
+            gh release upload "${VERSION}" dist/* --clobber
+          else
+            gh release create "${VERSION}" dist/* --target "${GITHUB_SHA}" \
+              --title "${title}" --notes-file release_notes.md --prerelease="${PRERELEASE}"
+          fi
+
+  verify:
+    name: verify-published
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      attestations: read
+    steps:
+      - name: Download, verify, and run the published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          mkdir published && cd published
+          gh release download "${VERSION}" --repo "${REPO}"
+          sha256sum -c SHA256SUMS
+          for f in ai_*; do
+            case "${f}" in *.cdx.json) continue ;; esac
+            gh attestation verify "${f}" --repo "${REPO}"
+          done
+          bin="ai_${VERSION}_linux_amd64"
+          chmod +x "${bin}"
+          "./${bin}" --version | grep -F "${GITHUB_SHA}"
+          "./${bin}" --help >/dev/null

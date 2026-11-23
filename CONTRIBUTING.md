@@ -65,9 +65,21 @@ go vet ./...
 # 3. Unit and layering tests
 go test ./...
 
-# 4. Cross-module compatibility check
+# 4. Pure-Go and WebAssembly builds
+CGO_ENABLED=0 go build ./...
+GOOS=js GOARCH=wasm CGO_ENABLED=0 go build ./pkg/runtime/...
+
+# 5. Module hygiene
+go mod tidy -diff && go mod verify
+
+# 6. Cross-module compatibility check (krew toolchain)
 krew compat
 ```
+
+CI (`.github/workflows/ci.yaml`) enforces gates 1–5 plus the race detector and
+a reproducible release-build check on every pull request; a PR can merge only
+when the `ci-ok` check is green. The full contract, check names, and local
+commands are in [`docs/guides/testing-and-qa.md` §6](docs/guides/testing-and-qa.md#6-mandatory-quality-gates).
 
 ---
 

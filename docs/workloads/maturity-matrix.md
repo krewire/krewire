@@ -16,7 +16,7 @@
 To ensure developers and AI agents can assess implementation readiness accurately without marketing bias, Krewire classifies workloads and capabilities into five objective maturity levels:
 
 - **`Stable` (Production-Ready)**:
-  - 100% automated unit and integration test coverage passing in CI.
+  - All workload conformance gates pass end to end in CI under `-strict` ([conformance evidence](./conformance.md)); no coverage percentage is claimed until CI enforces a threshold.
   - Reproducible benchmark baselines verified against performance regressions (`krew bench`).
   - Active, verified production use (e.g., [`krewire.com`](https://krewire.com) or `krew` CLI binary).
   - Backward compatibility guaranteed under Semantic Versioning (SemVer).
@@ -39,7 +39,7 @@ To ensure developers and AI agents can assess implementation readiness accuratel
 
 ## 2. Canonical 8-Workload Maturity Matrix
 
-Every workload status below is backed by concrete test fixtures and implementation evidence:
+Declared statuses below are checked against the executable conformance evidence in [§6](#6-conformance-evidence-krewirekrewire141). Where the two disagree, the evidence takes precedence.
 
 | Workload | Maturity | Primary Package | Verified Implementation & Production Evidence | Known Limitations & Gaps | Owner |
 |---|---|---|---|---|---|
@@ -50,7 +50,7 @@ Every workload status below is backed by concrete test fixtures and implementati
 | **`gateway`** | **Stable** | `pkg/web/gateway` | High-throughput reverse proxy ingress routing, token bucket rate limiting, header rewriting, and health check pass-through. | Dynamic service discovery beyond static route tables requires external DNS or consul adapters. | `@krewire/team-runtime` |
 | **`worker`** | **Usable** | `pkg/cloud/worker`, `pkg/lifecycle` | Priority queue execution, bulkhead concurrency management, exponential backoff retries, and graceful OS signal shutdown. | Redis and PostgreSQL queue backends supported; distributed Kafka/RabbitMQ adapters planned. | `@krewire/team-cloud` |
 | **`service`** | **Usable** | `pkg/cloud/service`, `pkg/resilience` | Headless REST microservice runtime with correlation request tracing, circuit breakers, and bulkhead limits. | Direct HTTP/REST and SSE supported; gRPC protobuf generation integration is in roadmap. | `@krewire/team-cloud` |
-| **`infra`** | **Experimental** | `pkg/cloud/infra`, `pkg/cloud/deploy` | Declarative resource topology planning (`krew build --plan`) and state reconciliation parser. | Provider drivers currently target local Docker and Linux systemd; cloud PaaS drivers are experimental. | `@krewire/team-cloud` |
+| **`infra`** | **Experimental** | `pkg/cloud/infra`, `pkg/cloud/deploy` | Versioned provider contract and conformance suite; deterministic digest-bound plans; locked, checksummed state; journaled apply with recovery; drift inspection and explicit reconciliation; `localfile` reference provider passes lifecycle and failure-injection tests. | Only the `localfile` reference provider exists; Docker/systemd/cloud providers, `krew infra` command wiring, and a distributed lock backend are pending. See [promotion gates](./infra.md#9-promotion-gates-experimental--usable). | `@krewire/team-cloud` |
 
 ---
 
@@ -110,3 +110,22 @@ Every maturity designation is bound by Krewire's immutable Three Pillars:
 
 > [!IMPORTANT]
 > The three pillars must remain explicitly named **Secure**, **Sustain**, and **Scalable**. They serve as the definitive qualification criteria for promoting any capability to `Stable`.
+
+---
+
+## 6. Conformance Evidence (krewire/krewire#141)
+
+The end-to-end harness ([`internal/conformance`](../../internal/conformance), [method and criteria](./conformance.md)) runs each workload's fixture from a clean temp dir and records machine-readable evidence (`go run ./internal/conformance/cmd/qualify`). Status as of the baseline in [`internal/conformance/baseline.json`](../../internal/conformance/baseline.json):
+
+| Workload | Declared | Evidenced | Conformance | Fixture | Open gaps |
+|---|---|---|---|---|---|
+| `site` | Stable | Usable | **passed** (12/12) | [`testdata/site`](../../internal/conformance/testdata/site) | Stable gates not automated. (`probe.notfound` was fixed: `ssg.Site.Handler` now answers unknown paths with 404 and the site's own 404 page.) |
+| `book` | Stable | Usable | **passed** (12/12) | [`testdata/book`](../../internal/conformance/testdata/book) | Stable gates (compatibility, benchmark, production evidence) not automated. |
+| `app` | Stable | Experimental | **partial** (12/12) | [`testdata/app`](../../internal/conformance/testdata/app) | WASM island compilation excluded here (covered by `platform_test.go` and `pkg/runtime/conformance`). |
+| `cli` | Stable | Usable | **passed** (10/10, reproducible build) | [`testdata/cli`](../../internal/conformance/testdata/cli) | `tui` integration is external to core. |
+| `worker` | Usable | Experimental | **partial** (10/10) | [`testdata/worker`](../../internal/conformance/testdata/worker) | Redis/PostgreSQL backends need external services; only the in-memory queue is exercised. |
+| `service` | Usable | Usable | **passed** (12/12) | [`testdata/service`](../../internal/conformance/testdata/service) | None. |
+| `gateway` | Stable | Usable | **passed** (12/12) | [`testdata/gateway`](../../internal/conformance/testdata/gateway) | Stable gates not automated. |
+| `infra` | Experimental | Experimental | **partial** (11/11) | [`testdata/infra`](../../internal/conformance/testdata/infra) | Plan, approval-gated apply and drift/reconcile run against the `localfile` reference provider (#138); Docker, systemd and cloud providers do not exist in core and are excluded. |
+
+The integrated AI-native workflow qualification is reported separately as `ai_workflow` and is **passed** (4/4): the reference engine runs through `workflow.Run` in-process and over stdio, and the failure-injection cases (stripped false claim, denied approval) hold. Release readiness stays false while `app`, `worker` and `infra` are not end-to-end.
