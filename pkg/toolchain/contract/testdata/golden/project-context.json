@@ -1,0 +1,42 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "ProjectContext",
+  "fingerprint": "5d41402abc4b2a76b9719d911017c592",
+  "module": {"path": "example.com/demo", "version": "0.3.0", "tier": "free",
+    "provenance": {"path": "version.go", "key": "Version", "line": 9, "schema": "go-source"}},
+  "toolchain": {"executable": "krew", "contract_version": "1.0.0"},
+  "workload": {"kind": "library", "maturity": "preview",
+    "provenance": {"path": "version.go", "key": "Version", "line": 9, "schema": "go-source"}},
+  "packages": [
+    {"import_path": "example.com/demo/pkg/greet", "dir": "pkg/greet", "name": "greet",
+     "provenance": {"path": "pkg/greet/greet.go", "key": "package greet", "schema": "go-source"}}
+  ],
+  "dependencies": [
+    {"path": "gopkg.in/yaml.v3", "version": "v3.0.1",
+     "provenance": {"path": "go.mod", "key": "require gopkg.in/yaml.v3", "line": 6, "schema": "go.mod"}}
+  ],
+  "graph": {"nodes": 1, "edges": 0, "digest": "e3b0", "source": "go-imports"},
+  "pillars": ["Secure", "Sustainable", "Scalable"],
+  "rules": [
+    {"id": "TestPackagesNeverImportTooling", "category": "architecture",
+     "statement": "no package under pkg/ imports the developer tool or agent engine",
+     "enforced_by": "go test -run ^TestPackagesNeverImportTooling$ .",
+     "provenance": {"path": "layering_test.go", "key": "TestPackagesNeverImportTooling", "line": 220, "schema": "go-source"}}
+  ],
+  "config": [
+    {"key": "project.name", "value": "demo", "provenance": {"path": "krewire.yaml", "key": "project.name", "line": 2, "schema": "krewire.yaml"}},
+    {"key": "database.password", "redacted": true, "provenance": {"path": "krewire.yaml", "key": "database.password", "line": 5, "schema": "krewire.yaml"}}
+  ],
+  "quality_gates": [
+    {"id": "fmt", "type": "FORMAT", "argv": ["gofmt", "-l", "."], "required": true,
+     "provenance": {"path": "AGENTS.md", "key": "Quality Gates", "line": 50, "schema": "agents-md"}},
+    {"id": "test", "type": "TEST", "argv": ["go", "test", "./..."], "required": true,
+     "provenance": {"path": "AGENTS.md", "key": "Quality Gates", "line": 52, "schema": "agents-md"}}
+  ],
+  "compatibility": {"go_version": "1.27.1", "targets": [{"goos": "js", "goarch": "wasm"}],
+    "provenance": {"path": "go.mod", "key": "go", "line": 3, "schema": "go.mod"}},
+  "diagnostics": [
+    {"code": "KWC3001", "class": "STALE", "severity": "warning", "message": "references the retired kiw executable",
+     "location": {"path": "CONTRIBUTING.md", "line": 40, "schema": "markdown"}, "hint": "use krew"}
+  ]
+}

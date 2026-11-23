@@ -1,0 +1,286 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "CommandCatalog",
+  "executable": "krew",
+  "contract_version": "1.0.0",
+  "commands": [
+    {
+      "path": "version",
+      "group": "inspect",
+      "class": "deterministic",
+      "summary": "print toolchain, framework, and contract versions",
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "doctor",
+      "group": "inspect",
+      "class": "deterministic",
+      "summary": "diagnose environment and toolchain prerequisites",
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "context",
+      "group": "inspect",
+      "class": "deterministic",
+      "summary": "derive the project context (--json) and lint it (--lint)",
+      "stages": [
+        "discover"
+      ],
+      "produces": [
+        "ProjectContext"
+      ],
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "config",
+      "group": "inspect",
+      "class": "deterministic",
+      "summary": "validate krewire.yaml or print its schema",
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "compat",
+      "group": "inspect",
+      "class": "deterministic",
+      "summary": "check version compatibility across modules",
+      "consumes": [
+        "ProjectContext"
+      ],
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "contract schema",
+      "group": "inspect",
+      "class": "deterministic",
+      "summary": "print the JSON Schema of a contract kind",
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "contract validate",
+      "group": "inspect",
+      "class": "deterministic",
+      "summary": "validate any contract document",
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "task validate",
+      "group": "develop",
+      "class": "deterministic",
+      "summary": "validate a task brief against the project context",
+      "consumes": [
+        "ProjectContext",
+        "TaskBrief"
+      ],
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "fmt",
+      "group": "develop",
+      "class": "deterministic",
+      "summary": "check or apply formatting",
+      "stages": [
+        "verify"
+      ],
+      "requires_engine": false,
+      "mutating": true
+    },
+    {
+      "path": "vet",
+      "group": "develop",
+      "class": "deterministic",
+      "summary": "static analysis and security posture checks",
+      "stages": [
+        "verify"
+      ],
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "test",
+      "group": "develop",
+      "class": "deterministic",
+      "summary": "run the project's tests",
+      "stages": [
+        "verify"
+      ],
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "build",
+      "group": "build",
+      "class": "deterministic",
+      "summary": "build the project",
+      "stages": [
+        "verify"
+      ],
+      "requires_engine": false,
+      "mutating": true
+    },
+    {
+      "path": "verify",
+      "group": "develop",
+      "class": "deterministic",
+      "summary": "run the required quality gates and record evidence",
+      "stages": [
+        "verify"
+      ],
+      "consumes": [
+        "ProjectContext",
+        "TaskBrief"
+      ],
+      "produces": [
+        "EvidenceReport"
+      ],
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "report",
+      "group": "develop",
+      "class": "deterministic",
+      "summary": "render or check an evidence report",
+      "stages": [
+        "report"
+      ],
+      "consumes": [
+        "EvidenceReport"
+      ],
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "engine status",
+      "group": "ai",
+      "class": "deterministic",
+      "summary": "show the configured engine and run the adapter handshake",
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "release",
+      "group": "ship",
+      "class": "deterministic",
+      "summary": "bump versions and stage a release",
+      "consumes": [
+        "ProjectContext"
+      ],
+      "requires_engine": false,
+      "mutating": true
+    },
+    {
+      "path": "completion",
+      "group": "project",
+      "class": "deterministic",
+      "summary": "print shell completion scripts",
+      "requires_engine": false,
+      "mutating": false
+    },
+    {
+      "path": "self-update",
+      "group": "project",
+      "class": "deterministic",
+      "summary": "update the krew toolchain",
+      "requires_engine": false,
+      "mutating": true
+    },
+    {
+      "path": "plan",
+      "group": "ai",
+      "class": "agentic",
+      "summary": "plan and decompose a task brief into an approvable plan",
+      "stages": [
+        "plan",
+        "decompose"
+      ],
+      "consumes": [
+        "ProjectContext",
+        "TaskBrief"
+      ],
+      "produces": [
+        "Plan"
+      ],
+      "requires_engine": true,
+      "mutating": false
+    },
+    {
+      "path": "agent",
+      "group": "ai",
+      "class": "agentic",
+      "summary": "implement an approved plan through policy-checked host tools",
+      "stages": [
+        "implement"
+      ],
+      "consumes": [
+        "ProjectContext",
+        "TaskBrief",
+        "Plan"
+      ],
+      "produces": [
+        "ExecutionRecord"
+      ],
+      "requires_engine": true,
+      "mutating": true
+    },
+    {
+      "path": "review",
+      "group": "ai",
+      "class": "agentic",
+      "summary": "review changes and risks against the brief and evidence",
+      "stages": [
+        "review"
+      ],
+      "consumes": [
+        "ProjectContext",
+        "TaskBrief"
+      ],
+      "requires_engine": true,
+      "mutating": false
+    },
+    {
+      "path": "chat",
+      "group": "ai",
+      "class": "agentic",
+      "summary": "interactive AI session bound to the project context",
+      "consumes": [
+        "ProjectContext"
+      ],
+      "requires_engine": true,
+      "mutating": true
+    },
+    {
+      "path": "flow",
+      "group": "ai",
+      "class": "orchestrated",
+      "summary": "run discover → plan → implement → verify → review → report",
+      "stages": [
+        "discover",
+        "plan",
+        "decompose",
+        "implement",
+        "verify",
+        "review",
+        "report"
+      ],
+      "consumes": [
+        "ProjectContext",
+        "TaskBrief"
+      ],
+      "produces": [
+        "Plan",
+        "ExecutionRecord",
+        "EvidenceReport"
+      ],
+      "requires_engine": false,
+      "mutating": true
+    }
+  ]
+}

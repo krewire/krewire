@@ -1,0 +1,9 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "ApprovalRecord",
+  "approver_id": "maintainer",
+  "scope": "task:131:plan:4f1c",
+  "approved_at": "2026-11-23T10:00:00Z",
+  "valid_until": "2026-11-23T10:15:00Z",
+  "verified": true
+}
