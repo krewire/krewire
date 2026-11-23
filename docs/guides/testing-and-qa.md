@@ -132,6 +132,7 @@ failed. No secrets or model-provider credentials are needed.
 | `mod-tidy` | `go mod tidy -diff` and `go mod verify` | Module files are tidy; downloaded dependencies match `go.sum`. |
 | `vet` | `go vet ./...` | |
 | `architecture` | `go test -count=1 -v . ./pkg/errs ./pkg/model` | Layering, peer-decoupling, pure-Go and wasm platform guards (`layering_test.go`, `platform_test.go`) plus the stdlib-boundary tests. |
+| `ai-native` | `go test -count=1 -v -run 'TestReferenceEngineConforms\|TestSpawnedEngineProcess\|TestEndToEndFlow' ./pkg/toolchain/{fakeengine,adapter,workflow}` | AI-native criterion: the toolchain contract conformance suite against the deterministic reference engine in-process, over stdio and as a spawned process, plus the end-to-end workflow, with `KREW_ENGINE` and model API keys empty. |
 | `test (min)`, `test (stable)` | `CGO_ENABLED=0 go test -count=1 ./...` | `min` = the `go` directive in `go.mod` (canonical minimum, currently 1.27.1); `stable` = latest Go release. |
 | `race` | `CGO_ENABLED=1 go test -race -count=1 ./...` | The race detector needs cgo; this is the only gate that enables it. No package is excluded. |
 | `build-purego` | `CGO_ENABLED=0 go build ./...` | Clean-checkout build: `GOFLAGS=-mod=readonly`, `GOWORK=off`, `GOTOOLCHAIN=local`. |

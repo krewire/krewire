@@ -98,6 +98,30 @@ jobs:
       - name: Layering, peer-decoupling, and platform guards
         run: go test -count=1 -v . ./pkg/errs ./pkg/model
 
+  ai-native:
+    name: ai-native
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+      # AI-native criterion (#130/#131): the toolchain contract suite must pass
+      # against the deterministic reference engine, in-process, over in-memory
+      # stdio and as a spawned engine process, with no model credentials.
+      - name: Toolchain contract conformance (reference engine, no LLM credentials)
+        env:
+          KREW_ENGINE: ""
+          ANTHROPIC_API_KEY: ""
+          OPENAI_API_KEY: ""
+        run: |
+          go test -count=1 -v \
+            -run 'TestReferenceEngineConforms|TestSpawnedEngineProcess|TestEndToEndFlow' \
+            ./pkg/toolchain/fakeengine ./pkg/toolchain/adapter ./pkg/toolchain/workflow
+
   test:
     name: test (${{ matrix.go }})
     runs-on: ubuntu-latest
@@ -202,7 +226,7 @@ jobs:
   ci-ok:
     name: ci-ok
     if: always()
-    needs: [gofmt, mod-tidy, vet, architecture, test, race, build-purego, build-wasm, release-snapshot]
+    needs: [gofmt, mod-tidy, vet, architecture, ai-native, test, race, build-purego, build-wasm, release-snapshot]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
