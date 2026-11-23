@@ -54,6 +54,7 @@ The bedrock runtime executor, declarative domain models, application container, 
 - [Execution & Lifecycle Supervision (`lifecycle`)](./lifecycle.md)
 - [Declarative Models & Workload Matrix (`model`)](./model.md)
 - [Errors & Diagnostic Exit Codes (`errs`)](./errs.md)
+- [Workload Observability & Diagnostics (`observe`)](./observe.md)
 - [Environment Resolution & Structured Logging (`env`, `log`)](./log.md)
 - [Ecosystem Versioning & Signature (`version`)](./version.md)
 - [Application Assembly & Container (`app`)](./app.md)
@@ -109,6 +110,7 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 | `mail` | [`mail.md`](./mail.md) | Multi-driver email delivery system (SMTP, Resend, SendGrid, Postmark, Memory) |
 | `markdown` | [`markdown.md`](./markdown.md) | Markdown-to-HTML rendering and relative link prefixing |
 | `model` | [`model.md`](./model.md) | Pure data models, workload matrix, scopes, tiers, and opt-in rules |
+| `observe` | [`observe.md`](./observe.md) | Cross-workload observability contract: W3C trace context, redacting logs, bounded metrics, health probes, diagnostics bundle |
 | `orm` | [`orm.md`](./orm.md) | Pure-Go multi-driver ORM & SQL Query Builder (SQLite, Postgres, MySQL); opt-in SQLite driver (`orm/sqlite`) and migration runner (`orm/migrate`) |
 | `redis` | [`redis.md`](./redis.md) | Pure-Go Redis client: RESP protocol, Strings, Hashes, Lists, Sets, and Pub/Sub |
 | `resilience` | [`resilience.md`](./resilience.md) | Retry policies with exponential backoff and circuit breakers |
