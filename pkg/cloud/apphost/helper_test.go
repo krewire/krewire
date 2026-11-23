@@ -49,8 +49,11 @@ func runHelper(role string) int {
 		marker := os.Getenv("HELPER_MARKER")
 		if _, err := os.Stat(marker); err != nil {
 			_ = os.WriteFile(marker, []byte("1"), 0o600)
-			fmt.Fprintln(os.Stderr, "first run crashes")
-			return 1
+			go func() {
+				time.Sleep(300 * time.Millisecond)
+				fmt.Fprintln(os.Stderr, "crashing after ready")
+				os.Exit(1)
+			}()
 		}
 		return serveTCP(os.Getenv("KREWIRE_SELF_TCP_PORT"), term)
 	case "api":
@@ -69,6 +72,9 @@ func runHelper(role string) int {
 	case "crash":
 		fmt.Fprintln(os.Stderr, "boom: cannot open database")
 		return 3
+	case "crashlater":
+		time.Sleep(100 * time.Millisecond)
+		return 4
 	case "exit0":
 		fmt.Println("job done")
 		return 0
