@@ -9,10 +9,15 @@ This specification documents the canonical release procedure, semantic compatibi
 The definitive, single source of truth for the core ecosystem version is declared in:
 - [`pkg/version/version.go`](../../pkg/version/version.go) via `version.CurrentVersion = MustParseVersion("0.2.0")`.
 
-CLI binaries (`krew`), SSG generators, and metadata reporters derive their version string directly from `pkg/version` or inject it dynamically during build without manual drift:
+Executables shipped by this module (currently `cmd/ai`) report their identity through `version.Build()`. The release pipeline stamps the exact release version, source commit, build date, and channel at link time; unstamped local builds fall back to `CurrentVersion` and the VCS metadata embedded by `-buildvcs`:
 ```bash
-go build -ldflags="-s -w -X 'github.com/krewire/github.com/krewire/krew/internal/buildinfo.Version=v0.2.0'" ./github.com/krewire/krew/cmd/krew
+go build -trimpath -ldflags="-s -w -buildid= \
+  -X github.com/krewire/krewire/pkg/version.buildVersion=v0.2.0 \
+  -X github.com/krewire/krewire/pkg/version.buildCommit=$(git rev-parse HEAD) \
+  -X github.com/krewire/krewire/pkg/version.buildChannel=stable" ./cmd/ai
+ai --version   # ai v0.2.0 (channel stable, commit <sha>, built <date>, go1.27.1, linux/amd64)
 ```
+The `krew` toolchain is built and versioned in its own repository (`krewire/krew`).
 
 ---
 
@@ -49,9 +54,12 @@ Every module in the ecosystem releases across six designated tracks ([ADR-R7P3K]
 
 ## 4. Automated Release, Hotfix, and Deploy Pipelines
 
-Each repository operates three automated pipelines:
-- **Release Pipeline (`release.yaml`)**: Handles multi-track tagging, multi-platform cross-compilation (`linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, `windows/amd64`), SHA-256 checksums, and Docker image publishing.
-- **Hotfix Pipeline (`hotfix.yaml`)**: Fast-track emergency patch pipeline with automatic fallback to `:stable` on failure, patch tagging, and automated back-merge to development branches.
+This repository operates these automated pipelines:
+- **CI (`ci.yaml`)**: The quality-gate contract on every pull request, push to `main`, and merge-queue entry; reused verbatim by the release and nightly pipelines (see [Testing & QA §6](../guides/testing-and-qa.md#6-mandatory-quality-gates)).
+- **Release Pipeline (`release.yaml`)**: Multi-track tag classification, then CI, then the shared artifact workflow (§6).
+- **Nightly Pipeline (`nightly.yaml`)**: Daily build from `main` through the same CI and artifact workflow, channel `nightly`.
+- **Release Artifacts (`release-artifacts.yaml`)**: Reusable build → attest → smoke → publish → verify path shared by release and nightly (§6).
+- **Hotfix Pipeline**: Not yet implemented in this repository (no `hotfix.yaml`); hotfixes follow the branch protocol in `AGENTS.md`.
 - **Deploy Pipeline (`deploy.yaml`)**: Multi-environment deployment targeting production (`stable`, `lts`), staging (`pre-release`), and canary (`nightly`, `experimental`) with atomic rolling updates and live health polling.
 
 ---
@@ -72,7 +80,7 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
    *Must exit with code 0.*
 3. **Layering & Invariant Gate**:
    ```bash
-   go test -v ./layering_test.go
+   go test -count=1 -v . ./pkg/errs ./pkg/model
    ```
    *Enforces strict downward dependency hierarchy (Layer N cannot import Layer > N).*
 4. **Unit & Integration Suite Gate**:
@@ -85,11 +93,13 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
    CGO_ENABLED=0 go build ./...
    ```
    *Ensures standalone portability with zero C runtime linkages.*
-6. **Bitwise Reproducibility Gate**:
+6. **Bitwise Reproducibility Gate** (CI job `release-snapshot`):
    ```bash
-   go test -v -run TestPlatform_BitwiseReproducibility .
+   .github/scripts/build-release.sh v0.0.0-ci dev /tmp/a
+   .github/scripts/build-release.sh v0.0.0-ci dev /tmp/b
+   diff /tmp/a/SHA256SUMS /tmp/b/SHA256SUMS
    ```
-   *Verifies consecutive clean builds produce bitwise identical binaries.*
+   *Verifies consecutive clean builds produce bitwise identical binaries and SBOMs.*
 7. **Cross-Repository Release Qualification Gate**:
    ```bash
    krew release qualify
@@ -111,9 +121,39 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
    git commit -m "chore(release): bump version to v0.2.0"
    git tag -a v0.2.0 -m "release: v0.2.0"
    ```
-4. **Build Distribution Binaries**:
-   ```bash
-   GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/krew-linux-amd64 ./github.com/krewire/krew/cmd/krew
-   GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/krew-darwin-arm64 ./github.com/krewire/krew/cmd/krew
-   GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o dist/krew-windows-amd64.exe ./github.com/krewire/krew/cmd/krew
-   ```
+4. **Push the tag**: `git push origin v0.2.0`. `release.yaml` runs the CI gates, then builds, attests, smoke-tests, and publishes the artifacts (§6). Never build release binaries by hand.
+
+---
+
+## 6. Release Artifacts, Checksums, and Provenance
+
+Every stable, pre-release, and nightly release goes through `.github/workflows/release-artifacts.yaml`; the pipelines differ only by version and channel.
+
+**Support matrix** (declared in `.github/scripts/build-release.sh`): `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, `windows/amd64`, `windows/arm64`.
+
+**Executables**: the core module ships one executable, `ai` (`cmd/ai`). The unified developer toolchain `krew` is distributed from `krewire/krew`; the release manifest records it with `provisioning_mode: separate-distribution` until the adapter contract (#131, #140) is versioned.
+
+**Reproducible build** — `.github/scripts/build-release.sh <version> <channel> [dir]`:
+- `CGO_ENABLED=0`, `-trimpath`, `-buildvcs=true`, `-ldflags "-s -w -buildid="`, `GOFLAGS=-mod=readonly`, `GOWORK=off`.
+- `SOURCE_DATE_EPOCH` defaults to the commit time; the build date stamped into the binary and the SBOM timestamp derive from it.
+- Refuses to run from a dirty working tree.
+
+**Published assets** (per release):
+
+| Asset | Purpose |
+|---|---|
+| `ai_<version>_<os>_<arch>[.exe]` | Binary; `ai --version` prints version, channel, and commit. |
+| `ai_<version>_<os>_<arch>.cdx.json` | CycloneDX SBOM generated from the binary's embedded module list. |
+| `release-manifest.json` | Version, channel, commit, Go version, build flags, targets, toolchain provisioning. |
+| `SHA256SUMS` | SHA-256 of every asset above. |
+| `provenance.sigstore.json` | Signed GitHub artifact attestation (SLSA build provenance) covering every file in `SHA256SUMS`. |
+
+**Gates before publishing**: all CI gates; every target builds; on native runners for each platform the checksum verifies and `--version` reports the exact version, channel, and commit, and `--help` works. After publishing, `verify-published` downloads the release, re-checks `SHA256SUMS` and every attestation, and runs the binary.
+
+**Verifying a download**:
+```bash
+sha256sum -c --ignore-missing SHA256SUMS
+gh attestation verify ai_<version>_linux_amd64 --repo krewire/krewire
+```
+
+**Maintainer settings required**: Actions must be allowed to create attestations (`id-token: write`, `attestations: write` are granted only to the artifacts job), the `GITHUB_TOKEN` must be allowed to create releases (`contents: write`), and runners `ubuntu-24.04-arm`, `macos-15-intel`, and `windows-11-arm` must be available (they are for public repositories).

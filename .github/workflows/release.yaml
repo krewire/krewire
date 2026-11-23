@@ -3,6 +3,13 @@ name: Release Pipeline
 # ─────────────────────────────────────────────────────────────────────────────
 # Krewire Multi-Track Release Pipeline (ADR-R7P3K)
 # Tracks: lts, stable, pre-release (rc, beta, alpha), experimental, dev
+#
+#   classify       → derive version/track from the tag (or dispatch inputs)
+#   quality-gate   → the exact CI gate contract (ci.yaml)
+#   artifacts      → reproducible build, SBOM, SHA256SUMS, provenance,
+#                    per-platform smoke tests, publish, post-publish verify
+#                    (release-artifacts.yaml, shared with nightly.yaml)
+# A release is never published unless every gate and every target succeeds.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -21,7 +28,7 @@ on:
         description: 'Release track to build and publish'
         required: true
         type: choice
-        default: 'stable'
+        default: 'dev'
         options:
           - 'lts'
           - 'stable'
@@ -30,19 +37,9 @@ on:
           - 'alpha'
           - 'experimental'
           - 'dev'
-      bump:
-        description: 'SemVer component to increment (if triggering via dispatch)'
-        required: true
-        type: choice
-        default: 'patch'
-        options:
-          - 'patch'
-          - 'minor'
-          - 'major'
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 concurrency:
   group: release-${{ github.ref }}
@@ -52,138 +49,73 @@ jobs:
   classify:
     name: Classify Release Track
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       track: ${{ steps.meta.outputs.track }}
       version: ${{ steps.meta.outputs.version }}
       is_prerelease: ${{ steps.meta.outputs.is_prerelease }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Parse Trigger & Track
         id: meta
+        env:
+          INPUT_TRACK: ${{ inputs.track }}
         run: |
-          REF="${GITHUB_REF:-}"
-          EVENT="${GITHUB_EVENT_NAME}"
-          TRACK="${{ inputs.track }}"
-          
-          if [ "${EVENT}" = "schedule" ]; then
-            TRACK="nightly"
-            DATE_TAG="$(date -u +%Y%m%d)"
-            VER="v0.3.0-nightly.${DATE_TAG}"
-            PRERELEASE="true"
-          elif [[ "${REF}" == refs/tags/* ]]; then
-            TAG="${REF#refs/tags/}"
-            VER="${TAG}"
-            if [[ "${TAG}" =~ -lts ]]; then
-              TRACK="lts"
-              PRERELEASE="false"
-            elif [[ "${TAG}" =~ -rc ]]; then
-              TRACK="rc"
-              PRERELEASE="true"
-            elif [[ "${TAG}" =~ -beta ]]; then
-              TRACK="beta"
-              PRERELEASE="true"
-            elif [[ "${TAG}" =~ -alpha ]]; then
-              TRACK="alpha"
-              PRERELEASE="true"
-            elif [[ "${TAG}" =~ -nightly ]]; then
-              TRACK="nightly"
-              PRERELEASE="true"
-            elif [[ "${TAG}" =~ -exp ]]; then
-              TRACK="experimental"
-              PRERELEASE="true"
-            elif [[ "${TAG}" =~ -dev ]]; then
-              TRACK="dev"
-              PRERELEASE="true"
-            else
-              TRACK="stable"
-              PRERELEASE="false"
+          # Canonical version SSOT (docs/foundation/release-and-compatibility.md §1).
+          BASE="$(sed -n 's/^var CurrentVersion = MustParseVersion("\(.*\)")$/\1/p' pkg/version/version.go)"
+          if [ -z "${BASE}" ]; then
+            echo "::error::cannot read CurrentVersion from pkg/version/version.go"
+            exit 1
+          fi
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VER="${GITHUB_REF#refs/tags/}"
+            case "${VER}" in
+              *-lts*)   TRACK="lts";          PRERELEASE="false" ;;
+              *-rc*)    TRACK="rc";           PRERELEASE="true" ;;
+              *-beta*)  TRACK="beta";         PRERELEASE="true" ;;
+              *-alpha*) TRACK="alpha";        PRERELEASE="true" ;;
+              *-exp*)   TRACK="experimental"; PRERELEASE="true" ;;
+              *-dev*)   TRACK="dev";          PRERELEASE="true" ;;
+              *)        TRACK="stable";       PRERELEASE="false" ;;
+            esac
+            TAG_BASE="${VER#v}"; TAG_BASE="${TAG_BASE%%-*}"
+            if [ "${TAG_BASE}" != "${BASE}" ]; then
+              echo "::warning::tag ${VER} does not match pkg/version CurrentVersion ${BASE}"
             fi
           else
-            if [ -z "${TRACK}" ]; then TRACK="dev"; fi
-            DATE_TAG="$(date -u +%Y%m%d)"
-            VER="v0.2.0-${TRACK}.${DATE_TAG}.${GITHUB_SHA::7}"
+            TRACK="${INPUT_TRACK:-dev}"
+            VER="v${BASE}-${TRACK}.$(date -u +%Y%m%d).${GITHUB_SHA::7}"
             if [ "${TRACK}" = "stable" ] || [ "${TRACK}" = "lts" ]; then
               PRERELEASE="false"
             else
               PRERELEASE="true"
             fi
           fi
-          
-          echo "track=${TRACK}" >> "$GITHUB_OUTPUT"
-          echo "version=${VER}" >> "$GITHUB_OUTPUT"
-          echo "is_prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
+          {
+            echo "track=${TRACK}"
+            echo "version=${VER}"
+            echo "is_prerelease=${PRERELEASE}"
+          } >> "${GITHUB_OUTPUT}"
           echo "Release Track: ${TRACK} | Version: ${VER} | Prerelease: ${PRERELEASE}"
 
   quality-gate:
-    name: Quality Gate & Verification
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    name: Quality Gate
+    uses: ./.github/workflows/ci.yaml
+    permissions:
+      contents: read
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.27.x"
-          check-latest: true
-          cache: true
-
-      - name: Formatting Check
-        run: |
-          UNFORMATTED="$(gofmt -l .)"
-          if [ -n "$UNFORMATTED" ]; then
-            echo "gofmt found unformatted files:"
-            echo "$UNFORMATTED"
-            exit 1
-          fi
-
-      - name: Static Analysis
-        run: go vet ./...
-
-      - name: Layering & Peer Decoupling Tests
-        run: go test -v ./layering_test.go
-
-      - name: Unit & Integration Tests
-        run: go test -v ./...
-
-      - name: .kiw Conformance Suite (Runtime & Hydration)
-        run: go test -v ./pkg/runtime/conformance/...
-
-      - name: Pure-Go Compilation Invariant
-        run: CGO_ENABLED=0 go build ./...
-
-  publish-github-release:
-    name: Publish Release
+  artifacts:
+    name: Artifacts
     needs: [classify, quality-gate]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate Release Notes
-        id: notes
-        run: |
-          TRACK="${{ needs.classify.outputs.track }}"
-          VER="${{ needs.classify.outputs.version }}"
-          
-          cat << EOF > release_notes.md
-          ## Krewire Core Libraries — ${VER}
-          
-          **Release Track**: \`${TRACK}\`
-          **Commit**: \`${{ github.sha }}\`
-          
-          Foundational modular Go libraries (\`github.com/krewire/krewire/pkg/...\`).
-          EOF
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.classify.outputs.version }}
-          name: Krewire ${{ needs.classify.outputs.version }} [${{ needs.classify.outputs.track }}]
-          body_path: release_notes.md
-          prerelease: ${{ needs.classify.outputs.is_prerelease == 'true' }}
-          draft: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/release-artifacts.yaml
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    with:
+      version: ${{ needs.classify.outputs.version }}
+      channel: ${{ needs.classify.outputs.track }}
+      prerelease: ${{ needs.classify.outputs.is_prerelease == 'true' }}
+      publish: true

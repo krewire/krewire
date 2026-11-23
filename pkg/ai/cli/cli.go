@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"os"
+
+	"github.com/krewire/krewire/pkg/version"
 )
 
 // Run executes the AI CLI command with the given arguments.
@@ -30,6 +32,8 @@ func Run(args []string) int {
 		RunMCP(cmdArgs)
 	case "help", "-h", "--help":
 		printUsage()
+	case "version", "-v", "--version":
+		fmt.Println("ai " + version.Build().String())
 	default:
 		fmt.Fprintf(os.Stderr, "unknown ai command %q. Run 'ai help' for usage.\n", cmd)
 		return 1
@@ -50,7 +54,9 @@ Available Commands:
   sessions   List past conversation sessions with message and token counts
   export     Export conversation session transcript to markdown
   mcp        Run native Model Context Protocol (MCP) server for agents
+  version    Print the release version, source commit, and build metadata
 
 Flags:
-  -h, --help  Show help for command`)
+  -h, --help     Show help for command
+  -v, --version  Print version and build metadata`)
 }
