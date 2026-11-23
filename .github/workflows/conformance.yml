@@ -1,0 +1,68 @@
+name: Workload Conformance
+
+# ─────────────────────────────────────────────────────────────────────────────
+# End-to-end workload qualification (krewire/krewire#141,
+# docs/workloads/conformance.md). Scaffolds, builds, runs, probes and shuts
+# down all eight workload fixtures from a clean checkout, uploads the
+# machine-readable evidence (report.json) and summary, and fails on any
+# regression against internal/conformance/baseline.json.
+# Callable from the release pipeline with `strict: true`, which additionally
+# requires every workload gate to pass. No secrets, no network beyond the
+# module proxy.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      strict:
+        description: Fail unless every workload gate passed (release qualification)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conformance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  GOTOOLCHAIN: local
+  GOWORK: "off"
+
+jobs:
+  qualify:
+    name: workload-conformance
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Download modules
+        run: go mod download
+      - name: Qualify workloads
+        env:
+          STRICT: ${{ inputs.strict && '-strict' || '' }}
+        run: go run ./internal/conformance/cmd/qualify -out conformance-evidence ${STRICT}
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f conformance-evidence/summary.md ]; then
+            cat conformance-evidence/summary.md >> "${GITHUB_STEP_SUMMARY}"
+          fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: conformance-evidence-${{ github.sha }}
+          path: conformance-evidence/
+          if-no-files-found: warn
+          retention-days: 30

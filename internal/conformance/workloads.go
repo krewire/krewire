@@ -11,7 +11,10 @@ import (
 )
 
 // Workloads lists the eight canonical workloads in matrix order
-// (docs/workloads/index.md).
+// (docs/workloads/index.md). Core has no exported workload list on main yet;
+// the names match pkg/observe.Workloads (#139). Once that lands, derive this
+// list from observe.Workloads and the HTTP probe paths from
+// observe.ProfileFor instead of keeping a second list here.
 var Workloads = []string{"site", "book", "app", "cli", "worker", "service", "gateway", "infra"}
 
 func order(name string) int {
