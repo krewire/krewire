@@ -30,6 +30,12 @@ type ActivityRecord struct {
 }
 
 // EngineeringTask is a supervised SDLC engineering workflow within a workspace.
+//
+// The workflow mutates a task from its own goroutine, so the control plane
+// never hands out the live record: CreateTask, GetTask and ListTasks return
+// point-in-time snapshots (copy-on-read) whose exported fields are safe to
+// read without synchronization. Methods called on a snapshot (for example
+// SubscribeActivities) are forwarded to the live task.
 type EngineeringTask struct {
 	mu          sync.RWMutex
 	ID          string                    `json:"id"`
@@ -52,6 +58,50 @@ type EngineeringTask struct {
 	planDecision   chan decision
 	reviewDecision chan decision
 	listeners      map[chan ActivityRecord]struct{}
+
+	// live points at the authoritative task when this value is a snapshot.
+	live *EngineeringTask
+}
+
+// target resolves a snapshot to its live task.
+func (task *EngineeringTask) target() *EngineeringTask {
+	if task.live != nil {
+		return task.live
+	}
+	return task
+}
+
+// snapshot returns a copy of the task's exported state taken under its read
+// lock. Slices and the plan/review values are copied so later mutations by
+// the workflow goroutine are not observable through the snapshot.
+func (task *EngineeringTask) snapshot() *EngineeringTask {
+	task.mu.RLock()
+	defer task.mu.RUnlock()
+	cp := &EngineeringTask{
+		ID:          task.ID,
+		WorkspaceID: task.WorkspaceID,
+		Title:       task.Title,
+		Brief:       task.Brief,
+		Stage:       task.Stage,
+		Status:      task.Status,
+		Diffs:       append([]sdlc.FileDiff(nil), task.Diffs...),
+		Evidence:    append([]sdlc.VerificationResult(nil), task.Evidence...),
+		Provenance:  task.Provenance,
+		Activities:  append([]ActivityRecord(nil), task.Activities...),
+		Error:       task.Error,
+		CreatedAt:   task.CreatedAt,
+		UpdatedAt:   task.UpdatedAt,
+		live:        task,
+	}
+	if task.Plan != nil {
+		plan := *task.Plan
+		cp.Plan = &plan
+	}
+	if task.Review != nil {
+		review := *task.Review
+		cp.Review = &review
+	}
+	return cp
 }
 
 type decision struct {
@@ -173,8 +223,11 @@ func (cp *ControlPlane) CreateTask(ctx context.Context, wsID, wsPath string, bri
 			})
 		},
 		PlanApprover: func(ctx context.Context, plan *sdlc.Plan) (bool, string, error) {
+			// Keep a private copy: the workflow goroutine later stamps the
+			// approval fields on its own plan value.
+			planCopy := *plan
 			task.mu.Lock()
-			task.Plan = plan
+			task.Plan = &planCopy
 			task.Stage = sdlc.StagePlan
 			task.Status = sdlc.StatusAwaitingPlanApproval
 			task.UpdatedAt = time.Now()
@@ -209,14 +262,25 @@ func (cp *ControlPlane) CreateTask(ctx context.Context, wsID, wsPath string, bri
 					Summary:    actionSummary,
 					Details:    map[string]any{"approved": dec.approve},
 				})
+				if dec.approve {
+					task.mu.Lock()
+					approved := *task.Plan
+					approved.Approved = true
+					approved.ApprovedBy = dec.reviewer
+					approved.ApprovedAt = time.Now()
+					task.Plan = &approved
+					task.mu.Unlock()
+				}
 				return dec.approve, dec.reviewer, nil
 			case <-ctx.Done():
 				return false, "", ctx.Err()
 			}
 		},
 		ReviewApprover: func(ctx context.Context, summary *sdlc.ReviewSummary) (bool, string, error) {
+			// Private copy: the workflow stamps approval fields on its own value.
+			reviewCopy := *summary
 			task.mu.Lock()
-			task.Review = summary
+			task.Review = &reviewCopy
 			task.Stage = sdlc.StageReview
 			task.Status = sdlc.StatusAwaitingReview
 			task.UpdatedAt = time.Now()
@@ -274,7 +338,9 @@ func (cp *ControlPlane) CreateTask(ctx context.Context, wsID, wsPath string, bri
 		return nil, fmt.Errorf("failed to initialize workflow: %w", err)
 	}
 
+	task.mu.Lock()
 	task.workflow = wf
+	task.mu.Unlock()
 
 	// Run workflow asynchronously
 	go func() {
@@ -293,11 +359,12 @@ func (cp *ControlPlane) CreateTask(ctx context.Context, wsID, wsPath string, bri
 		} else {
 			task.Status = sdlc.StatusCompleted
 		}
+		finalStatus, finalErr := task.Status, task.Error
 		task.mu.Unlock()
 
-		statusSummary := fmt.Sprintf("Workflow ended with status: %s", task.Status)
-		if task.Error != "" {
-			statusSummary = fmt.Sprintf("Workflow failed: %s", task.Error)
+		statusSummary := fmt.Sprintf("Workflow ended with status: %s", finalStatus)
+		if finalErr != "" {
+			statusSummary = fmt.Sprintf("Workflow failed: %s", finalErr)
 		}
 		task.recordActivity(ActivityRecord{
 			ID:         fmt.Sprintf("act-%d", time.Now().UnixNano()),
@@ -307,15 +374,15 @@ func (cp *ControlPlane) CreateTask(ctx context.Context, wsID, wsPath string, bri
 			IsVerified: true,
 			Label:      "Verified System Evidence",
 			Summary:    statusSummary,
-			Details:    map[string]any{"status": task.Status, "error": task.Error},
+			Details:    map[string]any{"status": finalStatus, "error": finalErr},
 		})
 	}()
 
-	return task, nil
+	return task.snapshot(), nil
 }
 
-// GetTask retrieves an existing supervised task.
-func (cp *ControlPlane) GetTask(wsID, taskID string) (*EngineeringTask, error) {
+// liveTask returns the authoritative task record (internal use only).
+func (cp *ControlPlane) liveTask(wsID, taskID string) (*EngineeringTask, error) {
 	cp.mu.RLock()
 	defer cp.mu.RUnlock()
 	task, exists := cp.tasks[taskKey(wsID, taskID)]
@@ -325,22 +392,35 @@ func (cp *ControlPlane) GetTask(wsID, taskID string) (*EngineeringTask, error) {
 	return task, nil
 }
 
-// ListTasks lists all tasks for a workspace.
+// GetTask returns a point-in-time snapshot of an existing supervised task.
+func (cp *ControlPlane) GetTask(wsID, taskID string) (*EngineeringTask, error) {
+	task, err := cp.liveTask(wsID, taskID)
+	if err != nil {
+		return nil, err
+	}
+	return task.snapshot(), nil
+}
+
+// ListTasks lists snapshots of all tasks for a workspace.
 func (cp *ControlPlane) ListTasks(wsID string) []*EngineeringTask {
 	cp.mu.RLock()
-	defer cp.mu.RUnlock()
-	var list []*EngineeringTask
+	live := make([]*EngineeringTask, 0)
 	for key, task := range cp.tasks {
 		if strings.HasPrefix(key, wsID+":") {
-			list = append(list, task)
+			live = append(live, task)
 		}
+	}
+	cp.mu.RUnlock()
+	list := make([]*EngineeringTask, 0, len(live))
+	for _, task := range live {
+		list = append(list, task.snapshot())
 	}
 	return list
 }
 
 // DecidePlan allows a human reviewer to approve or reject an execution plan.
 func (cp *ControlPlane) DecidePlan(wsID, taskID string, approve bool, reviewer string) error {
-	task, err := cp.GetTask(wsID, taskID)
+	task, err := cp.liveTask(wsID, taskID)
 	if err != nil {
 		return err
 	}
@@ -367,7 +447,7 @@ func (cp *ControlPlane) DecidePlan(wsID, taskID string, approve bool, reviewer s
 
 // DecideReview allows a human reviewer to accept or reject the final code review.
 func (cp *ControlPlane) DecideReview(wsID, taskID string, approve bool, reviewer string) error {
-	task, err := cp.GetTask(wsID, taskID)
+	task, err := cp.liveTask(wsID, taskID)
 	if err != nil {
 		return err
 	}
@@ -394,7 +474,7 @@ func (cp *ControlPlane) DecideReview(wsID, taskID string, approve bool, reviewer
 
 // PauseTask pauses active execution of an engineering task.
 func (cp *ControlPlane) PauseTask(wsID, taskID, actor string) error {
-	task, err := cp.GetTask(wsID, taskID)
+	task, err := cp.liveTask(wsID, taskID)
 	if err != nil {
 		return err
 	}
@@ -422,7 +502,7 @@ func (cp *ControlPlane) PauseTask(wsID, taskID, actor string) error {
 
 // CancelTask cancels an active engineering task.
 func (cp *ControlPlane) CancelTask(wsID, taskID, actor string) error {
-	task, err := cp.GetTask(wsID, taskID)
+	task, err := cp.liveTask(wsID, taskID)
 	if err != nil {
 		return err
 	}
@@ -450,7 +530,7 @@ func (cp *ControlPlane) CancelTask(wsID, taskID, actor string) error {
 
 // DecideDiff sets approval status ("accepted" or "rejected") on a specific file diff.
 func (cp *ControlPlane) DecideDiff(wsID, taskID, filePath string, accept bool, reviewer string) error {
-	task, err := cp.GetTask(wsID, taskID)
+	task, err := cp.liveTask(wsID, taskID)
 	if err != nil {
 		return err
 	}
@@ -490,7 +570,7 @@ func (cp *ControlPlane) DecideDiff(wsID, taskID, filePath string, accept bool, r
 // GenerateApprovalSignal issues a cryptographically authenticated approval signal
 // for a privileged task operation within a workspace.
 func (cp *ControlPlane) GenerateApprovalSignal(wsID, taskID, approverID, secretKey string, ttl time.Duration) (*sec.ApprovalSignal, error) {
-	task, err := cp.GetTask(wsID, taskID)
+	task, err := cp.liveTask(wsID, taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -522,9 +602,11 @@ func (task *EngineeringTask) Subscribe() (<-chan ActivityRecord, func()) {
 
 // SubscribeActivities registers a channel to receive live activity updates for a task.
 func (task *EngineeringTask) SubscribeActivities() (<-chan ActivityRecord, func()) {
+	task = task.target()
 	task.mu.Lock()
 	defer task.mu.Unlock()
-	ch := make(chan ActivityRecord, 32)
+	// Size the buffer so replaying history under the lock can never block.
+	ch := make(chan ActivityRecord, len(task.Activities)+32)
 	task.listeners[ch] = struct{}{}
 
 	// Replay existing activities
@@ -532,25 +614,25 @@ func (task *EngineeringTask) SubscribeActivities() (<-chan ActivityRecord, func(
 		ch <- act
 	}
 
+	var once sync.Once
 	unsubscribe := func() {
-		task.mu.Lock()
-		defer task.mu.Unlock()
-		delete(task.listeners, ch)
-		close(ch)
+		once.Do(func() {
+			task.mu.Lock()
+			defer task.mu.Unlock()
+			delete(task.listeners, ch)
+			close(ch)
+		})
 	}
 	return ch, unsubscribe
 }
 
 func (task *EngineeringTask) recordActivity(act ActivityRecord) {
 	task.mu.Lock()
+	defer task.mu.Unlock()
 	task.Activities = append(task.Activities, act)
-	listeners := make([]chan ActivityRecord, 0, len(task.listeners))
+	// Deliver while holding the lock so an unsubscribe cannot close a channel
+	// mid-send. Sends are non-blocking, so the lock is never held for long.
 	for ch := range task.listeners {
-		listeners = append(listeners, ch)
-	}
-	task.mu.Unlock()
-
-	for _, ch := range listeners {
 		select {
 		case ch <- act:
 		default:

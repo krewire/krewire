@@ -327,17 +327,23 @@ func (w *Workflow) runStagePlan(ctx context.Context) error {
 			if !approved {
 				return fmt.Errorf("%w: plan was rejected by %s", ErrApprovalDenied, reviewer)
 			}
+			w.mu.Lock()
 			plan.Approved = true
 			plan.ApprovedBy = reviewer
 			plan.ApprovedAt = time.Now()
+			w.mu.Unlock()
 		} else {
 			// Auto-approve if no interactive approver hook is supplied
+			w.mu.Lock()
 			plan.Approved = true
 			plan.ApprovedBy = "system"
 			plan.ApprovedAt = time.Now()
+			w.mu.Unlock()
 		}
 	} else {
+		w.mu.Lock()
 		plan.Approved = true
+		w.mu.Unlock()
 	}
 
 	return nil
@@ -486,16 +492,22 @@ func (w *Workflow) runStageReview(ctx context.Context) error {
 			if !approved {
 				return fmt.Errorf("%w: changes rejected by %s", ErrApprovalDenied, reviewer)
 			}
+			w.mu.Lock()
 			review.Approved = true
 			review.ReviewedBy = reviewer
 			review.ReviewedAt = time.Now()
+			w.mu.Unlock()
 		} else {
+			w.mu.Lock()
 			review.Approved = true
 			review.ReviewedBy = "system"
 			review.ReviewedAt = time.Now()
+			w.mu.Unlock()
 		}
 	} else {
+		w.mu.Lock()
 		review.Approved = true
+		w.mu.Unlock()
 	}
 
 	return nil

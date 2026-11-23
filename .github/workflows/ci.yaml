@@ -134,12 +134,7 @@ jobs:
       - name: go test -race
         env:
           CGO_ENABLED: "1"   # the race detector requires cgo; only this gate enables it
-          # Packages with a known, tracked data race. Remove an entry once fixed.
-          RACE_EXCLUDE: github.com/krewire/krewire/pkg/ai/assistant
-        run: |
-          pkgs="$(go list ./... | grep -vxF -e "${RACE_EXCLUDE}")"
-          # shellcheck disable=SC2086
-          go test -race -count=1 ${pkgs}
+        run: go test -race -count=1 ./...
 
   build-purego:
     name: build-purego

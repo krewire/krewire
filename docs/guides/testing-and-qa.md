@@ -133,7 +133,7 @@ failed. No secrets or model-provider credentials are needed.
 | `vet` | `go vet ./...` | |
 | `architecture` | `go test -count=1 -v . ./pkg/errs ./pkg/model` | Layering, peer-decoupling, pure-Go and wasm platform guards (`layering_test.go`, `platform_test.go`) plus the stdlib-boundary tests. |
 | `test (min)`, `test (stable)` | `CGO_ENABLED=0 go test -count=1 ./...` | `min` = the `go` directive in `go.mod` (canonical minimum, currently 1.27.1); `stable` = latest Go release. |
-| `race` | `CGO_ENABLED=1 go test -race -count=1 <pkgs>` | The race detector needs cgo; this is the only gate that enables it. `pkg/ai/assistant` is excluded until its known data race in `ControlPlane.CreateTask` is fixed. |
+| `race` | `CGO_ENABLED=1 go test -race -count=1 ./...` | The race detector needs cgo; this is the only gate that enables it. No package is excluded. |
 | `build-purego` | `CGO_ENABLED=0 go build ./...` | Clean-checkout build: `GOFLAGS=-mod=readonly`, `GOWORK=off`, `GOTOOLCHAIN=local`. |
 | `build-wasm` | `GOOS=js GOARCH=wasm CGO_ENABLED=0 go build -trimpath ./pkg/runtime/...` | Dedicated WebAssembly target check. |
 | `release-snapshot` | `.github/scripts/build-release.sh v0.0.0-ci dev <dir>` twice | Every release target builds, two builds are bit-for-bit identical, and `ai --version` / `--help` work. |
