@@ -2,6 +2,9 @@
 // FRK-INFRA-001/002/003/004). A Provider implements CRUD and plan/apply for a
 // set of resource kinds. Resources carry dependencies; plans are topologically
 // sorted. All operations are side-effect free until Apply.
+//
+// This is the legacy surface. The versioned lifecycle contract lives in
+// pkg/cloud/infra/contract and is executed by pkg/cloud/infra/engine.
 package provider
 
 import (
