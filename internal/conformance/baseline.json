@@ -1,0 +1,131 @@
+{
+  "workloads": {
+    "app": {
+      "status": "partial",
+      "passing": [
+        "app.build",
+        "app.diagnose.port-in-use",
+        "app.probe.api",
+        "app.probe.health",
+        "app.probe.ssr",
+        "app.probe.worker",
+        "app.resolve",
+        "app.scaffold",
+        "app.shutdown",
+        "app.start",
+        "app.validate",
+        "app.vet"
+      ]
+    },
+    "book": {
+      "status": "passed",
+      "passing": [
+        "book.build",
+        "book.compile",
+        "book.diagnose.missing-content",
+        "book.output",
+        "book.probe.index",
+        "book.probe.notfound",
+        "book.resolve",
+        "book.scaffold",
+        "book.shutdown",
+        "book.start",
+        "book.validate",
+        "book.vet"
+      ]
+    },
+    "cli": {
+      "status": "passed",
+      "passing": [
+        "cli.build",
+        "cli.diagnose.bad-flag",
+        "cli.diagnose.unknown-command",
+        "cli.exit",
+        "cli.reproducible",
+        "cli.resolve",
+        "cli.run",
+        "cli.scaffold",
+        "cli.validate",
+        "cli.vet"
+      ]
+    },
+    "gateway": {
+      "status": "passed",
+      "passing": [
+        "gateway.build",
+        "gateway.diagnose.unresolved-upstream",
+        "gateway.diagnose.upstream-down",
+        "gateway.probe.health",
+        "gateway.probe.noroute",
+        "gateway.probe.proxy",
+        "gateway.resolve",
+        "gateway.scaffold",
+        "gateway.shutdown",
+        "gateway.start",
+        "gateway.validate",
+        "gateway.vet"
+      ]
+    },
+    "infra": {
+      "status": "partial",
+      "passing": [
+        "infra.build",
+        "infra.diagnose.invalid-resource",
+        "infra.output",
+        "infra.resolve",
+        "infra.scaffold",
+        "infra.state",
+        "infra.validate",
+        "infra.vet"
+      ]
+    },
+    "service": {
+      "status": "passed",
+      "passing": [
+        "service.build",
+        "service.diagnose.missing-dependency",
+        "service.probe.api",
+        "service.probe.notfound",
+        "service.probe.provider",
+        "service.probe.ready",
+        "service.resolve",
+        "service.scaffold",
+        "service.shutdown",
+        "service.start",
+        "service.validate",
+        "service.vet"
+      ]
+    },
+    "site": {
+      "status": "failed",
+      "passing": [
+        "site.build",
+        "site.compile",
+        "site.diagnose.invalid-page",
+        "site.output",
+        "site.probe.page",
+        "site.resolve",
+        "site.scaffold",
+        "site.shutdown",
+        "site.start",
+        "site.validate",
+        "site.vet"
+      ]
+    },
+    "worker": {
+      "status": "partial",
+      "passing": [
+        "worker.build",
+        "worker.diagnose.invalid-cron",
+        "worker.probe.jobs",
+        "worker.probe.retry",
+        "worker.resolve",
+        "worker.scaffold",
+        "worker.shutdown",
+        "worker.start",
+        "worker.validate",
+        "worker.vet"
+      ]
+    }
+  }
+}
