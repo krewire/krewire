@@ -8,14 +8,30 @@ import (
 	"time"
 
 	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/pkg/observe"
 )
 
-// Workloads lists the eight canonical workloads in matrix order
-// (docs/workloads/index.md). Core has no exported workload list on main yet;
-// the names match pkg/observe.Workloads (#139). Once that lands, derive this
-// list from observe.Workloads and the HTTP probe paths from
-// observe.ProfileFor instead of keeping a second list here.
-var Workloads = []string{"site", "book", "app", "cli", "worker", "service", "gateway", "infra"}
+// Workloads lists the canonical workloads. It is derived from
+// observe.Workloads, the single source of truth for workload kinds (#139), in
+// the same order; the harness keeps no list of its own.
+var Workloads = func() []string {
+	names := make([]string, len(observe.Workloads))
+	for i, w := range observe.Workloads {
+		names[i] = string(w)
+	}
+	return names
+}()
+
+// probePaths returns the standard probe paths for an HTTP workload from
+// observe.ProfileFor, so fixtures probe exactly what the observability
+// contract declares.
+func probePaths(workload observe.Workload) observe.Paths {
+	p, ok := observe.ProfileFor(workload)
+	if !ok || p.Mode != observe.ModeHTTP {
+		panic("conformance: no HTTP probe profile for workload " + string(workload))
+	}
+	return p.Probes
+}
 
 func order(name string) int {
 	for i, w := range Workloads {

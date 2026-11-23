@@ -60,7 +60,7 @@ Each gate is a [`model.VerificationEvidence`](../../pkg/model/evidence.go) (ID, 
 ### Integration points
 
 - **AI-native workflow (#131/#140).** The `pkg/toolchain` contracts and the deterministic fake engine are not on `main`, so `ai_workflow` is `excluded` and `release_readiness` stays false. Once they land, the harness runs the mock-backed workflow through the unified entrypoint and attaches its `EvidenceReport`.
-- **Workload list and probes (#139).** The harness keeps its own workload list only until `pkg/observe.Workloads` and `observe.ProfileFor` land; the names already match.
+- **Workload list and probes (#139).** The harness keeps no workload list of its own: `Workloads` is derived from `pkg/observe.Workloads` (reports follow that order) and the HTTP probe paths come from `observe.ProfileFor`.
 
 ---
 

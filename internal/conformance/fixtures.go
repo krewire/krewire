@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/krewire/krewire/pkg/observe"
 )
 
 func siteFixture(r *run) {
@@ -51,7 +53,7 @@ func appFixture(r *run) {
 	r.serve([]string{"KREWIRE_ADDR=" + addr}, func(_ string, p *proc) {
 		r.probe("probe.ssr", "server renders HTML", "http://"+addr+"/", 200, "<h1>Conformance App</h1>")
 		r.probe("probe.api", "JSON API", "http://"+addr+"/api/greet?name=krewire", 200, `"hello krewire"`)
-		r.probe("probe.health", "liveness probe", "http://"+addr+"/healthz", 200, "")
+		r.probe("probe.health", "liveness probe", "http://"+addr+probePaths(observe.WorkloadApp).Liveness, 200, "")
 		r.assert("probe.worker", gateTest, "in-process background worker runs under the same lifecycle",
 			"await JOB line", func() (string, error) { return p.waitLine("JOB done", 10*time.Second) })
 	})
@@ -121,7 +123,7 @@ func serviceFixture(r *run) {
 	}
 	addr, _ := freeAddr()
 	r.serve([]string{"KREWIRE_ADDR=" + addr, "SERVICE_STORE=memory"}, func(_ string, p *proc) {
-		r.probe("probe.ready", "readiness reflects started providers", "http://"+addr+"/readyz", 200, "")
+		r.probe("probe.ready", "readiness reflects started providers", "http://"+addr+probePaths(observe.WorkloadService).Readiness, 200, "")
 		r.probe("probe.api", "REST resource", "http://"+addr+"/v1/items", 200, `"items"`)
 		r.probe("probe.notfound", "unknown resource is 404", "http://"+addr+"/v1/nope", 404, "")
 		r.assert("probe.provider", gateTest, "provider Start ran before serving", "await PROVIDER started",
@@ -148,7 +150,7 @@ func gatewayFixture(r *run) {
 	addr, _ := freeAddr()
 	r.serve([]string{"KREWIRE_ADDR=" + addr, "UPSTREAM_ADDR=" + up.Listener.Addr().String()}, func(_ string, _ *proc) {
 		r.probe("probe.proxy", "prefix route proxies with strip-prefix", "http://"+addr+"/api/hello", 200, "upstream /hello")
-		r.probe("probe.health", "gateway liveness", "http://"+addr+"/healthz", 200, "")
+		r.probe("probe.health", "gateway liveness", "http://"+addr+probePaths(observe.WorkloadGateway).Liveness, 200, "")
 		r.probe("probe.noroute", "unmatched path is 404", "http://"+addr+"/nope", 404, "")
 		r.probe("diagnose.unresolved-upstream", "route to an unregistered service is 502", "http://"+addr+"/ghost", 502, "")
 		r.assert("diagnose.upstream-down", gateTest, "an unreachable upstream is reported as 502", "close upstream; GET /api/hello",

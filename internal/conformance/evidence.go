@@ -1,8 +1,8 @@
 // Package conformance is the end-to-end workload qualification harness
 // (krewire/krewire#141).
 //
-// For each of the eight workloads (site, book, app, cli, worker, service,
-// gateway, infra) it scaffolds a project from the real starter templates into
+// For each of the eight workloads (observe.Workloads: app, service, gateway,
+// worker, site, book, infra, cli) it scaffolds a project from the real starter templates into
 // a clean temporary directory, builds it as a separate Go module against this
 // checkout, runs the resulting binary, probes representative behaviour, and
 // shuts it down. Every step is recorded as a model.VerificationEvidence gate,
