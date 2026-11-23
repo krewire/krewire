@@ -1,0 +1,9 @@
+gateway:
+  routes:
+    - path: /api
+      prefix: true
+      stripPrefix: true
+      service: backend
+      timeout: 5000000000
+    - path: /ghost
+      service: ghost

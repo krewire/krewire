@@ -1,0 +1,9 @@
+---
+title: "Conformance Site"
+layout: Base
+---
+
+<main>
+  <h1>{title}</h1>
+  <p>Rendered by the workload conformance harness.</p>
+</main>
