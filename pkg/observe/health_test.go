@@ -109,3 +109,24 @@ func TestHeartbeatAndNil(t *testing.T) {
 		t.Fatal("nil health must pass")
 	}
 }
+
+func TestMountByProfile(t *testing.T) {
+	for _, w := range Workloads {
+		p, _ := ProfileFor(w)
+		mux := http.NewServeMux()
+		Mount(mux, p, NewHealth(), NewRegistry(), &Diagnostics{})
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, httptest.NewRequest("GET", PathLiveness, nil))
+		served := rec.Code == http.StatusOK
+		if want := p.Mode == ModeHTTP || p.Mode == ModeHeartbeat; served != want {
+			t.Errorf("%s: liveness served=%v want %v", w, served, want)
+		}
+	}
+	mux := http.NewServeMux()
+	Mount(mux, Profile{Mode: ModeHTTP, MetricsPath: PathMetrics}, nil, nil, nil)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, httptest.NewRequest("GET", PathMetrics, nil))
+	if rec.Code != http.StatusNotFound {
+		t.Fatal("nil registry must not mount metrics")
+	}
+}
