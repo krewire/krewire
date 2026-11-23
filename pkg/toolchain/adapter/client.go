@@ -63,6 +63,9 @@ func (c *Client) read(r io.Reader) {
 // call performs one request; ctx cancellation sends $/cancelRequest and
 // returns cancelled or timeout without waiting for the engine.
 func (c *Client) call(ctx context.Context, method string, params, result any) error {
+	if err := ctx.Err(); err != nil {
+		return contract.AsError(err) // never start work for a dead request
+	}
 	raw, err := json.Marshal(params)
 	if err != nil {
 		return contract.Errorf(contract.CodeInvalidParams, "%v", err)
