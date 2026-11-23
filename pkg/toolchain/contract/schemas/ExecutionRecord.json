@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "approval_scope": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "allowed",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "ExecutionRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "const": "toolchain.krewire.dev/v1"
+        },
+        "call": {
+          "$ref": "#/$defs/ToolCall"
+        },
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "duration_ms": {
+          "type": "integer"
+        },
+        "exit_code": {
+          "type": "integer"
+        },
+        "kind": {
+          "const": "ExecutionRecord"
+        },
+        "mutation": {
+          "$ref": "#/$defs/FileMutation"
+        },
+        "output": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "applied",
+            "denied",
+            "failed"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "call",
+        "decision",
+        "status",
+        "exit_code",
+        "duration_ms"
+      ],
+      "type": "object"
+    },
+    "FileMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "content_hash": {
+          "type": "string"
+        },
+        "lines_added": {
+          "type": "integer"
+        },
+        "lines_removed": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "action",
+        "lines_added",
+        "lines_removed"
+      ],
+      "type": "object"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "content": {
+          "type": "string"
+        },
+        "content_sha256": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "step_id": {
+          "type": "string"
+        },
+        "tool": {
+          "enum": [
+            "write_file",
+            "delete_file",
+            "run_command",
+            "network_fetch"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "tool"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://krewire.dev/schemas/toolchain/v1/ExecutionRecord.json",
+  "$ref": "#/$defs/ExecutionRecord",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Krewire toolchain contract ExecutionRecord, toolchain.krewire.dev/v1 (contract 1.0.0).",
+  "title": "ExecutionRecord"
+}

@@ -1,0 +1,436 @@
+{
+  "$defs": {
+    "Compatibility": {
+      "additionalProperties": false,
+      "properties": {
+        "go_version": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "targets": {
+          "items": {
+            "$ref": "#/$defs/Target"
+          },
+          "type": "array"
+        },
+        "toolchain": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "go_version",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "ConfigValue": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "redacted": {
+          "type": "boolean"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "Dependency": {
+      "additionalProperties": false,
+      "properties": {
+        "indirect": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "version",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "Diagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "enum": [
+            "MISSING",
+            "CONFLICT",
+            "STALE",
+            "MALFORMED"
+          ],
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "hint": {
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "message": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "message",
+        "location"
+      ],
+      "type": "object"
+    },
+    "Gate": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "env": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "type": {
+          "enum": [
+            "FORMAT",
+            "STATIC_ANALYSIS",
+            "TEST",
+            "BUILD",
+            "LAYERING",
+            "SECURITY",
+            "CUSTOM"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "argv",
+        "required",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "GraphRef": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "edges": {
+          "type": "integer"
+        },
+        "nodes": {
+          "type": "integer"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nodes",
+        "edges",
+        "digest",
+        "source"
+      ],
+      "type": "object"
+    },
+    "ModuleIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "tier": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "Package": {
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string"
+        },
+        "import_path": {
+          "type": "string"
+        },
+        "imports": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "import_path",
+        "dir",
+        "name",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "ProjectContext": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "const": "toolchain.krewire.dev/v1"
+        },
+        "compatibility": {
+          "$ref": "#/$defs/Compatibility"
+        },
+        "config": {
+          "items": {
+            "$ref": "#/$defs/ConfigValue"
+          },
+          "type": "array"
+        },
+        "dependencies": {
+          "items": {
+            "$ref": "#/$defs/Dependency"
+          },
+          "type": "array"
+        },
+        "diagnostics": {
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          },
+          "type": "array"
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "graph": {
+          "$ref": "#/$defs/GraphRef"
+        },
+        "kind": {
+          "const": "ProjectContext"
+        },
+        "module": {
+          "$ref": "#/$defs/ModuleIdentity"
+        },
+        "packages": {
+          "items": {
+            "$ref": "#/$defs/Package"
+          },
+          "type": "array"
+        },
+        "pillars": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "quality_gates": {
+          "items": {
+            "$ref": "#/$defs/Gate"
+          },
+          "type": "array"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/Rule"
+          },
+          "type": "array"
+        },
+        "toolchain": {
+          "$ref": "#/$defs/ToolchainIdentity"
+        },
+        "workload": {
+          "$ref": "#/$defs/Workload"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "fingerprint",
+        "module",
+        "toolchain",
+        "workload",
+        "packages",
+        "dependencies",
+        "graph",
+        "pillars",
+        "rules",
+        "config",
+        "quality_gates",
+        "compatibility",
+        "diagnostics"
+      ],
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "schema"
+      ],
+      "type": "object"
+    },
+    "Rule": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "enforced_by": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "statement": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "statement",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "properties": {
+        "goarch": {
+          "type": "string"
+        },
+        "goos": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "goos",
+        "goarch"
+      ],
+      "type": "object"
+    },
+    "ToolchainIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "type": "string"
+        },
+        "executable": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "executable",
+        "contract_version"
+      ],
+      "type": "object"
+    },
+    "Workload": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "maturity": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "kind",
+        "maturity",
+        "provenance"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://krewire.dev/schemas/toolchain/v1/ProjectContext.json",
+  "$ref": "#/$defs/ProjectContext",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Krewire toolchain contract ProjectContext, toolchain.krewire.dev/v1 (contract 1.0.0).",
+  "title": "ProjectContext"
+}
