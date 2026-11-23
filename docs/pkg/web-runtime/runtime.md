@@ -2,7 +2,7 @@
 
 The `pkg/runtime` library provides the client-side WebAssembly (WASM) execution engine, Virtual DOM (VDOM) diffing and reconciliation algorithm, Fiber component lifecycle scheduler, and multi-framework island hydration contracts.
 
-It allows developers to write interactive, reactive client-side widgets in 100% pure Go compiled to WebAssembly (`GOOS=js GOARCH=wasm`), or embed lightweight modular frontend framework islands (Svelte 5, Vue 3) while keeping initial page loads static and zero-JS by default.
+It allows developers to write interactive, reactive client-side widgets in 100% pure Go compiled to WebAssembly (`GOOS=js GOARCH=wasm`), or embed lightweight modular frontend framework islands (Svelte 5, Vue 3) while keeping initial page loads static and pure Go by default.
 
 ---
 

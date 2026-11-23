@@ -177,7 +177,7 @@ Running `krew boost install <dir>` installs the AI Agent Constitution (`AGENTS.m
 
 ## 9. Modular Frontend Framework Integration (Svelte & Vue)
 
-Krewire provides first-class modular plugins for embedding **Svelte 5** and **Vue 3** reactive components as client-side islands within Krewire SSR or static pages (`site`, `app`, `book`), while keeping Krewire's core 100% pure Go and zero-JS by default.
+Krewire provides first-class modular plugins for embedding **Svelte 5** and **Vue 3** reactive components as client-side islands within Krewire SSR or static pages (`site`, `app`, `book`), while keeping Krewire's core 100% pure Go by default.
 
 ### Adding Modular Svelte or Vue
 

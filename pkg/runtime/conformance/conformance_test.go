@@ -504,7 +504,7 @@ layout: Base
 
 // ── 6. Progressive Enhancement & Fallback ───────────────────────────────────
 
-func TestConformance_Progressive_ZeroJSFallback(t *testing.T) {
+func TestConformance_Progressive_SemanticFallback(t *testing.T) {
 	// Without JS execution, server-rendered text inside data-kiw-mount must be accessible
 	markup := mount.WrapWithFramework("UserProfile", "svelte", mount.Visible, `{"id":42}`, `<div class="user-card"><h3>Alice Doe</h3><p>Engineer</p></div>`)
 

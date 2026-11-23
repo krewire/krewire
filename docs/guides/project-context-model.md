@@ -46,7 +46,7 @@ The project context is represented canonically by `model.ProjectContext`:
 - `Workspace`: Absolute path to workspace root.
 - `Pillars`: Authoritative rules for Krewire's Three Pillars (3S):
   - `Secure (S1)`: Safety by default, stdlib-first, SafePath path traversal guards, zero committed secrets.
-  - `Sustainable (S2)`: Near-zero cost engineering, 10–30 MB lean RAM footprint, single static binary embed, zero npm/node runtime.
+  - `Sustainable (S2)`: Near-zero cost engineering, 10–30 MB lean RAM footprint, single static binary embed, lean pure Go runtime.
   - `Scalable (S3)`: Additive progression, strict downward-only dependencies, zero peer coupling.
 - `Rules`: Flattened list of all active operational and architectural rules with provenance.
 - `QualityGates`: Deterministic command validations required before committing.

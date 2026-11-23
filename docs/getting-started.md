@@ -48,7 +48,7 @@ go test -v ./pkg/model/...
 
 ## First-Project Quickstart (Zero to Shipped in 60 Seconds)
 
-Krewire enables an immediate, reproducible onboarding experience with zero npm/node dependencies:
+Krewire enables an immediate, reproducible onboarding experience with pure Go toolchain:
 
 ### 1. Scaffold a New Project
 ```bash

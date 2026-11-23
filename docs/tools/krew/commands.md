@@ -87,7 +87,7 @@ krew init --site
 
 ### `krew add <package[@version] | ui/<component> | ui:<pack>>`
 Installs a Go module or activates an opt-in ecosystem plugin (such as Tailwind CSS, Svelte, or Vue), or copies Krewire UI (kui) components into `./components` (see [`krew ui`](#kiw-ui-subcommand)).
-- **Zero JS by Default**: Krewire projects default to pure Go with native CSS design tokens and zero external toolchains.
+- **Pure Go by Default**: Krewire projects default to pure Go with native CSS design tokens and zero external toolchains.
 - **Opt-In Technology**: 
   - Adding `twcss` configures the Tailwind plugin and auto-detects runners (standalone binary in `bin/tailwindcss`, Bun, PNPM, or npm/npx).
   - Adding `svelte` installs Svelte 5, configures `svelte.config.js` and `vite.config.js`, and sets up starter components in `components/`.
@@ -185,7 +185,7 @@ kiw seed --dsn test.db         # override target database DSN
 - **Directory**: Resolves from `seeds/` or `database/seeds/` (overridable via `database.seeds` in `krewire.yaml` or `--dir`).
 
 ### `kiw pkg <init <name> | pack [dir] | add <src> | list | export <comp|dir>>`
-Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/pkg/`, and automated style injection with zero npm dependencies.
+Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/pkg/`, and automated style injection with native Go packaging.
 ```bash
 kiw pkg init @acme/ui             # Scaffolds standalone package with kiw.pkg.json
 kiw pkg pack ./my-kit              # Packs package into .kpkg distributable archive

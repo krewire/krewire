@@ -4,7 +4,7 @@ Import: `github.com/krewire/ui`
 
 ## 1. Purpose & Architecture
 
-The `ui` package (maintained in `github.com/krewire/ui`) implements Krewire's **Pop-Brutalist** UI design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), strongly typed widgets, declarative form builders, and accessible dark-mode inversion with zero npm dependencies.
+The `ui` package (maintained in `github.com/krewire/ui`) implements Krewire's **Pop-Brutalist** UI design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), strongly typed widgets, declarative form builders, and accessible dark-mode inversion with native Go packaging.
 
 For full component specifications and design tokens, see [Web UI Component Toolkit Guide](./web-runtime/ui-tui.md).
 
@@ -49,5 +49,5 @@ func RenderUserProfileCard(username string) string {
 ## 4. Alignment with the Three Pillars (3S)
 
 - **Secure (S1)**: Automatic CSRF token injection in forms; strict contextual HTML escaping on all text widgets.
-- **Sustainable (S2)**: Zero npm/Node.js runtime dependencies; components compile via pure Go `embed.FS`.
+- **Sustainable (S2)**: Pure Go runtime dependencies; components compile via pure Go `embed.FS`.
 - **Scalable (S3)**: Components follow the "Copy & Own" model or direct Go module imports.

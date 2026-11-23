@@ -49,7 +49,7 @@ For independent developers and small engineering teams who face severe toolchain
 - **Krewire Value**:
   - Build everything in Go—from static documentation to reactive UI and cloud microservices.
   - Near-zero cost: Run entire production workloads on a single $5/month VPS with 10–30 MB RAM.
-  - Zero npm dependencies; compile clean static binaries with embedded assets.
+  - Pure Go toolchain; compile clean static binaries with embedded assets.
 
 ### 4.2 Secondary Adoption Segment: Small Engineering Teams (2–10 Engineers)
 - **Profile**: Early-stage startups, boutique software agencies, and small SaaS companies with lean engineering resources.
@@ -105,7 +105,7 @@ The friction manifests in four dimensions:
 | **Go-First & Pure Go** | Single compiled runtime across all software concerns. Zero CGO dependencies. | Compiles cleanly with `CGO_ENABLED=0`. Enforced by `layering_test.go` and release qualification pipeline (`krew release --qualify`). |
 | **8 Unified Workloads** | One declarative configuration file (`krewire.yaml`) drives sites, books, apps, workers, services, gateways, and infrastructure. | Canonical matrix in `pkg/model/workload.go`. Single CLI `krew dev` and `krew build` automatically dispatches appropriate workload pipeline via `pkg/lifecycle`. |
 | **Near-Zero Cost (Sustain)** | Production software engineered to run on a minimal $5/month VPS indefinitely. | Memory benchmarks demonstrate 10–30 MB resident set size (RSS). Sub-millisecond cold starts verified by `krew bench` baselines (`baseline-report.md`). |
-| **Zero-NPM Web Runtime** | Web components, server-side rendering, and client WebAssembly islands compile purely in Go without `node_modules` or webpack. | The `.kiw` component compiler in `pkg/kiw` desugars Pop-Brutalist components into standard Go `html/template` and WASM VDOM. 18 conformance tests pass in `pkg/runtime/conformance/`. |
+| **Pure-Go Web Runtime** | Web components, server-side rendering, and client WebAssembly islands compile purely in Go without `node_modules` or webpack. | The `.kiw` component compiler in `pkg/kiw` desugars Pop-Brutalist components into standard Go `html/template` and WASM VDOM. 18 conformance tests pass in `pkg/runtime/conformance/`. |
 | **Safety by Default (Secure)** | Security is an architectural invariant, never an expensive commercial tier. | Built-in `SafePath` path traversal guards in `pkg/sec`, contextual auto-escaping, automated OWASP security headers (CSP, HSTS), and static secret leak prevention. |
 | **Progressive Scaling (Scalable)** | Start as a simple modular monolith and grow to distributed services without rewrites. | 7-stage progressive pipeline. Database and cache layers abstract clean Go interfaces (`orm.DB`, `cache.Driver`) allowing reversible driver swaps. |
 | **AI-Native Context SSOT** | Developers and AI agents consume the identical machine-readable context. | Declarative context schema in `pkg/model/context.go`, exposed via `kiw context --json` and validated by `kiw context --lint`. |

@@ -45,5 +45,5 @@ func main() {
 ## 4. Alignment with the Three Pillars (3S)
 
 - **Secure (S1)**: Runs in browser's sandboxed WebAssembly execution environment; auto-escapes DOM text to prevent XSS.
-- **Sustainable (S2)**: Zero npm/Node.js runtime required; compiled with standard Go WASM toolchain.
+- **Sustainable (S2)**: Pure Go runtime; compiled with standard Go WASM toolchain.
 - **Scalable (S3)**: Unified hydration contract supporting Go WASM, Svelte 5, and Vue 3 islands.

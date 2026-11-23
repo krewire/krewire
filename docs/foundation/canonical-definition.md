@@ -97,7 +97,7 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 - **Definition**: Distinct higher-tier applications, services, and design primitives built within the Krewire ecosystem:
   - **Krewire Krew** (`krew`): Unified developer toolchain, CLI driver, and autonomous ReAct AI agent runtime.
   - **Krewire TUI** (`tui`): Lightweight, pure-Go TUI framework and terminal design primitives with zero external dependencies (Open Source).
-  - **Krewire UI** (`ui`): Pop-Brutalist `.kiw` design system (66 components, Model C Go packages, zero npm runtime) (Open Source).
+  - **Krewire UI** (`ui`): Pop-Brutalist `.kiw` design system (66 components, Model C Go packages, pure Go & Tailwind CSS) (Open Source).
   - **Krewire Cloud** (`cloud`): Hybrid PaaS control plane, process supervisor, and edge gateway (Private Enterprise).
   - **Krewire Auth** (`auth`): Multi-tenant SSO (OIDC/SAML2), MFA (TOTP), and RBAC platform (Private Enterprise).
   - **Krewire Dash** (`dash`): AI-native virtual workspace, execution sandboxes, and collaboration console (Private Enterprise).
@@ -129,7 +129,7 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 The three architectural pillars of Krewire are non-negotiable and strictly invariant:
 
 1. **Secure**: Safety by default, standard-library-first dependencies, path traversal guards (`SafePath`), zero hardcoded secrets, contextual escaping.
-2. **Sustain**: Near-zero operational cost, 10–30 MB lean RAM footprint, single static binary embed (`CGO_ENABLED=0`), zero npm/node runtime, permanent MIT open core.
+2. **Sustain**: Near-zero operational cost, 10–30 MB lean RAM footprint, single static binary embed (`CGO_ENABLED=0`), pure Go runtime, permanent MIT open core.
 3. **Scalable**: Additive growth across the 7-stage progressive pipeline without rewrites, reversible database/cache provider swapping, decoupled lateral gateways.
 
 > [!IMPORTANT]

@@ -186,9 +186,9 @@ var ConformanceMatrix = []FeatureSpec{
 	{
 		ID:          "KIW-PRG-001",
 		Category:    CategoryProgressive,
-		Name:        "Zero-JS Semantic HTML Fallback",
+		Name:        "Semantic HTML Fallback",
 		Description: "Ensures complete server-rendered semantic HTML and accessible content is displayed when JavaScript is disabled.",
-		TestFunc:    "TestConformance_Progressive_ZeroJSFallback",
+		TestFunc:    "TestConformance_Progressive_SemanticFallback",
 		Tier:        TierSupported,
 	},
 	{

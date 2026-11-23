@@ -1,6 +1,6 @@
 # Package: `ui` & `tui` (Web UI Component Toolkit & Terminal UI Engine)
 
-The `pkg/ui` and `pkg/tui` libraries provide user interface authoring surfaces across two mediums: Pop-Brutalist web interfaces with zero npm/Node.js runtime dependencies, and expressive, interactive terminal UI applications.
+The `pkg/ui` and `pkg/tui` libraries provide user interface authoring surfaces across two mediums: Pop-Brutalist web interfaces with pure Go runtime efficiency, and expressive, interactive terminal UI applications.
 
 ---
 
@@ -212,7 +212,7 @@ Run 'kiw --help' for usage.
   - Form widgets automatically include anti-CSRF token fields and enforce strict input escaping.
   - TUI sanitizes ANSI control sequences to prevent terminal escape injection attacks.
 - **Sustainable (S2)**:
-  - Web UI produces zero npm dependencies and requires no Node.js runtime; styles and widgets compile in pure Go (`embed.FS`).
+  - Web UI compiles in pure Go; styles and widgets compile in pure Go (`embed.FS`).
   - Terminal applications require no external ncurses/C libraries, preserving static pure-Go binaries (`CGO_ENABLED=0`).
 - **Scalable (S3)**:
   - UI widgets and forms share the exact same validation rules and schemas defined in `pkg/validation`.

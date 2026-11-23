@@ -205,5 +205,5 @@ func main() {
 ## 8. Alignment with the Three Pillars (3S)
 
 - **Secure (S1)**: OWASP defense headers enabled by default; RFC 7807 prevents leaking internal database stack traces to clients.
-- **Sustainable (S2)**: Memory footprint bounded under 15 MB; zero npm or external reverse-proxy dependencies (Nginx/Traefik) needed for development.
+- **Sustainable (S2)**: Memory footprint bounded under 15 MB; pure Go without external reverse-proxy dependencies (Nginx/Traefik) needed for development.
 - **Scalable (S3)**: Seamlessly transitions from local monolithic router to distributed reverse-proxy gateway (`pkg/web/gateway`) without rewriting route handlers.

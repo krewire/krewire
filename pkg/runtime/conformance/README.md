@@ -22,7 +22,7 @@ Package `pkg/runtime/conformance` automates conformance testing for the supporte
 | `KIW-HYD-001` | Hydration | Directives (`load`, `idle`, `visible`) | `TestConformance_Hydration_Directives` | **Supported** |
 | `KIW-HYD-002` | Hydration | Multi-Framework Markers (`svelte`, `vue`, `wasm`) | `TestConformance_Hydration_FrameworkMarkers` | **Supported** |
 | `KIW-HYD-003` | Hydration | Loader Injection (`kiw-islands.js`) | `TestConformance_Hydration_LoaderInjection` | **Supported** |
-| `KIW-PRG-001` | Progressive | Zero-JS Semantic Fallback | `TestConformance_Progressive_ZeroJSFallback` | **Supported** |
+| `KIW-PRG-001` | Progressive | Semantic HTML Fallback | `TestConformance_Progressive_SemanticFallback` | **Supported** |
 | `KIW-PRG-002` | Progressive | Fault-Tolerant Hydration | `TestConformance_Progressive_FaultTolerance` | **Supported** |
 | `KIW-BRW-001` | Browser | Headless DOM & Marker Simulation | `TestConformance_Browser_HeadlessSimulation` | **Supported** |
 

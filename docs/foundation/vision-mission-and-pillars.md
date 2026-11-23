@@ -104,7 +104,7 @@ The Three Pillars are Krewire's non-negotiable architectural invariants. They si
 
 - **Near-Zero Cost Footprint**: Maintain a 10–30 MB lean RAM footprint and sub-millisecond cold starts, enabling production workloads to run indefinitely on minimal hardware.
 - **Single Static Binaries**: Package applications as standalone, CGO-free binaries (`CGO_ENABLED=0`, `-ldflags="-s -w"`) with static assets and templates embedded via Go `embed.FS`.
-- **Zero NPM/Node.js Runtime Bloat**: UI components and server templates compile natively via Go (`.kiw` engine), avoiding fragile `node_modules` ecosystems.
+- **Pure-Go Runtime Discipline**: UI components and server templates compile natively via Go (`.kiw` engine), avoiding fragile `node_modules` ecosystems.
 - **Independent Modular Libraries**: Code under `pkg/*` is strictly decoupled; importing `pkg/web` does not pull in ORM or cloud dependencies. Projects pay only for what they import.
 - **Permanent MIT Open Core**: Core layers (Layers 0 through 3) are 100% MIT-licensed forever. No feature on the free tier is ever crippled, seat-limited, or telemetry-gated.
 

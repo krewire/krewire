@@ -101,7 +101,7 @@ title: "Home"
 
 <section class="hero">
   <h1>Build Fast with Pure Go</h1>
-  <p>Zero npm dependencies, 10-30 MB memory footprints, and instant cold starts.</p>
+  <p>Pure Go efficiency, 10-30 MB memory footprints, and instant cold starts.</p>
   <a href="/docs" class="btn btn-primary">Read Documentation</a>
 </section>
 
@@ -138,5 +138,5 @@ krew deploy --target gh-pages
 ## 6. Alignment with the Three Pillars (3S)
 
 - **Secure (S1)**: Produces static HTML/CSS with no server-side attack surface; contextual template auto-escaping prevents XSS.
-- **Sustainable (S2)**: Zero npm/Node.js dependencies; works with or without `go.mod`; builds hundreds of pages in sub-second time on a minimal $5 VPS.
+- **Sustainable (S2)**: Pure Go runtime; works with or without `go.mod`; builds hundreds of pages in sub-second time on a minimal $5 VPS.
 - **Scalable (S3)**: Seamlessly enhances from pure static pages into fullstack applications (`app`) or multi-language books (`book`) using the same `.kiw` templates.

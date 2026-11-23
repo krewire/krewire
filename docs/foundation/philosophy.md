@@ -12,7 +12,7 @@ For the comprehensive strategic hierarchy, see **[Vision, Mission, and The Three
 - **Mission**: Make software engineering accessible, sovereign, and sustainable by eliminating toolchain fragmentation and engineering near-zero cost software ownership from initial specification to production.
 - **The Three Pillars**:
   - **Secure**: Safety by default, stdlib-first, SafePath traversal guards, zero committed secrets.
-  - **Sustain**: Near-zero cost engineering, 10–30 MB lean RAM footprint, single static binary embed, zero npm runtime, permanent MIT open core.
+  - **Sustain**: Near-zero cost engineering, 10–30 MB lean RAM footprint, single static binary embed, pure Go runtime, permanent MIT open core.
   - **Scalable**: Additive growth across 7 progressive pipeline stages without rewrites, reversible provider swaps, decoupled lateral gateways.
 
 ---

@@ -44,7 +44,7 @@ Krewire addresses a multidisciplinary developer problem that traditionally spans
 |---|---|---|---|---|
 | **Language & Toolchain Model** | Multi-runtime (Node.js, npm/pnpm, TypeScript, Rust bundlers). | Single Go binary, standard library aligned. | Shell scripts, Docker daemon, external buildpacks. | **Unified Go Battery**: Single compiled Go CLI (`krew`) and Go runtime (`CGO_ENABLED=0`). |
 | **Workload Coverage** | Web applications & API routes only. Docs/CLI require separate tools. | HTTP routing and middleware only. Background workers & SSG unbundled. | Deployment and hosting only. Code architecture is out of scope. | **8 Unified Workloads**: `site`, `book`, `app`, `cli`, `worker`, `service`, `gateway`, `infra`. |
-| **Component & UI Engine** | React / JSX with heavy `node_modules` dependency trees. | HTML templates or client SPA (React/Vue) requiring separate build tools. | External frontend container or pre-built static assets. | **Pure-Go `.kiw`**: Pop-Brutalist components compile to Go `html/template` + WASM. Zero npm runtime. |
+| **Component & UI Engine** | React / JSX with heavy `node_modules` dependency trees. | HTML templates or client SPA (React/Vue) requiring separate build tools. | External frontend container or pre-built static assets. | **Pure-Go `.kiw`**: Pop-Brutalist components compile to Go `html/template` + WASM. Pure-Go & Tailwind CSS. |
 | **Operational RAM Footprint** | 500 MB – 2 GB RAM baseline at idle. | 20 – 50 MB RAM for raw API server. | 500 MB – 1 GB RAM for control daemon. | **10 – 30 MB RAM**: Sub-millisecond cold starts, engineered for $5/month VPS hosting. |
 | **Security Architecture** | Deep supply chain risk (hundreds of transitive npm dependencies). | Developer-managed; basic middleware available. | Host Docker socket exposure; container isolation. | **Safety by Default**: Stdlib-first, `SafePath` traversal guards, contextual escaping, zero stored secrets. |
 | **Architectural Discipline** | Often degenerates into complex component sprawl. | Minimal constraints; can lead to ad-hoc monolithic spaghetti. | Black-box buildpacks; unguided application architecture. | **6-Layer Pyramid**: Downward-only dependencies enforced by automated tests (`layering_test.go`). |
@@ -65,7 +65,7 @@ Krewire holds five defensible, evidence-backed advantages:
 - **Advantage**: Whole production workloads consume between 10–30 MB of memory and cold start in sub-milliseconds, allowing multiple production services to run simultaneously on a minimal $5/month cloud VPS without performance degradation.
 - **Evidence**: Verified by automated memory and execution benchmarks in `docs/benchmarks/baseline-report.md`.
 
-### 3. Zero-NPM Web Component Architecture
+### 3. Pure-Go Web Component Architecture
 - **Advantage**: Developers build modern, component-driven reactive web applications without touching `package.json`, Node.js, Webpack, or Vite.
 - **Evidence**: The `.kiw` compiler desugars components into native Go templates and WASM islands. 18 conformance tests pass cleanly in `pkg/runtime/conformance/`.
 

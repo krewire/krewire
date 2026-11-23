@@ -107,7 +107,7 @@ Every first-party component in Krewire belongs to one of six architectural categ
 - **Krewire UI** (`ui`):
   - **Category**: Component Design System.
   - **Repository**: `github.com/krewire/ui` (Public, MIT License).
-  - **Scope**: 66 Pop-Brutalist `.kiw` UI components, CSS styling tokens (`styles/krewire.css`), and pure Go `embed.FS` distribution (Model C package model). Zero npm runtime.
+  - **Scope**: 66 Pop-Brutalist `.kiw` UI components, CSS styling tokens (`styles/krewire.css`), and pure Go `embed.FS` distribution (Model C package model). Pure-Go & Tailwind CSS.
   - **Maturity**: Production-Ready.
 
 ---

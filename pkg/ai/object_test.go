@@ -27,7 +27,7 @@ type ArticleSummary struct {
 }
 
 func TestGenerateObject(t *testing.T) {
-	mockJSON := "```json\n{\n  \"title\": \"Krewire Architecture\",\n  \"word_count\": 1200,\n  \"key_points\": [\"modular\", \"downward deps\", \"zero js\"],\n  \"is_complete\": true\n}\n```"
+	mockJSON := "```json\n{\n  \"title\": \"Krewire Architecture\",\n  \"word_count\": 1200,\n  \"key_points\": [\"modular\", \"downward deps\", \"pure go\"],\n  \"is_complete\": true\n}\n```"
 	p := &mockSummaryProvider{jsonPayload: mockJSON}
 
 	summary, err := GenerateObject[ArticleSummary](context.Background(), p, "mock-model", "Summarize this article")
