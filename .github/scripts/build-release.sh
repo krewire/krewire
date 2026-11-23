@@ -124,8 +124,10 @@ GO_VERSION="$(go env GOVERSION)"
 # Checksums over every published file except the checksum file itself.
 (
   cd "${OUT}"
-  find . -maxdepth 1 -type f ! -name SHA256SUMS ! -name '*.intoto.jsonl' -print \
-    | sed 's|^\./||' | LC_ALL=C sort | while read -r f; do sha256 "$f"; done > SHA256SUMS
+  sums="$(mktemp)"
+  find . -maxdepth 1 -type f ! -name SHA256SUMS -print \
+    | sed 's|^\./||' | LC_ALL=C sort | while read -r f; do sha256 "$f"; done > "${sums}"
+  mv "${sums}" SHA256SUMS
 )
 
 echo "artifacts in ${OUT}:"
