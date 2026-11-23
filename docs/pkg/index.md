@@ -61,6 +61,7 @@ The bedrock runtime executor, declarative domain models, application container, 
 ### B. [Web & Client Runtime](./web-runtime/web.md)
 Fullstack web routing, component templates, static site generation, and interactive client WebAssembly:
 - [HTTP Router, SSG, SSR & Gateway (`web`)](./web.md)
+- [Typed Service Contracts, OpenAPI & Compatibility (`apicontract`)](./apicontract.md)
 - [WebAssembly VDOM Engine (`runtime`)](./runtime.md)
 - [Asset Management & Bundling Pipeline (`assets`)](./assets.md)
 - [Markdown Content & Book Compiler (`book`)](./book.md)
@@ -88,6 +89,7 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 | Package | Documentation | Focus |
 |---|---|---|
 | `ai` | [`ai.md`](./ai.md) | Native AI SDK: providers, streaming, tools, schema, object generation |
+| `apicontract` | [`apicontract.md`](./apicontract.md) | Typed service contracts, OpenAPI 3.1, typed clients, compatibility checks |
 | `app` | [`app.md`](./app.md) | Application container, dependency injection, and service provider lifecycle |
 | `assets` | [`assets.md`](./assets.md) | Static asset pipeline, bundling, minification, and fingerprinting |
 | `auth` | [`auth.md`](./auth.md) | Basic Authentication, JWT, identity, claims, and HTTP errors |

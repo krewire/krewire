@@ -142,3 +142,9 @@ krew build
 krew vet --sec
 krew test
 ```
+
+## Typed contracts
+
+Declare the service API as a typed, versioned contract with
+[`pkg/apicontract`](../pkg/apicontract.md): server bindings, the Go client,
+OpenAPI 3.1, gateway routes, and the CI compatibility gate all derive from it.
