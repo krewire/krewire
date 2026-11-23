@@ -81,6 +81,10 @@ for bin in ${BINARIES}; do
     if [ "${SBOM}" = "1" ]; then
       "${TOOLS}/cyclonedx-gomod" bin -json -noserial -version "${VERSION}" \
         -output "${file%.exe}.cdx.json" "${file}"
+      # Pin the SBOM timestamp to SOURCE_DATE_EPOCH so it is reproducible too.
+      sed -E "s/\"timestamp\": \"[^\"]*\"/\"timestamp\": \"${BUILD_DATE}\"/" \
+        "${file%.exe}.cdx.json" > "${file%.exe}.cdx.tmp"
+      mv "${file%.exe}.cdx.tmp" "${file%.exe}.cdx.json"
     fi
   done
 done
