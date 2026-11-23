@@ -127,6 +127,9 @@
           },
           "type": "array"
         },
+        "fail_on_output": {
+          "type": "boolean"
+        },
         "id": {
           "type": "string"
         },

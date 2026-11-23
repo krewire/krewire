@@ -102,6 +102,9 @@ type Gate struct {
 	Argv     []string              `json:"argv"`
 	Env      []string              `json:"env,omitempty"`
 	Required bool                  `json:"required"`
+	// FailOnOutput marks gates whose failure signal is non-empty output
+	// (e.g. `gofmt -l`), not only a non-zero exit code.
+	FailOnOutput bool `json:"fail_on_output,omitempty"`
 	// Provenance points at the declaration of the gate.
 	Provenance Provenance `json:"provenance"`
 }
@@ -119,6 +122,9 @@ type Compatibility struct {
 	Targets    []Target   `json:"targets,omitempty"`
 	Provenance Provenance `json:"provenance"`
 }
+
+// Pillars are the Three Pillars every Krewire change is filtered through.
+var Pillars = []string{"Secure", "Sustainable", "Scalable"}
 
 // Severity grades a diagnostic. Only SeverityError blocks CI.
 type Severity string
