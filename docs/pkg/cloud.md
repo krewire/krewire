@@ -13,6 +13,7 @@ Cloud orchestration suite providing container runners, microservice discovery, a
 - **`cloud/worker`**: Distributed background job queues and dead-letter queue (DLQ) supervision.
 - **`cloud/storage`**: Cloud-specific object store drivers.
 - **`cloud/infra`**: Declarative schema definitions and state management for infrastructure blueprints.
+- **`cloud/apphost`**: Declarative application resource graph and local orchestrator ([apphost.md](apphost.md)).
 - **`cloud/deploy`**: Canary and blue-green deployment pipelines.
 
 ## Example
