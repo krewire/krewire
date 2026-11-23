@@ -1,0 +1,364 @@
+{
+  "contract": "krewire.contract/v1",
+  "service": "todo",
+  "version": "1.0.0",
+  "title": "Todo API",
+  "description": "Example Krewire service contract.",
+  "basePath": "/api/todo",
+  "endpoints": [
+    {
+      "name": "ListTodos",
+      "method": "GET",
+      "path": "/todos",
+      "summary": "List todos.",
+      "tags": [
+        "todos"
+      ],
+      "status": 200,
+      "auth": {
+        "required": false
+      },
+      "params": [
+        {
+          "name": "done",
+          "in": "query",
+          "description": "Only todos with this completion state.",
+          "schema": {
+            "type": "boolean",
+            "description": "Only todos with this completion state."
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      ],
+      "response": {
+        "$ref": "#/components/schemas/TodoList"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    },
+    {
+      "name": "GetTodo",
+      "method": "GET",
+      "path": "/todos/{id}",
+      "summary": "Fetch one todo.",
+      "tags": [
+        "todos"
+      ],
+      "status": 200,
+      "auth": {
+        "required": false
+      },
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      ],
+      "response": {
+        "$ref": "#/components/schemas/Todo"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 404,
+          "code": "todo_not_found",
+          "description": "No todo has that id."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    },
+    {
+      "name": "CreateTodo",
+      "method": "POST",
+      "path": "/todos",
+      "summary": "Create a todo.",
+      "tags": [
+        "todos"
+      ],
+      "status": 201,
+      "auth": {
+        "required": true,
+        "scheme": "bearer"
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "normal",
+              "high"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "response": {
+        "$ref": "#/components/schemas/Todo"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 401,
+          "code": "unauthenticated",
+          "description": "Authentication is required."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    },
+    {
+      "name": "UpdateTodo",
+      "method": "PATCH",
+      "path": "/todos/{id}",
+      "summary": "Update a todo.",
+      "tags": [
+        "todos"
+      ],
+      "status": 200,
+      "auth": {
+        "required": true,
+        "scheme": "bearer"
+      },
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "done": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "response": {
+        "$ref": "#/components/schemas/Todo"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 401,
+          "code": "unauthenticated",
+          "description": "Authentication is required."
+        },
+        {
+          "status": 404,
+          "code": "todo_not_found",
+          "description": "No todo has that id."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    },
+    {
+      "name": "DeleteTodo",
+      "method": "DELETE",
+      "path": "/todos/{id}",
+      "summary": "Delete a todo.",
+      "tags": [
+        "todos"
+      ],
+      "status": 204,
+      "auth": {
+        "required": true,
+        "scheme": "bearer",
+        "roles": [
+          "admin"
+        ]
+      },
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      ],
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 401,
+          "code": "unauthenticated",
+          "description": "Authentication is required."
+        },
+        {
+          "status": 403,
+          "code": "forbidden",
+          "description": "The caller lacks a required role."
+        },
+        {
+          "status": 404,
+          "code": "todo_not_found",
+          "description": "No todo has that id."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    }
+  ],
+  "schemas": {
+    "ErrorBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "details": {},
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ]
+    },
+    "Todo": {
+      "type": "object",
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "done": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "low",
+            "normal",
+            "high"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "title"
+      ]
+    },
+    "TodoList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Todo"
+          }
+        }
+      }
+    }
+  },
+  "errorSchema": "ErrorBody"
+}
