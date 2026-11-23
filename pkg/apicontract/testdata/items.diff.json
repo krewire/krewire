@@ -1,0 +1,40 @@
+{
+  "service": "items",
+  "oldVersion": "1.2.0",
+  "newVersion": "2.0.0",
+  "breaking": 3,
+  "nonBreaking": 1,
+  "changes": [
+    {
+      "severity": "breaking",
+      "kind": "property.removed",
+      "endpoint": "CreateItem",
+      "location": "response.created",
+      "message": "response property removed"
+    },
+    {
+      "severity": "non-breaking",
+      "kind": "error.added",
+      "endpoint": "GetItem",
+      "location": "errors.gone",
+      "message": "error gone (410) declared"
+    },
+    {
+      "severity": "breaking",
+      "kind": "property.removed",
+      "endpoint": "GetItem",
+      "location": "response.created",
+      "message": "response property removed"
+    },
+    {
+      "severity": "breaking",
+      "kind": "endpoint.removed",
+      "endpoint": "ListItems",
+      "message": "endpoint GET /items removed"
+    }
+  ],
+  "requiredBump": "major",
+  "actualBump": "major",
+  "versionOk": true,
+  "decision": "major bump satisfies required major bump"
+}

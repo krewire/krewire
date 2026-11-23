@@ -1,0 +1,332 @@
+{
+  "contract": "krewire.contract/v1",
+  "service": "items",
+  "version": "1.2.0",
+  "title": "Items API",
+  "basePath": "/api/items",
+  "endpoints": [
+    {
+      "name": "ListItems",
+      "method": "GET",
+      "path": "/items",
+      "summary": "List items",
+      "tags": [
+        "items"
+      ],
+      "status": 200,
+      "auth": {
+        "required": false
+      },
+      "params": [
+        {
+          "name": "limit",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        {
+          "name": "tag",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "response": {
+        "$ref": "#/components/schemas/ItemPage"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    },
+    {
+      "name": "GetItem",
+      "method": "GET",
+      "path": "/items/{id}",
+      "status": 200,
+      "auth": {
+        "required": false
+      },
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      ],
+      "response": {
+        "$ref": "#/components/schemas/Item"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 404,
+          "code": "item_not_found",
+          "description": "No item has that id."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    },
+    {
+      "name": "CreateItem",
+      "method": "POST",
+      "path": "/items",
+      "status": 201,
+      "auth": {
+        "required": true,
+        "scheme": "bearer",
+        "roles": [
+          "editor",
+          "admin"
+        ]
+      },
+      "params": [
+        {
+          "name": "X-Trace-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "body": {
+        "type": "object",
+        "properties": {
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            }
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "normal",
+              "high"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "response": {
+        "$ref": "#/components/schemas/Item"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 401,
+          "code": "unauthenticated",
+          "description": "Authentication is required."
+        },
+        {
+          "status": 403,
+          "code": "forbidden",
+          "description": "The caller lacks a required role."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    },
+    {
+      "name": "DeleteItem",
+      "method": "DELETE",
+      "path": "/items/{id}",
+      "status": 204,
+      "auth": {
+        "required": true
+      },
+      "params": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        }
+      ],
+      "errors": [
+        {
+          "status": 400,
+          "code": "bad_request",
+          "description": "The request could not be decoded."
+        },
+        {
+          "status": 400,
+          "code": "validation_error",
+          "description": "The request failed validation."
+        },
+        {
+          "status": 401,
+          "code": "unauthenticated",
+          "description": "Authentication is required."
+        },
+        {
+          "status": 404,
+          "code": "item_not_found",
+          "description": "No item has that id."
+        },
+        {
+          "status": 500,
+          "code": "internal_error",
+          "description": "An unexpected server error."
+        }
+      ]
+    }
+  ],
+  "schemas": {
+    "ErrorBody": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "details": {},
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ]
+    },
+    "Item": {
+      "type": "object",
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Label"
+          },
+          "maxItems": 5
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "parent": {
+          "$ref": "#/components/schemas/Item"
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "low",
+            "normal",
+            "high"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "description": "Short title.",
+          "minLength": 1,
+          "maxLength": 120
+        }
+      },
+      "required": [
+        "title"
+      ]
+    },
+    "ItemPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Item"
+          }
+        },
+        "next": {
+          "type": "string"
+        }
+      }
+    },
+    "Label": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-f]{6}$"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 20
+        }
+      },
+      "required": [
+        "name"
+      ]
+    }
+  },
+  "errorSchema": "ErrorBody"
+}
