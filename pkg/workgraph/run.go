@@ -108,9 +108,6 @@ func (tg *TaskGraph) Run(ctx context.Context, ws *Workspace, opt RunOptions) (*R
 	for _, id := range tg.order {
 		done[id] = make(chan struct{})
 	}
-	sem := make(chan struct{}, opt.Concurrency)
-	var mu sync.Mutex
-	var wg sync.WaitGroup
 	for _, id := range tg.order {
 		t := tg.targets[id]
 		res := &TargetResult{ID: id, Task: t.Task, Node: t.Node, Kind: t.spec.Kind, Argv: t.Argv}
@@ -118,6 +115,13 @@ func (tg *TaskGraph) Run(ctx context.Context, ws *Workspace, opt RunOptions) (*R
 			res.Cause = &c
 		}
 		results[id] = res
+	}
+	// results is read-only from here on; each result is written only by its
+	// own goroutine before done[id] is closed, which orders the reads below.
+	sem := make(chan struct{}, opt.Concurrency)
+	var wg sync.WaitGroup
+	for _, id := range tg.order {
+		t, res := tg.targets[id], results[id]
 		if !sel.run[id] {
 			res.Status, res.Reason = StatusSkipped, sel.why(id, t)
 			close(done[id])
@@ -129,10 +133,7 @@ func (tg *TaskGraph) Run(ctx context.Context, ws *Workspace, opt RunOptions) (*R
 			defer close(done[id])
 			for _, d := range t.Deps {
 				<-done[d]
-				mu.Lock()
-				ds := results[d].Status
-				mu.Unlock()
-				if ds == StatusFailed || ds == StatusBlocked {
+				if ds := results[d].Status; ds == StatusFailed || ds == StatusBlocked {
 					res.Status, res.Reason = StatusBlocked, fmt.Sprintf("dependency %s %s", d, ds)
 					return
 				}
@@ -141,6 +142,8 @@ func (tg *TaskGraph) Run(ctx context.Context, ws *Workspace, opt RunOptions) (*R
 			case sem <- struct{}{}:
 				defer func() { <-sem }()
 			case <-ctx.Done():
+			}
+			if ctx.Err() != nil {
 				res.Status, res.Reason = StatusBlocked, "cancelled: "+ctx.Err().Error()
 				return
 			}
