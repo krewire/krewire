@@ -69,9 +69,12 @@
     "infra": {
       "status": "partial",
       "passing": [
+        "infra.apply",
         "infra.build",
         "infra.diagnose.invalid-resource",
+        "infra.drift",
         "infra.output",
+        "infra.plan",
         "infra.resolve",
         "infra.scaffold",
         "infra.state",

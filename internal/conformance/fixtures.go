@@ -168,9 +168,22 @@ func infraFixture(r *run) {
 	r.gate("state", gateTest, "lock, save, reload and unlock local file state",
 		fixtureBin+" build .krewire/state.json", func() (string, error) { return r.fixture("build", ".krewire/state.json") })
 	r.file("output", ".krewire/state.json", `"web"`)
-	r.exclude("plan", "core ships provider/state/schema contracts only; no planner or diff engine exists to produce a plan", "#138")
-	r.exclude("apply", "no provider driver (Docker, systemd or cloud) is implemented in core", "#138")
-	r.exclude("drift", "drift detection is not implemented", "#138")
+	// plan -> apply -> drift share one engine directory, so each step needs
+	// the previous one: a failure blocks the rest (gate, not assert).
+	const infraDir = ".krewire/infra"
+	step := func(name, desc, want string) {
+		r.gate(name, gateTest, desc, fixtureBin+" "+name+" "+infraDir, func() (string, error) {
+			out, err := r.fixture(name, infraDir)
+			if err == nil && !strings.Contains(out, want) {
+				err = fmt.Errorf("output lacks %q", want)
+			}
+			return out, err
+		})
+	}
+	step("plan", "deterministic, digest-bound plan with the localfile provider; planning writes nothing", "plan ok create=3")
+	step("apply", "unapproved apply is refused; approved apply creates the objects; re-plan is a no-op", "apply ok created=3")
+	step("drift", "tampered and deleted objects are classified as drift without mutation, then reconciled to in-sync", "reconciled")
+	r.exclude("providers", "only the localfile reference provider exists in core; Docker, systemd and cloud providers are not exercised", "#138")
 	r.diagnose("invalid-resource", "an out-of-range resource declaration is diagnosed",
 		replaceIn("krewire.yaml", "replicas: 2", "replicas: 0"), "Replicas")
 }

@@ -126,6 +126,6 @@ The end-to-end harness ([`internal/conformance`](../../internal/conformance), [m
 | `worker` | Usable | Experimental | **partial** (10/10) | [`testdata/worker`](../../internal/conformance/testdata/worker) | Redis/PostgreSQL backends need external services; only the in-memory queue is exercised. |
 | `service` | Usable | Usable | **passed** (12/12) | [`testdata/service`](../../internal/conformance/testdata/service) | None. |
 | `gateway` | Stable | Usable | **passed** (12/12) | [`testdata/gateway`](../../internal/conformance/testdata/gateway) | Stable gates not automated. |
-| `infra` | Experimental | Experimental | **partial** (8/8) | [`testdata/infra`](../../internal/conformance/testdata/infra) | Plan, apply and drift are not implemented in core (#138); only schema validation and the local state round-trip run. |
+| `infra` | Experimental | Experimental | **partial** (11/11) | [`testdata/infra`](../../internal/conformance/testdata/infra) | Plan, approval-gated apply and drift/reconcile run against the `localfile` reference provider (#138); Docker, systemd and cloud providers do not exist in core and are excluded. |
 
 The integrated AI-native workflow qualification is reported separately and is currently `excluded`: its contracts (#131/#140) are not on `main`. Release readiness therefore stays false.

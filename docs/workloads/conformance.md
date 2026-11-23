@@ -16,6 +16,7 @@ Every workload has one maintained fixture under [`internal/conformance/testdata/
 | Build | `build` | `CGO_ENABLED=0 go build -trimpath`; the binary's SHA-256 is recorded. |
 | Validate config | `validate` | `fixture check` loads `krewire.yaml` through the framework. |
 | Compile / run | `compile`, `state`, `run`, `reproducible` | Workload-specific: SSG output, book output, infra state round-trip, CLI command and bit-for-bit reproducible rebuild. |
+| Infra lifecycle | `plan`, `apply`, `drift` | `pkg/cloud/infra` engine with the `localfile` provider: deterministic plan, approval-gated apply (unapproved apply must be refused), no-op re-plan, drift classification without mutation, reconcile to in-sync. |
 | Start | `start` | Process starts and prints `READY`. |
 | Representative behaviour | `probe.*` | HTTP probes (pages, APIs, proxying, health), worker job processing and retry, provider lifecycle. |
 | Graceful shutdown | `shutdown` | `SIGINT` → exit 0 and `STOPPED` within 15 s. |
