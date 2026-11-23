@@ -1,0 +1,523 @@
+{
+  "components": {
+    "schemas": {
+      "ErrorBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "details": {},
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "Todo": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "normal",
+              "high"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "TodoList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Todo"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "bearerFormat": "JWT",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Example Krewire service contract.",
+    "title": "Todo API",
+    "version": "1.0.0"
+  },
+  "jsonSchemaDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/todo/todos": {
+      "get": {
+        "operationId": "ListTodos",
+        "parameters": [
+          {
+            "description": "Only todos with this completion state.",
+            "in": "query",
+            "name": "done",
+            "schema": {
+              "type": "boolean",
+              "description": "Only todos with this completion state."
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`bad_request`: The request could not be decoded.\n`validation_error`: The request failed validation.",
+            "x-krewire-error-codes": [
+              "bad_request",
+              "validation_error"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`internal_error`: An unexpected server error.",
+            "x-krewire-error-codes": [
+              "internal_error"
+            ]
+          }
+        },
+        "summary": "List todos.",
+        "tags": [
+          "todos"
+        ]
+      },
+      "post": {
+        "operationId": "CreateTodo",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "high"
+                    ]
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "title"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`bad_request`: The request could not be decoded.\n`validation_error`: The request failed validation.",
+            "x-krewire-error-codes": [
+              "bad_request",
+              "validation_error"
+            ]
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`unauthenticated`: Authentication is required.",
+            "x-krewire-error-codes": [
+              "unauthenticated"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`internal_error`: An unexpected server error.",
+            "x-krewire-error-codes": [
+              "internal_error"
+            ]
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create a todo.",
+        "tags": [
+          "todos"
+        ]
+      }
+    },
+    "/api/todo/todos/{id}": {
+      "delete": {
+        "operationId": "DeleteTodo",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`bad_request`: The request could not be decoded.\n`validation_error`: The request failed validation.",
+            "x-krewire-error-codes": [
+              "bad_request",
+              "validation_error"
+            ]
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`unauthenticated`: Authentication is required.",
+            "x-krewire-error-codes": [
+              "unauthenticated"
+            ]
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`forbidden`: The caller lacks a required role.",
+            "x-krewire-error-codes": [
+              "forbidden"
+            ]
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`todo_not_found`: No todo has that id.",
+            "x-krewire-error-codes": [
+              "todo_not_found"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`internal_error`: An unexpected server error.",
+            "x-krewire-error-codes": [
+              "internal_error"
+            ]
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Delete a todo.",
+        "tags": [
+          "todos"
+        ],
+        "x-krewire-roles": [
+          "admin"
+        ]
+      },
+      "get": {
+        "operationId": "GetTodo",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`bad_request`: The request could not be decoded.\n`validation_error`: The request failed validation.",
+            "x-krewire-error-codes": [
+              "bad_request",
+              "validation_error"
+            ]
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`todo_not_found`: No todo has that id.",
+            "x-krewire-error-codes": [
+              "todo_not_found"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`internal_error`: An unexpected server error.",
+            "x-krewire-error-codes": [
+              "internal_error"
+            ]
+          }
+        },
+        "summary": "Fetch one todo.",
+        "tags": [
+          "todos"
+        ]
+      },
+      "patch": {
+        "operationId": "UpdateTodo",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "done": {
+                    "type": "boolean"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`bad_request`: The request could not be decoded.\n`validation_error`: The request failed validation.",
+            "x-krewire-error-codes": [
+              "bad_request",
+              "validation_error"
+            ]
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`unauthenticated`: Authentication is required.",
+            "x-krewire-error-codes": [
+              "unauthenticated"
+            ]
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`todo_not_found`: No todo has that id.",
+            "x-krewire-error-codes": [
+              "todo_not_found"
+            ]
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "`internal_error`: An unexpected server error.",
+            "x-krewire-error-codes": [
+              "internal_error"
+            ]
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update a todo.",
+        "tags": [
+          "todos"
+        ]
+      }
+    }
+  },
+  "x-krewire-contract": "krewire.contract/v1",
+  "x-krewire-error-schema": "ErrorBody",
+  "x-krewire-service": "todo"
+}
