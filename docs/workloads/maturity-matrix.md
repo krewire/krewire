@@ -119,7 +119,7 @@ The end-to-end harness ([`internal/conformance`](../../internal/conformance), [m
 
 | Workload | Declared | Evidenced | Conformance | Fixture | Open gaps |
 |---|---|---|---|---|---|
-| `site` | Stable | Experimental | **failed** (11/12) | [`testdata/site`](../../internal/conformance/testdata/site) | `probe.notfound`: the preview handler (`ssg.Site.Handler`) answers unknown paths with the `/` page and status 200 instead of 404. |
+| `site` | Stable | Usable | **passed** (12/12) | [`testdata/site`](../../internal/conformance/testdata/site) | Stable gates not automated. (`probe.notfound` was fixed: `ssg.Site.Handler` now answers unknown paths with 404 and the site's own 404 page.) |
 | `book` | Stable | Usable | **passed** (12/12) | [`testdata/book`](../../internal/conformance/testdata/book) | Stable gates (compatibility, benchmark, production evidence) not automated. |
 | `app` | Stable | Experimental | **partial** (12/12) | [`testdata/app`](../../internal/conformance/testdata/app) | WASM island compilation excluded here (covered by `platform_test.go` and `pkg/runtime/conformance`). |
 | `cli` | Stable | Usable | **passed** (10/10, reproducible build) | [`testdata/cli`](../../internal/conformance/testdata/cli) | `tui` integration is external to core. |

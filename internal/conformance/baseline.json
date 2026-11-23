@@ -97,12 +97,13 @@
       ]
     },
     "site": {
-      "status": "failed",
+      "status": "passed",
       "passing": [
         "site.build",
         "site.compile",
         "site.diagnose.invalid-page",
         "site.output",
+        "site.probe.notfound",
         "site.probe.page",
         "site.resolve",
         "site.scaffold",
