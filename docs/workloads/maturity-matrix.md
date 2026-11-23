@@ -16,7 +16,7 @@
 To ensure developers and AI agents can assess implementation readiness accurately without marketing bias, Krewire classifies workloads and capabilities into five objective maturity levels:
 
 - **`Stable` (Production-Ready)**:
-  - 100% automated unit and integration test coverage passing in CI.
+  - All workload conformance gates pass end to end in CI under `-strict` ([conformance evidence](./conformance.md)); no coverage percentage is claimed until CI enforces a threshold.
   - Reproducible benchmark baselines verified against performance regressions (`krew bench`).
   - Active, verified production use (e.g., [`krewire.com`](https://krewire.com) or `krew` CLI binary).
   - Backward compatibility guaranteed under Semantic Versioning (SemVer).
@@ -39,7 +39,7 @@ To ensure developers and AI agents can assess implementation readiness accuratel
 
 ## 2. Canonical 8-Workload Maturity Matrix
 
-Every workload status below is backed by concrete test fixtures and implementation evidence:
+Declared statuses below are checked against the executable conformance evidence in [§6](#6-conformance-evidence-krewirekrewire141). Where the two disagree, the evidence takes precedence.
 
 | Workload | Maturity | Primary Package | Verified Implementation & Production Evidence | Known Limitations & Gaps | Owner |
 |---|---|---|---|---|---|
@@ -110,3 +110,22 @@ Every maturity designation is bound by Krewire's immutable Three Pillars:
 
 > [!IMPORTANT]
 > The three pillars must remain explicitly named **Secure**, **Sustain**, and **Scalable**. They serve as the definitive qualification criteria for promoting any capability to `Stable`.
+
+---
+
+## 6. Conformance Evidence (krewire/krewire#141)
+
+The end-to-end harness ([`internal/conformance`](../../internal/conformance), [method and criteria](./conformance.md)) runs each workload's fixture from a clean temp dir and records machine-readable evidence (`go run ./internal/conformance/cmd/qualify`). Status as of the baseline in [`internal/conformance/baseline.json`](../../internal/conformance/baseline.json):
+
+| Workload | Declared | Evidenced | Conformance | Fixture | Open gaps |
+|---|---|---|---|---|---|
+| `site` | Stable | Experimental | **failed** (11/12) | [`testdata/site`](../../internal/conformance/testdata/site) | `probe.notfound`: the preview handler (`ssg.Site.Handler`) answers unknown paths with the `/` page and status 200 instead of 404. |
+| `book` | Stable | Usable | **passed** (12/12) | [`testdata/book`](../../internal/conformance/testdata/book) | Stable gates (compatibility, benchmark, production evidence) not automated. |
+| `app` | Stable | Experimental | **partial** (12/12) | [`testdata/app`](../../internal/conformance/testdata/app) | WASM island compilation excluded here (covered by `platform_test.go` and `pkg/runtime/conformance`). |
+| `cli` | Stable | Usable | **passed** (10/10, reproducible build) | [`testdata/cli`](../../internal/conformance/testdata/cli) | `tui` integration is external to core. |
+| `worker` | Usable | Experimental | **partial** (10/10) | [`testdata/worker`](../../internal/conformance/testdata/worker) | Redis/PostgreSQL backends need external services; only the in-memory queue is exercised. |
+| `service` | Usable | Usable | **passed** (12/12) | [`testdata/service`](../../internal/conformance/testdata/service) | None. |
+| `gateway` | Stable | Usable | **passed** (12/12) | [`testdata/gateway`](../../internal/conformance/testdata/gateway) | Stable gates not automated. |
+| `infra` | Experimental | Experimental | **partial** (8/8) | [`testdata/infra`](../../internal/conformance/testdata/infra) | Plan, apply and drift are not implemented in core (#138); only schema validation and the local state round-trip run. |
+
+The integrated AI-native workflow qualification is reported separately and is currently `excluded`: its contracts (#131/#140) are not on `main`. Release readiness therefore stays false.
