@@ -128,4 +128,4 @@ The end-to-end harness ([`internal/conformance`](../../internal/conformance), [m
 | `gateway` | Stable | Usable | **passed** (12/12) | [`testdata/gateway`](../../internal/conformance/testdata/gateway) | Stable gates not automated. |
 | `infra` | Experimental | Experimental | **partial** (11/11) | [`testdata/infra`](../../internal/conformance/testdata/infra) | Plan, approval-gated apply and drift/reconcile run against the `localfile` reference provider (#138); Docker, systemd and cloud providers do not exist in core and are excluded. |
 
-The integrated AI-native workflow qualification is reported separately and is currently `excluded`: its contracts (#131/#140) are not on `main`. Release readiness therefore stays false.
+The integrated AI-native workflow qualification is reported separately as `ai_workflow` and is **passed** (4/4): the reference engine runs through `workflow.Run` in-process and over stdio, and the failure-injection cases (stripped false claim, denied approval) hold. Release readiness stays false while `app`, `worker` and `infra` are not end-to-end.

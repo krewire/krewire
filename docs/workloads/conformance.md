@@ -60,7 +60,7 @@ Each gate is a [`model.VerificationEvidence`](../../pkg/model/evidence.go) (ID, 
 
 ### Integration points
 
-- **AI-native workflow (#131/#140).** The `pkg/toolchain` contracts and the deterministic fake engine are not on `main`, so `ai_workflow` is `excluded` and `release_readiness` stays false. Once they land, the harness runs the mock-backed workflow through the unified entrypoint and attaches its `EvidenceReport`.
+- **AI-native workflow (#131/#140).** The harness runs the deterministic reference engine (`pkg/toolchain/fakeengine`) through `workflow.Run` — the entrypoint `krew` uses — in-process and over the stdio adapter protocol, with real `gofmt`/`go test` gates and no LLM credentials, and attaches the verified run's `EvidenceReport` as `ai_workflow.evidence_report`. Failure injection is part of the gate set: an engine that claims a failed test gate passed must end `verification_failed` with the claim stripped, and a denied plan approval must end `denied` with nothing executed or written. `ai_workflow` is tracked in `baseline.json` like a workload, so a regression there fails the gate.
 - **Workload list and probes (#139).** The harness keeps no workload list of its own: `Workloads` is derived from `pkg/observe.Workloads` (reports follow that order) and the HTTP probe paths come from `observe.ProfileFor`.
 
 ---

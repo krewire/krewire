@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/pkg/toolchain/contract"
 )
 
 // APIVersion versions the report schema. It mirrors the
@@ -84,6 +85,9 @@ type Section struct {
 	Status     Status                       `json:"status"`
 	Gates      []model.VerificationEvidence `json:"gates,omitempty"`
 	Exclusions []Exclusion                  `json:"exclusions,omitempty"`
+	// EvidenceReport is the toolchain's own report for the section's primary
+	// run (ai_workflow: the verified reference-engine run).
+	EvidenceReport *contract.EvidenceReport `json:"evidence_report,omitempty"`
 }
 
 // Toolchain records the environment the evidence was produced with.

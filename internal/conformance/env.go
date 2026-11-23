@@ -165,7 +165,7 @@ func Run(ctx context.Context, env *Env, opts Options) (*Report, error) {
 	}
 	wg.Wait()
 	rep.Workloads = results
-	rep.AIWorkflow = aiWorkflowSection(env.Root)
+	rep.AIWorkflow = aiWorkflowSection(ctx, env, opts.TempDir)
 	rep.DurationMs = time.Since(start).Milliseconds()
 	rep.Finalize()
 	return rep, nil

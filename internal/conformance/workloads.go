@@ -194,21 +194,3 @@ func classify(w *WorkloadResult) {
 			w.DeclaredMaturity, w.EvidencedMaturity))
 	}
 }
-
-// aiWorkflowSection reports the integrated AI-native workflow qualification.
-// The shared context/execution contracts (pkg/toolchain, #131/#140) are not on
-// main yet, so the journey cannot run here; it is excluded, never passed.
-func aiWorkflowSection(root string) Section {
-	if _, err := os.Stat(filepath.Join(root, "pkg", "toolchain", "workflow")); err == nil {
-		return Section{Status: StatusExcluded, Exclusions: []Exclusion{{
-			Step:     "ai-workflow",
-			Reason:   "pkg/toolchain is present but not yet wired into this harness; run its workflow with the fake engine and attach the contract.EvidenceReport",
-			Tracking: "#141",
-		}}}
-	}
-	return Section{Status: StatusExcluded, Exclusions: []Exclusion{{
-		Step:     "ai-workflow",
-		Reason:   "the AI-native toolchain contracts (ProjectContext, TaskBrief, Plan, Policy, EvidenceReport) and the deterministic fake engine are not on main",
-		Tracking: "#131, #140",
-	}}}
-}

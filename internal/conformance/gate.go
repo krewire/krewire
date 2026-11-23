@@ -30,7 +30,7 @@ var statusRank = map[Status]int{StatusFailed: 0, StatusExcluded: 0, StatusPartia
 // BaselineFrom derives a baseline from a report.
 func BaselineFrom(r *Report) Baseline {
 	b := Baseline{Workloads: map[string]BaselineWorkload{}}
-	for _, w := range r.Workloads {
+	for _, w := range r.compared() {
 		bw := BaselineWorkload{Status: w.Status, Passing: []string{}}
 		for _, g := range w.Gates {
 			if g.Status == model.GatePassed {
@@ -65,11 +65,25 @@ func WriteBaseline(path string, b Baseline) error {
 	return os.WriteFile(path, append(raw, '\n'), 0o644)
 }
 
+// aiWorkflowKey is the baseline entry for the AI-native workflow section.
+const aiWorkflowKey = "ai_workflow"
+
+// compared lists what the baseline tracks: every workload in the report and,
+// once it executes gates, the AI-native workflow section, so a regression
+// there fails the gate exactly like a workload regression.
+func (r *Report) compared() []WorkloadResult {
+	out := append([]WorkloadResult(nil), r.Workloads...)
+	if len(r.AIWorkflow.Gates) > 0 {
+		out = append(out, WorkloadResult{Workload: aiWorkflowKey, Status: r.AIWorkflow.Status, Gates: r.AIWorkflow.Gates})
+	}
+	return out
+}
+
 // Compare returns regressions (gate-failing) and improvements (informational)
 // of r against b. Only workloads present in r are compared, so a filtered
 // run checks just what it executed.
 func Compare(r *Report, b Baseline) (regressions, improvements []string) {
-	for _, w := range r.Workloads {
+	for _, w := range r.compared() {
 		bw, ok := b.Workloads[w.Workload]
 		if !ok {
 			improvements = append(improvements, w.Workload+": not in baseline")
@@ -149,6 +163,9 @@ func Summary(r *Report, regressions, improvements []string) string {
 	section("Failing gates", failing)
 	section("Exclusions and findings", findings)
 	fmt.Fprintf(&s, "\n## AI-native workflow\n\n- Status: **%s**\n", r.AIWorkflow.Status)
+	for _, g := range r.AIWorkflow.Gates {
+		fmt.Fprintf(&s, "- `%s`: %s — %s\n", g.GateID, g.Status, headline(g.Output))
+	}
 	for _, e := range r.AIWorkflow.Exclusions {
 		fmt.Fprintf(&s, "- %s: %s (%s)\n", e.Step, e.Reason, e.Tracking)
 	}

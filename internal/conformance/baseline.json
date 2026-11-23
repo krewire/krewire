@@ -1,5 +1,14 @@
 {
   "workloads": {
+    "ai_workflow": {
+      "status": "passed",
+      "passing": [
+        "ai_workflow.inject.approval-denied",
+        "ai_workflow.inject.false-claim",
+        "ai_workflow.verified.in-process",
+        "ai_workflow.verified.stdio"
+      ]
+    },
     "app": {
       "status": "partial",
       "passing": [

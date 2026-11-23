@@ -163,3 +163,17 @@ func TestMaturityMatrixDeclaresEveryWorkload(t *testing.T) {
 		}
 	}
 }
+
+func TestAIWorkflowIsBaselined(t *testing.T) {
+	gate := model.VerificationEvidence{GateID: "ai_workflow.verified.in-process", Status: model.GatePassed, Required: true}
+	rep := &Report{AIWorkflow: Section{Status: StatusPassed, Gates: []model.VerificationEvidence{gate}}}
+	base := BaselineFrom(rep)
+	if bw := base.Workloads[aiWorkflowKey]; bw.Status != StatusPassed || len(bw.Passing) != 1 {
+		t.Fatalf("ai_workflow not baselined: %+v", base)
+	}
+	gate.Status = model.GateFailed
+	rep.AIWorkflow = Section{Status: StatusFailed, Gates: []model.VerificationEvidence{gate}}
+	if reg, _ := Compare(rep, base); len(reg) != 2 {
+		t.Fatalf("want status and gate regressions for ai_workflow, got %v", reg)
+	}
+}
