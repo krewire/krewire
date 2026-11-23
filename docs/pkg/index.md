@@ -74,6 +74,7 @@ Defensive security, configuration parsing, and persistence abstractions:
 ### D. [Platform, AI & Utilities](./platform/cloud.md)
 Cloud orchestration, AI capabilities, testing infrastructure, and modular utilities:
 - [Native AI SDK (`ai`)](./ai.md)
+- [AI-Native Toolchain Contract (`toolchain`)](./toolchain.md)
 - [Cloud Orchestration & Infra Blueprints (`cloud`)](./cloud.md)
 - [Test Harness & Browser Automation (`testing`)](./testing.md)
 - [Caching, Redis & ORM (`cache`, `redis`, `orm`)](./orm.md)

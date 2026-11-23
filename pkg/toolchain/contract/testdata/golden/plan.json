@@ -1,0 +1,10 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "Plan",
+  "task_id": "131",
+  "summary": "Create the helper, then its test",
+  "steps": [
+    {"id": "s1", "description": "write greet.go", "target_files": ["pkg/greet/greet.go"], "risk": "low"},
+    {"id": "s2", "description": "write greet_test.go", "target_files": ["pkg/greet/greet_test.go"], "depends_on": ["s1"], "risk": "low", "rollback": "delete the file"}
+  ]
+}

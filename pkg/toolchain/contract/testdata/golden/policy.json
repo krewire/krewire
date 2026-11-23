@@ -1,0 +1,11 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "Policy",
+  "allow_file_write": true,
+  "allow_network": false,
+  "deny_destructive": true,
+  "approval_required": ["DELETE", "GIT_PUSH", "DEPLOY"],
+  "max_tool_calls": 64,
+  "tool_timeout_sec": 300,
+  "max_output_bytes": 65536
+}

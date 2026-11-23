@@ -1,0 +1,196 @@
+{
+  "$defs": {
+    "ApprovalPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "items": {
+            "enum": [
+              "READ",
+              "WRITE",
+              "DELETE",
+              "COMMAND",
+              "NETWORK",
+              "GIT_PUSH",
+              "DEPLOY"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "approvers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "plan": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "plan"
+      ],
+      "type": "object"
+    },
+    "Limits": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_network": {
+          "type": "boolean"
+        },
+        "max_retries": {
+          "type": "integer"
+        },
+        "max_tool_calls": {
+          "type": "integer"
+        },
+        "timeout_sec": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "TaskBrief": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "const": "toolchain.krewire.dev/v1"
+        },
+        "approval": {
+          "$ref": "#/$defs/ApprovalPolicy"
+        },
+        "constraints": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "deliverables": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "expected_outcome": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "TaskBrief"
+        },
+        "limits": {
+          "$ref": "#/$defs/Limits"
+        },
+        "max_autonomy": {
+          "enum": [
+            "AUTONOMOUS",
+            "APPROVAL_REQUIRED",
+            "ESCALATION"
+          ],
+          "type": "string"
+        },
+        "objective": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "title": {
+          "type": "string"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "id",
+        "title",
+        "objective",
+        "expected_outcome",
+        "scope",
+        "risk",
+        "max_autonomy",
+        "approval",
+        "verification",
+        "limits"
+      ],
+      "type": "object"
+    },
+    "TaskScope": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "commands": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "prohibited": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "allowed"
+      ],
+      "type": "object"
+    },
+    "Verification": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "type": "string"
+        },
+        "gates": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "gates",
+        "condition"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://krewire.dev/schemas/toolchain/v1/TaskBrief.json",
+  "$ref": "#/$defs/TaskBrief",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Krewire toolchain contract TaskBrief, toolchain.krewire.dev/v1 (contract 1.0.0).",
+  "title": "TaskBrief"
+}

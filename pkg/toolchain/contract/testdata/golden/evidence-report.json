@@ -1,0 +1,27 @@
+{
+  "api_version": "toolchain.krewire.dev/v1",
+  "kind": "EvidenceReport",
+  "task_id": "131",
+  "context_fingerprint": "a1b2",
+  "plan_digest": "4f1c",
+  "engine": {"name": "krew-fake", "version": "1.0.0", "contract_version": "1.0.0"},
+  "outcome": "verified",
+  "stages": [
+    {"stage": "discover", "status": "ok", "actor": "toolchain", "duration_ms": 1},
+    {"stage": "plan", "status": "ok", "actor": "engine:krew-fake", "duration_ms": 2},
+    {"stage": "verify", "status": "ok", "actor": "toolchain", "duration_ms": 900}
+  ],
+  "verification": {
+    "gates": [
+      {"gate_id": "test", "type": "TEST", "description": "go test", "command": "go test ./...", "required": true,
+       "status": "PASSED", "exit_code": 0, "output": "ok", "duration_ms": 900, "evidence_hash": "c0ff"}
+    ],
+    "verified": true,
+    "summary": "all 1 required verification gates passed successfully"
+  },
+  "claims": [
+    {"source": "engine:krew-fake", "stage": "implement", "statement": "Greet is implemented", "verified_by": "test"},
+    {"source": "engine:krew-fake", "stage": "review", "statement": "No breaking API changes"}
+  ],
+  "findings": [{"severity": "info", "path": "pkg/greet/greet.go", "message": "consider a doc example"}]
+}

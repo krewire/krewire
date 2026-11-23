@@ -1,0 +1,528 @@
+{
+  "$defs": {
+    "ApprovalRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "type": "string"
+        },
+        "approved_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "approver_id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "ProjectContext",
+            "TaskBrief",
+            "Plan",
+            "Policy",
+            "ApprovalRecord",
+            "ExecutionRecord",
+            "EvidenceReport",
+            "CommandCatalog"
+          ],
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "valid_until": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "approver_id",
+        "scope",
+        "approved_at",
+        "valid_until",
+        "verified"
+      ],
+      "type": "object"
+    },
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "discover",
+            "plan",
+            "decompose",
+            "implement",
+            "verify",
+            "review",
+            "report"
+          ],
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "verified_by": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "stage",
+        "statement"
+      ],
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "approval_scope": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "allowed",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "EngineIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "contract_version"
+      ],
+      "type": "object"
+    },
+    "Error": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "data": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "type": "object"
+    },
+    "EvidenceReport": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "const": "toolchain.krewire.dev/v1"
+        },
+        "approvals": {
+          "items": {
+            "$ref": "#/$defs/ApprovalRecord"
+          },
+          "type": "array"
+        },
+        "claims": {
+          "items": {
+            "$ref": "#/$defs/Claim"
+          },
+          "type": "array"
+        },
+        "context_fingerprint": {
+          "type": "string"
+        },
+        "engine": {
+          "$ref": "#/$defs/EngineIdentity"
+        },
+        "executions": {
+          "items": {
+            "$ref": "#/$defs/ExecutionRecord"
+          },
+          "type": "array"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "const": "EvidenceReport"
+        },
+        "mutations": {
+          "items": {
+            "$ref": "#/$defs/FileMutation"
+          },
+          "type": "array"
+        },
+        "outcome": {
+          "enum": [
+            "verified",
+            "verification_failed",
+            "denied",
+            "cancelled",
+            "engine_unavailable",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "plan_digest": {
+          "type": "string"
+        },
+        "stages": {
+          "items": {
+            "$ref": "#/$defs/StageRecord"
+          },
+          "type": "array"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "verification": {
+          "$ref": "#/$defs/VerificationSection"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "task_id",
+        "context_fingerprint",
+        "outcome",
+        "stages",
+        "verification"
+      ],
+      "type": "object"
+    },
+    "ExecutionRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "type": "string"
+        },
+        "call": {
+          "$ref": "#/$defs/ToolCall"
+        },
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "duration_ms": {
+          "type": "integer"
+        },
+        "exit_code": {
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "ProjectContext",
+            "TaskBrief",
+            "Plan",
+            "Policy",
+            "ApprovalRecord",
+            "ExecutionRecord",
+            "EvidenceReport",
+            "CommandCatalog"
+          ],
+          "type": "string"
+        },
+        "mutation": {
+          "$ref": "#/$defs/FileMutation"
+        },
+        "output": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "applied",
+            "denied",
+            "failed"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "api_version",
+        "kind",
+        "call",
+        "decision",
+        "status",
+        "exit_code",
+        "duration_ms"
+      ],
+      "type": "object"
+    },
+    "FileMutation": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "content_hash": {
+          "type": "string"
+        },
+        "lines_added": {
+          "type": "integer"
+        },
+        "lines_removed": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "action",
+        "lines_added",
+        "lines_removed"
+      ],
+      "type": "object"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "severity",
+        "message"
+      ],
+      "type": "object"
+    },
+    "StageRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "type": "string"
+        },
+        "duration_ms": {
+          "type": "integer"
+        },
+        "error": {
+          "$ref": "#/$defs/Error"
+        },
+        "stage": {
+          "enum": [
+            "discover",
+            "plan",
+            "decompose",
+            "implement",
+            "verify",
+            "review",
+            "report"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "failed",
+            "skipped"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage",
+        "status",
+        "actor",
+        "duration_ms"
+      ],
+      "type": "object"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "content": {
+          "type": "string"
+        },
+        "content_sha256": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "step_id": {
+          "type": "string"
+        },
+        "tool": {
+          "enum": [
+            "write_file",
+            "delete_file",
+            "run_command",
+            "network_fetch"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "tool"
+      ],
+      "type": "object"
+    },
+    "VerificationEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "duration_ms": {
+          "type": "integer"
+        },
+        "evidence_hash": {
+          "type": "string"
+        },
+        "exit_code": {
+          "type": "integer"
+        },
+        "gate_id": {
+          "type": "string"
+        },
+        "output": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "PLANNED",
+            "ATTEMPTED",
+            "PASSED",
+            "FAILED",
+            "SKIPPED",
+            "BLOCKED"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "FORMAT",
+            "STATIC_ANALYSIS",
+            "TEST",
+            "BUILD",
+            "LAYERING",
+            "SECURITY",
+            "CUSTOM"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_id",
+        "type",
+        "description",
+        "command",
+        "required",
+        "status",
+        "exit_code",
+        "output",
+        "duration_ms",
+        "evidence_hash"
+      ],
+      "type": "object"
+    },
+    "VerificationSection": {
+      "additionalProperties": false,
+      "properties": {
+        "gates": {
+          "items": {
+            "$ref": "#/$defs/VerificationEvidence"
+          },
+          "type": "array"
+        },
+        "git_commit": {
+          "type": "string"
+        },
+        "ledger_block_hash": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "gates",
+        "verified",
+        "summary"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://krewire.dev/schemas/toolchain/v1/EvidenceReport.json",
+  "$ref": "#/$defs/EvidenceReport",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Krewire toolchain contract EvidenceReport, toolchain.krewire.dev/v1 (contract 1.0.0).",
+  "title": "EvidenceReport"
+}
