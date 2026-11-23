@@ -225,7 +225,7 @@ func main() {
 
 ## 5. Declarative Infrastructure Blueprints (`pkg/cloud/infra`)
 
-The `infra` package defines infrastructure as code primitives entirely in Go. Providers validate plans and produce side-effect-free diffs prior to execution.
+The `infra` package defines infrastructure as code primitives entirely in Go. The lifecycle contract (`infra/contract`), state store (`infra/store`), canonical engine (`infra/engine`), conformance suite, and reference providers are documented in the [infra workload guide](../../workloads/infra.md). The snippet below shows the older `infra/provider` surface kept for compatibility.
 
 ### Contracts & Plan Engine
 
