@@ -2,8 +2,9 @@ name: Nightly Pipeline
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Krewire Nightly Build Pipeline (ADR-R7P3K)
-# Automated bleeding-edge daily release for kiw CLI & Core libraries
-# Triggered daily on schedule from branch 'main' or via manual dispatch
+# Daily bleeding-edge build from main. Uses the same quality gates (ci.yaml)
+# and the same artifact path (release-artifacts.yaml) as stable releases;
+# only the version and the `nightly` channel metadata differ.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -12,14 +13,13 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run compilation without publishing release assets'
+        description: 'Build, attest, and smoke-test without publishing a release'
         required: false
         type: boolean
         default: false
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 concurrency:
   group: nightly-krewire-${{ github.ref }}
@@ -29,90 +29,43 @@ jobs:
   classify:
     name: Prepare Nightly Metadata
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       version: ${{ steps.meta.outputs.version }}
-      track: nightly
-      is_prerelease: "true"
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Generate Version Tag
         id: meta
         run: |
-          DATE_TAG="$(date -u +%Y%m%d)"
-          VER="v0.3.0-nightly.${DATE_TAG}"
-          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          # Nightlies precede the next minor of the canonical version SSOT.
+          BASE="$(sed -n 's/^var CurrentVersion = MustParseVersion("\(.*\)")$/\1/p' pkg/version/version.go)"
+          if [ -z "${BASE}" ]; then
+            echo "::error::cannot read CurrentVersion from pkg/version/version.go"
+            exit 1
+          fi
+          IFS=. read -r MAJOR MINOR _ <<< "${BASE}"
+          VER="v${MAJOR}.$((MINOR + 1)).0-nightly.$(date -u +%Y%m%d)"
+          echo "version=${VER}" >> "${GITHUB_OUTPUT}"
           echo "Generated Nightly Version: ${VER}"
 
   quality-gate:
-    name: Quality Gate & Verification
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    name: Quality Gate
+    uses: ./.github/workflows/ci.yaml
+    permissions:
+      contents: read
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.27.x"
-          check-latest: true
-          cache: true
-
-      - name: Formatting Check
-        run: |
-          UNFORMATTED="$(gofmt -l .)"
-          if [ -n "$UNFORMATTED" ]; then
-            echo "gofmt found unformatted files:"
-            echo "$UNFORMATTED"
-            exit 1
-          fi
-
-      - name: Static Analysis
-        run: go vet ./...
-
-      - name: Layering & Peer Decoupling Tests
-        run: go test -v ./layering_test.go
-
-      - name: Unit & Integration Tests
-        run: go test -v ./...
-
-      - name: .kiw Conformance Suite (Runtime & Hydration)
-        run: go test -v ./pkg/runtime/conformance/...
-
-      - name: Pure-Go Compilation Invariant
-        run: CGO_ENABLED=0 go build ./...
-
-  publish-github-release:
-    name: Publish Nightly Release Artifacts
+  artifacts:
+    name: Artifacts
     needs: [classify, quality-gate]
-    runs-on: ubuntu-latest
-    if: inputs.dry_run != true
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate Release Notes
-        id: notes
-        run: |
-          VER="${{ needs.classify.outputs.version }}"
-          
-          cat << EOF > release_notes.md
-          ## Krewire Core Libraries — ${VER} (Nightly Build)
-          
-          **Release Track**: \`nightly\`
-          **Commit**: \`${{ github.sha }}\`
-          **Build Date**: \`$(date -u +"%Y-%m-%d %H:%M:%S UTC")\`
-          
-          Foundational modular Go libraries (\`github.com/krewire/krewire/pkg/...\`).
-          EOF
-
-      - name: Create or Update Nightly Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.classify.outputs.version }}
-          name: Krewire ${{ needs.classify.outputs.version }} [nightly]
-          body_path: release_notes.md
-          prerelease: true
-          draft: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/release-artifacts.yaml
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    with:
+      version: ${{ needs.classify.outputs.version }}
+      channel: nightly
+      prerelease: true
+      publish: ${{ inputs.dry_run != true }}
