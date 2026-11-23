@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/pkg/toolchain/adapter"
 	"github.com/krewire/krewire/pkg/toolchain/contract"
 	"github.com/krewire/krewire/pkg/toolchain/fakeengine"
 	"github.com/krewire/krewire/pkg/toolchain/workflow"
@@ -120,5 +121,51 @@ func TestInvalidInputs(t *testing.T) {
 	r, err := workflow.Run(context.Background(), workflow.Config{Context: &blocking, Task: task})
 	if err != nil || r.Outcome != contract.OutcomeFailed {
 		t.Errorf("blocking context: %v %+v", err, r)
+	}
+}
+
+// stepper behaves like a ReAct engine: one call per turn, continuing the
+// step (More) until every deliverable has been written.
+type stepper struct{ fakeengine.Engine }
+
+func (s *stepper) Plan(ctx context.Context, p adapter.PlanParams) (adapter.PlanResult, error) {
+	res, err := s.Engine.Plan(ctx, p)
+	if err == nil { // one step targeting every deliverable
+		st := res.Plan.Steps[0]
+		st.TargetFiles = p.Task.Deliverables
+		res.Plan.Steps = []contract.PlanStep{st}
+	}
+	return res, err
+}
+
+func (s *stepper) Implement(_ context.Context, p adapter.ImplementParams) (adapter.ImplementResult, error) {
+	done := map[string]bool{}
+	for _, x := range p.Previous {
+		done[x.Call.Path] = true
+	}
+	var todo []string
+	for _, f := range p.Plan.Steps[0].TargetFiles {
+		if !done[f] {
+			todo = append(todo, f)
+		}
+	}
+	if len(todo) == 0 {
+		return adapter.ImplementResult{}, nil
+	}
+	call := contract.ToolCall{ID: "t-" + todo[0], StepID: p.StepID, Tool: contract.ToolWriteFile, Path: todo[0], Content: goodFiles[todo[0]]}
+	return adapter.ImplementResult{Calls: []contract.ToolCall{call}, More: len(todo) > 1}, nil
+}
+
+func TestMultiTurnImplement(t *testing.T) {
+	root, pctx, task := repo(t)
+	task.Approval.Plan = false
+	r, err := workflow.Run(context.Background(), workflow.Config{Root: root, Context: pctx, Task: task,
+		Policy: contract.DefaultPolicy(), Engine: &stepper{}, Runner: fakeRunner{model.GatePassed}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkReport(t, r, contract.OutcomeVerified)
+	if len(r.Executions) != 2 || len(r.Mutations) != 2 {
+		t.Errorf("want two turns of one call each: %+v", r.Executions)
 	}
 }

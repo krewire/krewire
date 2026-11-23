@@ -88,6 +88,10 @@ type ImplementParams struct {
 type ImplementResult struct {
 	Calls  []contract.ToolCall `json:"calls"`
 	Claims []contract.Claim    `json:"claims,omitempty"`
+	// More asks the host to execute Calls and call implement again for the
+	// same step with the updated Previous records — the turn loop a ReAct
+	// engine needs. The host stops at the tool-call budget.
+	More bool `json:"more,omitempty"`
 }
 
 // ReviewParams asks for a review of the executed change and its evidence.

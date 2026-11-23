@@ -60,7 +60,8 @@ func (r *run) implement(ctx context.Context, plan contract.Plan) (bool, error) {
 		timeout = 5 * time.Minute
 	}
 	denied, count := false, 0
-	for _, step := range plan.Steps {
+	for i := 0; i < len(plan.Steps); i++ {
+		step := plan.Steps[i]
 		if err := ctx.Err(); err != nil {
 			return denied, err
 		}
@@ -68,6 +69,9 @@ func (r *run) implement(ctx context.Context, plan contract.Plan) (bool, error) {
 			Plan: &plan, StepID: step.ID, Previous: r.report.Executions})
 		if err != nil {
 			return denied, err
+		}
+		if res.More && len(res.Calls) > 0 && (limit <= 0 || count+len(res.Calls) < limit) {
+			i-- // the engine continues this step after seeing the results
 		}
 		r.report.Claims = append(r.report.Claims, res.Claims...)
 		for _, call := range res.Calls {
