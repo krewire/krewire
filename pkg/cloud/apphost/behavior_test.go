@@ -107,7 +107,9 @@ func TestApprovalGateAndJournal(t *testing.T) {
 	if strings.Join(outcomes, ",") != "start:approved,start:ok,stop:ok" {
 		t.Fatalf("journal = %v", outcomes)
 	}
-	failing := ApproverFunc(func(context.Context, Operation) (Decision, error) { return Decision{}, errors.New("policy engine offline") })
+	failing := ApproverFunc(func(context.Context, Operation) (Decision, error) {
+		return Decision{}, errors.New("policy engine offline")
+	})
 	o, _ = New(top, Options{Approver: failing})
 	if err := o.Start(context.Background()); err == nil || !strings.Contains(err.Error(), "policy engine offline") {
 		t.Fatalf("approver error must block start: %v", err)
