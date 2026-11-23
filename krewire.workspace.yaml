@@ -1,0 +1,29 @@
+# Workspace graph manifest for pkg/workgraph (#135). Plain Go discovery
+# already yields the package graph; this file only declares what imports
+# cannot express. See docs/pkg/workgraph.md.
+version: 1
+global_inputs:
+  - .github/workflows/*.yml
+  - "**/schemas/*.json"
+inputs:
+  # The root guard tests (layering_test.go, platform_test.go) read every
+  # package source file, so any Go change must re-run them.
+  ".":
+    - pkg/**/*.go
+templates:
+  - templates/init/*
+  - templates/new/*
+  - templates/boost
+workloads:
+  - name: app
+    template: templates/init/app
+    packages: [pkg/web, pkg/app, pkg/runtime/boot]
+  - name: cli
+    template: templates/init/cli
+    packages: [pkg/errs]
+  - name: site
+    template: templates/init/static
+    packages: [pkg/web/ssg, pkg/markdown]
+  - name: book
+    template: templates/init/book
+    packages: [pkg/book, pkg/markdown]

@@ -1,0 +1,13 @@
+version: 1
+global_inputs:
+  - core/schemas/*.json
+inputs:
+  core/base:
+    - core/docs/*.md
+templates:
+  - core/templates/init/*
+workloads:
+  - name: app
+    template: core/templates/init/app
+    packages: [core/top]
+    fixtures: [core/fixtures/app]
