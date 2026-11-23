@@ -191,3 +191,17 @@ func pick(cond bool) Severity {
 	}
 	return NonBreaking
 }
+
+// DiffFiles loads two canonical documents (baseline first) and diffs them.
+// It is the entry point for CLI wiring such as `krew contract diff`.
+func DiffFiles(oldPath, newPath string) (*Report, error) {
+	oldDoc, err := LoadDocument(oldPath)
+	if err != nil {
+		return nil, fmt.Errorf("apicontract: baseline %s: %w", oldPath, err)
+	}
+	newDoc, err := LoadDocument(newPath)
+	if err != nil {
+		return nil, fmt.Errorf("apicontract: candidate %s: %w", newPath, err)
+	}
+	return Diff(oldDoc, newDoc), nil
+}

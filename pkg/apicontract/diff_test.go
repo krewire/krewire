@@ -2,6 +2,8 @@ package apicontract_test
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/krewire/krewire/pkg/apicontract"
@@ -168,4 +170,28 @@ func TestReportJSONIsStable(t *testing.T) {
 		t.Fatal(err)
 	}
 	golden(t, "items.diff.json", out)
+}
+
+func TestDiffFiles(t *testing.T) {
+	dir := t.TempDir()
+	write := func(name string, d *apicontract.Document) string {
+		raw, err := d.JSON()
+		if err != nil {
+			t.Fatal(err)
+		}
+		p := filepath.Join(dir, name)
+		if err := os.WriteFile(p, raw, 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	oldPath := write("old.json", testService("1.2.0").MustCompile())
+	newPath := write("new.json", mutate(t, "1.3.0", func(d *apicontract.Document) { d.Endpoints = d.Endpoints[1:] }))
+	r, err := apicontract.DiffFiles(oldPath, newPath)
+	if err != nil || r.Breaking != 1 || r.Err() == nil {
+		t.Fatalf("report=%+v err=%v", r, err)
+	}
+	if _, err := apicontract.DiffFiles(filepath.Join(dir, "missing.json"), newPath); err == nil {
+		t.Fatal("missing baseline must fail")
+	}
 }
