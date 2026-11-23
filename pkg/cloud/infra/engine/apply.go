@@ -89,6 +89,9 @@ func (e *Engine) Apply(ctx context.Context, p *Plan, opts ApplyOptions) (*Result
 	run := &applyRun{e: e, lock: lock, snap: snap, secrets: newScrubber(e.Secrets)}
 	if run.snap.Lineage == "" {
 		run.snap.Lineage = store.NewLockID()
+		if e.NewLineage != nil {
+			run.snap.Lineage = e.NewLineage()
+		}
 	}
 	res := &Result{PlanDigest: p.Digest, Environment: p.Environment, Mode: p.Mode, StartSerial: snap.Serial}
 	var failure error

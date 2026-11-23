@@ -33,6 +33,8 @@ type Engine struct {
 	Principal Principal
 	// Now is the clock; time.Now when nil.
 	Now func() time.Time
+	// NewLineage names a fresh state lineage on first apply; random when nil.
+	NewLineage func() string
 }
 
 // New returns an engine for environment env.

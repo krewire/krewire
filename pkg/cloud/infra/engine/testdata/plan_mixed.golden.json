@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "contract": "infra.krewire.dev/v1",
+  "provider": "memory",
+  "providerVersion": "1.0.0",
+  "environment": "dev",
+  "mode": "apply",
+  "lineage": "lineage-test",
+  "baseSerial": 6,
+  "actions": [
+    {
+      "address": "dns/www",
+      "op": "delete",
+      "risk": "destructive",
+      "reason": "not in desired state"
+    },
+    {
+      "address": "bucket/assets",
+      "op": "noop",
+      "risk": "none",
+      "resource": {
+        "kind": "bucket",
+        "name": "assets",
+        "schemaVersion": "v1",
+        "properties": {
+          "region": "ap-southeast-1"
+        }
+      }
+    },
+    {
+      "address": "bucket/logs",
+      "op": "create",
+      "risk": "low",
+      "reason": "not in recorded state",
+      "changes": [
+        {
+          "path": "region",
+          "after": "ap-southeast-1"
+        }
+      ],
+      "resource": {
+        "kind": "bucket",
+        "name": "logs",
+        "schemaVersion": "v1",
+        "properties": {
+          "region": "ap-southeast-1"
+        }
+      }
+    },
+    {
+      "address": "service/api",
+      "op": "replace",
+      "risk": "destructive",
+      "reason": "change to port requires replacement",
+      "changes": [
+        {
+          "path": "image",
+          "before": "app:1",
+          "after": "app:2"
+        },
+        {
+          "path": "port",
+          "before": 8080,
+          "after": 9090
+        }
+      ],
+      "resource": {
+        "kind": "service",
+        "name": "api",
+        "schemaVersion": "v1",
+        "properties": {
+          "image": "app:2",
+          "port": 9090,
+          "replicas": 2
+        },
+        "secrets": {
+          "token": {
+            "source": "env",
+            "key": "API_TOKEN"
+          }
+        },
+        "dependsOn": [
+          "bucket/assets"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "create": 1,
+    "update": 0,
+    "replace": 1,
+    "delete": 1,
+    "noop": 1
+  },
+  "digest": "sha256:ec39b1ee23a90e4c78ed8bbc4b57712cf878093294abdf77e5b2adaeba7b8984"
+}

@@ -1,0 +1,38 @@
+{
+  "formatVersion": 1,
+  "contract": "infra.krewire.dev/v1",
+  "provider": "memory",
+  "providerVersion": "1.0.0",
+  "environment": "dev",
+  "mode": "destroy",
+  "lineage": "lineage-test",
+  "baseSerial": 12,
+  "actions": [
+    {
+      "address": "service/api",
+      "op": "delete",
+      "risk": "destructive",
+      "reason": "not in desired state"
+    },
+    {
+      "address": "bucket/logs",
+      "op": "delete",
+      "risk": "destructive",
+      "reason": "not in desired state"
+    },
+    {
+      "address": "bucket/assets",
+      "op": "delete",
+      "risk": "destructive",
+      "reason": "not in desired state"
+    }
+  ],
+  "summary": {
+    "create": 0,
+    "update": 0,
+    "replace": 0,
+    "delete": 3,
+    "noop": 0
+  },
+  "digest": "sha256:0a68b9fc9426ec21404d79dc24d08cacd4fe8c1784272947c26f0cd99cd32572"
+}
