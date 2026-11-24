@@ -11,13 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/krewire/krewire/pkg/model"
-	"github.com/krewire/krewire/pkg/toolchain/adapter"
-	"github.com/krewire/krewire/pkg/toolchain/contract"
-	"github.com/krewire/krewire/pkg/toolchain/fakeengine"
-	"github.com/krewire/krewire/pkg/toolchain/policy"
-	"github.com/krewire/krewire/pkg/toolchain/projctx"
-	"github.com/krewire/krewire/pkg/toolchain/workflow"
+	"github.com/krewire/krewire/model"
+	"github.com/krewire/krewire/toolchain/adapter"
+	"github.com/krewire/krewire/toolchain/contract"
+	"github.com/krewire/krewire/toolchain/fakeengine"
+	"github.com/krewire/krewire/toolchain/policy"
+	"github.com/krewire/krewire/toolchain/projctx"
+	"github.com/krewire/krewire/toolchain/workflow"
 )
 
 // aiSecret is the HMAC key the harness signs plan approvals with. It is a

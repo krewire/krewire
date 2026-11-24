@@ -20,7 +20,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/model"
 )
 
 // maxOutput bounds the command output kept per gate.

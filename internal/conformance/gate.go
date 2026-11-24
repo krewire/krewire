@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/model"
 )
 
 // Baseline is the committed qualification floor (baseline.json). The

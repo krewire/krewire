@@ -16,13 +16,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/krewire/krewire/pkg/cloud/infra/contract"
-	"github.com/krewire/krewire/pkg/cloud/infra/engine"
-	"github.com/krewire/krewire/pkg/cloud/infra/providers/localfile"
-	"github.com/krewire/krewire/pkg/cloud/infra/schema"
-	"github.com/krewire/krewire/pkg/cloud/infra/state"
-	"github.com/krewire/krewire/pkg/cloud/infra/store"
-	"github.com/krewire/krewire/pkg/config"
+	"github.com/krewire/krewire/cloud/infra/contract"
+	"github.com/krewire/krewire/cloud/infra/engine"
+	"github.com/krewire/krewire/cloud/infra/providers/localfile"
+	"github.com/krewire/krewire/cloud/infra/schema"
+	"github.com/krewire/krewire/cloud/infra/state"
+	"github.com/krewire/krewire/cloud/infra/store"
+	"github.com/krewire/krewire/config"
 )
 
 type resource struct {

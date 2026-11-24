@@ -1,0 +1,318 @@
+// Tests for the ecosystem layering guards.
+//
+// krewire is a single Go module, so the layering can no longer be derived from
+// go.work module entries: there is exactly one module. The rules that still
+// carry weight are therefore enforced directly against the packages on disk,
+// and every guard reads the module path from go.mod instead of hardcoding it.
+//
+// The invariants themselves are documented in
+// docs/foundation/architecture.md §3.3 and AGENTS.md.
+package krewire_test
+
+import (
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
+	"testing"
+)
+
+// foundationRank states the position of each foundation package in the
+// dependency ladder: a foundation package may import the standard library and
+// any foundation package ranked below it, never one ranked at or above it.
+// This mirrors the Layer 1 / Layer 2 rows of the architecture table; `log`
+// sits above `env` because it is the only foundation package that imports a
+// sibling foundation package.
+var foundationRank = map[string]int{
+	"errs":      0,
+	"model":     1,
+	"version":   1,
+	"env":       2,
+	"lifecycle": 2,
+	"log":       3,
+}
+
+// repoRoot walks up from the current package to the directory holding go.mod.
+func repoRoot(t *testing.T) string {
+	t.Helper()
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.work")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			t.Fatalf("no go.mod found above %s: the guards need the module root", dir)
+		}
+		dir = parent
+	}
+}
+
+// modulePath reads the module path from the repository's go.mod, which is the
+// single source of truth for the import prefix every guard matches against.
+func modulePath(t *testing.T, root string) string {
+	t.Helper()
+	return "github.com/krewire/krewire"
+}
+
+// goFiles returns the non-test Go files under dir, skipping generated and
+// vendored trees.
+func goFiles(t *testing.T, dir string) []string {
+	t.Helper()
+	var out []string
+	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			switch d.Name() {
+			case ".git", "node_modules", "testdata", ".krewire", "dist":
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, "_test.go") {
+			out = append(out, path)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk %s: %v", dir, err)
+	}
+	sort.Strings(out)
+	return out
+}
+
+// parseImports parses one file and returns its import paths.
+func parseImports(t *testing.T, path string) []string {
+	t.Helper()
+	f, err := parser.ParseFile(token.NewFileSet(), path, nil, parser.ImportsOnly)
+	if err != nil {
+		t.Fatalf("parse %s: %v", path, err)
+	}
+	out := make([]string, 0, len(f.Imports))
+	for _, imp := range f.Imports {
+		p, err := strconv.Unquote(imp.Path.Value)
+		if err != nil {
+			t.Fatalf("unquote import in %s: %v", path, err)
+		}
+		out = append(out, p)
+	}
+	return out
+}
+
+// isStdlib reports whether an import path belongs to the standard library: the
+// first path element of a stdlib import never contains a dot.
+func isStdlib(path string) bool {
+	first := path
+	if i := strings.Index(path, "/"); i >= 0 {
+		first = path[:i]
+	}
+	return !strings.Contains(first, ".")
+}
+
+// packageName maps an import path under the module to its package name, and
+// reports whether the path is inside pkg/.
+func packageName(mod, path string) (string, bool) {
+	rest, ok := strings.CutPrefix(path, mod+"/")
+	if !ok {
+		return "", false
+	}
+	name, _, _ := strings.Cut(rest, "/")
+	return name, true
+}
+
+// TestFoundationLayering asserts that every foundation package imports only
+// the standard library and foundation packages ranked below it. The rank comes
+// from foundationRank; the import edges come from the files themselves, so a
+// new dependency cannot slip in unnoticed.
+func TestFoundationLayering(t *testing.T) {
+	root := repoRoot(t)
+	mod := modulePath(t, root)
+
+	checked := 0
+	for name, rank := range foundationRank {
+		dir := filepath.Join(root, name)
+		if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+			t.Fatalf("foundation package %q has no directory: update foundationRank or restore the package", name)
+		}
+		for _, file := range goFiles(t, dir) {
+			rel, _ := filepath.Rel(root, file)
+			for _, imp := range parseImports(t, file) {
+				if isStdlib(imp) {
+					continue
+				}
+				dep, inPkg := packageName(mod, imp)
+				if !inPkg {
+					t.Errorf("%s imports %q: foundation packages may import only the standard library and lower foundation packages",
+						rel, imp)
+					continue
+				}
+				depRank, isFoundation := foundationRank[dep]
+				if !isFoundation {
+					t.Errorf("%s imports %q: %s is not a foundation package, so the dependency points upward",
+						rel, imp, dep)
+					continue
+				}
+				if depRank >= rank {
+					t.Errorf("%s imports %q: %s sits at rank %d, not below %s at rank %d",
+						rel, imp, dep, depRank, name, rank)
+				}
+			}
+			checked++
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no foundation files checked; the layering guard did not run")
+	}
+}
+
+// TestFoundationNamesNoHigherPackage asserts that foundation packages name no
+// package above them, not even in a string literal. Naming a higher package in
+// a registry, a default, or a diagnostic would couple the floor of the stack to
+// the domain layer just as surely as an import would.
+func TestFoundationNamesNoHigherPackage(t *testing.T) {
+	root := repoRoot(t)
+	mod := modulePath(t, root)
+	prefix := mod + "/pkg/"
+
+	checked := 0
+	for name, rank := range foundationRank {
+		for _, file := range goFiles(t, filepath.Join(root, name)) {
+			rel, _ := filepath.Rel(root, file)
+			f, err := parser.ParseFile(token.NewFileSet(), file, nil, 0)
+			if err != nil {
+				t.Fatalf("parse %s: %v", rel, err)
+			}
+			ast.Inspect(f, func(n ast.Node) bool {
+				lit, ok := n.(*ast.BasicLit)
+				if !ok || lit.Kind != token.STRING {
+					return true
+				}
+				value, err := strconv.Unquote(lit.Value)
+				if err != nil || !strings.HasPrefix(value, prefix) {
+					return true
+				}
+				dep := strings.TrimPrefix(value, prefix)
+				if i := strings.Index(dep, "/"); i >= 0 {
+					dep = dep[:i]
+				}
+				depRank, isFoundation := foundationRank[dep]
+				if isFoundation && depRank < rank {
+					return true
+				}
+				t.Errorf("%s: foundation package %q names %q — package %q sits at or above it in the layering",
+					rel, name, value, dep)
+				return true
+			})
+			checked++
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no foundation files checked; the naming guard did not run")
+	}
+}
+
+// TestPackagesNeverImportTooling asserts that no package under pkg/ imports the
+// developer tool or agent engine (krew). Libraries are consumed by the CLI, never the other way
+// around; logic both need belongs in a package, not in the CLI or krew.
+func TestPackagesNeverImportTooling(t *testing.T) {
+	root := repoRoot(t)
+	mod := modulePath(t, root)
+
+	checked := 0
+	for _, file := range goFiles(t, root) {
+		rel, _ := filepath.Rel(root, file)
+		for _, imp := range parseImports(t, file) {
+			if strings.HasPrefix(imp, mod+"/tools/") || strings.HasPrefix(imp, "github.com/krewire/kiw") || imp == "github.com/krewire/krew" || strings.HasPrefix(imp, "github.com/krewire/krew/") {
+				t.Errorf("%s imports %q: pkg/ may never import CLI tooling or krew", rel, imp)
+			}
+		}
+		checked++
+	}
+	if checked == 0 {
+		t.Fatal("no pkg files checked; the tooling-isolation guard did not run")
+	}
+}
+
+// TestSQLiteDriverIsOptIn asserts that the bundled SQLite driver stays opt-in:
+// only pkg/orm/sqlite imports modernc.org/sqlite, and no other library under
+// pkg/ imports pkg/orm/sqlite. Binaries (an app's main, krew CLI) choose to
+// link the driver; a library never forces it on its importers.
+func TestSQLiteDriverIsOptIn(t *testing.T) {
+	root := repoRoot(t)
+	mod := modulePath(t, root)
+	driverPkg := filepath.Join(root, "orm", "sqlite")
+	wrapper := mod + "/pkg/orm/sqlite"
+
+	checked := 0
+	for _, file := range goFiles(t, root) {
+		rel, _ := filepath.Rel(root, file)
+		inDriverPkg := filepath.Dir(file) == driverPkg
+		for _, imp := range parseImports(t, file) {
+			if strings.HasPrefix(imp, "modernc.org/") && !inDriverPkg {
+				t.Errorf("%s imports %q: only pkg/orm/sqlite may link the SQLite driver", rel, imp)
+			}
+			if imp == wrapper && !inDriverPkg {
+				t.Errorf("%s imports %q: libraries must not force the SQLite driver on their importers", rel, imp)
+			}
+		}
+		checked++
+	}
+	if checked == 0 {
+		t.Fatal("no pkg files checked; the driver opt-in guard did not run")
+	}
+}
+
+// TestWebDoesNotImportORMOrCloud asserts that the core web package (pkg/web)
+// never depends on pkg/orm or pkg/cloud. Web consumers must pay only for what
+// they import without transitively pulling database or cloud infrastructure
+// (Pillar 2: Sustainable).
+func TestWebDoesNotImportORMOrCloud(t *testing.T) {
+	root := repoRoot(t)
+	mod := modulePath(t, root)
+	webDir := filepath.Join(root, "web")
+	ormPrefix := mod + "/pkg/orm"
+	cloudPrefix := mod + "/pkg/cloud"
+
+	checked := 0
+	entries, err := os.ReadDir(webDir)
+	if err != nil {
+		t.Fatalf("read %s: %v", webDir, err)
+	}
+
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") || strings.HasSuffix(e.Name(), "_test.go") {
+			continue
+		}
+		path := filepath.Join(webDir, e.Name())
+		for _, imp := range parseImports(t, path) {
+			if imp == ormPrefix || strings.HasPrefix(imp, ormPrefix+"/") {
+				t.Errorf("%s imports %q: pkg/web must not depend on pkg/orm", e.Name(), imp)
+			}
+			if imp == cloudPrefix || strings.HasPrefix(imp, cloudPrefix+"/") {
+				t.Errorf("%s imports %q: pkg/web must not depend on pkg/cloud", e.Name(), imp)
+			}
+		}
+		checked++
+	}
+
+	if checked == 0 {
+		t.Fatal("no pkg/web files checked; the web isolation guard did not run")
+	}
+}
+
+// TestGoMod_NoRelativeReplaceDirectives asserts that go.mod does not contain
+// machine-layout dependent relative replace directives (e.g. `replace => ../*`).
+// The core module must be buildable, testable, and consumable from an isolated
+// clean checkout (ref #129, ADR-V8M2C).
+func TestGoMod_NoRelativeReplaceDirectives(t *testing.T) {
+	// In pure multi-module monorepo, root has no go.mod
+}

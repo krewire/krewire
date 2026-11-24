@@ -21,8 +21,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/krewire/krewire/pkg/model"
-	"github.com/krewire/krewire/pkg/toolchain/contract"
+	"github.com/krewire/krewire/model"
+	"github.com/krewire/krewire/toolchain/contract"
 )
 
 // APIVersion versions the report schema. It mirrors the

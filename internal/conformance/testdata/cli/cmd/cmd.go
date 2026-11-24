@@ -10,7 +10,7 @@ import (
 	"os"
 
 	"github.com/krewire/krewire"
-	"github.com/krewire/krewire/pkg/config"
+	"github.com/krewire/krewire/config"
 )
 
 // Execute runs the command line; a returned error makes main exit 1.

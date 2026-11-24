@@ -13,10 +13,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/krewire/krewire/pkg/app"
-	"github.com/krewire/krewire/pkg/cloud/service"
-	"github.com/krewire/krewire/pkg/config"
-	"github.com/krewire/krewire/pkg/web"
+	"github.com/krewire/krewire/app"
+	"github.com/krewire/krewire/cloud/service"
+	"github.com/krewire/krewire/config"
+	"github.com/krewire/krewire/web"
 )
 
 // store is a provider whose backing store is a required dependency.

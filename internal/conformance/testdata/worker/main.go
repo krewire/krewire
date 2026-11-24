@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/pkg/cloud/worker"
-	"github.com/krewire/krewire/pkg/config"
+	"github.com/krewire/krewire/cloud/worker"
+	"github.com/krewire/krewire/config"
 )
 
 type settings struct {

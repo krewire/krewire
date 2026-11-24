@@ -15,10 +15,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/pkg/cloud/service/registry"
-	"github.com/krewire/krewire/pkg/config"
-	"github.com/krewire/krewire/pkg/web"
-	"github.com/krewire/krewire/pkg/web/gateway"
+	"github.com/krewire/krewire/cloud/service/registry"
+	"github.com/krewire/krewire/config"
+	"github.com/krewire/krewire/web"
+	"github.com/krewire/krewire/web/gateway"
 )
 
 func main() {

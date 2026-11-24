@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/pkg/web/ssg"
+	"github.com/krewire/krewire/web/ssg"
 )
 
 func main() {

@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/krewire/krewire/pkg/book"
+	"github.com/krewire/krewire/book"
 )
 
 func main() {

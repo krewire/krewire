@@ -1,0 +1,513 @@
+package worker
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"sort"
+	"sync"
+	"sync/atomic"
+	"time"
+
+	"github.com/krewire/krewire/cloud/storage"
+)
+
+var globalWorkerCounter atomic.Uint64
+
+func newWorkerID() string {
+	return fmt.Sprintf("w-%d-%d", time.Now().UnixNano(), globalWorkerCounter.Add(1))
+}
+
+const (
+	// DefaultPollInterval is how often Dequeue polls KV for ready tasks from other nodes.
+	DefaultPollInterval = 10 * time.Millisecond
+	// DefaultLeaseDuration is how long a worker holds a lease on a task before it expires.
+	DefaultLeaseDuration = 30 * time.Second
+)
+
+// KVQueue is a persistent, durable job queue backed by storage.KV with distributed leasing.
+type KVQueue struct {
+	kv            storage.KV
+	registry      *JobRegistry
+	mu            sync.Mutex
+	localJobs     map[JobID]Job
+	inflight      map[JobID]*Task
+	seq           atomic.Uint64
+	notify        chan struct{}
+	now           func() time.Time
+	workerID      string
+	pollInterval  time.Duration
+	leaseDuration time.Duration
+}
+
+var _ Queue = (*KVQueue)(nil)
+
+// KVQueueOption configures a KVQueue.
+type KVQueueOption func(*KVQueue)
+
+// WithJobRegistry attaches a JobRegistry to KVQueue for restoring jobs on startup.
+func WithJobRegistry(reg *JobRegistry) KVQueueOption {
+	return func(q *KVQueue) {
+		q.registry = reg
+	}
+}
+
+// WithPollInterval configures how frequently Dequeue polls KV for ready tasks.
+func WithPollInterval(d time.Duration) KVQueueOption {
+	return func(q *KVQueue) {
+		if d > 0 {
+			q.pollInterval = d
+		}
+	}
+}
+
+// WithLeaseDuration configures the expiration duration of claimed task leases.
+func WithLeaseDuration(d time.Duration) KVQueueOption {
+	return func(q *KVQueue) {
+		if d > 0 {
+			q.leaseDuration = d
+		}
+	}
+}
+
+// NewKVQueue creates a persistent queue backed by storage.KV and restores any existing tasks.
+func NewKVQueue(ctx context.Context, kv storage.KV, opts ...KVQueueOption) (*KVQueue, error) {
+	if kv == nil {
+		return nil, errors.New("worker: nil storage.KV backend")
+	}
+	q := &KVQueue{
+		kv:            kv,
+		registry:      NewJobRegistry(),
+		localJobs:     make(map[JobID]Job),
+		inflight:      make(map[JobID]*Task),
+		notify:        make(chan struct{}, 1),
+		now:           time.Now,
+		workerID:      newWorkerID(),
+		pollInterval:  DefaultPollInterval,
+		leaseDuration: DefaultLeaseDuration,
+	}
+	for _, opt := range opts {
+		opt(q)
+	}
+
+	if err := q.restore(ctx); err != nil {
+		return nil, fmt.Errorf("worker: restore queue from kv: %w", err)
+	}
+	return q, nil
+}
+
+func (q *KVQueue) restore(ctx context.Context) error {
+	leases, err := q.kv.List(ctx, "worker/leases/")
+	if err != nil {
+		return err
+	}
+	now := q.now()
+	for _, lk := range leases {
+		val, ok, err := q.kv.Get(ctx, lk)
+		if err != nil || !ok {
+			continue
+		}
+		var l taskLease
+		if err := json.Unmarshal(val, &l); err == nil && !l.ExpiresAt.After(now) {
+			_ = q.kv.Delete(ctx, lk)
+		}
+	}
+	return nil
+}
+
+// Enqueue persists a job to KV storage and notifies local workers.
+func (q *KVQueue) Enqueue(ctx context.Context, job Job, opts Options) (JobID, error) {
+	if job == nil {
+		return "", errors.New("worker: nil job")
+	}
+	n := q.seq.Add(1)
+	id := JobID(fmt.Sprintf("job-%d-%s-%d", q.now().UnixNano(), q.workerID, n))
+	t := &Task{Job: job, Options: opts, seq: uint64(q.now().UnixNano()) + n, ID: id}
+
+	if opts.Cron != "" {
+		sched, err := ParseCron(opts.Cron)
+		if err != nil {
+			return "", err
+		}
+		t.cron = sched
+	}
+	t.runAt = q.now().Add(opts.Delay)
+
+	// Persist task to KV
+	b, err := marshalTaskRecord(t)
+	if err != nil {
+		return "", err
+	}
+	if err := q.kv.Put(ctx, "worker/tasks/"+string(id), b); err != nil {
+		return "", fmt.Errorf("worker: persist task: %w", err)
+	}
+
+	q.mu.Lock()
+	q.localJobs[id] = job
+	q.mu.Unlock()
+
+	q.wake()
+	return t.ID, nil
+}
+
+// claim acquires a distributed lease on a task in KV storage.
+func (q *KVQueue) claim(ctx context.Context, taskID JobID) bool {
+	leaseKey := "worker/leases/" + string(taskID)
+	now := q.now()
+
+	claimToken := fmt.Sprintf("%s-%d", q.workerID, q.seq.Add(1))
+	lease := taskLease{
+		Owner:     claimToken,
+		ExpiresAt: now.Add(q.leaseDuration),
+	}
+	b, err := json.Marshal(lease)
+	if err != nil {
+		return false
+	}
+
+	if akv, ok := q.kv.(storage.AtomicKV); ok {
+		stored, err := akv.PutIfAbsent(ctx, leaseKey, b)
+		if err != nil {
+			return false
+		}
+		if !stored {
+			val, ok, err := q.kv.Get(ctx, leaseKey)
+			if err != nil || !ok {
+				return false
+			}
+			var existing taskLease
+			if err := json.Unmarshal(val, &existing); err != nil || existing.ExpiresAt.After(now) {
+				return false
+			}
+			// Lease expired, delete and retry PutIfAbsent
+			_ = q.kv.Delete(ctx, leaseKey)
+			stored, err = akv.PutIfAbsent(ctx, leaseKey, b)
+			if err != nil || !stored {
+				return false
+			}
+		}
+	} else {
+		// Fallback for non-atomic stores
+		val, ok, err := q.kv.Get(ctx, leaseKey)
+		if err == nil && ok {
+			var existing taskLease
+			if err := json.Unmarshal(val, &existing); err == nil && existing.ExpiresAt.After(now) {
+				return false
+			}
+		}
+		if err := q.kv.Put(ctx, leaseKey, b); err != nil {
+			return false
+		}
+		val, ok, err = q.kv.Get(ctx, leaseKey)
+		if err != nil || !ok {
+			return false
+		}
+		var confirmed taskLease
+		if err := json.Unmarshal(val, &confirmed); err != nil || confirmed.Owner != claimToken {
+			return false
+		}
+	}
+
+	// Ensure the task still exists in KV
+	_, taskOk, err := q.kv.Get(ctx, "worker/tasks/"+string(taskID))
+	if err != nil || !taskOk {
+		_ = q.kv.Delete(ctx, leaseKey)
+		return false
+	}
+
+	return true
+}
+
+func (q *KVQueue) isActivelyLeased(ctx context.Context, id JobID, now time.Time) bool {
+	leaseKey := "worker/leases/" + string(id)
+	lval, lok, _ := q.kv.Get(ctx, leaseKey)
+	if !lok {
+		return false
+	}
+	var lease taskLease
+	return json.Unmarshal(lval, &lease) == nil && lease.ExpiresAt.After(now)
+}
+
+func (q *KVQueue) findCandidates(ctx context.Context, now time.Time) ([]taskRecord, time.Duration, error) {
+	keys, err := q.kv.List(ctx, "worker/tasks/")
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var candidates []taskRecord
+	var minFutureDelay time.Duration
+
+	for _, k := range keys {
+		val, ok, err := q.kv.Get(ctx, k)
+		if err != nil || !ok {
+			continue
+		}
+		var rec taskRecord
+		if err := json.Unmarshal(val, &rec); err != nil {
+			continue
+		}
+
+		if rec.RunAt.After(now) {
+			diff := rec.RunAt.Sub(now)
+			if minFutureDelay == 0 || diff < minFutureDelay {
+				minFutureDelay = diff
+			}
+			continue
+		}
+
+		if q.isActivelyLeased(ctx, rec.ID, now) {
+			continue
+		}
+
+		candidates = append(candidates, rec)
+	}
+
+	return candidates, minFutureDelay, nil
+}
+
+func (q *KVQueue) activateTask(rec taskRecord) *Task {
+	var job Job
+	if lj, ok := q.localJobs[rec.ID]; ok {
+		job = lj
+	} else {
+		var err error
+		job, err = q.registry.Resolve(rec.Type, rec.Payload)
+		if err != nil {
+			job = &PayloadJob{Type: rec.Type, Data: rec.Payload}
+		}
+	}
+
+	task := &Task{
+		ID:       rec.ID,
+		Job:      job,
+		Attempts: rec.Attempts,
+		Options: Options{
+			Priority: rec.Priority,
+			Delay:    rec.Delay,
+			Cron:     rec.Cron,
+			Retry:    rec.Retry,
+		},
+		runAt: rec.RunAt,
+		seq:   rec.Seq,
+	}
+	if rec.Cron != "" {
+		if sched, err := ParseCron(rec.Cron); err == nil {
+			task.cron = sched
+		}
+	}
+	return task
+}
+
+func (q *KVQueue) claimReadyTask(ctx context.Context) (*Task, time.Duration, error) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	now := q.now()
+	candidates, minFutureDelay, err := q.findCandidates(ctx, now)
+	if err != nil || len(candidates) == 0 {
+		return nil, minFutureDelay, err
+	}
+
+	// Highest priority first, then oldest seq (FIFO)
+	sort.Slice(candidates, func(i, j int) bool {
+		if candidates[i].Priority != candidates[j].Priority {
+			return candidates[i].Priority > candidates[j].Priority
+		}
+		return candidates[i].Seq < candidates[j].Seq
+	})
+
+	for _, cand := range candidates {
+		if !q.claim(ctx, cand.ID) {
+			continue
+		}
+
+		taskKey := "worker/tasks/" + string(cand.ID)
+		tval, tok, err := q.kv.Get(ctx, taskKey)
+		if err != nil || !tok {
+			_ = q.kv.Delete(ctx, "worker/leases/"+string(cand.ID))
+			continue
+		}
+		var rec taskRecord
+		if err := json.Unmarshal(tval, &rec); err != nil {
+			_ = q.kv.Delete(ctx, "worker/leases/"+string(cand.ID))
+			continue
+		}
+
+		rec.Attempts++
+		if b, err := json.Marshal(rec); err == nil {
+			_ = q.kv.Put(ctx, taskKey, b)
+		}
+
+		task := q.activateTask(rec)
+		q.inflight[task.ID] = task
+		q.wake()
+		return task, 0, nil
+	}
+
+	return nil, minFutureDelay, nil
+}
+
+// Dequeue delivers the highest priority ready task from persistent queue across distributed workers.
+func (q *KVQueue) Dequeue(ctx context.Context) (*Task, error) {
+	for {
+		task, minWait, err := q.claimReadyTask(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if task != nil {
+			return task, nil
+		}
+
+		pollWait := q.pollInterval
+		if minWait > 0 && minWait < pollWait {
+			pollWait = minWait
+		}
+
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(pollWait):
+		case <-q.notify:
+		}
+	}
+}
+
+// Ack removes the finished task from KV storage or rearms the next cron iteration.
+func (q *KVQueue) Ack(ctx context.Context, task *Task) error {
+	if task == nil {
+		return ErrUnknownTask
+	}
+	q.mu.Lock()
+	if _, ok := q.inflight[task.ID]; !ok {
+		q.mu.Unlock()
+		return ErrUnknownTask
+	}
+	delete(q.inflight, task.ID)
+	delete(q.localJobs, task.ID)
+	q.mu.Unlock()
+
+	if task.cron != nil {
+		err := q.rearm(ctx, task)
+		_ = q.kv.Delete(ctx, "worker/leases/"+string(task.ID))
+		return err
+	}
+
+	// Delete completed task from persistent storage FIRST before releasing lease
+	_ = q.kv.Delete(ctx, "worker/tasks/"+string(task.ID))
+	_ = q.kv.Delete(ctx, "worker/leases/"+string(task.ID))
+	return nil
+}
+
+// Nack handles task failure, applying retry backoff or filing to DLQ in persistent storage.
+func (q *KVQueue) Nack(ctx context.Context, task *Task) error {
+	if task == nil {
+		return ErrUnknownTask
+	}
+	policy := task.Options.Retry.resolved()
+	q.mu.Lock()
+	if _, ok := q.inflight[task.ID]; !ok {
+		q.mu.Unlock()
+		return ErrUnknownTask
+	}
+	delete(q.inflight, task.ID)
+	delete(q.localJobs, task.ID)
+	q.mu.Unlock()
+
+	if task.Attempts >= policy.MaxAttempts {
+		_ = q.kv.Delete(ctx, "worker/tasks/"+string(task.ID))
+		b, _ := marshalDeadLetterRecord(task, q.now())
+		_ = q.kv.Put(ctx, "worker/dlq/"+string(task.ID), b)
+		_ = q.kv.Delete(ctx, "worker/leases/"+string(task.ID))
+		return nil
+	}
+
+	task.runAt = q.now().Add(policy.Backoff(task.Attempts))
+	task.LastErr = nil
+
+	b, _ := marshalTaskRecord(task)
+	_ = q.kv.Put(ctx, "worker/tasks/"+string(task.ID), b)
+	_ = q.kv.Delete(ctx, "worker/leases/"+string(task.ID))
+
+	q.wake()
+	return nil
+}
+
+// DLQ returns all dead-lettered tasks recorded in persistent storage.
+func (q *KVQueue) DLQ() []DeadLetter {
+	ctx := context.Background()
+	keys, err := q.kv.List(ctx, "worker/dlq/")
+	if err != nil {
+		return nil
+	}
+	var out []DeadLetter
+	for _, k := range keys {
+		val, ok, err := q.kv.Get(ctx, k)
+		if err != nil || !ok {
+			continue
+		}
+		var rec deadLetterRecord
+		if err := json.Unmarshal(val, &rec); err != nil {
+			continue
+		}
+		job, err := q.registry.Resolve(rec.Type, rec.Payload)
+		if err != nil {
+			job = &PayloadJob{Type: rec.Type, Data: rec.Payload}
+		}
+		var retErr error
+		if rec.Err != "" {
+			retErr = errors.New(rec.Err)
+		}
+		out = append(out, DeadLetter{
+			ID:       rec.ID,
+			Job:      job,
+			Err:      retErr,
+			Attempts: rec.Attempts,
+			At:       rec.At,
+		})
+	}
+	return out
+}
+
+// ClearDLQ removes all dead-lettered tasks from persistent storage.
+func (q *KVQueue) ClearDLQ(ctx context.Context) error {
+	keys, err := q.kv.List(ctx, "worker/dlq/")
+	if err != nil {
+		return err
+	}
+	for _, k := range keys {
+		_ = q.kv.Delete(ctx, k)
+	}
+	return nil
+}
+
+func (q *KVQueue) rearm(ctx context.Context, task *Task) error {
+	next := task.cron.NextFire(task.runAt)
+	if next.IsZero() {
+		_ = q.kv.Delete(ctx, "worker/tasks/"+string(task.ID))
+		return nil
+	}
+	occurrence := *task
+	occurrence.runAt = next
+	occurrence.seq = uint64(q.now().UnixNano()) + q.seq.Add(1)
+	occurrence.Attempts = 0
+	occurrence.LastErr = nil
+
+	b, err := marshalTaskRecord(&occurrence)
+	if err != nil {
+		return err
+	}
+	if err := q.kv.Put(ctx, "worker/tasks/"+string(occurrence.ID), b); err != nil {
+		return err
+	}
+
+	q.wake()
+	return nil
+}
+
+func (q *KVQueue) wake() {
+	select {
+	case q.notify <- struct{}{}:
+	default:
+	}
+}

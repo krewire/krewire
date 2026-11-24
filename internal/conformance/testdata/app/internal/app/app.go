@@ -14,10 +14,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	kwapp "github.com/krewire/krewire/pkg/app"
-	"github.com/krewire/krewire/pkg/cloud/worker"
-	"github.com/krewire/krewire/pkg/config"
-	"github.com/krewire/krewire/pkg/web"
+	kwapp "github.com/krewire/krewire/app"
+	"github.com/krewire/krewire/cloud/worker"
+	"github.com/krewire/krewire/config"
+	"github.com/krewire/krewire/web"
 )
 
 type project struct {

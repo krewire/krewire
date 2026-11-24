@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/krewire/krewire/pkg/model"
-	"github.com/krewire/krewire/pkg/observe"
+	"github.com/krewire/krewire/model"
+	"github.com/krewire/krewire/observe"
 )
 
 // Workloads lists the canonical workloads. It is derived from

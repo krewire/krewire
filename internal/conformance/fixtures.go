@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/krewire/krewire/pkg/observe"
+	"github.com/krewire/krewire/observe"
 )
 
 func siteFixture(r *run) {

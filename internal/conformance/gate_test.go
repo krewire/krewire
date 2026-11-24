@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/model"
 )
 
 func newRun(name string) *run {

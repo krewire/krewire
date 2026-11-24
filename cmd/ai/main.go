@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/krewire/krewire/pkg/ai/cli"
+	"github.com/krewire/krewire/ai/cli"
 )
 
 func main() {
