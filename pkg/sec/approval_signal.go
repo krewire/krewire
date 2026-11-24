@@ -6,8 +6,10 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -408,4 +410,31 @@ func (kr *KeyRing) GetKey(id string) (string, bool) {
 	defer kr.mu.RUnlock()
 	sec, ok := kr.keys[id]
 	return sec, ok
+}
+
+// CanonicalActionHash computes a deterministic SHA256 hex string binding a tool name and argument JSON.
+// Map keys are canonicalized via sorted JSON encoding and leading/trailing whitespace is trimmed.
+func CanonicalActionHash(toolName string, rawArgs []byte) string {
+	cleanName := strings.ToLower(strings.TrimSpace(toolName))
+	var raw any
+	if len(rawArgs) > 0 && json.Unmarshal(rawArgs, &raw) == nil {
+		canonical, err := json.Marshal(raw)
+		if err == nil {
+			rawArgs = canonical
+		}
+	}
+	h := sha256.Sum256([]byte(fmt.Sprintf("%s:%s", cleanName, string(rawArgs))))
+	return hex.EncodeToString(h[:])
+}
+
+// NewApprovalSignalForTool creates an authenticated approval signal specifically bound to a tool and canonical arguments.
+func NewApprovalSignalForTool(secretKey, approverID, scope, toolName string, rawArgs []byte, ttl time.Duration) (*ApprovalSignal, error) {
+	actionHash := CanonicalActionHash(toolName, rawArgs)
+	return NewApprovalSignalWithOptions(ApprovalOptions{
+		ApproverID: approverID,
+		Scope:      scope,
+		SecretKey:  secretKey,
+		ActionHash: actionHash,
+		TTL:        ttl,
+	})
 }

@@ -12,6 +12,26 @@ import (
 // Approver is a function called before invoking a tool to confirm permission.
 type Approver func(toolName string, args json.RawMessage) bool
 
+// SecurityProfile defines the operational safety boundary for an Agent.
+type SecurityProfile string
+
+const (
+	// ProfileProduction is the default secure profile. In this profile, all privileged tools
+	// (command execution, filesystem modifications, and network egress) strictly fail-closed
+	// unless an explicit security policy (Approver or Authorizer) is configured.
+	ProfileProduction SecurityProfile = "production"
+
+	// ProfileReadOnly restricts the agent exclusively to non-mutating inspection tools.
+	// Command execution, file writing/editing/patching, and privileged operations are strictly
+	// denied unconditionally, even if an approver is provided.
+	ProfileReadOnly SecurityProfile = "read_only"
+
+	// ProfileInsecureDevMode permits unrestricted tool execution without mandatory approval checks.
+	// This mode is provided strictly for local developer CLI workflows and hermetic tests.
+	// WARNING: Must NEVER be enabled in production or multi-tenant server environments.
+	ProfileInsecureDevMode SecurityProfile = "insecure_dev_mode"
+)
+
 // Options configures an Agent instance.
 type Options struct {
 	Provider        ai.Provider
@@ -26,6 +46,9 @@ type Options struct {
 	StrictApprovals bool // abort loop and return ErrPermissionDenied if approver rejects
 	OnEvent         EventHandler
 	Streaming       bool // stream LLM tokens as text_delta events
+	SecurityProfile SecurityProfile
+	Authorizer      Authorizer
+	Roles           []string
 
 	// MaxToolResultTokens limits the estimated token count of individual tool output turns.
 	MaxToolResultTokens int
@@ -114,4 +137,25 @@ func WithMaxToolResultTokens(tokens int) Option {
 // WithMaxConcurrentTools bounds the concurrency for executing parallel-safe tools within a step.
 func WithMaxConcurrentTools(concurrency int) Option {
 	return func(o *Options) { o.MaxConcurrentTools = concurrency }
+}
+
+// WithSecurityProfile sets the agent's execution safety profile (ProfileProduction, ProfileReadOnly, ProfileInsecureDevMode).
+func WithSecurityProfile(p SecurityProfile) Option {
+	return func(o *Options) { o.SecurityProfile = p }
+}
+
+// WithInsecureDevMode explicitly opts into unrestricted local developer execution.
+// In this mode, privileged tools can execute without an approval or authorization policy.
+// WARNING: This setting disables essential security controls and must NEVER be enabled
+// in production servers or multi-tenant deployments.
+func WithInsecureDevMode() Option {
+	return func(o *Options) { o.SecurityProfile = ProfileInsecureDevMode }
+}
+
+// WithAuthorizer binds an RBAC Authorizer and active roles to the agent for tool authorization.
+func WithAuthorizer(auth Authorizer, roles ...string) Option {
+	return func(o *Options) {
+		o.Authorizer = auth
+		o.Roles = roles
+	}
 }

@@ -290,3 +290,54 @@ func TestApprovalSignal_KeyRotation(t *testing.T) {
 		t.Fatalf("expected ErrUnknownKeyID, got %v", err)
 	}
 }
+
+func TestApprovalSignal_CanonicalActionHashAndToolBinding(t *testing.T) {
+	secret := "0123456789abcdef0123456789abcdef"
+
+	args1 := []byte(`{"path": "hello.txt", "content": "world"}`)
+	args2 := []byte(`{  "content": "world", "path": "hello.txt"  }`) // Different order & whitespace
+
+	// 1. CanonicalActionHash must be deterministic and identical despite key ordering and whitespace
+	hash1 := CanonicalActionHash("write_file", args1)
+	hash2 := CanonicalActionHash("WRITE_FILE ", args2) // Case and whitespace insensitive tool name
+	if hash1 != hash2 {
+		t.Fatalf("expected canonical hashes to match, got %q vs %q", hash1, hash2)
+	}
+
+	// 2. Hash differs if payload changes
+	argsTampered := []byte(`{"path": "hello.txt", "content": "malicious"}`)
+	hashTampered := CanonicalActionHash("write_file", argsTampered)
+	if hash1 == hashTampered {
+		t.Fatalf("tampered arguments should produce different hash")
+	}
+
+	// 3. Hash differs if tool name changes
+	hashDifferentTool := CanonicalActionHash("run_command", args1)
+	if hash1 == hashDifferentTool {
+		t.Fatalf("different tool name should produce different hash")
+	}
+
+	// 4. Issue tool-bound approval signal and verify
+	sig, err := NewApprovalSignalForTool(secret, "admin-1", "workspace-42", "write_file", args1, 5*time.Minute)
+	if err != nil {
+		t.Fatalf("NewApprovalSignalForTool failed: %v", err)
+	}
+
+	// Verification with exact action succeeds
+	if err := sig.VerifyWithOptions(VerifySignalOptions{
+		SecretKey:          secret,
+		ExpectedScope:      "workspace-42",
+		ExpectedActionHash: CanonicalActionHash("write_file", args2),
+	}); err != nil {
+		t.Fatalf("expected verification to succeed with canonicalized args: %v", err)
+	}
+
+	// Verification with tampered action fails
+	if err := sig.VerifyWithOptions(VerifySignalOptions{
+		SecretKey:          secret,
+		ExpectedScope:      "workspace-42",
+		ExpectedActionHash: CanonicalActionHash("write_file", argsTampered),
+	}); !errors.Is(err, ErrApprovalActionHashMismatch) {
+		t.Fatalf("expected ErrApprovalActionHashMismatch for tampered args, got %v", err)
+	}
+}

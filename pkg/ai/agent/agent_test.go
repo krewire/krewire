@@ -94,6 +94,7 @@ func TestAgent_ToolExecutionLoop(t *testing.T) {
 	ag, err := New(
 		WithProvider(mock),
 		WithTools(registry),
+		WithInsecureDevMode(),
 		WithEventHandler(func(e Event) {
 			if e.Type == EventToolCall {
 				toolCallsSeen = append(toolCallsSeen, e.ToolName)

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/krewire/krewire/pkg/sec"
 )
 
 // ErrPermissionDenied is returned when a caller or agent lacks necessary RBAC permissions.
@@ -126,6 +128,16 @@ var (
 			{Action: "web", Resource: "tools"},
 		},
 	}
+
+	RolePersonaResearchAssistant = Role{
+		Name:        "ResearchAssistant",
+		Description: "Read-only research assistant strictly restricted to non-mutating inspection tools",
+		Permissions: []Permission{
+			{Action: "run", Resource: "agent"},
+			{Action: "chat", Resource: "agent"},
+			{Action: "fs:read", Resource: "tools"},
+		},
+	}
 )
 
 // MemoryAuthorizer is an in-memory authorizer implementing Authorizer.
@@ -139,6 +151,7 @@ func NewMemoryAuthorizer() *MemoryAuthorizer {
 	m.RegisterRole(RolePersonaCodingAssistant)
 	m.RegisterRole(RolePersonaDevOpsRunner)
 	m.RegisterRole(RolePersonaViewerAssistant)
+	m.RegisterRole(RolePersonaResearchAssistant)
 	return m
 }
 
@@ -270,7 +283,45 @@ func DefaultPersonaRole(personaName string) (Role, bool) {
 		return RolePersonaDevOpsRunner, true
 	case "viewer", "viewerassistant":
 		return RolePersonaViewerAssistant, true
+	case "research", "researchassistant":
+		return RolePersonaResearchAssistant, true
 	default:
 		return Role{}, false
+	}
+}
+
+// IsPrivilegedTool returns true if toolName performs command execution,
+// filesystem mutation, or outbound network access.
+func IsPrivilegedTool(toolName string) bool {
+	switch strings.ToLower(strings.TrimSpace(toolName)) {
+	case "run_command", "exec",
+		"write_file", "edit_file", "patch_file", "delete_file",
+		"fetch_url", "web":
+		return true
+	default:
+		return false
+	}
+}
+
+// NewSignalApprover creates an Approver that cryptographically verifies an ApprovalSignal
+// bound to the canonical tool name and argument JSON payload. Replay attacks and parameter
+// modifications are detected and rejected.
+func NewSignalApprover(secretKey, scope string, tracker sec.NonceTracker, getSignal func(toolName string) *sec.ApprovalSignal) Approver {
+	return func(toolName string, args json.RawMessage) bool {
+		if getSignal == nil {
+			return false
+		}
+		sig := getSignal(toolName)
+		if sig == nil {
+			return false
+		}
+		expectedHash := sec.CanonicalActionHash(toolName, args)
+		opts := sec.VerifySignalOptions{
+			SecretKey:          secretKey,
+			ExpectedScope:      scope,
+			ExpectedActionHash: expectedHash,
+			Tracker:            tracker,
+		}
+		return sig.VerifyWithOptions(opts) == nil
 	}
 }

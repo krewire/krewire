@@ -39,6 +39,7 @@ func New(opts ...Option) (*Agent, error) {
 		Registry:            tools.NewRegistry(),
 		MaxToolResultTokens: DefaultMaxToolResultTokens,
 		MaxConcurrentTools:  DefaultMaxConcurrentTools,
+		SecurityProfile:     ProfileProduction,
 	}
 	for _, opt := range opts {
 		opt(&cfg)
@@ -170,7 +171,56 @@ func (a *Agent) executeSingleTool(ctx context.Context, step int, call ai.ToolCal
 		ToolArgs: call.Arguments,
 	})
 
-	// Check optional approval gate
+	// 1. Profile enforcement
+	switch a.opts.SecurityProfile {
+	case ProfileReadOnly:
+		if IsPrivilegedTool(call.Name) {
+			deniedMsg := fmt.Sprintf("Tool %s execution denied: read-only profile prohibits command execution, file modifications, and network requests", call.Name)
+			a.emit(Event{
+				Type:     EventToolResult,
+				Step:     step,
+				ToolID:   call.ID,
+				ToolName: call.Name,
+				Error:    deniedMsg,
+			})
+			return toolExecOutcome{payload: deniedMsg, denied: true}
+		}
+
+	case ProfileInsecureDevMode:
+		// Permissive local development mode: allows unapproved execution if Approver/Authorizer is unset.
+
+	default: // ProfileProduction (default)
+		// Privileged tools strictly require an explicit policy guard (Authorizer or Approver).
+		// If no policy is configured, fail closed.
+		if IsPrivilegedTool(call.Name) && a.opts.Approver == nil && a.opts.Authorizer == nil {
+			deniedMsg := fmt.Sprintf("Tool %s execution denied: privileged tool requires an explicit authorization or approval policy in production profile", call.Name)
+			a.emit(Event{
+				Type:     EventToolResult,
+				Step:     step,
+				ToolID:   call.ID,
+				ToolName: call.Name,
+				Error:    deniedMsg,
+			})
+			return toolExecOutcome{payload: deniedMsg, denied: true}
+		}
+	}
+
+	// 2. Evaluate RBAC Authorizer if configured
+	if a.opts.Authorizer != nil {
+		if err := CheckToolPermission(a.opts.Authorizer, a.opts.Roles, call.Name); err != nil {
+			deniedMsg := fmt.Sprintf("Tool %s execution denied by authorization policy: %v", call.Name, err)
+			a.emit(Event{
+				Type:     EventToolResult,
+				Step:     step,
+				ToolID:   call.ID,
+				ToolName: call.Name,
+				Error:    deniedMsg,
+			})
+			return toolExecOutcome{payload: deniedMsg, denied: true}
+		}
+	}
+
+	// 3. Evaluate Approver callback if configured
 	if a.opts.Approver != nil && !a.opts.Approver(call.Name, json.RawMessage(call.Arguments)) {
 		deniedMsg := fmt.Sprintf("Tool %s execution denied by user or security policy", call.Name)
 		a.emit(Event{
