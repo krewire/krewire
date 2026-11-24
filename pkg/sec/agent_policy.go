@@ -99,13 +99,19 @@ func AuthorizeAgentAction(p AgentPolicy, action AgentAction, target string) erro
 }
 
 var (
-	secretRegex = regexp.MustCompile(`(?i)(bearer\s+[A-Za-z0-9_\-\.]+)|(api_key\s*[=:]\s*['"]?[A-Za-z0-9_\-]+['"]?)|(password\s*[=:]\s*['"]?[^'"\s]+['"]?)`)
-	keyRegex    = regexp.MustCompile(`-----BEGIN [A-Z ]+PRIVATE KEY-----[^-]+-----END [A-Z ]+PRIVATE KEY-----`)
+	secretRegex       = regexp.MustCompile(`(?i)(bearer\s+[A-Za-z0-9_\-\.]+)|(api_key\s*[=:]\s*['"]?[A-Za-z0-9_\-]+['"]?)|(password\s*[=:]\s*['"]?[^'"\s]+['"]?)`)
+	keyRegex          = regexp.MustCompile(`-----BEGIN [A-Z ]+PRIVATE KEY-----[^-]+-----END [A-Z ]+PRIVATE KEY-----`)
+	dbURLRegex        = regexp.MustCompile(`(?i)(postgres|mysql|redis|mongodb|amqp|https?)://([^:\s]+):([^@\s]+)@`)
+	tokenRegex        = regexp.MustCompile(`(?i)\b(?:sk-[a-zA-Z0-9_\-]{20,}|gh[pousr]_[a-zA-Z0-9_]{30,}|AKIA[0-9A-Z]{16})\b`)
+	credentialKVRegex = regexp.MustCompile(`(?i)\b(client_secret|access_token|refresh_token|secret_key|db_password|database_url)\s*[=:]\s*['"]?([^'"\s]{4,})['"]?`)
 )
 
 // RedactSensitiveOutput redacts credentials, bearer tokens, and private keys from strings.
 func RedactSensitiveOutput(s string) string {
 	s = secretRegex.ReplaceAllString(s, "[REDACTED_SECRET]")
 	s = keyRegex.ReplaceAllString(s, "[REDACTED_PRIVATE_KEY]")
+	s = dbURLRegex.ReplaceAllString(s, "$1://$2:[REDACTED_SECRET]@")
+	s = tokenRegex.ReplaceAllString(s, "[REDACTED_SECRET]")
+	s = credentialKVRegex.ReplaceAllString(s, "$1=[REDACTED_SECRET]")
 	return s
 }

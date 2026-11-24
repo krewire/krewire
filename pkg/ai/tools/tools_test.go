@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/krewire/krewire/pkg/sec"
 )
 
 func TestSafePath(t *testing.T) {
@@ -241,6 +243,196 @@ func TestRunCommandTool_OutputTruncation(t *testing.T) {
 	}
 	if !buf.truncated {
 		t.Fatalf("expected truncated flag to be true")
+	}
+}
+
+func TestRunCommandTool_SanitizedEnvironmentExcludesSecrets(t *testing.T) {
+	// Seed parent environment with ambient host secrets
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "AKIAIOSFODNN7EXAMPLE/secret123")
+	t.Setenv("DATABASE_URL", "postgres://user:super_secret_pw@db.internal:5432/prod")
+	t.Setenv("OPENAI_API_KEY", "sk-proj-test12345678901234567890")
+	t.Setenv("KREWIRE_INTERNAL_TOKEN", "token_xyz987654321")
+
+	tool := &RunCommandTool{}
+	ctx := context.Background()
+
+	// 1. Verify child process cannot access ambient secrets directly via variables
+	args, _ := json.Marshal(map[string]string{
+		"command": "echo \"AWS=$AWS_SECRET_ACCESS_KEY DB=$DATABASE_URL OPENAI=$OPENAI_API_KEY KREWIRE=$KREWIRE_INTERNAL_TOKEN\"",
+	})
+	res, err := tool.Execute(ctx, args)
+	if err != nil {
+		t.Fatalf("execution error: %v", err)
+	}
+	m := res.(map[string]any)
+	stdout := m["stdout"].(string)
+	expectedEcho := "AWS= DB= OPENAI= KREWIRE=\n"
+	if stdout != expectedEcho {
+		t.Errorf("expected empty secret variables in child, got %q", stdout)
+	}
+
+	// 2. Verify complete `env` printout contains zero ambient secret keys or values
+	envArgs, _ := json.Marshal(map[string]string{
+		"command": "env",
+	})
+	envRes, err := tool.Execute(ctx, envArgs)
+	if err != nil {
+		t.Fatalf("env command failed: %v", err)
+	}
+	envMap := envRes.(map[string]any)
+	envStdout := envMap["stdout"].(string)
+
+	forbidden := []string{
+		"AWS_SECRET_ACCESS_KEY",
+		"DATABASE_URL",
+		"OPENAI_API_KEY",
+		"KREWIRE_INTERNAL_TOKEN",
+		"super_secret_pw",
+		"token_xyz987654321",
+	}
+	for _, f := range forbidden {
+		if strings.Contains(envStdout, f) {
+			t.Errorf("security violation: child environment leaked %q in output:\n%s", f, envStdout)
+		}
+	}
+}
+
+func TestRunCommandTool_EnvironmentOverridesValidation(t *testing.T) {
+	tool := &RunCommandTool{}
+	ctx := context.Background()
+
+	// 1. Reserved security variable override blocked
+	args, _ := json.Marshal(map[string]any{
+		"command": "echo hello",
+		"env": map[string]string{
+			"LD_PRELOAD": "/evil/library.so",
+		},
+	})
+	_, err := tool.Execute(ctx, args)
+	if err == nil {
+		t.Fatal("expected error when overriding LD_PRELOAD, got nil")
+	}
+
+	// 2. Sensitive key override blocked
+	args, _ = json.Marshal(map[string]any{
+		"command": "echo hello",
+		"env": map[string]string{
+			"MY_API_KEY": "some-key",
+		},
+	})
+	_, err = tool.Execute(ctx, args)
+	if err == nil {
+		t.Fatal("expected error when overriding sensitive key, got nil")
+	}
+
+	// 3. Sensitive token value override blocked
+	args, _ = json.Marshal(map[string]any{
+		"command": "echo hello",
+		"env": map[string]string{
+			"CUSTOM_CONFIG": "sk-proj-12345678901234567890123456",
+		},
+	})
+	_, err = tool.Execute(ctx, args)
+	if err == nil {
+		t.Fatal("expected error when overriding sensitive token value, got nil")
+	}
+}
+
+func TestRunCommandTool_OutputScrubbing(t *testing.T) {
+	tool := &RunCommandTool{}
+	ctx := context.Background()
+
+	args, _ := json.Marshal(map[string]string{
+		"command": "echo 'Connected: postgres://admin:hunter2@localhost:5432/mydb with token ghp_123456789012345678901234567890123456'",
+	})
+	res, err := tool.Execute(ctx, args)
+	if err != nil {
+		t.Fatalf("execution error: %v", err)
+	}
+	m := res.(map[string]any)
+	stdout := m["stdout"].(string)
+
+	if strings.Contains(stdout, "hunter2") {
+		t.Errorf("database password not redacted in stdout: %s", stdout)
+	}
+	if strings.Contains(stdout, "ghp_1234567890") {
+		t.Errorf("GitHub token not redacted in stdout: %s", stdout)
+	}
+	if !strings.Contains(stdout, "[REDACTED_SECRET]") {
+		t.Errorf("expected [REDACTED_SECRET] in output: %s", stdout)
+	}
+}
+
+func TestRunCommandTool_PromptInjectionDefense(t *testing.T) {
+	// Seed ambient credentials
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "AKIASECRET123456")
+	t.Setenv("DATABASE_URL", "postgres://user:dbpass@localhost/db")
+
+	tool := &RunCommandTool{}
+	ctx := context.Background()
+
+	// Simulating model prompted to dump and exfiltrate secrets
+	promptInjectionCommands := []string{
+		"echo AWS=$AWS_SECRET_ACCESS_KEY",
+		"printenv AWS_SECRET_ACCESS_KEY",
+		"set | grep -i secret",
+	}
+
+	for _, cmd := range promptInjectionCommands {
+		args, _ := json.Marshal(map[string]string{"command": cmd})
+		res, err := tool.Execute(ctx, args)
+		if err != nil {
+			// Some commands like grep might return exit code 1 if not found, which is expected
+			continue
+		}
+		m := res.(map[string]any)
+		stdout := m["stdout"].(string)
+		if strings.Contains(stdout, "AKIASECRET123456") || strings.Contains(stdout, "dbpass") {
+			t.Fatalf("prompt injection succeeded in extracting secret with command %q: %s", cmd, stdout)
+		}
+	}
+}
+
+func TestRunCommandTool_DeveloperWorkflowIntact(t *testing.T) {
+	tool := &RunCommandTool{
+		Env: map[string]string{
+			"BUILD_MODE": "release",
+		},
+	}
+	ctx := context.Background()
+
+	args, _ := json.Marshal(map[string]any{
+		"command": "echo \"MODE=$BUILD_MODE EXTRA=$EXTRA_FLAG\"",
+		"env": map[string]string{
+			"EXTRA_FLAG": "enabled",
+		},
+	})
+	res, err := tool.Execute(ctx, args)
+	if err != nil {
+		t.Fatalf("execution error: %v", err)
+	}
+	m := res.(map[string]any)
+	stdout := m["stdout"].(string)
+	expected := "MODE=release EXTRA=enabled\n"
+	if stdout != expected {
+		t.Errorf("expected %q, got %q", expected, stdout)
+	}
+}
+
+func TestRunCommandTool_PolicyEnforcement(t *testing.T) {
+	policy := sec.DefaultAgentPolicy(t.TempDir())
+	tool := &RunCommandTool{
+		Policy: &policy,
+	}
+	ctx := context.Background()
+
+	// Destructive command blocked by policy
+	args, _ := json.Marshal(map[string]string{
+		"command": "rm -rf /",
+	})
+	_, err := tool.Execute(ctx, args)
+	if err == nil || !errors.Is(err, sec.ErrAgentPolicyDenied) {
+		t.Fatalf("expected ErrAgentPolicyDenied for destructive command, got: %v", err)
 	}
 }
 
