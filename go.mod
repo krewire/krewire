@@ -12,7 +12,10 @@ require (
 	golang.org/x/net v0.62.0
 	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.62.0
+	github.com/krewire/krewire/pkg/router v0.0.0-00010101000000-000000000000
 )
+
+replace github.com/krewire/krewire/pkg/router => ./pkg/router
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
