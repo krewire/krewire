@@ -12,6 +12,7 @@
 
 # Go workspace & vendor
 vendor/
+go.work
 go.work.sum
 
 # IDE & Editor
