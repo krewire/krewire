@@ -9,7 +9,7 @@ This guide establishes the package health assessment framework, API stability gu
 
 ## 1. Package Stability Tiers
 
-Every first-party Go package under `github.com/krewire/krewire/pkg/*` and every ecosystem component exposes an explicit stability tier (`model.StabilityTier`):
+Every first-party Go package under `github.com/krewire/krewire/*` and every ecosystem component exposes an explicit stability tier (`model.StabilityTier`):
 
 | Stability Tier | Production Readiness | Compatibility Guarantee | Deprecation Window |
 |---|---|---|---|
@@ -27,21 +27,21 @@ Metadata for foundational (Layer 1) and domain (Layer 2) libraries in `krewire`:
 
 | Package | Layer | Stability | License | Min Go | Third-Party Dependencies | Breaking Change Policy |
 |---|---|---|---|---|---|---|
-| `pkg/model` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: depends solely on Go stdlib and `pkg/errs`. |
-| `pkg/errs` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: immutable exit codes and diagnostic error constructors. |
-| `pkg/lifecycle` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: `Startable` interface and supervisor contracts are permanent. |
-| `pkg/version` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: canonical SemVer comparison and watermark rules. |
-| `pkg/sec` | Layer 2 | `STABLE` | MIT | 1.22+ | 1 (`golang.org/x/net/html`) | Strict SemVer: fail-closed security defaults remain permanent. |
-| `pkg/auth` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: stdlib-only crypto and context identity propagation. |
-| `pkg/web` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: standard `net/http` handler interface compatibility. |
-| `pkg/log` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: standard `log/slog` handler extension and correlation keys. |
-| `pkg/config` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: backward-compatible declarative schema field additions. |
-| `pkg/orm` | Layer 2 | `STABLE` | MIT | 1.22+ | 1 (`modernc.org/sqlite` opt-in) | Strict SemVer: query builder expressions remain strictly additive. |
-| `pkg/cache` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: `cache.Driver` interface compatibility across implementations. |
-| `pkg/resilience`| Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: retry policies and circuit breaker interfaces remain stable. |
-| `pkg/storage` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: `storage.Provider` interface compatibility. |
-| `pkg/kiw` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: compiler produces deterministic Go template bytecode. |
-| `pkg/runtime` | Layer 2 | `BETA` | MIT | 1.22+ | 0 (Stdlib only) | Beta: WebAssembly VDOM diffing API stabilizing towards v1.0. |
+| `model` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: depends solely on Go stdlib and `errs`. |
+| `errs` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: immutable exit codes and diagnostic error constructors. |
+| `lifecycle` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: `Startable` interface and supervisor contracts are permanent. |
+| `version` | Layer 1 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: canonical SemVer comparison and watermark rules. |
+| `sec` | Layer 2 | `STABLE` | MIT | 1.22+ | 1 (`golang.org/x/net/html`) | Strict SemVer: fail-closed security defaults remain permanent. |
+| `auth` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: stdlib-only crypto and context identity propagation. |
+| `web` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: standard `net/http` handler interface compatibility. |
+| `log` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: standard `log/slog` handler extension and correlation keys. |
+| `config` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: backward-compatible declarative schema field additions. |
+| `orm` | Layer 2 | `STABLE` | MIT | 1.22+ | 1 (`modernc.org/sqlite` opt-in) | Strict SemVer: query builder expressions remain strictly additive. |
+| `cache` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: `cache.Driver` interface compatibility across implementations. |
+| `resilience`| Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: retry policies and circuit breaker interfaces remain stable. |
+| `storage` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: `storage.Provider` interface compatibility. |
+| `ui/kiw` | Layer 2 | `STABLE` | MIT | 1.22+ | 0 (Stdlib only) | Strict SemVer: compiler produces deterministic Go template bytecode. |
+| `runtime` | Layer 2 | `BETA` | MIT | 1.22+ | 0 (Stdlib only) | Beta: WebAssembly VDOM diffing API stabilizing towards v1.0. |
 
 ---
 
@@ -70,11 +70,13 @@ Krewire enforces semantic versioning per [SemVer 2.0.0](https://semver.org/):
 
 ## 4. Multi-Repository Ecosystem Compatibility Matrix
 
-The 9 platform repositories in the Krewire digital SDLC ecosystem are qualified against a synchronized compatibility matrix verified by `krew release --qualify`:
+The 11 platform repositories in the Krewire digital SDLC ecosystem are qualified against a synchronized compatibility matrix verified by `krew release --qualify`:
 
 | Repository | Role | Owning Team | Compatible Krewire Core | Ecosystem Dependencies |
 |---|---|---|---|---|
-| `krewire` | Core Monorepo (`pkg/*`, `krew`) | `@krewire/team-runtime` | `v0.2.0` (Self) | None (Foundational) |
+| `krewire` | Foundational Monorepo (37 Modules) | `@krewire/team-runtime` | `v0.2.0` (Self) | None (Foundational) |
+| `hub` | Port & Adapter (3rd-Party Drivers) | `@krewire/team-hub` | `^0.2.0` | `krewire` |
+| `tui` | Pure-Go Terminal UI Framework | `@krewire/team-toolchain` | `^0.2.0` | None (Foundational) |
 | `ui` | Pop-Brutalist Design System | `@krewire/team-runtime` | `^0.2.0` | `krewire` |
 | `krew` | Autonomous AI Agent Engine | `@krewire/team-agent` | `^0.2.0` | `krewire` |
 | `cloud` | Hybrid PaaS & Control Plane | `@krewire/team-cloud` | `^0.2.0` | `krewire`, `auth` |

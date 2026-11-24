@@ -6,9 +6,9 @@ The `worker` workload powers autonomous background processing daemons, asynchron
 
 ## 1. Key Capabilities
 
-- **Supervised Lifecycle (`pkg/lifecycle`)**: Integrates with the kernel supervisor for automatic restart, health heartbeats, and graceful cancellation upon SIGTERM/SIGINT signals.
-- **Queue & Consumer Primitives (`pkg/cloud/worker`)**: Pluggable queue abstractions supporting Redis, PostgreSQL, and in-memory test queues.
-- **Concurrency & Resilience (`pkg/resilience`)**: Bounded concurrency pools (preventing thread/goroutine exhaustion), exponential backoff retries with jitter, and circuit breakers.
+- **Supervised Lifecycle (`lifecycle`)**: Integrates with the kernel supervisor for automatic restart, health heartbeats, and graceful cancellation upon SIGTERM/SIGINT signals.
+- **Queue & Consumer Primitives (`cloud/worker`)**: Pluggable queue abstractions supporting Redis, PostgreSQL, and in-memory test queues.
+- **Concurrency & Resilience (`resilience`)**: Bounded concurrency pools (preventing thread/goroutine exhaustion), exponential backoff retries with jitter, and circuit breakers.
 - **Zero-CGO & Minimal Memory Footprint**: Runs in a lean 10–30 MB RAM profile on modest VPS nodes ($5/mo).
 
 ---
@@ -90,10 +90,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/krewire/krewire/pkg/env"
-	"github.com/krewire/krewire/pkg/lifecycle"
-	"github.com/krewire/krewire/pkg/log"
-	"github.com/krewire/krewire/pkg/model"
+	"github.com/krewire/krewire/env"
+	"github.com/krewire/krewire/lifecycle"
+	"github.com/krewire/krewire/log"
+	"github.com/krewire/krewire/model"
 )
 
 func main() {

@@ -6,7 +6,7 @@ Comprehensive security standards and defensive practices enforced across the Kre
 
 ## 1. Defensive HTTP Defaults
 
-Every application built using `pkg/web` should activate the security middleware suite (`pkg/sec`):
+Every application built using `web` should activate the security middleware suite (`sec`):
 
 - **OWASP Recommended Headers**: Set `X-Frame-Options: SAMEORIGIN` (or `DENY`), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and restrictive `Content-Security-Policy`. `web.NewApp()` enables these headers by default.
 - **Strict Transport Security (HSTS)**: Ensure TLS enforcement in production.

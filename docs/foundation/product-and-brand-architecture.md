@@ -51,18 +51,18 @@ The Krewire product federation is structured as an architectural battery governe
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   LAYER 2: MODULAR DOMAIN LIBRARIES                    │
-│  • Pustaka Domain (pkg/*)  - web, orm, cache, sec, ai, runtime, tui   │
+│  • Pustaka Domain (37 modules) - web, orm, cache, sec, ai, runtime   │
 │  • Krewire UI (ui)         - Pop-Brutalist .kiw component catalog      │
-│  • .kiw Engine (pkg/kiw)   - Pure-Go contextual template compiler      │
+│  • .kiw Engine (ui/kiw)   - Pure-Go contextual template compiler      │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ depends on
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   LAYER 1: CORE FOUNDATION & KERNEL                    │
-│  • pkg/model               - Declarative domain schemas & context SSOT │
-│  • pkg/lifecycle           - Workload supervisor & process executor    │
-│  • pkg/errs                - POSIX-compliant error & exit codes        │
-│  • pkg/version             - Build watermark signatures & semver       │
+│  • model               - Declarative domain schemas & context SSOT │
+│  • lifecycle           - Workload supervisor & process executor    │
+│  • errs                - POSIX-compliant error & exit codes        │
+│  • version             - Build watermark signatures & semver       │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ builds upon
                                     ▼
@@ -80,7 +80,7 @@ Every first-party component in Krewire belongs to one of six architectural categ
 
 ### 3.1 Umbrella Ecosystem (`Ecosystem`)
 - **Brand Name**: **Krewire** (never *Krewire Framework* or *Krewire Project* when referring to the whole).
-- **Scope**: The entire 9-repository collective, contributor community, design philosophy, and specifications.
+- **Scope**: The entire 11-repository collective, contributor community, design philosophy, and specifications.
 
 ---
 
@@ -88,7 +88,7 @@ Every first-party component in Krewire belongs to one of six architectural categ
 - **Krewire Core** (`krewire`):
   - **Category**: Monorepo Foundation & Modular Libraries.
   - **Repository**: `github.com/krewire/krewire` (Public, MIT License).
-  - **Scope**: Foundational kernel (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), 37 domain libraries (`pkg/*`), and starter blueprints (`templates/`).
+  - **Scope**: Foundational kernel (`model`, `lifecycle`, `errs`), 37 domain modules at repository root, and starter blueprints (`templates/`).
   - **Maturity**: Production-Ready.
 - **`krew` Devtool** (`krew`):
   - **Category**: Universal Developer CLI Toolchain.
@@ -97,7 +97,7 @@ Every first-party component in Krewire belongs to one of six architectural categ
   - **Maturity**: Production-Ready.
 - **Krewire Boost** (`Boost`):
   - **Category**: AI Agent Template & Workflow Constitution.
-  - **Path**: `krewire/templates/boost` and `krewire/pkg/boost` (Public, MIT License).
+  - **Path**: `krewire/templates/boost` and `krewire/boost` (Public, MIT License).
   - **Scope**: Embedded multi-agent coordination system, 21 specialized engineering personas, and safety constitutions.
   - **Maturity**: Production-Ready.
 

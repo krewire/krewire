@@ -16,14 +16,14 @@ so that humans, CI, and AI agents all drive the same contract.
 
 | Package | Role |
 |---|---|
-| `pkg/cloud/infra/contract` | Versioned contract (`infra.krewire.dev/v1`): desired `Resource`, recorded `Snapshot`, provider `Observed` state, `SecretRef`, `KindSchema` capability declarations, and the `Provider` interface. |
-| `pkg/cloud/infra/store` | Versioned state store: exclusive locks, compare-and-swap serials, lineage, sealed checksums. `File` (local directory) and `Memory` backends. |
-| `pkg/cloud/infra/engine` | Canonical engine: validation, deterministic plans, approval policy, journaled apply, drift inspection, reconciliation, destroy, evidence. |
-| `pkg/cloud/infra/conformance` | Reusable provider conformance suite. |
-| `pkg/cloud/infra/providers/localfile` | Reference provider: directories and files under a root directory. |
-| `pkg/cloud/infra/providers/memory` | In-memory fake with failure injection and out-of-band tampering, for tests. |
+| `cloud/infra/contract` | Versioned contract (`infra.krewire.dev/v1`): desired `Resource`, recorded `Snapshot`, provider `Observed` state, `SecretRef`, `KindSchema` capability declarations, and the `Provider` interface. |
+| `cloud/infra/store` | Versioned state store: exclusive locks, compare-and-swap serials, lineage, sealed checksums. `File` (local directory) and `Memory` backends. |
+| `cloud/infra/engine` | Canonical engine: validation, deterministic plans, approval policy, journaled apply, drift inspection, reconciliation, destroy, evidence. |
+| `cloud/infra/conformance` | Reusable provider conformance suite. |
+| `cloud/infra/providers/localfile` | Reference provider: directories and files under a root directory. |
+| `cloud/infra/providers/memory` | In-memory fake with failure injection and out-of-band tampering, for tests. |
 
-The older `pkg/cloud/infra/provider`, `schema`, and `state` packages remain for
+The older `cloud/infra/provider`, `schema`, and `state` packages remain for
 compatibility. They are not the lifecycle contract: their file state backend
 does not lock and their provider interface plans inside the provider. New code
 uses the packages above.
@@ -93,8 +93,8 @@ data, _ := p.JSON()
   reason, and field-level `changes`.
 - Identical inputs produce byte-identical JSON and the same `digest`
   (`sha256:` over the canonical plan). Declaration order does not matter.
-- Golden plans live in `pkg/cloud/infra/engine/testdata/`; refresh them with
-  `go test ./pkg/cloud/infra/engine -update`.
+- Golden plans live in `cloud/infra/engine/testdata/`; refresh them with
+  `go test ./modules/cloud/infra/engine -update`.
 
 ---
 
@@ -114,7 +114,7 @@ Apply, in order:
    changes) need an `Approval` bound to the exact digest and environment.
    Agent principals need approval for every change and cannot approve their
    own plans (`ErrSelfApproval`). `engine.ApprovalScope(p)` yields the scope
-   string for binding an external signal such as `pkg/sec.ApprovalSignal`.
+   string for binding an external signal such as `sec.ApprovalSignal`.
 3. Takes the state lock (`*store.LockedError` names the holder).
 4. Re-plans from current state under the lock; any difference returns
    `ErrStalePlan`, so a changed plan always needs renewed approval.

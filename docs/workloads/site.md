@@ -1,6 +1,6 @@
 # Workload: Static Website (`site`)
 
-The `site` workload powers static websites, landing pages, documentation portals, and blogs using Krewire's native Static Site Generation (SSG) engine (`pkg/web/ssg`), `.kiw` component compiler (`pkg/kiw`), and Markdown pipeline (`pkg/markdown`).
+The `site` workload powers static websites, landing pages, documentation portals, and blogs using Krewire's native Static Site Generation (SSG) engine (`web/ssg`), `.kiw` component compiler (`ui/kiw`), and Markdown pipeline (`markdown`).
 
 It produces zero-dependency static HTML/CSS/JS artifacts with automatic scoped styles, content fingerprinting, and WebSocket-driven Hot Module Replacement (HMR) during local development.
 

@@ -6,7 +6,7 @@ This specification establishes the official compatibility matrix, version constr
 
 ## 1. Objectives & Qualification Invariants
 
-Release qualification validates that all supported components across the 10 Krewire repositories integrate cleanly and honor their contracts prior to release:
+Release qualification validates that all supported components across the 11 Krewire repositories integrate cleanly and honor their contracts prior to release:
 
 1. **Contract-Driven Verification**: Cross-repository qualification exercises actual compile-time, CLI, and runtime contracts—not merely that isolated packages pass local unit tests.
 2. **Explicit Readiness Tiers**: Components and integration boundaries are classified into four deterministic statuses:
@@ -25,9 +25,9 @@ Release qualification validates that all supported components across the 10 Krew
 |---|---|---|---|---|---|---|
 | `krewire-ui` | `krewire` (Core/CLI) | `ui` (Design System) | `^0.2.0` | `Supported` | `@krewire/team-runtime` | `.kiw` component compilation, tokens, and hydration directives |
 | `krewire-krew` | `krewire` (Core SDK) | `krew` (Agent Engine) | `^0.2.0` | `Supported` | `@krewire/team-agent` | Core kernel models, lifecycle supervisors, and errs |
-| `krewire-cloud` | `krewire` (Core/Web) | `cloud` (PaaS Control) | `^0.2.0` | `Supported` | `@krewire/team-cloud` | `pkg/cloud/runner`, `pkg/cloud/service`, and `pkg/web/gateway` |
-| `krewire-auth` | `krewire` (Core/Sec) | `auth` (IAM Platform) | `^0.2.0` | `Supported` | `@krewire/team-iam` | `pkg/auth`, `pkg/sec`, PBKDF2/JWT claims, and password hashing |
-| `krewire-dash` | `krewire` (Core/TUI) | `dash` (Workspace) | `^0.2.0` | `Supported` | `@krewire/team-workspace` | `pkg/tui`, `pkg/term`, and PTY terminal process contracts |
+| `krewire-cloud` | `krewire` (Core/Web) | `cloud` (PaaS Control) | `^0.2.0` | `Supported` | `@krewire/team-cloud` | `cloud/runner`, `cloud/service`, and `web/gateway` |
+| `krewire-auth` | `krewire` (Core/Sec) | `auth` (IAM Platform) | `^0.2.0` | `Supported` | `@krewire/team-iam` | `auth`, `sec`, PBKDF2/JWT claims, and password hashing |
+| `krewire-dash` | `krewire` (Core/TUI) | `dash` (Workspace) | `^0.2.0` | `Supported` | `@krewire/team-workspace` | `tui`, `tui/term`, and PTY terminal process contracts |
 | `auth-cloud` | `auth` (Identity) | `cloud` (PaaS Gateway) | `^0.2.0` | `Supported` | `@krewire/team-iam` | Token federation, public JWKS verification, and edge headers |
 | `auth-dash` | `auth` (Identity) | `dash` (Workspace) | `^0.2.0` | `Supported` | `@krewire/team-iam` | Session claims, user identity context, and RBAC policies |
 | `krew-dash` | `krew` (Agent Core) | `dash` (AI Workspace) | `^0.2.0` | `Supported` | `@krewire/team-agent` | AI inference, agent task orchestration, streaming events, and approval gates |
@@ -40,27 +40,27 @@ Release qualification validates that all supported components across the 10 Krew
 
 ### Boundary 1: `krewire` ──► `ui`
 - **Contract**: `ui/kiw.pkg.json` declares a valid package manifest adhering to `https://krewire.com/schemas/kiw.pkg.schema.json`.
-- **Validation**: `.kiw` component syntax compiles through `pkg/kiw` parser without syntax regressions; CSS tokens in `styles/krewire.css` exist and map to Pop-Brutalist color and border standards.
+- **Validation**: `.kiw` component syntax compiles through `ui/kiw` parser without syntax regressions; CSS tokens in `styles/krewire.css` exist and map to Pop-Brutalist color and border standards.
 
 ### Boundary 2: `krewire` ──► `krew`
-- **Contract**: `krew` consumes `github.com/krewire/krewire/pkg/model`, `pkg/lifecycle` supervisors, and `pkg/errs` diagnostic exit codes.
+- **Contract**: `krew` consumes `github.com/krewire/krewire/model`, `lifecycle` supervisors, and `errs` diagnostic exit codes.
 - **Validation**: Autonomous agent tool dispatch, session memories, and streaming callbacks execute against stable Go core primitives.
 
 ### Boundary 3: `krewire` ──► `cloud`
-- **Contract**: `cloud` consumes `pkg/cloud/runner`, `pkg/cloud/service`, and `pkg/web/gateway`.
+- **Contract**: `cloud` consumes `cloud/runner`, `cloud/service`, and `web/gateway`.
 - **Validation**: Service supervisor boots child workloads, monitors health check endpoints (`/healthz`, `/readyz`), and reverse-proxies requests through the Edge Gateway.
 
 ### Boundary 4: `krewire` ──► `auth`
-- **Contract**: `auth` implements token issuance and cryptographic verification matching `pkg/auth` claims and `pkg/sec` defensive guards.
+- **Contract**: `auth` implements token issuance and cryptographic verification matching `auth` claims and `sec` defensive guards.
 - **Validation**: Cryptographic random entropy generation, constant-time password comparisons (`subtle.ConstantTimeCompare`), and JWT header validation pass without security regressions.
 
 ### Boundary 5: `krewire` ──► `dash`
-- **Contract**: `dash` consumes `pkg/tui` widget layouts, `pkg/term` ANSI color rendering, and execution sandboxes.
+- **Contract**: `dash` consumes `tui` widget layouts, `tui/term` ANSI color rendering, and execution sandboxes.
 - **Validation**: Terminal sessions allocate virtual PTYs and stream outputs safely without leaking host credentials.
 
 ### Boundary 6: `auth` ──► `cloud`
 - **Contract**: Decoupled token federation. `cloud` verifies identity tokens using public JWKS discovery endpoints without importing private `auth` database models.
-- **Validation**: Bearer token parsing and role-based route gating (`cloud/pkg/gateway`) succeed with valid cryptographic signatures.
+- **Validation**: Bearer token parsing and role-based route gating (`cloud/gateway`) succeed with valid cryptographic signatures.
 
 ### Boundary 7: `krew` + `auth` ──► `dash`
 - **Contract**: Dash acts as the human control plane for Krew agents operating with Auth-authenticated user credentials.

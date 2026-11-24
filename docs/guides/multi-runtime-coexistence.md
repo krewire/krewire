@@ -157,7 +157,7 @@ When Go microservice logs and host logs are aggregated into shared log collector
 - Use `log.SourceTag("go")` to emit standardized human-readable prefixes like `[go]` alongside `[js]` or `[laravel]`.
 
 ```go
-import "github.com/krewire/krewire/pkg/log"
+import "github.com/krewire/krewire/log"
 
 logger := log.WithSource(slog.Default(), "go")
 logger.Info("processing order", "order_id", 1234)
@@ -264,6 +264,6 @@ When a page contains framework islands, Krewire automatically generates and inje
 
 ## Quick References
 
-- [`krewire.yaml` Configuration Reference](../krew/configuration.md) — Multi-runtime and port options.
-- [`krew` Commands Reference](../krew/commands.md) — CLI commands and flags.
+- [`krewire.yaml` Configuration Reference](../tools/krew/configuration.md) — Multi-runtime and port options.
+- [`krew` Commands Reference](../tools/krew/commands.md) — CLI commands and flags.
 - [Architecture Blueprint](../foundation/architecture.md) — Core layering and dependency rules.

@@ -87,7 +87,7 @@ A human reviewer or downstream CI pipeline can verify that the evidence matches 
 
 ## 4. AI Agent Execution Sandbox & Authorization Policy
 
-Autonomous AI agents operate under bounded execution policies defined in `pkg/sec.AgentPolicy`:
+Autonomous AI agents operate under bounded execution policies defined in `sec.AgentPolicy`:
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐

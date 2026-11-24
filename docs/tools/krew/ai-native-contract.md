@@ -9,9 +9,9 @@ Issues: #131, #140.
 |---|---|
 | API version | `toolchain.krewire.dev/v1` |
 | Contract version | `1.0.0` (SemVer; engines negotiate on the major) |
-| Go packages | `pkg/toolchain/contract`, `projctx`, `policy`, `adapter`, `workflow`, `fakeengine`, `conformance` |
-| JSON Schemas | `pkg/toolchain/contract/schemas/<Kind>.json` (draft 2020-12, generated from the Go types) |
-| Examples | `pkg/toolchain/contract/testdata/golden/*.json` (validated by tests) |
+| Go packages | `toolchain/contract`, `projctx`, `policy`, `adapter`, `workflow`, `fakeengine`, `conformance` |
+| JSON Schemas | `toolchain/contract/schemas/<Kind>.json` (draft 2020-12, generated from the Go types) |
+| Examples | `toolchain/contract/testdata/golden/*.json` (validated by tests) |
 
 ## 1. Command model
 
@@ -87,7 +87,7 @@ All documents carry `api_version` and `kind`. Unknown fields are rejected.
 - **Policy** — host-side: file writes, network, destructive-command guard,
   categories that always need approval, tool-call budget, tool timeout,
   output cap.
-- **ApprovalRecord** — HMAC-authenticated `pkg/sec.ApprovalSignal` bound to a
+- **ApprovalRecord** — HMAC-authenticated `sec.ApprovalSignal` bound to a
   scope: `task:<id>:plan:<digest>` or `task:<id>:call:<call digest>`. Reports
   keep `verified` and drop `token`.
 - **ExecutionRecord** — one tool call (content replaced by `content_sha256`),
@@ -181,7 +181,7 @@ An engine conforms when `conformance.Run` and `conformance.RunStdio` pass
 against it: compatible `initialize`; a valid, in-scope plan for the fixture
 task; known, in-scope tool calls; attributed claims that never cite a failed
 gate; prompt cancellation. `fakeengine` is the reference implementation;
-`pkg/toolchain/adapter` also runs the suite against a spawned engine process.
+`toolchain/adapter` also runs the suite against a spawned engine process.
 
 ## 8. Documented flow
 
@@ -196,4 +196,4 @@ krew flow task.json                       # all of the above in one command
 ```
 
 The same flow is executed end to end, without an LLM, by
-`pkg/toolchain/workflow` tests (`TestEndToEndFlow`).
+`toolchain/workflow` tests (`TestEndToEndFlow`).

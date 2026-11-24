@@ -43,14 +43,14 @@ Declared statuses below are checked against the executable conformance evidence 
 
 | Workload | Maturity | Primary Package | Verified Implementation & Production Evidence | Known Limitations & Gaps | Owner |
 |---|---|---|---|---|---|
-| **`site`** | **Stable** | `pkg/web/ssg` | Powers [`krewire.com`](https://krewire.com) in production. SSG compilation, assets pipeline, client HMR, and multi-locale i18n. | Dynamic server-side API routes require pairing with an `app` entrypoint or gateway. | `@krewire/team-runtime` |
-| **`book`** | **Stable** | `pkg/book` | Powers official ecosystem documentation in English & Indonesian with automated search indexing and TOC. | Manuscript compilation currently focuses on Markdown; AsciiDoc support is planned. | `@krewire/team-runtime` |
-| **`app`** | **Stable** | `pkg/app`, `pkg/web`, `pkg/runtime` | Fullstack SSR + WebAssembly islands compilation. Standard library HTTP router. 18 `.kiw` conformance tests pass. | SSR state hydration for deeply nested reactive loops is under ongoing optimization. | `@krewire/team-runtime` |
+| **`site`** | **Stable** | `web/ssg` | Powers [`krewire.com`](https://krewire.com) in production. SSG compilation, assets pipeline, client HMR, and multi-locale i18n. | Dynamic server-side API routes require pairing with an `app` entrypoint or gateway. | `@krewire/team-runtime` |
+| **`book`** | **Stable** | `book` | Powers official ecosystem documentation in English & Indonesian with automated search indexing and TOC. | Manuscript compilation currently focuses on Markdown; AsciiDoc support is planned. | `@krewire/team-runtime` |
+| **`app`** | **Stable** | `app`, `web`, `runtime` | Fullstack SSR + WebAssembly islands compilation. Standard library HTTP router. 18 `.kiw` conformance tests pass. | SSR state hydration for deeply nested reactive loops is under ongoing optimization. | `@krewire/team-runtime` |
 | **`cli`** | **Stable** | `krew`, `tui` (`github.com/krewire/tui`) | The `krew` developer CLI itself is built as a Krewire CLI workload. Bitwise reproducible pure-Go binary compilation verified. | Terminal graphics protocols (Sixel, Kitty) are unbundled and optional. | `@krewire/team-runtime` |
-| **`gateway`** | **Stable** | `pkg/web/gateway` | High-throughput reverse proxy ingress routing, token bucket rate limiting, header rewriting, and health check pass-through. | Dynamic service discovery beyond static route tables requires external DNS or consul adapters. | `@krewire/team-runtime` |
-| **`worker`** | **Usable** | `pkg/cloud/worker`, `pkg/lifecycle` | Priority queue execution, bulkhead concurrency management, exponential backoff retries, and graceful OS signal shutdown. | Redis and PostgreSQL queue backends supported; distributed Kafka/RabbitMQ adapters planned. | `@krewire/team-cloud` |
-| **`service`** | **Usable** | `pkg/cloud/service`, `pkg/resilience` | Headless REST microservice runtime with correlation request tracing, circuit breakers, and bulkhead limits. | Direct HTTP/REST and SSE supported; gRPC protobuf generation integration is in roadmap. | `@krewire/team-cloud` |
-| **`infra`** | **Experimental** | `pkg/cloud/infra`, `pkg/cloud/deploy` | Versioned provider contract and conformance suite; deterministic digest-bound plans; locked, checksummed state; journaled apply with recovery; drift inspection and explicit reconciliation; `localfile` reference provider passes lifecycle and failure-injection tests. | Only the `localfile` reference provider exists; Docker/systemd/cloud providers, `krew infra` command wiring, and a distributed lock backend are pending. See [promotion gates](./infra.md#9-promotion-gates-experimental--usable). | `@krewire/team-cloud` |
+| **`gateway`** | **Stable** | `web/gateway` | High-throughput reverse proxy ingress routing, token bucket rate limiting, header rewriting, and health check pass-through. | Dynamic service discovery beyond static route tables requires external DNS or consul adapters. | `@krewire/team-runtime` |
+| **`worker`** | **Usable** | `cloud/worker`, `lifecycle` | Priority queue execution, bulkhead concurrency management, exponential backoff retries, and graceful OS signal shutdown. | Redis and PostgreSQL queue backends supported; distributed Kafka/RabbitMQ adapters planned. | `@krewire/team-cloud` |
+| **`service`** | **Usable** | `cloud/service`, `resilience` | Headless REST microservice runtime with correlation request tracing, circuit breakers, and bulkhead limits. | Direct HTTP/REST and SSE supported; gRPC protobuf generation integration is in roadmap. | `@krewire/team-cloud` |
+| **`infra`** | **Experimental** | `cloud/infra`, `cloud/deploy` | Versioned provider contract and conformance suite; deterministic digest-bound plans; locked, checksummed state; journaled apply with recovery; drift inspection and explicit reconciliation; `localfile` reference provider passes lifecycle and failure-injection tests. | Only the `localfile` reference provider exists; Docker/systemd/cloud providers, `krew infra` command wiring, and a distributed lock backend are pending. See [promotion gates](./infra.md#9-promotion-gates-experimental--usable). | `@krewire/team-cloud` |
 
 ---
 
@@ -58,20 +58,20 @@ Declared statuses below are checked against the executable conformance evidence 
 
 A workload's top-level maturity does not imply that every pluggable provider shares the same readiness:
 
-### 3.1 Database & ORM Drivers (`pkg/orm`)
+### 3.1 Database & ORM Drivers (`orm`)
 - **SQLite**: **Stable** (Pure-Go driver, in-memory & file-based, bounded connection pools, zero CGO).
 - **PostgreSQL**: **Stable** (Pure-Go `pgx` engine, SSL/TLS, schema migrations, pool tuning).
 - **MySQL / MariaDB**: **Usable** (Pure-Go driver, standard SQL schema migrations).
 - **MongoDB**: **Usable** (NoSQL document repository driver, BSON serialization).
 - **Elasticsearch**: **Usable** (Search index driver and bulk indexing).
 
-### 3.2 Cache Drivers (`pkg/cache`)
+### 3.2 Cache Drivers (`cache`)
 - **In-Memory**: **Stable** (Thread-safe LRU cache with TTL expiration and zero allocations).
 - **Redis**: **Stable** (Pure-Go RESP protocol client, connection pooling, clustered fallback).
 - **File Cache**: **Stable** (Atomic filesystem cache with SafePath protection).
 - **Memcached**: **Usable** (ASCII/binary protocol driver for legacy infrastructures).
 
-### 3.3 Identity & Security Primitives (`pkg/sec`, `pkg/auth`)
+### 3.3 Identity & Security Primitives (`sec`, `auth`)
 - **Password Hashing (PBKDF2)**: **Stable** (OWASP-recommended iterations, constant-time verification).
 - **Path Traversal Guard (`SafePath`)**: **Stable** (Boundary-confined directory operations).
 - **Security Headers & Middleware**: **Stable** (Automated CSP, HSTS, X-Frame-Options, CSRF, CORS).
@@ -79,7 +79,7 @@ A workload's top-level maturity does not imply that every pluggable provider sha
 - **OIDC / PKCE Federation**: **Usable** (Federated login with public discovery endpoints).
 - **SAML 2.0 Identity**: **Usable** (XML signature verification and assertion parsing).
 
-### 3.4 Background Queue Drivers (`pkg/cloud/worker`)
+### 3.4 Background Queue Drivers (`cloud/worker`)
 - **In-Memory Channel Queue**: **Stable** (Local concurrent goroutine pool with worker limits).
 - **Redis Queue Backend**: **Usable** (Reliable queue via Redis lists and atomic popping).
 - **PostgreSQL Queue Backend**: **Usable** (`SKIP LOCKED` transactional queue driver).
@@ -121,7 +121,7 @@ The end-to-end harness ([`internal/conformance`](../../internal/conformance), [m
 |---|---|---|---|---|---|
 | `site` | Stable | Usable | **passed** (12/12) | [`testdata/site`](../../internal/conformance/testdata/site) | Stable gates not automated. (`probe.notfound` was fixed: `ssg.Site.Handler` now answers unknown paths with 404 and the site's own 404 page.) |
 | `book` | Stable | Usable | **passed** (12/12) | [`testdata/book`](../../internal/conformance/testdata/book) | Stable gates (compatibility, benchmark, production evidence) not automated. |
-| `app` | Stable | Experimental | **partial** (12/12) | [`testdata/app`](../../internal/conformance/testdata/app) | WASM island compilation excluded here (covered by `platform_test.go` and `pkg/runtime/conformance`). |
+| `app` | Stable | Experimental | **partial** (12/12) | [`testdata/app`](../../internal/conformance/testdata/app) | WASM island compilation excluded here (covered by `platform_test.go` and `runtime/conformance`). |
 | `cli` | Stable | Usable | **passed** (10/10, reproducible build) | [`testdata/cli`](../../internal/conformance/testdata/cli) | `tui` integration is external to core. |
 | `worker` | Usable | Experimental | **partial** (10/10) | [`testdata/worker`](../../internal/conformance/testdata/worker) | Redis/PostgreSQL backends need external services; only the in-memory queue is exercised. |
 | `service` | Usable | Usable | **passed** (12/12) | [`testdata/service`](../../internal/conformance/testdata/service) | None. |

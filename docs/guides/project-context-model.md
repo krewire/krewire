@@ -15,7 +15,7 @@ When conflicting instructions or constraints exist across files, resolution foll
 ```text
 Precedence 0: Toolchain & Standard Library (Go compiler, OS primitives, CGO_ENABLED=0)
    ↑
-Precedence 1: Core Foundation & Kernel (pkg/model, pkg/lifecycle, pkg/version, LICENSE)
+Precedence 1: Core Foundation & Kernel (model, lifecycle, version, LICENSE)
    ↑
 Precedence 2: Workspace Root (Root AGENTS.md, go.work, root README.md)
    ↑
@@ -33,7 +33,7 @@ Precedence 5: Active Task Specification (Current GitHub Issue / task prompt)
 
 ---
 
-## 3. Context Schema (`pkg/model/context.go`)
+## 3. Context Schema (`model/context.go`)
 
 The project context is represented canonically by `model.ProjectContext`:
 

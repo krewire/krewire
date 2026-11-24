@@ -1,6 +1,6 @@
 # `.kiw` Rendering and Hydration Conformance Suite
 
-Package `pkg/runtime/conformance` automates conformance testing for the supported `.kiw` language specification and runtime behaviors across the parser, compiler, server-side renderer (SSR/SSG), and browser client-island hydration engine.
+Package `runtime/conformance` automates conformance testing for the supported `.kiw` language specification and runtime behaviors across the parser, compiler, server-side renderer (SSR/SSG), and browser client-island hydration engine.
 
 ---
 
@@ -45,16 +45,16 @@ Package `pkg/runtime/conformance` automates conformance testing for the supporte
 
 Run the full conformance suite locally:
 ```bash
-go test -v ./pkg/runtime/conformance/...
+go test -v ./modules/runtime/conformance/...
 ```
 
 Run with benchmark profiling:
 ```bash
-go test -v -bench=. -benchmem ./pkg/runtime/conformance/...
+go test -v -bench=. -benchmem ./modules/runtime/conformance/...
 ```
 
 Run specific category tests:
 ```bash
-go test -v -run TestConformance_SSR ./pkg/runtime/conformance/...
-go test -v -run TestConformance_Hydration ./pkg/runtime/conformance/...
+go test -v -run TestConformance_SSR ./modules/runtime/conformance/...
+go test -v -run TestConformance_Hydration ./modules/runtime/conformance/...
 ```

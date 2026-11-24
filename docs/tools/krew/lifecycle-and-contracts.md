@@ -128,7 +128,7 @@ Hint: Run 'krew add <package>' to add dependencies, or 'krew add ui/<component>'
 ```
 
 ### 5.3 POSIX-Compatible Exit Codes
-All `krew` subcommands return standard POSIX exit codes defined in `pkg/errs`:
+All `krew` subcommands return standard POSIX exit codes defined in `errs`:
 - `0` (`ExitCodeSuccess`): Operation completed cleanly.
 - `1` (`ExitCodeFailure`): General error, test failure, or build error.
 - `2` (`ExitCodeUsage`): Invalid command flags or missing required arguments.

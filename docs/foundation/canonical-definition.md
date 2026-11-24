@@ -82,11 +82,11 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 
 ### 3.2 Core Monorepo (`Inti / Core`)
 - **Definition**: The repository [`krewire/krewire`](https://github.com/krewire/krewire).
-- **Contents**: Foundational kernel packages (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), modular domain packages (`pkg/*`), the developer CLI driver (`krew`), and official starter blueprints (`templates/`).
+- **Contents**: Foundational kernel packages (`model`, `lifecycle`, `errs`), modular domain packages (`pkg/*`), the developer CLI driver (`krew`), and official starter blueprints (`templates/`).
 - **Licensing**: 100% MIT Open Source forever.
 
 ### 3.3 Framework & Modular Libraries (`Pustaka Modular`)
-- **Definition**: The 32 independent Go packages housed under `krewire/pkg/*` (`web`, `orm`, `cache`, `sec`, `storage`, `ai`, `resilience`, etc.).
+- **Definition**: The 32 independent Go packages housed under `krewire/*` (`web`, `orm`, `cache`, `sec`, `storage`, `ai`, `resilience`, etc.).
 - **Rule**: Krewire is distributed as modular, composable libraries, not an inflexible mega-framework. Projects import only what they need; unreferenced packages add zero bytes and zero runtime cost.
 
 ### 3.4 Toolchain (`Toolchain / Perkakas Pengembang`)
@@ -111,7 +111,8 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 
 | Repository | Scope | License | Posture / Tier | Maturity Level |
 |---|---|---|---|---|
-| `krewire` | Core monorepo (32 domain `pkg/*` packages) | MIT | Open Core Foundation | Production-Ready |
+| `krewire` | Foundational monorepo (37 domain modules) | MIT | Open Core Foundation | Production-Ready |
+| `hub` | Public Port & Adapter repository (3rd-party drivers & adapters) | MIT | Open Core Foundation | Production-Ready |
 | `tui` | Terminal UI framework & ANSI primitives | MIT | Open Core Foundation | Production-Ready |
 | `ui` | Component catalog & design tokens | MIT | Open Core Foundation | Production-Ready |
 | `krewire.github.io` | Community and sponsorship hub | MIT | Open Source Community | Production-Ready |

@@ -59,7 +59,7 @@ Krewire holds five defensible, evidence-backed advantages:
 
 ### 1. One Toolchain for Every Workload (`krew` + `krewire.yaml`)
 - **Advantage**: A developer configures and runs documentation books, marketing sites, fullstack SSR web apps, CLI utilities, background workers, and API reverse proxies using identical commands (`krew dev`, `krew build`, `krew test`).
-- **Evidence**: Verified by `pkg/lifecycle`, `krew`, and the 8-starter scaffolding tests in `scaffold_test.go`.
+- **Evidence**: Verified by `lifecycle`, `krew`, and the 8-starter scaffolding tests in `scaffold_test.go`.
 
 ### 2. Engineered Near-Zero Operational Cost (Sustain)
 - **Advantage**: Whole production workloads consume between 10–30 MB of memory and cold start in sub-milliseconds, allowing multiple production services to run simultaneously on a minimal $5/month cloud VPS without performance degradation.
@@ -67,7 +67,7 @@ Krewire holds five defensible, evidence-backed advantages:
 
 ### 3. Pure-Go Web Component Architecture
 - **Advantage**: Developers build modern, component-driven reactive web applications without touching `package.json`, Node.js, Webpack, or Vite.
-- **Evidence**: The `.kiw` compiler desugars components into native Go templates and WASM islands. 18 conformance tests pass cleanly in `pkg/runtime/conformance/`.
+- **Evidence**: The `.kiw` compiler desugars components into native Go templates and WASM islands. 18 conformance tests pass cleanly in `runtime/conformance/`.
 
 ### 4. Rigid Architectural Layering Invariants (Scalable)
 - **Advantage**: Large codebases are protected from cyclic dependencies and monolithic rot through enforced downward-only layering (`Layer N → Layer < N`).
@@ -75,7 +75,7 @@ Krewire holds five defensible, evidence-backed advantages:
 
 ### 5. Machine-Readable Context Single Source of Truth
 - **Advantage**: Autonomous AI coding agents read authoritative project context, quality gates, and Three Pillars invariants directly from `kiw context --json`, eliminating hallucinated configuration.
-- **Evidence**: Verified by `pkg/model/context.go`, `krew/internal/context/`, and `kiw context --lint`.
+- **Evidence**: Verified by `model/context.go`, `krew/internal/context/`, and `kiw context --lint`.
 
 ---
 

@@ -1,6 +1,6 @@
 # Workload: Technical Book & Docs (`book`)
 
-The `book` workload powers multi-chapter technical documentation, handbooks, API guides, and reference manuals using Krewire's native manuscript compiler (`pkg/book`) and markdown renderer (`pkg/markdown`).
+The `book` workload powers multi-chapter technical documentation, handbooks, API guides, and reference manuals using Krewire's native manuscript compiler (`book`) and markdown renderer (`markdown`).
 
 It produces fast, accessible, offline-capable static documentation sites with automated table of contents, sidebar hierarchies, and client-side modal search — with zero Node.js/npm dependencies.
 
@@ -88,6 +88,6 @@ The compiler generates clean, standalone HTML pages:
 
 ## 5. Alignment with the Three Pillars (3S)
 
-- **Secure (S1)**: Contextual HTML auto-escaping prevents script injection; script-bearing links (`javascript:`) are automatically stripped by `pkg/markdown`.
+- **Secure (S1)**: Contextual HTML auto-escaping prevents script injection; script-bearing links (`javascript:`) are automatically stripped by `markdown`.
 - **Sustainable (S2)**: Requires zero Node.js runtime or complex documentation generators (Docusaurus, VitePress, GitBook); compiles in pure Go under 500ms.
 - **Scalable (S3)**: Transitions smoothly from a standalone handbook into a multi-language developer portal (`site` + `book` hybrid) without restructuring chapter content.

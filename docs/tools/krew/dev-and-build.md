@@ -20,15 +20,15 @@ Serves pre-built static content from `.krewire/build` and injects a lightweight 
 
 ## 2. Compilation Pipelines (`krew build`)
 
-`krew build` automatically detects the active project shape ([`shape.Detect`](../../../krew/internal/shape/shape.go)) and routes execution to the appropriate pipeline:
+`krew build` automatically detects the active project shape ([`shape.Detect`](../../../../krew/core/shape/shape.go)) and routes execution to the appropriate pipeline:
 
 ```text
 krew build
   ├── 1. Run Pre-Build Dependencies (build.depends_on in krewire.yaml)
-  ├── 2. Shape & Invariant Validation (pkg/model)
+  ├── 2. Shape & Invariant Validation (model)
   └── 3. Workload Pipeline Execution:
         ├── site:    SSG Template Compiler -> Markdown -> Minification -> .krewire/build
-        ├── book:    pkg/book Compiler -> Chapter TOC & Search Index -> .krewire/build
+        ├── book:    book Compiler -> Chapter TOC & Search Index -> .krewire/build
         ├── app:     WASM Client Compilation (wasm/ -> client.wasm) + Go Server Binary -> .krewire/build/bin/<name>
         ├── cli:     Static CLI Binary with Embedded Assets -> .krewire/build/bin/<name>
         ├── worker:  Queue Daemon Binary -> .krewire/build/bin/<name>

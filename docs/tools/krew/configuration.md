@@ -1,14 +1,14 @@
 # Configuration Reference — `krewire.yaml` Specification
 
 ## Description
-The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects. The schema is owned by [`krew/internal/config/config.go`](../../../krew/internal/config/config.go) and published as a JSON Schema (see below).
+The `krewire.yaml` file is the Single Source of Truth (SSOT) for configuring project metadata, workload kind, multi-runtime coexistence, port assignments, server settings, custom scripts, and build dependencies across all Krewire projects. The schema is owned by [`krew/internal/config/config.go`](../../../../krew/core/config/config.go) and published as a JSON Schema (see below).
 
 ---
 
 ## JSON Schema and Editor Validation
 
 The canonical JSON Schema (Draft-07) for `krewire.yaml` is
-[`krew/internal/config/krewire.schema.json`](../../../krew/internal/config/krewire.schema.json),
+[`krew/internal/config/krewire.schema.json`](../../../../krew/core/config/krewire.schema.json),
 published at `https://krewire.com/schemas/krewire.json` (its `$id`). It
 documents every key with descriptions, allowed values (`project.kind`, `env`,
 `theme.default`, `auto_assets.js_placement`), defaults, port ranges, and
@@ -229,7 +229,7 @@ scripts:
   test-e2e: "go test -tags=e2e ./..."
 ```
 
-> The `ssg:` block carries only the keys `krew/internal/config` parses: `description`, `layouts`, `components`, `pages`, `assets`, and `auto_assets`. Content collections, asset pipelines, and draft/future toggles exist on `pkg/web/ssg.Config` for programmatic callers; `krew` does not read them from `krewire.yaml`. A file-based site (`pages/`, `layouts/`, `components/`, `public/`) needs no `ssg:` block at all.
+> The `ssg:` block carries only the keys `krew/internal/config` parses: `description`, `layouts`, `components`, `pages`, `assets`, and `auto_assets`. Content collections, asset pipelines, and draft/future toggles exist on `web/ssg.Config` for programmatic callers; `krew` does not read them from `krewire.yaml`. A file-based site (`pages/`, `layouts/`, `components/`, `public/`) needs no `ssg:` block at all.
 
 ---
 
@@ -262,7 +262,7 @@ When `runtime.namespace` is declared (e.g. `namespace: "api"`):
 ## Database (`database:`)
 
 `kiw migrate` reads the database to migrate from the `database:` section. The
-keys follow the same environment overlay an app gets from `pkg/config`
+keys follow the same environment overlay an app gets from `config`
 (`APP_<SECTION>_<KEY>`), so one `.env` serves both:
 
 | Key | Environment override | Default | Meaning |

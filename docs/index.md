@@ -34,21 +34,21 @@ Dedicated guides for all eight unified software workload targets:
 
 ---
 
-## 3. [Domain Packages Reference](./pkg/index.md)
+## 3. [Domain Packages Reference](./modules/index.md)
 Comprehensive technical documentation for all modular libraries:
-- **[Core & Control Plane](./pkg/core/model.md)**: Kernel supervision, declarative models, exit codes, and logging.
-- **[Web & Client Runtime](./pkg/web-runtime/web.md)**: HTTP router, SSG/SSR pipelines, client WASM engine, and UI/TUI toolkits.
-- **[System, Security & Storage](./pkg/system/security-and-auth.md)**: Security defaults, authentication, configuration, validation, and object storage.
-- **[Platform & Support Utilities](./pkg/platform/cloud.md)**: Cloud runners, test harnesses, plugin hub, resilience, and markdown rendering.
+- **[Core & Control Plane](./modules/core/model.md)**: Kernel supervision, declarative models, exit codes, and logging.
+- **[Web & Client Runtime](./modules/web-runtime/web.md)**: HTTP router, SSG/SSR pipelines, client WASM engine, and UI/TUI toolkits.
+- **[System, Security & Storage](./modules/system/security-and-auth.md)**: Security defaults, authentication, configuration, validation, and object storage.
+- **[Platform & Support Utilities](./modules/platform/cloud.md)**: Cloud runners, test harnesses, plugin hub, resilience, and markdown rendering.
 
 ---
 
-## 4. [Developer Tooling & Agent Engine (`krew`)](./krew/index.md)
+## 4. [Developer Tooling & Agent Engine (`krew`)](./tools/krew/index.md)
 The unified developer CLI for scaffolding, building, running, and shipping:
-- [CLI Overview](./krew/index.md)
-- [Command Reference](./krew/commands.md)
-- [Configuration Specification (`krewire.yaml`)](./krew/configuration.md)
-- [Development & Build Pipelines](./krew/dev-and-build.md)
+- [CLI Overview](./tools/krew/index.md)
+- [Command Reference](./tools/krew/commands.md)
+- [Configuration Specification (`krewire.yaml`)](./tools/krew/configuration.md)
+- [Development & Build Pipelines](./tools/krew/dev-and-build.md)
 
 ---
 

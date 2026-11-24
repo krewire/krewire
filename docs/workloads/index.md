@@ -6,15 +6,15 @@ The Krewire framework unifies eight software workload kinds under a single decla
 
 ## 1. The Eight Canonical Kinds
 
-Every project in the Krewire ecosystem declares a primary `kind` in its [`krewire.yaml`](../../pkg/model/project.go) file or relies on deterministic filesystem markers. See the comprehensive [Workload Maturity & Readiness Matrix](./maturity-matrix.md) for evidence-based production statuses.
+Every project in the Krewire ecosystem declares a primary `kind` in its [`krewire.yaml`](../../model/project.go) file or relies on deterministic filesystem markers. See the comprehensive [Workload Maturity & Readiness Matrix](./maturity-matrix.md) for evidence-based production statuses.
 
 | Kind | Target | Primary Packages | Build / Run Behavior |
 |---|---|---|---|
 | [`app`](./app.md) | Fullstack web applications | `web`, `app`, `ui`, `runtime` | Server-Side Rendering (SSR) + Client WebAssembly (WASM) islands |
-| [`cli`](./cli.md) | Standalone command-line tools | `tui`, `term`, `pkg/errs` | Compiles a single standalone CLI binary |
+| [`cli`](./cli.md) | Standalone command-line tools | `tui`, `term`, `errs` | Compiles a single standalone CLI binary |
 | [`site`](./site.md) | Static websites & marketing | `web/ssg`, `markdown` | Static Site Generation (SSG) into `.krewire/build`, local preview with HMR |
 | [`book`](./book.md) | Technical books & documentation | `book`, `markdown` | Compiles `content/` chapters into a static HTML site with TOC and search |
-| [`worker`](./worker.md) | Background workers & queues | `cloud/worker`, `pkg/lifecycle` | Supervised long-running daemon consuming background queues |
+| [`worker`](./worker.md) | Background workers & queues | `cloud/worker`, `lifecycle` | Supervised long-running daemon consuming background queues |
 | [`service`](./service.md) | Backend microservices & APIs | `cloud/service` | High-throughput headless HTTP/REST/RPC microservice |
 | [`gateway`](./gateway.md) | API gateways & reverse proxies | `web/gateway`, `cloud/service/registry` | Proxies requests along a route table, applies middleware, discovers upstreams |
 | [`infra`](./infra.md) | Declarative cloud blueprints | `cloud/infra`, `cloud/deploy` | Evaluates declarative blueprints, outputs plan, provisions cloud state |
@@ -23,7 +23,7 @@ Every project in the Krewire ecosystem declares a primary `kind` in its [`krewir
 
 ## 2. Capability Detection (`shape`)
 
-When executing commands like `krew info` or `krew build`, the CLI uses the `shape` detector ([`shape.Detect`](../../krew/internal/shape/shape.go)):
+When executing commands like `krew info` or `krew build`, the CLI uses the `shape` detector ([`shape.Detect`](../../../krew/core/shape/shape.go)):
 1. **Declarative battery keys:** `worker:`, `service:`, `gateway:`, or `infra:` in `krewire.yaml` selects that capability.
 2. **Pre-init bootstrap:** `go.mod` + `krewire.yaml` + the starter `main.go` (containing `hello, krewire`) and none of `pages/`, `content/`, `cmd/`, `internal/`, `components/`. Detection reports marker `pre-init`; workload commands point at `krew init`.
 3. **Application entry point:** `main.go`, or a `cmd/*` package declaring `func main`.

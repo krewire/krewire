@@ -64,7 +64,7 @@ To eliminate confusion between language best practices and framework requirement
 Every workload can be scaffolded using `krew new <project> --<kind>` or equipped into an existing folder via `krew init --<kind>`.
 
 ### 3.1 Fullstack Web Application (`app`)
-- **Primary Package**: `pkg/web`, `pkg/app`, `pkg/runtime`, `pkg/ui`.
+- **Primary Package**: `web`, `app`, `runtime`, `ui`.
 - **Reference Layout**:
   ```text
   my-app/
@@ -86,7 +86,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 ---
 
 ### 3.2 Command-Line Tool (`cli`)
-- **Primary Package**: `krew`, `tui` (`github.com/krewire/tui`), `pkg/errs`.
+- **Primary Package**: `krew`, `tui` (`github.com/krewire/tui`), `errs`.
 - **Reference Layout**:
   ```text
   my-cli/
@@ -103,7 +103,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 ---
 
 ### 3.3 Static Website (`site`)
-- **Primary Package**: `pkg/web/ssg`, `pkg/markdown`.
+- **Primary Package**: `web/ssg`, `markdown`.
 - **Reference Layout**:
   ```text
   my-site/
@@ -118,7 +118,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 ---
 
 ### 3.4 Documentation & Books (`book`)
-- **Primary Package**: `pkg/book`, `pkg/markdown`.
+- **Primary Package**: `book`, `markdown`.
 - **Reference Layout**:
   ```text
   my-book/
@@ -132,7 +132,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 ---
 
 ### 3.5 Background Queue Worker (`worker`)
-- **Primary Package**: `pkg/cloud/worker`, `pkg/lifecycle`.
+- **Primary Package**: `cloud/worker`, `lifecycle`.
 - **Reference Layout**:
   ```text
   my-worker/
@@ -148,7 +148,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 ---
 
 ### 3.6 Headless Microservice (`service`)
-- **Primary Package**: `pkg/cloud/service`, `pkg/resilience`.
+- **Primary Package**: `cloud/service`, `resilience`.
 - **Reference Layout**:
   ```text
   my-service/
@@ -158,14 +158,14 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
   │   ├── api/              # Route endpoints & request schemas
   │   └── service/          # High-performance business logic
   ```
-- **Idiomatic Pattern**: Keep payloads structured, enforce rate limits and circuit breakers (`pkg/resilience`), and inject correlation IDs into structured logging (`pkg/log`).
+- **Idiomatic Pattern**: Keep payloads structured, enforce rate limits and circuit breakers (`resilience`), and inject correlation IDs into structured logging (`log`).
 - **When to Use**: High-throughput backend services, internal REST APIs, and decoupled domain microservices.
 - **When NOT to Use**: Simple monolithic applications where an `app` workload avoids unnecessary network boundaries.
 
 ---
 
 ### 3.7 API Gateway & Reverse Proxy (`gateway`)
-- **Primary Package**: `pkg/web/gateway`.
+- **Primary Package**: `web/gateway`.
 - **Reference Layout**:
   ```text
   my-gateway/
@@ -178,7 +178,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
 ---
 
 ### 3.8 Declarative Cloud Infrastructure (`infra`)
-- **Primary Package**: `pkg/cloud/infra`, `pkg/cloud/deploy`.
+- **Primary Package**: `cloud/infra`, `cloud/deploy`.
 - **Reference Layout**:
   ```text
   my-infra/
@@ -197,7 +197,7 @@ Every workload can be scaffolded using `krew new <project> --<kind>` or equipped
    - *Guidance*: Start with a Modular Monolith (`app`). Split services only when independent deployment or differing scaling constraints demand it.
 2. **The "God Module" Utility Package**:
    - *Pitfall*: Creating a single `utils` or `common` package with hundreds of unrelated helpers.
-   - *Guidance*: Follow the Single Responsibility Principle. Group code by functional domain (`pkg/file`, `pkg/sec`), not vague groupings.
+   - *Guidance*: Follow the Single Responsibility Principle. Group code by functional domain (`file`, `sec`), not vague groupings.
 3. **Ignoring Context Cancellation**:
    - *Pitfall*: Spawning background goroutines without passing or respecting `ctx.Done()`.
    - *Guidance*: Always propagate `ctx` and listen for cancellation to prevent memory leaks and orphaned database connections.

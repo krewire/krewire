@@ -8,10 +8,10 @@ In accordance with [ADR-E8P9D](../../../internal/docs/adr/ADR-E8P9D-pyramid-arch
 
 ## 1. Architectural Capabilities
 
-- **Declarative Route Table (`pkg/web/gateway`)**: Prefix and exact path routing, method filtering, URL rewrites, and path prefix stripping (`strip_prefix: true`).
+- **Declarative Route Table (`web/gateway`)**: Prefix and exact path routing, method filtering, URL rewrites, and path prefix stripping (`strip_prefix: true`).
 - **Lateral Peer Decoupling**: Sibling platforms never import peer code; all lateral HTTP communication is routed through gateway boundaries.
 - **Defensive Middleware Chain**: Built-in per-route rate limiters (token bucket), CORS policies, timeout contexts, and circuit breakers.
-- **Service Discovery & Load Balancing (`pkg/cloud/service/registry`)**: Resolves service names to healthy endpoints with round-robin balancing and automatic failover.
+- **Service Discovery & Load Balancing (`cloud/service/registry`)**: Resolves service names to healthy endpoints with round-robin balancing and automatic failover.
 - **RFC 7807 Structured Errors**: If an upstream service is unreachable, the gateway responds with standardized Problem Details (`502 Bad Gateway` / `504 Gateway Timeout`) rather than leaking raw socket connection errors.
 - **W3C Distributed Tracing**: Propagates `traceparent` headers across microservices to maintain end-to-end request visibility.
 
@@ -83,7 +83,7 @@ import (
     "net/http"
     "net/url"
     "time"
-    "github.com/krewire/krewire/pkg/web/gateway"
+    "github.com/krewire/krewire/web/gateway"
 )
 
 func main() {

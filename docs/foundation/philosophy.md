@@ -43,35 +43,35 @@ The choice of Go as the primary language across the entire Krewire ecosystem is 
 - **Single-Binary Ownership:** `go:embed` combined with `go build` produces self-contained, dependency-free executables.
 - **Zero Hosting Friction:** Near-zero runtime overhead, minimal memory footprints, and instant cold starts compared to interpreted VM stacks.
 - **Unified Toolchain Quality Gates:** Standard tooling (`gofmt`, `go vet`, `go test`) provides deterministic verification with zero third-party setup.
-- **Full-Stack Type Sharing:** The same Go types and components (`pkg/ui`) drive server-side rendering (SSR), static generation (SSG), and interactive client-side WebAssembly islands (`GOOS=js`) without context switching between TypeScript and Go.
+- **Full-Stack Type Sharing:** The same Go types and components (`ui`) drive server-side rendering (SSR), static generation (SSG), and interactive client-side WebAssembly islands (`GOOS=js`) without context switching between TypeScript and Go.
 
 ### 3. Standard-Library-First (Stdlib-First)
 Where Go's standard library provides a robust capability (`flag`, `log/slog`, `os`, `net/http`, `io/fs`, `html/template`), Krewire builds upon it rather than wrapping or re-implementing it. 
-- `pkg/errs` is 100% stdlib-only.
-- `pkg/model` uses stdlib plus `errs` (no external framework dependency to prevent cyclic references).
+- `errs` is 100% stdlib-only.
+- `model` uses stdlib plus `errs` (no external framework dependency to prevent cyclic references).
 - Custom abstractions exist only where domain logic, type safety, or security defaults require formalization.
 
 ### 4. Declarative Definition vs. Imperative Execution
 Control flow in Krewire separates **what is valid** from **how it runs**:
-- **Declarative Core (`pkg/model`):** Pure data models, invariant validation, scope hierarchies, and business rules. Free of side effects and external dependencies.
-- **Imperative Runtime (`pkg/lifecycle`, `pkg/app`):** Execution engines, dependency injection, supervised processes, and event dispatchers that operate upon declarative models.
+- **Declarative Core (`model`):** Pure data models, invariant validation, scope hierarchies, and business rules. Free of side effects and external dependencies.
+- **Imperative Runtime (`lifecycle`, `app`):** Execution engines, dependency injection, supervised processes, and event dispatchers that operate upon declarative models.
 
 ### 5. Single Source of Truth (SSOT)
 Duplication breeds drift. Across the entire ecosystem:
-- **Configuration SSOT:** [`krewire.yaml`](../../pkg/model/project.go) is the single configuration authority for the project. Ad-hoc or tool-specific configuration formats are prohibited.
+- **Configuration SSOT:** [`krewire.yaml`](../../model/project.go) is the single configuration authority for the project. Ad-hoc or tool-specific configuration formats are prohibited.
 - **Specification SSOT:** Requirements and progress tracking live in GitHub Issues tagged `spec`, eliminating out-of-sync markdown checkboxes.
 
 ### 6. Zero-Cost Abstractions & Modular Batteries
 Importing a base model or kernel must never inflict transitive bloat.
 - Core types are zero-value usable without complex factory ceremonies.
-- **Modular Decoupling:** Batteries (such as cloud storage or worker queues) are decoupled modular packages. Importing `pkg/web` pays only for web primitives, keeping applications ultra-fast and lightweight.
+- **Modular Decoupling:** Batteries (such as cloud storage or worker queues) are decoupled modular packages. Importing `web` pays only for web primitives, keeping applications ultra-fast and lightweight.
 
 ### 7. Progressive Support & Pipeline Scaling
 Projects evolve. A Krewire project starts from a clean pre-init bootstrap layout and progressively equips new workload capabilities (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) via `krew init`. At each stage, the project's configuration and toolchain adapt seamlessly without requiring a rewrite or migration to different frameworks.
 
 ### 8. Local-First & Dogfooding Discipline
 Developers must be able to develop, preview, test, and audit their entire stack locally, offline, and rapidly:
-- The developer CLI (`krew`) dogfoods the ecosystem terminal UI toolkit (`tui`) and error handling (`pkg/errs`).
+- The developer CLI (`krew`) dogfoods the ecosystem terminal UI toolkit (`tui`) and error handling (`errs`).
 - `krew dev` and `krew serve` deliver instantaneous feedback loops via local servers and WebSocket-driven Hot Module Replacement (HMR).
 - Releases are verified locally against the built binary (`bin/krew`) before being published.
 

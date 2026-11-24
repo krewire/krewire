@@ -12,10 +12,10 @@ changes its license.
 ## 1. Dependency
 
 - Require the `github.com/krewire/krewire` version that contains
-  `pkg/toolchain/...` and drop the relative `replace … => ../krewire` before a
+  `toolchain/...` and drop the relative `replace … => ../krewire` before a
   release (#129, ADR-V8M2C).
-- Import only `pkg/toolchain/{contract,projctx,policy,adapter,workflow}` and,
-  in tests, `pkg/toolchain/conformance`. `pkg/` never imports `krew`
+- Import only `toolchain/{contract,projctx,policy,adapter,workflow}` and,
+  in tests, `toolchain/conformance`. Foundational modules never import `krew`
   (`TestPackagesNeverImportTooling`), so the dependency stays one-way.
 
 ## 2. One context implementation
@@ -59,7 +59,7 @@ key from `KREW_APPROVAL_KEY`. The key is never written to any document.
 
 ## 4. Engine boundary
 
-1. In `internal/agent`, wrap the existing ReAct engine (built on `pkg/ai`) in
+1. In `internal/agent`, wrap the existing ReAct engine (built on `ai`) in
    a type that implements `adapter.Engine`:
    - `Initialize`: report `ready: false` and a `reason` when no provider
      credentials are configured. Never fail deterministic commands.
@@ -96,10 +96,10 @@ credentials. Also add a CLI test showing that `krew context --lint`,
 
 ## 6. Core follow-ups
 
-- `pkg/ai/sdlc` keeps its own `TaskBrief` and workflow. During migration it
+- `ai/sdlc` keeps its own `TaskBrief` and workflow. During migration it
   consumes `contract.TaskBrief.ToModel()`; retire it once Krew runs on
-  `pkg/toolchain/workflow`.
-- `cmd/ai` is a development harness for `pkg/ai`, not a user-facing
+  `toolchain/workflow`.
+- `cmd/ai` is a development harness for `ai`, not a user-facing
   executable. Users run `krew chat` and `krew agent`. Remove it or mark it
   internal under #132.
 - `KWC3001` lists the docs that still invoke `kiw`. Fix them under #132.

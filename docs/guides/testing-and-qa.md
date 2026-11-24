@@ -8,7 +8,7 @@ Standards, patterns, test harnesses, and quality gate commands for verifying the
 
 Krewire mandates rigorous, deterministic test coverage across all layers:
 - **Colocated Tests**: Unit tests live directly alongside source files in `*_test.go`.
-- **Zero Third-Party Test Frameworks**: Tests utilize Go's standard `testing` package with optional helpers from `pkg/testing`. No complex assertion DSLs or external runner dependencies.
+- **Zero Third-Party Test Frameworks**: Tests utilize Go's standard `testing` package with optional helpers from `testing`. No complex assertion DSLs or external runner dependencies.
 - **Deterministic & Parallel-Safe**: Tests must not rely on wall-clock timing or external internet connectivity; use `t.Parallel()` wherever state is isolated.
 - **Pure Go Execution**: All tests run under `CGO_ENABLED=0`.
 
@@ -17,18 +17,18 @@ Krewire mandates rigorous, deterministic test coverage across all layers:
 ## 2. Test Suites in the Monorepo
 
 ### A. Layering & Architectural Invariant Tests
-Verified by [`layering_test.go`](../../layering_test.go):
+Verified by [`layering_test.go`](../../conformance/layering_test.go):
 - `TestFoundationLayering`: Asserts that foundation packages (`errs`, `model`, `version`, `env`, `lifecycle`, `log`) import only the standard library and lower-ranked foundation packages.
 - `TestFoundationNamesNoHigherPackage`: Verifies that foundation packages name zero higher-layer packages in string literals.
-- `TestPackagesNeverImportKiw`: Ensures no library in `pkg/` ever imports the developer CLI (`krew`).
-- `TestUIDoesNotImportWeb`: Validates that `pkg/ui` does not import `pkg/web`.
-- `TestSQLiteDriverIsOptIn`: Verifies that only `pkg/orm/sqlite` imports the modernc SQLite driver.
-- `TestWebDoesNotImportORMOrCloud`: Enforces that `pkg/web` never imports `pkg/orm` or `pkg/cloud`.
+- `TestPackagesNeverImportKiw`: Ensures no foundational domain module ever imports the developer CLI (`krew`).
+- `TestUIDoesNotImportWeb`: Validates that `ui` does not import `web`.
+- `TestSQLiteDriverIsOptIn`: Verifies that third-party database drivers (sqlite, postgres, mysql, redis) reside exclusively in `hub/*`.
+- `TestWebDoesNotImportORMOrCloud`: Enforces that `web` never imports `orm` or `cloud`.
 
 ### B. Standard Library Boundary Verification
 Ensures leaf packages maintain a hermetic boundary without external bloat:
-- `pkg/errs/dependency_test.go` (`TestImportBoundary`): Verifies standard library only.
-- `pkg/model/dependency_test.go` (`TestModel_StdlibBoundary`): Verifies standard library + `pkg/errs` only.
+- `errs/dependency_test.go` (`TestImportBoundary`): Verifies standard library only.
+- `model/dependency_test.go` (`TestModel_StdlibBoundary`): Verifies standard library + `errs` only.
 
 ---
 
@@ -44,7 +44,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/krewire/krewire/pkg/web"
+	"github.com/krewire/krewire/web"
 )
 
 func TestRouter_GetRoute(t *testing.T) {
@@ -66,7 +66,7 @@ func TestRouter_GetRoute(t *testing.T) {
 
 ---
 
-## 4. End-to-End Browser Automation (`pkg/testing/browser`)
+## 4. End-to-End Browser Automation (`testing/browser`)
 
 For testing server-side rendered pages and interactive WebAssembly widgets:
 
@@ -75,7 +75,7 @@ package e2e_test
 
 import (
 	"testing"
-	"github.com/krewire/krewire/pkg/testing/browser"
+	"github.com/krewire/krewire/testing/browser"
 )
 
 func TestApp_PageInteraction(t *testing.T) {
@@ -89,7 +89,7 @@ func TestApp_PageInteraction(t *testing.T) {
 
 ---
 
-## 5. In-Memory Filesystem Mocking (`pkg/fs`)
+## 5. In-Memory Filesystem Mocking (`fs`)
 
 Isolate disk operations without leaving temporary files on host runners:
 
@@ -98,7 +98,7 @@ package file_test
 
 import (
 	"testing"
-	"github.com/krewire/krewire/pkg/fs"
+	"github.com/krewire/krewire/fs"
 )
 
 func TestInMemoryFileSystem(t *testing.T) {
@@ -131,12 +131,12 @@ failed. No secrets or model-provider credentials are needed.
 | `gofmt` | `gofmt -l .` | Must print nothing. |
 | `mod-tidy` | `go mod tidy -diff` and `go mod verify` | Module files are tidy; downloaded dependencies match `go.sum`. |
 | `vet` | `go vet ./...` | |
-| `architecture` | `go test -count=1 -v . ./pkg/errs ./pkg/model` | Layering, peer-decoupling, pure-Go and wasm platform guards (`layering_test.go`, `platform_test.go`) plus the stdlib-boundary tests. |
-| `ai-native` | `go test -count=1 -v -run 'TestReferenceEngineConforms\|TestSpawnedEngineProcess\|TestEndToEndFlow' ./pkg/toolchain/{fakeengine,adapter,workflow}` | AI-native criterion: the toolchain contract conformance suite against the deterministic reference engine in-process, over stdio and as a spawned process, plus the end-to-end workflow, with `KREW_ENGINE` and model API keys empty. |
+| `architecture` | `go test -count=1 -v . ./modules/errs ./modules/model` | Layering, peer-decoupling, pure-Go and wasm platform guards (`layering_test.go`, `platform_test.go`) plus the stdlib-boundary tests. |
+| `ai-native` | `go test -count=1 -v -run 'TestReferenceEngineConforms\|TestSpawnedEngineProcess\|TestEndToEndFlow' ./modules/toolchain/{fakeengine,adapter,workflow}` | AI-native criterion: the toolchain contract conformance suite against the deterministic reference engine in-process, over stdio and as a spawned process, plus the end-to-end workflow, with `KREW_ENGINE` and model API keys empty. |
 | `test (min)`, `test (stable)` | `CGO_ENABLED=0 go test -count=1 ./...` | `min` = the `go` directive in `go.mod` (canonical minimum, currently 1.27.1); `stable` = latest Go release. |
 | `race` | `CGO_ENABLED=1 go test -race -count=1 ./...` | The race detector needs cgo; this is the only gate that enables it. No package is excluded. |
 | `build-purego` | `CGO_ENABLED=0 go build ./...` | Clean-checkout build: `GOFLAGS=-mod=readonly`, `GOWORK=off`, `GOTOOLCHAIN=local`. |
-| `build-wasm` | `GOOS=js GOARCH=wasm CGO_ENABLED=0 go build -trimpath ./pkg/runtime/...` | Dedicated WebAssembly target check. |
+| `build-wasm` | `GOOS=js GOARCH=wasm CGO_ENABLED=0 go build -trimpath ./modules/runtime/...` | Dedicated WebAssembly target check. |
 | `release-snapshot` | `.github/scripts/build-release.sh v0.0.0-ci dev <dir>` twice | Every release target builds, two builds are bit-for-bit identical, and `ai --version` / `--help` work. |
 | `ci-ok` | — | Aggregate: succeeds only if every gate above succeeded. |
 
@@ -150,11 +150,11 @@ Run the same gates locally before pushing:
 gofmt -l .                                   # must print nothing
 go mod tidy -diff && go mod verify
 go vet ./...
-go test -count=1 -v . ./pkg/errs ./pkg/model # architecture guards
+go test -count=1 -v . ./modules/errs ./modules/model # architecture guards
 CGO_ENABLED=0 go test ./...
 go test -race ./...                          # needs cgo
 CGO_ENABLED=0 go build ./...
-GOOS=js GOARCH=wasm CGO_ENABLED=0 go build ./pkg/runtime/...
+GOOS=js GOARCH=wasm CGO_ENABLED=0 go build ./modules/runtime/...
 ```
 
 Only deterministic command results satisfy these checks; an agent reporting

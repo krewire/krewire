@@ -17,9 +17,9 @@ Layer 4: Platform Engines & Standalone Products
    ↓
 Layer 3: Developer Driver & CLI (krew)
    ↓
-Layer 2: UI Foundation (kui / .kiw components) & Domain Libraries (pkg/*)
+Layer 2: UI Foundation (ui / .kiw components), Hub Adapters & Domain Modules
    ↓
-Layer 1: Core Foundation & Kernel (pkg/model, pkg/errs, pkg/version, pkg/lifecycle)
+Layer 1: Core Foundation & Kernel (model, errs, version, lifecycle)
    ↓
 Layer 0: Go Standard Library & OS Primitives
 ```
@@ -33,7 +33,7 @@ A critical architectural distinction is maintained between **compile-time depend
 ### Compile-Time Dependencies (Go Module Imports)
 - **Strict Downward-Only**: A higher layer may import a lower layer (`Layer N → Layer < N`). Lower layers must **never** import higher layers.
 - **Zero Peer Coupling (Lateral Independence)**: Lateral Layer 4 and 5 platforms (`cloud`, `auth`, `krew`, `dash`) are lateral peers. They **never** import each other's Go packages or private source trees directly.
-- **Tooling Isolation Guard**: Domain libraries (`pkg/*`) must never import the CLI tool (`krew`).
+- **Tooling Isolation Guard**: Domain modules must never import the CLI tool (`krew`).
 
 ### Runtime / Service Integrations (Decoupled Protocols)
 - **Horizontal Services**: `cloud` and `auth` are horizontal platform capabilities. Products (`dash` or third-party applications) integrate with them over standard decoupled interfaces:

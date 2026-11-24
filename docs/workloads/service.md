@@ -6,9 +6,9 @@ The `service` workload targets headless backend microservices, RPC endpoints, an
 
 ## 1. Key Capabilities
 
-- **High-Throughput HTTP Routing (`pkg/web`)**: Lightweight standard-library-aligned router with route groups and JSON serialization.
-- **Observability & Tracing (`pkg/web`, `pkg/log`)**: Automatic propagation of W3C `traceparent` headers, request IDs, and structured logging.
-- **Service Resilience (`pkg/resilience`)**: Integrated rate limiting, bulkheads, and circuit breakers preventing cascading service failures.
+- **High-Throughput HTTP Routing (`web`)**: Lightweight standard-library-aligned router with route groups and JSON serialization.
+- **Observability & Tracing (`web`, `log`)**: Automatic propagation of W3C `traceparent` headers, request IDs, and structured logging.
+- **Service Resilience (`resilience`)**: Integrated rate limiting, bulkheads, and circuit breakers preventing cascading service failures.
 - **Health Check Endpoints**: Standardized liveness (`/healthz`) and readiness (`/readyz`) probe endpoints for container orchestrators.
 
 ---
@@ -59,7 +59,7 @@ package handler
 
 import (
 	"net/http"
-	"github.com/krewire/krewire/pkg/web"
+	"github.com/krewire/krewire/web"
 )
 
 func HealthCheck(c *web.Context) error {
@@ -83,9 +83,9 @@ import (
 	"time"
 
 	"github.com/krewire/krewire/internal/handler"
-	"github.com/krewire/krewire/pkg/env"
-	"github.com/krewire/krewire/pkg/log"
-	"github.com/krewire/krewire/pkg/web"
+	"github.com/krewire/krewire/env"
+	"github.com/krewire/krewire/log"
+	"github.com/krewire/krewire/web"
 )
 
 func main() {
@@ -146,5 +146,5 @@ krew test
 ## Typed contracts
 
 Declare the service API as a typed, versioned contract with
-[`pkg/apicontract`](../pkg/apicontract.md): server bindings, the Go client,
+[`apicontract`](../modules/apicontract.md): server bindings, the Go client,
 OpenAPI 3.1, gateway routes, and the CI compatibility gate all derive from it.

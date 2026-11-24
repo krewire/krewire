@@ -159,7 +159,7 @@ krew make doc architecture
 ```
 
 ### `kiw migrate <up [n] | down [n] | redo | status | create <name>>`
-Applies the SQL files `krew make migration` writes (`migrations/<timestamp>_<name>.sql`, with `-- +up` and `-- +down` sections) using [`pkg/orm/migrate`](../../pkg/orm.md#migrations-pkgormmigrate).
+Applies the SQL files `krew make migration` writes (`migrations/<timestamp>_<name>.sql`, with `-- +up` and `-- +down` sections) using [`orm/migrate`](../../modules/orm.md#migrations-pkgormmigrate).
 ```bash
 kiw migrate create create_users   # same file as krew make migration
 kiw migrate up                    # apply every pending migration
@@ -169,12 +169,12 @@ kiw migrate down                  # roll back the last migration (down 3: the la
 kiw migrate redo                  # roll back the last migration and apply it again
 ```
 - **Database**: `--dsn`, `--driver`, and `--dir` win over `APP_DATABASE_DSN`, `APP_DATABASE_DRIVER`, and `APP_DATABASE_MIGRATIONS` (`.env` is loaded), which win over the [`database:` section](./configuration.md#database-database) of `krewire.yaml`. The driver defaults to `sqlite` and the directory to `migrations`; a relative SQLite path is resolved from the project root.
-- **Drivers**: `krew` links only the pure-Go SQLite driver ([`pkg/orm/sqlite`](../../pkg/orm.md#sqlite-driver-pkgormsqlite)). For PostgreSQL, import a driver in your app and call `migrate.Up` from it.
+- **Drivers**: `krew` links only the pure-Go SQLite driver ([`orm/sqlite`](../../modules/orm.md#sqlite-driver-pkgormsqlite)). For PostgreSQL, import a driver in your app and call `migrate.Up` from it.
 - **Safety**: each migration runs in a transaction with its `schema_migrations` row; concurrent runners wait for one another (`--lock-timeout`, default 30s); an applied file that was edited stops `up` and `down`, and `status` exits 1 when an applied file was edited (`modified`) or deleted (`missing`).
 
 ### `kiw seed [--class <name>] [--dsn <dsn>] [--driver <driver>] [--dir <dir>]`
 Alias: `kiw db:seed`
-Seeds the database with records via Go seeders and model factories using [`pkg/orm/seeder`](../../pkg/orm.md#seeder--model-factory-engine-pkgormseeder).
+Seeds the database with records via Go seeders and model factories using [`orm/seeder`](../../modules/orm.md#seeder--model-factory-engine-pkgormseeder).
 ```bash
 kiw seed                       # runs DatabaseSeeder (default)
 kiw seed --class UserSeeder    # runs a specific seeder class
@@ -185,11 +185,11 @@ kiw seed --dsn test.db         # override target database DSN
 - **Directory**: Resolves from `seeds/` or `database/seeds/` (overridable via `database.seeds` in `krewire.yaml` or `--dir`).
 
 ### `kiw pkg <init <name> | pack [dir] | add <src> | list | export <comp|dir>>`
-Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/pkg/`, and automated style injection with native Go packaging.
+Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/`, and automated style injection with native Go packaging.
 ```bash
 kiw pkg init @acme/ui             # Scaffolds standalone package with kiw.pkg.json
 kiw pkg pack ./my-kit              # Packs package into .kpkg distributable archive
-kiw pkg add ./dist/ui-1.0.0.kpkg   # Installs package into ./.krewire/pkg/
+kiw pkg add ./dist/ui-1.0.0.kpkg   # Installs package into ./.krewire/
 kiw pkg list                       # Lists installed component packages
 kiw pkg export Card                # Validates and exports self-contained component
 ```
@@ -397,7 +397,7 @@ kiw gateway --routes "/api/auth=auth-service,/api/pay=https://payment.internal"
 **Gateway Features:**
 - Reads route rules and timeouts directly from `gateway:` in `krewire.yaml`.
 - Propagates W3C `traceparent` headers and correlation IDs across upstream services.
-- Integrates with `pkg/cloud/service/registry` for dynamic service resolution.
+- Integrates with `cloud/service/registry` for dynamic service resolution.
 
 ### `kiw mcp`
 Starts a native Model Context Protocol (MCP) server for AI coding agents (Antigravity, Cursor, Claude Desktop, OpenCode). Exposes project metadata, routes, runtime metrics, health probes, and scaffolding tools directly to agents over stdio or HTTP/SSE.

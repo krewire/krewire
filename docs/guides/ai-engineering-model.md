@@ -37,7 +37,7 @@ The Krewire AI engineering battery divides responsibilities strictly across thre
                                     │ guided by
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│                KREWIRE BOOST (templates/boost, pkg/boost)              │
+│                KREWIRE BOOST (templates/boost, boost)              │
 │               Multi-Agent Blueprint & Constitution                     │
 │  • 21 Specialized persona definitions (planner, builder, tester, etc.) │
 │  • Architectural conventions & safety constitutions (AGENTS.md)        │
@@ -158,8 +158,8 @@ An agent's self-reported claim of success is never considered proof of correctne
   • `CGO_ENABLED=0 go build ./...` ──► Passed (pure-Go binary compiled)
 - **Commits**: `cc6ea95` feat(kiw): establish canonical agent context (ref #108)
 - **Files Modified**:
-  • [context.go](file:///home/krewire/workspace/krewire/krewire/pkg/model/context.go)
-  • [loader.go](file:///home/krewire/workspace/krewire/github.com/krewire/krew/internal/context/loader.go)
+  • [context.go](file:///home/krewire/workspace/krewire/krewire/model/context.go)
+  • [loader.go](file:///home/krewire/workspace/krewire/krew/core/context/loader.go)
 ```
 
 ---
@@ -168,7 +168,7 @@ An agent's self-reported claim of success is never considered proof of correctne
 
 Krewire projects are never dependent on proprietary AI providers:
 - Removing or disabling Boost (`AGENTS.md`, `.agents/`) has zero impact on application runtime.
-- The `krew` devtool CLI and all 36 modular libraries (`pkg/*`) compile, run, test, and deploy identically with or without AI agents.
+- The `krew` devtool CLI and all 37 modular domain modules compile, run, test, and deploy identically with or without AI agents.
 - Developers can swap agent engines (Krew, Claude Code, Cursor, Copilot, OpenCode) seamlessly because all agents consume the same open standard (`krew context --json`).
 
 ---

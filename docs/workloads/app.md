@@ -7,23 +7,23 @@ The `app` workload targets fullstack, dynamic web applications that combine serv
 ## 1. Architecture
 
 An `app` project leverages:
-- **`pkg/web`**: Fast HTTP router with middleware pipeline (CORS, CSRF, security headers, compression).
-- **`pkg/app`**: Dependency injection container for assembling database connections, services, and handlers.
-- **`pkg/ui`**: Shared UI component library written in Go.
-- **`pkg/runtime`**: Client-side WebAssembly runtime (`GOOS=js GOARCH=wasm`) providing Virtual DOM (VDOM) and interactive widget islands.
+- **`web`**: Fast HTTP router with middleware pipeline (CORS, CSRF, security headers, compression).
+- **`app`**: Dependency injection container for assembling database connections, services, and handlers.
+- **`ui`**: Shared UI component library written in Go.
+- **`runtime`**: Client-side WebAssembly runtime (`GOOS=js GOARCH=wasm`) providing Virtual DOM (VDOM) and interactive widget islands.
 
 ```text
 Browser Client
   ├── HTML / SSR from server
-  └── WebAssembly Island (pkg/runtime: VDOM + reactive widgets)
+  └── WebAssembly Island (runtime: VDOM + reactive widgets)
        ▲
        │ HTTP / JSON API / WebSocket
        ▼
 Server (Go Binary)
-  ├── pkg/web (Router, Middleware, Gateway)
-  ├── pkg/app (DI Container, Service Assembly)
-  ├── pkg/sec (Security headers, CSRF, PII redaction)
-  └── pkg/storage (Database, Object Storage)
+  ├── web (Router, Middleware, Gateway)
+  ├── app (DI Container, Service Assembly)
+  ├── sec (Security headers, CSRF, PII redaction)
+  └── storage (Database, Object Storage)
 ```
 
 ---

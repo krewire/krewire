@@ -47,23 +47,23 @@ integration.
    provider. This is enforced by the catalog invariant
    (`requires_engine` ⇔ `agentic`) and by tests that run discovery,
    verification, and reporting with no engine at all.
-4. **One public contract in the open core.** `pkg/toolchain/contract` defines
+4. **One public contract in the open core.** `toolchain/contract` defines
    versioned Go types and generated JSON Schemas (`toolchain.krewire.dev/v1`,
    contract SemVer `1.0.0`) for ProjectContext, TaskBrief, Plan, Policy,
    ApprovalRecord, ExecutionRecord, EvidenceReport, and CommandCatalog, plus
    a stable numeric error model.
-5. **One context implementation.** `pkg/toolchain/projctx` derives the context
+5. **One context implementation.** `toolchain/projctx` derives the context
    from source-of-truth files (go.mod, version.go, krewire.yaml, AGENTS.md,
    Go sources, executable guard tests, ADRs) with per-fact provenance,
    deterministic output, secret redaction, and stable `KWC` lint codes. Krew
    consumes it instead of maintaining its own loader.
 6. **Engines reason; the toolchain acts.** The engine boundary is the adapter
-   protocol (`pkg/toolchain/adapter`): JSON-RPC 2.0 over stdio with methods
+   protocol (`toolchain/adapter`): JSON-RPC 2.0 over stdio with methods
    `initialize`, `plan`, `implement`, `review`, `shutdown`, and
    `$/cancelRequest`, per-request `meta.timeout_ms`, and contract error codes.
    Engines only *propose* tool calls. The toolchain authorizes each call
-   (`pkg/toolchain/policy`: scope, prohibited paths, destructive-command
-   guard, network policy, HMAC approvals from `pkg/sec.ApprovalSignal`),
+   (`toolchain/policy`: scope, prohibited paths, destructive-command
+   guard, network policy, HMAC approvals from `sec.ApprovalSignal`),
    executes it, runs verification gates, and writes the evidence report.
 7. **One evidence model.** `EvidenceReport` keeps raw deterministic gate
    outcomes (`model.VerificationEvidence`, ledger-chained) apart from engine
@@ -73,8 +73,8 @@ integration.
 8. **Licensing boundary unchanged.** The Krew engine stays proprietary in
    `krewire/krew`. Integration requires no repository merge and no license
    change; third-party engines integrate the same way and prove it with the
-   public conformance suite (`pkg/toolchain/conformance`) and the reference
-   engine (`pkg/toolchain/fakeengine`).
+   public conformance suite (`toolchain/conformance`) and the reference
+   engine (`toolchain/fakeengine`).
 
 ## Consequences
 
@@ -105,4 +105,4 @@ integration.
 
 - Spec: [AI-native toolchain contract](../tools/krew/ai-native-contract.md)
 - Integration: [Krew engine integration note](../tools/krew/krew-integration.md)
-- Code: `pkg/toolchain/{contract,projctx,policy,adapter,workflow,fakeengine,conformance}`
+- Code: `toolchain/{contract,projctx,policy,adapter,workflow,fakeengine,conformance}`

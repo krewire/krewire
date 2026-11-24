@@ -19,7 +19,7 @@ Security in Krewire is an end-to-end, reproducible operational discipline rather
 
 ## 2. Threat Models by Canonical Workload
 
-Each canonical starter kind in Krewire (`pkg/model.AllKinds`) operates under a distinct threat model and attack surface:
+Each canonical starter kind in Krewire (`model.AllKinds`) operates under a distinct threat model and attack surface:
 
 | Workload Kind | Primary Attack Surface & Threat Vectors | Critical Defenses |
 |---|---|---|
@@ -45,7 +45,7 @@ Security assurance is divided across three distinct ownership layers:
 │ Layer                    │ Responsibilities                            │
 ├──────────────────────────┼─────────────────────────────────────────────┤
 │ Framework Defaults       │ • Embedded security headers (nosniff, DENY) │
-│ (Zero-Config / pkg/*)    │ • Automatic CSRF protection                 │
+│ (Zero-Config / Core)     │ • Automatic CSRF protection                 │
 │                          │ • Path traversal defense (SafePath)         │
 │                          │ • SSRF protection (SafeHTTPClient)          │
 │                          │ • Cryptographic password hashing (PBKDF2)   │

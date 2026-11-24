@@ -16,7 +16,7 @@ Every workload has one maintained fixture under [`internal/conformance/testdata/
 | Build | `build` | `CGO_ENABLED=0 go build -trimpath`; the binary's SHA-256 is recorded. |
 | Validate config | `validate` | `fixture check` loads `krewire.yaml` through the framework. |
 | Compile / run | `compile`, `state`, `run`, `reproducible` | Workload-specific: SSG output, book output, infra state round-trip, CLI command and bit-for-bit reproducible rebuild. |
-| Infra lifecycle | `plan`, `apply`, `drift` | `pkg/cloud/infra` engine with the `localfile` provider: deterministic plan, approval-gated apply (unapproved apply must be refused), no-op re-plan, drift classification without mutation, reconcile to in-sync. |
+| Infra lifecycle | `plan`, `apply`, `drift` | `cloud/infra` engine with the `localfile` provider: deterministic plan, approval-gated apply (unapproved apply must be refused), no-op re-plan, drift classification without mutation, reconcile to in-sync. |
 | Start | `start` | Process starts and prints `READY`. |
 | Representative behaviour | `probe.*` | HTTP probes (pages, APIs, proxying, health), worker job processing and retry, provider lifecycle. |
 | Graceful shutdown | `shutdown` | `SIGINT` → exit 0 and `STOPPED` within 15 s. |
@@ -56,12 +56,12 @@ Fixtures run in parallel (`min(4, NumCPU)`) with a per-workload timeout (default
 - `ai_workflow`: the integrated AI-native workflow qualification, reported **separately**;
 - `workload_qualification` and the combined `release_readiness` verdict.
 
-Each gate is a [`model.VerificationEvidence`](../../pkg/model/evidence.go) (ID, type, command, status, exit code, bounded output, duration, and an evidence hash bound to the commit), evaluated with `model.EvaluateTaskVerification`. The gates therefore drop directly into the AI-native toolchain `EvidenceReport.verification.gates` defined by #131/#140 without conversion.
+Each gate is a [`model.VerificationEvidence`](../../model/evidence.go) (ID, type, command, status, exit code, bounded output, duration, and an evidence hash bound to the commit), evaluated with `model.EvaluateTaskVerification`. The gates therefore drop directly into the AI-native toolchain `EvidenceReport.verification.gates` defined by #131/#140 without conversion.
 
 ### Integration points
 
-- **AI-native workflow (#131/#140).** The harness runs the deterministic reference engine (`pkg/toolchain/fakeengine`) through `workflow.Run` — the entrypoint `krew` uses — in-process and over the stdio adapter protocol, with real `gofmt`/`go test` gates and no LLM credentials, and attaches the verified run's `EvidenceReport` as `ai_workflow.evidence_report`. Failure injection is part of the gate set: an engine that claims a failed test gate passed must end `verification_failed` with the claim stripped, and a denied plan approval must end `denied` with nothing executed or written. `ai_workflow` is tracked in `baseline.json` like a workload, so a regression there fails the gate.
-- **Workload list and probes (#139).** The harness keeps no workload list of its own: `Workloads` is derived from `pkg/observe.Workloads` (reports follow that order) and the HTTP probe paths come from `observe.ProfileFor`.
+- **AI-native workflow (#131/#140).** The harness runs the deterministic reference engine (`toolchain/fakeengine`) through `workflow.Run` — the entrypoint `krew` uses — in-process and over the stdio adapter protocol, with real `gofmt`/`go test` gates and no LLM credentials, and attaches the verified run's `EvidenceReport` as `ai_workflow.evidence_report`. Failure injection is part of the gate set: an engine that claims a failed test gate passed must end `verification_failed` with the claim stripped, and a denied plan approval must end `denied` with nothing executed or written. `ai_workflow` is tracked in `baseline.json` like a workload, so a regression there fails the gate.
+- **Workload list and probes (#139).** The harness keeps no workload list of its own: `Workloads` is derived from `observe.Workloads` (reports follow that order) and the HTTP probe paths come from `observe.ProfileFor`.
 
 ---
 

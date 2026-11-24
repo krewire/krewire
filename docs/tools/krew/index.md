@@ -12,10 +12,10 @@ Rather than juggling fragmented bash scripts, npm build runners, webpack/vite co
 krew <command> [flags]
 ```
 
-`krew` dogfoods the ecosystem's Terminal UI toolkit ([`tui`](https://github.com/krewire/tui)), declarative models ([`pkg/model`](../../pkg/core/model.md)), and supervisor lifecycle standards ([`pkg/lifecycle`](../../pkg/lifecycle.md)).
+`krew` dogfoods the ecosystem's Terminal UI toolkit ([`tui`](https://github.com/krewire/tui)), declarative models ([`model`](../../modules/core/model.md)), and supervisor lifecycle standards ([`lifecycle`](../../modules/lifecycle.md)).
 
 ```text
-Go Stdlib ──► pkg/* ──► krew (Layer 3) ──► krewire.yaml ──► 8 Workload Runtimes
+Go Stdlib ──► Krewire Modules ──► krew (Layer 3) ──► krewire.yaml ──► 8 Workload Runtimes
 ```
 
 ---

@@ -27,13 +27,13 @@ Every Krewire project evolves along an additive continuum. Complexity is equippe
 [P0: Static Content]      Marketing site, documentation manual (site, book)
         │
         ▼ (add interactivity)
-[P1: Islands & WASM]      Server-rendered pages with WebAssembly widgets (pkg/runtime)
+[P1: Islands & WASM]      Server-rendered pages with WebAssembly widgets (runtime)
         │
         ▼ (add persistence & sessions)
 [P2: Web Monolith]        Fullstack application, relational database (app)
         │
         ▼ (structure domain boundaries)
-[P3: Modular Monolith]    Single binary, decoupled packages (pkg/model scope levels)
+[P3: Modular Monolith]    Single binary, decoupled packages (model scope levels)
         │
         ▼ (offload heavy jobs)
 [P4: Monolith + Worker]   Background job queues, async task execution (worker)
@@ -72,7 +72,7 @@ Premature microservice decomposition introduces severe distributed systems overh
 - **Migration Steps**:
   1. Update `krewire.yaml` to configure server port.
   2. Add `server:` block specifying HTTP port.
-  3. Create standard Go entrypoint (`main.go`) importing `pkg/web` and `pkg/app`.
+  3. Create standard Go entrypoint (`main.go`) importing `web` and `app`.
   4. Move existing `.kiw` static pages into `web/pages/`.
 - **Breaking Changes**: Zero. Existing `.kiw` component syntax and Pop-Brutalist styles remain 100% compatible.
 
@@ -84,7 +84,7 @@ Premature microservice decomposition introduces severe distributed systems overh
   1. In the existing project, create a `worker` entrypoint under `cmd/worker/main.go` or sub-package `worker/`.
   2. Equip worker boilerplate: `krew init --worker` in the worker directory.
   3. Share common domain entities and database models (`internal/domain/`).
-  4. Web handlers push job payloads to Redis or PostgreSQL queue (`pkg/cloud/worker`); the worker daemon consumes them asynchronously.
+  4. Web handlers push job payloads to Redis or PostgreSQL queue (`cloud/worker`); the worker daemon consumes them asynchronously.
 - **Rollback Strategy**: If worker deployment fails, background tasks can temporarily run in-process using Go goroutines via `worker.NewMemoryQueue()`.
 
 ---
@@ -92,10 +92,10 @@ Premature microservice decomposition introduces severe distributed systems overh
 ### 4.3 Transition Path 3: Monolith $\rightarrow$ Headless Microservice Split (`app` $\rightarrow$ `app + service`)
 - **Use Case**: Extracting a specialized subsystem (e.g. billing engine) into an independent service.
 - **Migration Steps**:
-  1. Define clean request/response schemas and repository interfaces in `pkg/model`.
+  1. Define clean request/response schemas and repository interfaces in `model`.
   2. Scaffold a new headless service: `krew new billing-service --service`.
   3. Move domain logic into the new service.
-  4. Replace internal monolithic function calls in `app` with resilient HTTP/JSON RPC calls using `pkg/resilience` (circuit breaker and exponential backoff).
+  4. Replace internal monolithic function calls in `app` with resilient HTTP/JSON RPC calls using `resilience` (circuit breaker and exponential backoff).
 - **Rollback Strategy**: Maintain domain interface compatibility so the service can be re-embedded as a monolithic Go package if network overhead exceeds performance gains.
 
 ---
@@ -114,7 +114,7 @@ Premature microservice decomposition introduces severe distributed systems overh
          - path: "/api/v1/billing/*"
            upstream: "http://127.0.0.1:8082"
      ```
-  3. Enable rate limiting and security headers in `pkg/web/gateway`.
+  3. Enable rate limiting and security headers in `web/gateway`.
 - **Breaking Changes**: External clients point exclusively to port 8080; internal service ports are bound to loopback (`127.0.0.1`) and shielded by firewall.
 
 ---
@@ -124,7 +124,7 @@ Premature microservice decomposition introduces severe distributed systems overh
 - **Migration Steps**:
   1. In root directory, initialize workspace: `kiw ws init` or `go work init`.
   2. Add member modules: `go work use ./app ./worker ./service ./gateway`.
-  3. Edits in shared libraries (`pkg/*`) take effect instantly across all sibling services.
+  3. Edits in shared domain modules take effect instantly across all sibling services.
 
 ---
 

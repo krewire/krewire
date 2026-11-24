@@ -1,6 +1,6 @@
 # Getting Started with Krewire Core Monorepo
 
-This guide helps developers get up and running with the **Krewire core monorepo** (`github.com/krewire/krewire`), containing all domain libraries (`pkg/`), the developer CLI (`krew`), and templates (`templates/`).
+This guide helps developers get up and running with the **Krewire core monorepo** (`github.com/krewire/krewire`), containing 37 domain modules without root `go.mod`, 100% Go Standard Library, CGO-free, and autonomous AI engine.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ This guide helps developers get up and running with the **Krewire core monorepo*
 
 3. **Verify Go Modules**:
    ```bash
-   go mod tidy
+   go work sync
    ```
 
 ## Running the Automated Test Suite
@@ -42,8 +42,8 @@ go test ./...
 For package-specific testing:
 
 ```bash
-go test -v ./pkg/web/...
-go test -v ./pkg/model/...
+go test -v ./web/...
+go test -v ./model/...
 ```
 
 ## First-Project Quickstart (Zero to Shipped in 60 Seconds)
@@ -100,7 +100,7 @@ HTTP server listening on http://127.0.0.1:8080
 `krew serve` previews a finished `krew build`. Run `krew new` without arguments to
 be asked for the name and kind, or `krew init` to set up an existing directory.
 Add ready-made UI components with `krew add ui/<name>` (browse with `krew ui list`).
-See the [command reference](krew/commands.md).
+See the [command reference](tools/krew/commands.md).
 
 ### 6. Troubleshooting & FAQ
 - **Error: `kiw: command not found`**: Ensure `$(go env GOPATH)/bin` or `./bin` is added to your `$PATH`.

@@ -1,13 +1,13 @@
 # `book` — Markdown Content Compiler
 
-`github.com/krewire/krewire/pkg/book` assembles an ordered Markdown content tree
+`github.com/krewire/krewire/book` assembles an ordered Markdown content tree
 into a book-shaped static website: chapter pages, sidebar navigation, a table of
 contents, previous/next links, a client-side search index, and a versioned
 stylesheet.
 
 It is the engine behind the `book` workload kind and depends only on
-`pkg/markdown`, `pkg/config`, and the standard library — never on `pkg/web` or
-`pkg/web/ssg`.
+`markdown`, `config`, and the standard library — never on `web` or
+`web/ssg`.
 
 ## Quick start
 
@@ -39,5 +39,5 @@ _, err = book.Build(book.Config{
 
 ## Documentation
 
-- [Package reference](../../docs/pkg/book.md)
+- [Package reference](../../docs/modules/book.md)
 - [Book workload guide](../../docs/workloads/book.md)

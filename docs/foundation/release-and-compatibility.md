@@ -7,14 +7,14 @@ This specification documents the canonical release procedure, semantic compatibi
 ## 1. Canonical Version Single Source of Truth (SSOT)
 
 The definitive, single source of truth for the core ecosystem version is declared in:
-- [`pkg/version/version.go`](../../pkg/version/version.go) via `version.CurrentVersion = MustParseVersion("0.2.0")`.
+- [`version/version.go`](../../version/version.go) via `version.CurrentVersion = MustParseVersion("0.2.0")`.
 
 Executables shipped by this module (currently `cmd/ai`) report their identity through `version.Build()`. The release pipeline stamps the exact release version, source commit, build date, and channel at link time; unstamped local builds fall back to `CurrentVersion` and the VCS metadata embedded by `-buildvcs`:
 ```bash
 go build -trimpath -ldflags="-s -w -buildid= \
-  -X github.com/krewire/krewire/pkg/version.buildVersion=v0.2.0 \
-  -X github.com/krewire/krewire/pkg/version.buildCommit=$(git rev-parse HEAD) \
-  -X github.com/krewire/krewire/pkg/version.buildChannel=stable" ./cmd/ai
+  -X github.com/krewire/krewire/version.buildVersion=v0.2.0 \
+  -X github.com/krewire/krewire/version.buildCommit=$(git rev-parse HEAD) \
+  -X github.com/krewire/krewire/version.buildChannel=stable" ./cmd/ai
 ai --version   # ai v0.2.0 (channel stable, commit <sha>, built <date>, go1.27.1, linux/amd64)
 ```
 The `krew` toolchain is built and versioned in its own repository (`krewire/krew`).
@@ -80,7 +80,7 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
    *Must exit with code 0.*
 3. **Layering & Invariant Gate**:
    ```bash
-   go test -count=1 -v . ./pkg/errs ./pkg/model
+   go test -count=1 -v . ./modules/errs ./modules/model
    ```
    *Enforces strict downward dependency hierarchy (Layer N cannot import Layer > N).*
 4. **Unit & Integration Suite Gate**:
@@ -110,14 +110,14 @@ Before any tag or release artifact is published, the codebase must pass all 6 ve
 
 ## 4. Release Checklist & Execution
 
-1. **Bump Version**: Update `version.CurrentVersion` in `pkg/version/version.go`.
+1. **Bump Version**: Update `version.CurrentVersion` in `version/version.go`.
 2. **Run Verification**:
    ```bash
    go test -v ./...
    ```
 3. **Commit & Tag**:
    ```bash
-   git add pkg/version/version.go CHANGELOG.md
+   git add version/version.go CHANGELOG.md
    git commit -m "chore(release): bump version to v0.2.0"
    git tag -a v0.2.0 -m "release: v0.2.0"
    ```

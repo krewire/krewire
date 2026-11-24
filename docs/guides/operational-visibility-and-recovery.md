@@ -9,7 +9,7 @@ This guide establishes the canonical operational baseline, telemetry standards, 
 
 ## 1. Workload Operational Capability Matrix
 
-Every canonical workload in Krewire (`pkg/model.AllKinds`) adheres to an explicit, evidence-backed operational contract:
+Every canonical workload in Krewire (`model.AllKinds`) adheres to an explicit, evidence-backed operational contract:
 
 | Workload Kind | Liveness Probe | Readiness Probe | Structured Logs | Telemetry Correlation | Metrics Export | Graceful Drain | Default Deployment | Backup & Recovery |
 |---|---|---|---|---|---|---|---|---|
@@ -42,7 +42,7 @@ Production systems must never conflate process survival with service availabilit
 
 ### Startup Probe (`/startupz`) and the shared contract
 - **Semantic purpose**: "Has initialization finished?" Until it passes, orchestrators ignore liveness and readiness verdicts, so slow migrations or cache warm-up never trigger restart loops.
-- The cross-workload contract for all three probes, including the shared `Report` JSON, optional (`warn`) checks, the `starting` and `draining` states, and worker heartbeats, is [`pkg/observe`](../pkg/observe.md). Its `/healthz` and `/readyz` paths match `web.Health`.
+- The cross-workload contract for all three probes, including the shared `Report` JSON, optional (`warn`) checks, the `starting` and `draining` states, and worker heartbeats, is [`observe`](../modules/observe.md). Its `/healthz` and `/readyz` paths match `web.Health`.
 
 ---
 
@@ -51,7 +51,7 @@ Production systems must never conflate process survival with service availabilit
 ### Telemetry Architecture & Boundaries
 Krewire draws a strict architectural boundary between built-in runtime diagnostics and external telemetry platforms:
 - **Built-in Telemetry**: Standard library Go `slog` with JSON output in production, `/healthz` and `/readyz` probe endpoints, and constant-time memory footprints.
-- **External Telemetry Integrations**: Standard Prometheus scraping (`pkg/web/metrics`), OpenTelemetry (OTel) context propagation, and centralized ingestion (Grafana, Loki, Datadog) consume standard HTTP/JSON contracts without proprietary agent runtimes.
+- **External Telemetry Integrations**: Standard Prometheus scraping (`web/metrics`), OpenTelemetry (OTel) context propagation, and centralized ingestion (Grafana, Loki, Datadog) consume standard HTTP/JSON contracts without proprietary agent runtimes.
 
 ### Correlation ID Contract
 All state mutations, incoming HTTP requests, and background jobs are tagged with correlation identifiers:
@@ -84,7 +84,7 @@ Example JSON log record emitted to `stderr`:
 
 ## 4. Graceful Shutdown & Interruption Lifecycle
 
-Long-running workloads (`app`, `service`, `gateway`, `worker`) manage process termination via `pkg/lifecycle.Supervisor`:
+Long-running workloads (`app`, `service`, `gateway`, `worker`) manage process termination via `lifecycle.Supervisor`:
 
 1. **Signal Interception**: Traps `SIGINT` (`Ctrl+C`) and `SIGTERM` (Docker / systemd stop).
 2. **Reverse Dependency Drain (LIFO)**:
@@ -218,9 +218,9 @@ To maintain simplicity and zero lock-in, the following architectures are explici
 
 ---
 
-## 9. Diagnosis Runbooks (`pkg/observe`)
+## 9. Diagnosis Runbooks (`observe`)
 
-Each runbook starts from the same evidence: the diagnostics bundle (`krew doctor --json`, or `GET /debug/diagnostics` on the admin listener), the probe `Report`s, and logs filtered by `trace_id`. Bundle findings carry a stable `code` and a `trace_id`, and their hints link to the sections below. See [`pkg/observe`](../pkg/observe.md) for the full contract.
+Each runbook starts from the same evidence: the diagnostics bundle (`krew doctor --json`, or `GET /debug/diagnostics` on the admin listener), the probe `Report`s, and logs filtered by `trace_id`. Bundle findings carry a stable `code` and a `trace_id`, and their hints link to the sections below. See [`observe`](../modules/observe.md) for the full contract.
 
 ### Diagnosing startup failure
 1. **Symptom:** `/startupz` returns `503` with `"reason":"starting"`, or the bundle reports `health.startup.incomplete` or `health.startup.<check>`.

@@ -21,11 +21,13 @@ Krewire is an open-source-first digital SDLC ecosystem. We believe that develope
 
 ## 2. Repository Visibility and Licensing Matrix
 
-The 9 repositories comprising the Krewire ecosystem operate under distinct licensing and visibility models:
+The 11 repositories comprising the Krewire ecosystem operate under distinct licensing and visibility models:
 
 | Repository | Visibility | License | Tier / Role | Self-Hosting Status |
 |---|---|---|---|---|
-| **`krewire`** | **Public** | **MIT** | Open Core Foundation (`pkg/`, `krew`) | 100% Free & Self-Hostable |
+| **`krewire`** | **Public** | **MIT** | Open Core Foundation (37 domain modules) | 100% Free & Self-Hostable |
+| **`hub`** | **Public** | **MIT** | Port & Adapter Repository (`hub/*`) | 100% Free & Self-Hostable |
+| **`tui`** | **Public** | **MIT** | Pure-Go Terminal UI Framework | 100% Free & Self-Hostable |
 | **`ui`** | **Public** | **MIT** | Design System & `.kiw` Components | 100% Free & Self-Hostable |
 | **`krewire.github.io`** | **Public** | **MIT** | Community Portal & Distribution Hub | Publicly Hosted & Distributable |
 | **`krewire.com`** | **Public Workload** | **Proprietary** | Official Production Portal & Documentation | Hosted Official Workload |
@@ -42,13 +44,13 @@ The 9 repositories comprising the Krewire ecosystem operate under distinct licen
 Krewire adheres to an uncompromising, permanent Open-Core Covenant:
 
 1. **Permanent MIT Open Core**:
-   - Architectural Layers 0 through 3—including the core kernel (`pkg/model`, `pkg/lifecycle`, `pkg/errs`), all 36 modular domain packages (`pkg/*`), the universal developer CLI (`krew`), starter templates (`templates/`), and the UI design system (`ui`)—are **100% MIT-licensed forever**.
+   - Architectural Layers 0 through 3—including the core kernel (`model`, `lifecycle`, `errs`), all 37 modular domain modules, the universal developer CLI (`krew`), starter templates (`templates/`), and the UI design system (`ui`)—are **100% MIT-licensed forever**.
 2. **Zero Artificial Crippleware**:
    - No feature in the open-core free tier will ever be crippled, seat-limited, time-bombed, or telemetry-gated to force upgrades to commercial tiers.
    - An independent builder or team can build, compile, deploy, and operate any of the eight workload kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) indefinitely without purchasing any commercial license.
 3. **Additive Commercial Model**:
    - Commercial offerings (`cloud`, `auth`, `dash`) represent additive enterprise capabilities—such as managed multi-tenant PaaS orchestration, centralized enterprise SSO/SAML federation, compliance auditing, and hosted cloud execution sandboxes.
-   - Commercial offerings build upon the open-core interfaces (`pkg/web/gateway`, `pkg/auth`, `pkg/cloud`) via standard APIs and tokens, without altering the open-core code.
+   - Commercial offerings build upon the open-core interfaces (`web/gateway`, `auth`, `cloud`) via standard APIs and tokens, without altering the open-core code.
 
 ---
 
@@ -64,14 +66,14 @@ Any software built using Krewire's open-core toolchain (`krew`) is completely so
 - **Hardware**: 1 vCPU, 512 MB–1 GB RAM (easily accommodated on a $5/month VPS).
 - **Operating System**: Linux (amd64, arm64), macOS, or Windows.
 - **Database**: Embedded SQLite (zero-config) or external PostgreSQL/MySQL.
-- **Reverse Proxy**: Host Nginx, Caddy, or built-in Krewire gateway (`pkg/web/gateway`).
+- **Reverse Proxy**: Host Nginx, Caddy, or built-in Krewire gateway (`web/gateway`).
 
 ---
 
 ## 5. Contribution and Redistribution Policy
 
 - **Open Source Contributions**:
-  - Contributions to `krewire`, `ui`, and `krewire.github.io` are licensed under the MIT License.
+  - Contributions to `krewire`, `hub`, `ui`, `tui`, and `krewire.github.io` are licensed under the MIT License.
   - Contributors retain copyright of their submissions while granting Krewire the irrevocable right to distribute the code under the MIT license.
 - **Redistribution**:
   - Anyone may fork, modify, vendor, package, or redistribute Krewire open-source code under the terms of the MIT License.

@@ -8,7 +8,7 @@ date: "2026-11-21"
 
 This document defines the automated conformance baseline for the `.kiw` Single File Component (SFC) specification, the Go-native template desugaring engine, server-side HTML rendering (SSR/SSG), and client-side island progressive hydration.
 
-The automated conformance suite lives in [`pkg/runtime/conformance`](file:///home/krewire/workspace/krewire/krewire/pkg/runtime/conformance) and runs continuously in CI quality gates.
+The automated conformance suite lives in [`runtime/conformance`](file:///home/krewire/workspace/krewire/krewire/runtime/conformance) and runs continuously in CI quality gates.
 
 ---
 
@@ -56,12 +56,12 @@ All client-side hydration directives (`load`, `idle`, `visible`) target a modern
 ### Running Locally
 To run all conformance tests:
 ```bash
-go test -v ./pkg/runtime/conformance/...
+go test -v ./modules/runtime/conformance/...
 ```
 
 To run with coverage profiling:
 ```bash
-go test -coverprofile=coverage.out ./pkg/runtime/conformance/...
+go test -coverprofile=coverage.out ./modules/runtime/conformance/...
 go tool cover -func=coverage.out
 ```
 

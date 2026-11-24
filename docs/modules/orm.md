@@ -1,0 +1,648 @@
+# `orm`
+
+Import: `github.com/krewire/krewire/orm`
+
+## Purpose
+
+A lightweight, pure-Go Object-Relational Mapping (ORM) and SQL Query Builder library with unified multi-driver support. Designed for SQLite, PostgreSQL, and MySQL, `orm` eliminates external CGO dependencies and abstracts dialect differences (quoting, parameter placeholders `$1` vs `?`, data types, DDL statements, and auto-increment conventions) behind a single fluent API.
+
+## Main API
+
+- **Adapter Abstraction**:
+  - `Adapter` interface (`Name() string`, `Type() AdapterType`, `Ping(ctx context.Context) error`, `Close() error`)
+  - `AdapterType`: `AdapterTypeSQL`, `AdapterTypeDocument`, `AdapterTypeSearch`
+- **Supported Drivers & Adapters**:
+  - **SQLite**: `NewSQLite(cfg SQLiteConfig) (*DB, error)`, `cfg.FormatDSN()` (`SQLiteConfig.TxLock` sets the `BEGIN` mode: `deferred`, `immediate`, `exclusive`); bundled driver in [`orm/sqlite`](#sqlite-driver-pkgormsqlite)
+  - **PostgreSQL**: `NewPostgres(cfg PostgresConfig) (*DB, error)`, `cfg.FormatDSN()`
+  - **MySQL**: `NewMySQL(cfg MySQLConfig) (*DB, error)`, `cfg.FormatDSN()`
+  - **MongoDB**: `NewMongoDB(cfg MongoConfig) (*MongoAdapter, error)`, collections, document CRUD (`InsertOne`, `FindOne`, `Find`, `UpdateOne`, `DeleteOne`, `CountDocuments`)
+  - **Elasticsearch**: `NewElasticsearch(cfg ElasticsearchConfig) (*ElasticsearchAdapter, error)`, index management, search query DSL (`Index`, `Get`, `Delete`, `Search`, `CreateIndex`, `DeleteIndex`)
+- **SQL Dialects**:
+  - `Dialect` interface (`QuoteIdentifier`, `Placeholder`, `DataTypeOf`, `AutoIncrementPrimaryKeyClause`)
+  - `SQLiteDialect`, `PostgresDialect`, `MySQLDialect`
+  - `RegisterDialect(driverName string, dialect Dialect)`
+  - `GetDialect(driverName string) Dialect`
+- **Database Connection Pool (Pillar S2: Sustainable)**:
+  - `Open(driverName, dsn string) (*DB, error)` — Opens with bounded defaults (`MaxOpenConns=25`, `MaxIdleConns=10`, `ConnMaxLifetime=1h`, `ConnMaxIdleTime=15m`).
+  - `OpenWithConfig(cfg Config) (*DB, error)` — Configurable connection pool parameters.
+  - `New(sqlDB *sql.DB, driverName string) *DB`
+  - `DB.Close() error`, `DB.Ping(ctx context.Context) error`
+  - `DB.Table(name string) *Query`, `DB.Model(v interface{}) *Query`
+- **Transactions**:
+  - `DB.Begin(ctx context.Context) (*Tx, error)`, `DB.BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error)`
+  - `DB.Transaction(ctx context.Context, fn func(tx *Tx) error) error`
+  - `Tx.Exec`, `Tx.Query`, `Tx.QueryRow`, `Tx.Raw` (same signatures as on `DB`), `Tx.Dialect()`, `Tx.SQLTx() *sql.Tx`, `Tx.Commit()`, `Tx.Rollback()`
+- **Fluent Query Builder & CRUD**:
+  - `Query.Where(col, op string, val interface{}) *Query`
+  - `Query.OrWhere(col, op string, val interface{}) *Query`
+  - `Query.WhereIn(col string, vals ...interface{}) *Query`
+  - `Query.WhereNull(col string) *Query`, `Query.WhereNotNull(col string) *Query`
+  - `Query.WhereRaw(clause string, args ...interface{}) *Query`
+  - `Query.Join(joinType, table, on string) *Query`, `Query.LeftJoin`, `Query.InnerJoin`
+  - `Query.GroupBy(cols ...string) *Query`, `Query.Having(clause string, args ...interface{}) *Query`
+  - `Query.OrderBy(col, dir string) *Query`
+  - `Query.Limit(n int) *Query`, `Query.Offset(n int) *Query`
+  - `Query.Select(cols ...string) *Query`, `Query.Distinct() *Query`
+  - `Query.Scope(fn func(q *Query) *Query) *Query`
+  - `Query.Preload(relation string, conditions ...func(*Query) *Query) *Query`
+  - `Query.WithTrashed() *Query`, `Query.OnlyTrashed() *Query`
+  - `Query.Insert(record interface{}) (int64, error)`
+  - `Query.InsertMany(slice interface{}) (int64, error)`
+  - `Query.Upsert(record interface{}, conflictCols, updateCols []string) (int64, error)`
+  - `Query.Find(dest interface{}, id ...interface{}) error`
+  - `Query.FindOrFail(dest interface{}, id interface{}) error`
+  - `Query.First(dest interface{}) error`, `Query.FirstOrFail(dest interface{}) error`
+  - `Query.FindAll(dest interface{}) error`
+  - `Query.Pluck(column string, dest interface{}) error`
+  - `Query.Chunk(size int, destSlice interface{}, fn func() error) error`
+  - `Query.Exists() (bool, error)`, `Query.DoesntExist() (bool, error)`
+  - `Query.Update(record interface{}) (int64, error)`
+  - `Query.Delete(record interface{}, id ...interface{}) (int64, error)`
+  - `Query.ForceDelete(record interface{}, id ...interface{}) (int64, error)`
+  - `Query.Restore(record interface{}, id ...interface{}) (int64, error)`
+  - `Query.Count() (int64, error)`
+- **Raw SQL Engine**:
+  - `DB.Raw(sql string, args ...interface{}) *RawQuery`
+  - `Tx.Raw(sql string, args ...interface{}) *RawQuery`
+  - `RawQuery.Scan(dest interface{}) error` (supports scalar primitive, struct pointer, and slice of structs/primitives)
+  - `RawQuery.Exec() (sql.Result, error)`
+  - `RawQuery.Pluck(dest interface{}) error`
+- **Diagnostics & Telemetry**:
+  - `DB.Stats() sql.DBStats`
+  - `DB.Health(ctx context.Context) error`
+  - `DB.SetLogger(logger *slog.Logger)`
+  - `DB.SetSlowQueryThreshold(d time.Duration)`
+- **Schema & Migrations**:
+  - `ParseModel(v interface{}) (*TableModel, error)`
+  - `GenerateCreateTableSQL(model interface{}, dialect Dialect) (string, error)`
+  - `schema.Blueprint`: Programmatic schema builder (`Increments`, `String`, `Text`, `Integer`, `Float`, `Boolean`, `Timestamps`, `SoftDeletes`, `Morphs`)
+  - `DB.AutoMigrate(ctx context.Context, models ...interface{}) error`
+  - Versioned SQL & Go migrations: [`orm/migrate`](#migrations-pkgormmigrate)
+- **Model Lifecycle & Traits**:
+  - `orm.BaseModel`, `orm.Timestamps`, `orm.SoftDeletes`
+  - Hook interfaces: `BeforeCreate`, `AfterCreate`, `BeforeUpdate`, `AfterUpdate`, `BeforeDelete`, `AfterDelete`, `BeforeSave`, `AfterSave`
+- **Faker & Seeder / Factory Engine**:
+  - Pure-Go Faker: [`orm/faker`](#faker-engine-pkgormfaker)
+  - Seeders & Model Factories: [`orm/seeder`](#seeder--model-factory-engine-pkgormseeder)
+- **Generic Repository Pattern**:
+  - Type-safe generic DAO: [`orm/repository`](#generic-repository-pattern-pkgormrepository)
+
+## Struct Tags
+
+Models declare mapping metadata using the `orm` or `db` struct tag:
+
+```go
+type User struct {
+    ID        int64     `orm:"pk;auto"`
+    Email     string    `orm:"column:email_address;unique;not_null"`
+    FullName  string    `orm:"column:full_name"`
+    IsActive  bool      `orm:"default:1"`
+    CreatedAt time.Time
+}
+
+// Optional table name override
+func (User) TableName() string {
+    return "app_users"
+}
+```
+
+## Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/krewire/krewire/orm"
+)
+
+type AppUser struct {
+	ID    int64  `orm:"pk;auto"`
+	Name  string `orm:"column:name"`
+	Email string `orm:"column:email;unique"`
+}
+
+func main() {
+	ctx := context.Background()
+
+	// Open connection (works with any registered sql driver: "sqlite3", "pgx", "mysql", etc.)
+	db, err := orm.Open("sqlite", "file:app.db?cache=shared&mode=rwc")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	// Auto-migrate table
+	if err := db.AutoMigrate(ctx, &AppUser{}); err != nil {
+		panic(err)
+	}
+
+	// Insert record
+	newUser := &AppUser{Name: "Dewi", Email: "dewi@example.com"}
+	if _, err := db.Table("app_users").Insert(newUser); err != nil {
+		panic(err)
+	}
+
+	// Query record
+	var user AppUser
+	if err := db.Table("app_users").Where("email", "=", "dewi@example.com").Find(&user); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Loaded user: ID=%d, Name=%s\n", user.ID, user.Name)
+}
+```
+
+## SQLite driver (`orm/sqlite`)
+
+`orm` does not link any driver. Importing `github.com/krewire/hub/sqlite`
+registers the pure-Go `modernc.org/sqlite` driver as `"sqlite"` (no cgo, so
+`CGO_ENABLED=0` cross-compiles work) and opens databases with WAL,
+`foreign_keys=on`, `busy_timeout=5000`, and immediate transactions:
+
+- `sqlite.Open(path string) (*orm.DB, error)` — creates the file when missing; `":memory:"` for a private in-memory database
+- `sqlite.OpenProduction(path string) (*orm.DB, error)` — enterprise-tuned WAL, 64MB cache, memory temp store, 256MB mmap
+- `sqlite.OpenConfig(cfg orm.SQLiteConfig) (*orm.DB, error)` — custom pool or pragmas
+- `sqlite.Config(path) orm.SQLiteConfig`, `sqlite.DSN(path) string`, `sqlite.DriverName`
+
+### SQLite Operations & Maintenance
+
+```go
+// 1. Live Online Backup (zero lock, consistent hot copy)
+err := sqlite.Backup(ctx, db, "/data/backups/live_backup.db")
+
+// 2. Storage & Page Metrics
+stats, err := sqlite.GetPageStats(ctx, db)
+// stats.PageCount, stats.PageSize, stats.TotalBytes, stats.FreeListPages, stats.UserVersion
+totalBytes, err := sqlite.DatabaseSize(ctx, db)
+
+// 3. User Version & Schema Pragmas
+err = sqlite.SetUserVersion(ctx, db, 2)
+v, err := sqlite.GetUserVersion(ctx, db)
+isFK, err := sqlite.ForeignKeysEnabled(ctx, db)
+
+// 4. Schema & Table Introspection
+tables, err := sqlite.ListTables(ctx, db)
+exists, err := sqlite.TableExists(ctx, db, "users")
+columns, err := sqlite.TableInfo(ctx, db, "users")
+indices, err := sqlite.ListIndices(ctx, db, "users")
+
+// 5. Database Optimization & Integrity
+msgs, err := sqlite.IntegrityCheck(ctx, db)
+_ = sqlite.Checkpoint(ctx, db, sqlite.CheckpointTruncate)
+_ = sqlite.Vacuum(ctx, db)
+_ = sqlite.Optimize(ctx, db)
+
+// 6. Resilient Retry on Lock / Busy
+err = sqlite.RetryOnBusy(ctx, 5, 20*time.Millisecond, func() error {
+    return runConcurrentWrite()
+})
+```
+
+## PostgreSQL driver (`orm/postgres`)
+
+Importing `github.com/krewire/hub/postgres` registers the pure-Go `pgx` driver
+(`github.com/jackc/pgx/v5/stdlib`) under the driver name `"pgx"`. Designed for enterprise
+workloads with connection pooling, transaction isolation, and rich diagnostics:
+
+- `postgres.Open(dsn string) (*orm.DB, error)`
+- `postgres.OpenConfig(cfg orm.PostgresConfig) (*orm.DB, error)`
+- `postgres.OpenProduction(host string, port int, user, password, db string) (*orm.DB, error)`
+- `postgres.Config(...)`, `postgres.ProductionConfig(...)`, `postgres.DSN(...)`
+
+### PostgreSQL Enterprise Capabilities
+
+```go
+// 1. Distributed Advisory Locks (No Redis required)
+// Session-level non-blocking lock
+acquired, err := postgres.TryAdvisoryLock(ctx, db, 123456)
+if acquired {
+    defer postgres.AdvisoryUnlock(ctx, db, 123456)
+    // Run distributed singleton task...
+}
+
+// Transaction-level advisory lock (automatically freed on commit/rollback)
+err = db.Transaction(ctx, func(tx *orm.Tx) error {
+    if err := postgres.AdvisoryXactLock(ctx, tx, 987654); err != nil {
+        return err
+    }
+    return executeCriticalOperation(tx)
+})
+
+// 2. Real-Time Pub/Sub Notification (LISTEN / NOTIFY)
+err = postgres.Notify(ctx, db, "user_signup", `{"user_id": 42}`)
+
+// 3. Connection Activity & Diagnostics
+activeCount, err := postgres.ActiveConnections(ctx, db)
+stats, err := postgres.ConnectionStats(ctx, db) // Grouped by active, idle, idle in transaction
+
+// 4. Schema & Table Introspection
+tables, err := postgres.ListTables(ctx, db, "public")
+exists, err := postgres.TableExists(ctx, db, "users", "public")
+columns, err := postgres.ListColumns(ctx, db, "users", "public")
+hasIdx, err := postgres.IndexExists(ctx, db, "idx_users_email")
+tableBytes, err := postgres.TableSize(ctx, db, "users") // Total on-disk size including indices
+
+// 5. Maintenance & Cleanup
+_ = postgres.VacuumAnalyze(ctx, db, "users")
+_ = postgres.TruncateTable(ctx, db, "audit_logs", true) // CASCADE truncate
+```
+
+## Migrations (`orm/migrate`)
+
+Applies the files `krew make migration` (or `kiw migrate create`) generates —
+`<version>_<name>.sql` with `-- +up` and `-- +down` sections — and records them
+in `schema_migrations` (`version`, `name`, `checksum`, `applied_at`).
+
+- `migrate.Up(ctx, db *orm.DB, fsys fs.FS) error` — apply everything pending; the start-up one-liner
+- `migrate.New(db, fsys, migrate.Options{Table, LockTimeout}) (*Migrator, error)`
+- `Migrator.Up(ctx, n)` (n <= 0: all), `Migrator.Down(ctx, n)` (n >= 1), `Migrator.Redo(ctx)`, `Migrator.Status(ctx)`, `Migrator.Migrations()`
+- `migrate.Load(fsys)`, `migrate.Parse(file, src)` — the file format on its own
+- Errors: `ErrChecksumMismatch`, `ErrMissingFile`, `ErrIrreversible`, `ErrLocked`, `ErrUnsupportedDialect`
+
+```go
+//go:embed *.sql
+var Files embed.FS // in package migrations
+
+db, err := sqlite.Open("app.db")
+if err != nil {
+	return err
+}
+if err := migrate.Up(ctx, db, migrations.Files); err != nil {
+	return err
+}
+```
+
+Guarantees:
+
+- **Transactional**: each migration and its bookkeeping row commit together; a failing migration leaves nothing behind. `Redo` rolls back and re-applies in one transaction.
+- **Checksums**: an applied file that was edited stops `Up` and `Down` (`ErrChecksumMismatch`); put the change in a new migration instead. `Status` reports `pending`, `applied`, `modified`, or `missing`.
+- **Locking**: concurrent runners (replicas, `kiw migrate` beside a running app) apply each migration once. SQLite uses `BEGIN IMMEDIATE` with `busy_timeout` raised to `LockTimeout`; PostgreSQL uses a transaction-scoped advisory lock, so a crashed runner never leaves a stale lock.
+- **Dialects**: SQLite and PostgreSQL. MySQL is refused because its DDL commits implicitly, so a failed migration could not be rolled back with its row. Statements that cannot run inside a transaction (such as PostgreSQL `CREATE INDEX CONCURRENTLY`) are not supported.
+- **Driver-free**: the package links no driver; pass an `*orm.DB` opened with the driver you import.
+
+## Models, Timestamps & Soft Deletes
+
+Krewire models provide built-in timestamps, soft deletes, and lifecycle hooks via embedded structs:
+
+```go
+type Post struct {
+    orm.BaseModel // Embeds ID (int64), Timestamps (CreatedAt, UpdatedAt), and SoftDeletes (DeletedAt)
+
+    Title   string `orm:"column:title"`
+    Slug    string `orm:"column:slug;unique"`
+    Content string `orm:"column:content"`
+}
+
+func (Post) TableName() string {
+    return "posts"
+}
+
+// Lifecycle Hooks: BeforeCreate, AfterCreate, BeforeUpdate, AfterUpdate, BeforeDelete, AfterDelete, BeforeSave, AfterSave
+func (p *Post) BeforeCreate(ctx context.Context) error {
+    if p.Slug == "" {
+        p.Slug = slugify(p.Title)
+    }
+    return nil
+}
+```
+
+Queries automatically filter out soft-deleted records (`WHERE deleted_at IS NULL`). Use `.WithTrashed()` to include soft-deleted records or `.OnlyTrashed()` to view only soft-deleted records:
+
+```go
+// Normal query excludes deleted posts
+db.Model(&Post{}).FindAll(&posts)
+
+// Include soft-deleted
+db.Model(&Post{}).WithTrashed().FindAll(&allPosts)
+
+// Restore a soft-deleted record
+db.Model(&Post{}).Restore(&post)
+
+// Permanently delete from table
+db.Model(&Post{}).ForceDelete(&post)
+```
+
+## Programmatic Migrations (`schema.Blueprint`)
+
+In addition to raw SQL migrations, Krewire supports Laravel-like programmatic schema blueprints in Go:
+
+```go
+package migrations
+
+import (
+    "context"
+
+    "github.com/krewire/krewire/orm/migrate"
+    "github.com/krewire/krewire/orm/schema"
+)
+
+func init() {
+    migrate.RegisterGo(migrate.GoMigration{
+        Version: "20261111000000",
+        Name:    "create_articles_table",
+        Up: func(ctx context.Context, s *schema.Builder) error {
+            return s.Create("articles", func(t *schema.Blueprint) {
+                t.BigIncrements("id")
+                t.String("title", 255).NotNull()
+                t.String("slug", 255).Unique()
+                t.Text("content")
+                t.Morphs("taggable") // taggable_id (int64) + taggable_type (varchar 255)
+                t.Timestamps()
+                t.SoftDeletes()
+            })
+        },
+        Down: func(ctx context.Context, s *schema.Builder) error {
+            return s.DropTableIfExists("articles")
+        },
+    })
+}
+```
+
+## Faker Engine (`orm/faker`)
+
+Pure-Go, thread-safe, seedable fake data generator with rich, realistic datasets:
+
+```go
+import "github.com/krewire/krewire/orm/faker"
+
+f := faker.New() // or faker.New(12345) for deterministic seed
+
+name    := f.Name()
+email   := f.SafeEmail()
+phone   := f.Phone()
+address := f.Address()
+company := f.Company()
+uuid    := f.UUID()
+price   := f.Price(10.0, 500.0)
+text    := f.Paragraph(3)
+past    := f.PastDate(30)
+```
+
+## Seeder & Model Factory Engine (`orm/seeder`)
+
+Declarative, Laravel-style model factories and seeders for database population and automated tests:
+
+### Model Factories
+
+```go
+import (
+    "github.com/krewire/krewire/orm"
+    "github.com/krewire/krewire/orm/faker"
+    "github.com/krewire/krewire/orm/seeder"
+)
+
+func UserFactory(db *orm.DB) *seeder.Factory[User] {
+    return seeder.NewFactory(db, func(f *faker.Faker) *User {
+        return &User{
+            Name:  f.Name(),
+            Email: f.SafeEmail(),
+        }
+    })
+}
+
+// Generate models without saving:
+user := UserFactory(db).Make(ctx)
+users := UserFactory(db).Count(10).MakeMany(ctx)
+
+// Generate and persist directly to database:
+savedUser, err := UserFactory(db).Create(ctx)
+savedUsers, err := UserFactory(db).Count(50).CreateMany(ctx)
+
+// Apply state transformations:
+adminUsers, err := UserFactory(db).State(func(u *User) {
+    u.Role = "admin"
+}).Count(5).CreateMany(ctx)
+```
+
+### Seeders
+
+```go
+package seeds
+
+import (
+    "context"
+
+    "github.com/krewire/krewire/orm"
+    "github.com/krewire/krewire/orm/seeder"
+)
+
+func init() {
+    seeder.Register("DatabaseSeeder", DatabaseSeeder{})
+}
+
+type DatabaseSeeder struct{}
+
+func (DatabaseSeeder) Run(ctx context.Context, db *orm.DB) error {
+    // Call other seeders or factories
+    _, err := UserFactory(db).Count(20).CreateMany(ctx)
+    return err
+}
+```
+
+Execute seeders via the CLI:
+```bash
+kiw seed                       # runs DatabaseSeeder
+kiw seed --class UserSeeder    # runs specific seeder
+kiw db:seed                    # Laravel-like alias
+```
+
+## Generic Repository Pattern (`orm/repository`)
+
+Type-safe Data Access Object (DAO) providing high cohesion, separation of concerns, and full database transaction safety:
+
+```go
+import (
+    "context"
+
+    "github.com/krewire/krewire/orm"
+    "github.com/krewire/krewire/orm/repository"
+)
+
+type UserRepository interface {
+    repository.Repository[User]
+}
+
+type userRepositoryImpl struct {
+    *repository.BaseRepository[User]
+}
+
+func NewUserRepository(db *orm.DB) UserRepository {
+    return &userRepositoryImpl{
+        BaseRepository: repository.New[User](db),
+    }
+}
+```
+
+### Repository Operations
+
+```go
+repo := NewUserRepository(db)
+ctx := context.Background()
+
+// CRUD
+user, err := repo.FindByID(ctx, 42)
+users, err := repo.FindAll(ctx)
+err = repo.Create(ctx, &User{Name: "Alice", Email: "alice@example.com"})
+err = repo.Update(ctx, user)
+err = repo.Save(ctx, user) // Inserts if ID==0, updates if ID>0
+err = repo.Delete(ctx, 42)
+
+// Fluent criteria & counts
+activeUsers, err := repo.FindWhere(ctx, func(q *orm.Query) *orm.Query {
+    return q.Where("is_active", "=", 1).OrderBy("name", "ASC")
+})
+count, err := repo.Count(ctx)
+exists, err := repo.Exists(ctx, func(q *orm.Query) *orm.Query {
+    return q.Where("email", "=", "alice@example.com")
+})
+
+// Pagination
+pager, err := repo.Paginate(ctx, 1, 15)
+// pager.Items, pager.Total, pager.Page, pager.PerPage, pager.TotalPages, pager.HasNext, pager.HasPrev
+
+// Safe atomic transactions
+err = repo.Transaction(ctx, func(txRepo repository.Repository[User]) error {
+    if err := txRepo.Create(ctx, u1); err != nil {
+        return err // automatically rolled back
+    }
+    return txRepo.Create(ctx, u2) // committed on return nil
+})
+```
+
+## Model Relationships & Associations
+
+`orm` provides first-class model relationships with zero third-party dependencies:
+- **`has_one`**: Declares a one-to-one relationship (e.g. User has one Profile).
+- **`has_many`**: Declares a one-to-many relationship (e.g. User has many Posts).
+- **`belongs_to`**: Declares an inverse one-to-one or one-to-many relationship (e.g. Post belongs to User).
+- **`many_to_many`**: Declares a many-to-many relationship joined via a pivot table (e.g. Post has many Tags via `post_tags`).
+
+```go
+type User struct {
+    orm.BaseModel
+    Name    string    `orm:"column:name"`
+    Email   string    `orm:"column:email;unique"`
+    Profile *Profile  `orm:"has_one;foreign_key:user_id"`
+    Posts   []Post    `orm:"has_many;foreign_key:user_id"`
+}
+
+type Profile struct {
+    orm.BaseModel
+    UserID  int64     `orm:"column:user_id;index"`
+    Bio     string    `orm:"column:bio"`
+    User    *User     `orm:"belongs_to;foreign_key:user_id"`
+}
+
+type Post struct {
+    orm.BaseModel
+    UserID    int64   `orm:"column:user_id;index"`
+    Title     string  `orm:"column:title"`
+    Published bool    `orm:"column:published"`
+    Author    *User   `orm:"belongs_to;foreign_key:user_id"`
+    Tags      []Tag   `orm:"many_to_many;join_table:post_tags;join_fk:post_id;join_ref:tag_id"`
+}
+```
+
+## Eager Loading (Preload)
+
+Eager loading batches relationship lookups into single `WHERE IN (...)` queries, completely solving the $N+1$ query problem:
+
+```go
+// 1. Eager load single association
+var user User
+err := db.Model(&User{}).Preload("Profile").Find(&user, userID)
+
+// 2. Eager load slice of models
+var users []User
+err := db.Model(&User{}).Preload("Posts").FindAll(&users)
+
+// 3. Scoped eager loading (conditional preload)
+err := db.Model(&User{}).Preload("Posts", func(q *orm.Query) *orm.Query {
+    return q.Where("published", "=", true).OrderBy("created_at", "DESC")
+}).Find(&user, userID)
+
+// 4. Many-to-many eager loading with pivot join
+var post Post
+err := db.Model(&Post{}).Preload("Tags").Find(&post, postID)
+```
+
+## Batch Operations
+
+### Multi-Row Batch Insert (`InsertMany`)
+Efficiently inserts a slice of structs in a single SQL statement while executing lifecycle hooks and populating timestamps:
+
+```go
+tags := []Tag{
+    {Name: "Go"},
+    {Name: "PostgreSQL"},
+    {Name: "SQLite"},
+}
+rowsAffected, err := db.Model(&Tag{}).InsertMany(tags)
+```
+
+### Dialect-Specific Upsert (`Upsert`)
+Inserts records or updates conflicting columns when key constraints trigger (Postgres/SQLite `ON CONFLICT DO UPDATE`, MySQL `ON DUPLICATE KEY UPDATE`):
+
+```go
+affected, err := db.Model(&Tag{}).Upsert(&Tag{
+    BaseModel: orm.BaseModel{ID: 1},
+    Name:      "Golang",
+}, []string{"id"}, []string{"name"})
+```
+
+## Raw SQL Execution (`RawQuery`)
+
+Execute arbitrary SQL statements and scan directly into structs, primitive scalars, or slices with full query parameterization:
+
+```go
+// Scan single struct
+var user User
+err := db.Raw("SELECT id, name, email FROM users WHERE id = ?", id).Scan(&user)
+
+// Scan slice of structs
+var activeUsers []User
+err := db.Raw("SELECT id, name, email FROM users WHERE status = ? ORDER BY id ASC", "active").Scan(&activeUsers)
+
+// Scan primitive scalar
+var totalUsers int64
+err := db.Raw("SELECT COUNT(*) FROM users").Scan(&totalUsers)
+
+// Exec non-query statement
+res, err := db.Raw("UPDATE users SET last_login_at = ? WHERE id = ?", time.Now(), id).Exec()
+```
+
+## Diagnostics, Health & Structured Telemetry
+
+Monitor database connection pools and log query telemetry using standard Go `log/slog`:
+
+```go
+// 1. Connection Pool Stats
+stats := db.Stats()
+fmt.Printf("Open conns: %d, Idle conns: %d\n", stats.OpenConnections, stats.Idle)
+
+// 2. Health check with timeout
+if err := db.Health(ctx); err != nil {
+    log.Fatalf("Database unhealthy: %v", err)
+}
+
+// 3. Structured query logger & slow query detection
+db.SetLogger(slog.Default())
+db.SetSlowQueryThreshold(200 * time.Millisecond) // logs WARN if query takes > 200ms
+```
+
+## Security & Architecture Boundaries
+
+- **Connection Pool Bounding (Pillar S2: Sustainable)**:
+  - Enforces bounded connection pools to prevent file descriptor leaks and memory exhaustion:
+    - `MaxOpenConns`: 25 (prevents database connection floods)
+    - `MaxIdleConns`: 10 (retains ready connections without excessive idle overhead)
+    - `ConnMaxLifetime`: 1 hour (recycles aged connections cleanly)
+    - `ConnMaxIdleTime`: 15 minutes (prunes unused idle connections)
+    - `BusyTimeout`: 5,000 ms (5 seconds wait for locks in SQLite WAL mode)
+  - Custom limits can be specified via `orm.Config{MaxOpenConns, MaxIdleConns, ConnMaxLifetime, ConnMaxIdleTime}` passed to `orm.OpenWithConfig`.
+- **Parameterized Queries**: All dynamic criteria pass through dialect-specific placeholders (`$1, $2` for PostgreSQL; `?` for SQLite/MySQL) preventing SQL injection vulnerabilities.
+- **Pure-Go Architecture**: No CGO dependencies required. Fully cross-compilable across Linux, macOS, and Windows.
+- **Downward Dependency Pyramid**: Depends only on Level 1 (`errs`, `model`) and standard library `database/sql`. `orm/migrate` adds only `orm`; `orm/sqlite` is the one package that links a driver.
