@@ -5,72 +5,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
+
+	"github.com/krewire/krewire/pkg/sec"
 )
 
 // ErrPathEscape is returned when a path traversal escape attempt is detected.
-var ErrPathEscape = errors.New("security error: path traversal escape detected")
+var ErrPathEscape = sec.ErrPathTraversal
 
 // SafePath ensures the path resolves within root without directory traversal or symlink escapes.
+// It delegates to sec.SafePath to provide unified, fail-closed, symlink-safe path validation.
 func SafePath(root, rel string) (string, error) {
-	if strings.Contains(rel, "\x00") {
-		return "", fmt.Errorf("%w: path contains null byte", ErrPathEscape)
-	}
-	if root == "" {
-		return filepath.Clean(rel), nil
-	}
-	normalized := strings.ReplaceAll(rel, "\\", "/")
-	cleanRel := filepath.Clean(filepath.FromSlash(normalized))
-	if cleanRel == ".." || strings.HasPrefix(cleanRel, ".."+string(filepath.Separator)) || cleanRel == "/" || strings.HasPrefix(cleanRel, "../") {
-		return "", fmt.Errorf("%w: path %q attempts traversal outside sandbox", ErrPathEscape, rel)
-	}
-
-	absRoot, err := filepath.Abs(root)
+	target, err := sec.SafePath(root, rel, sec.WithRejectAbsolute())
 	if err != nil {
+		if errors.Is(err, sec.ErrPathTraversal) || errors.Is(err, sec.ErrInvalidPath) {
+			return "", fmt.Errorf("%w: %v", ErrPathEscape, err)
+		}
 		return "", err
 	}
-	realRoot, err := filepath.EvalSymlinks(absRoot)
-	if err == nil {
-		absRoot = realRoot
-	}
-
-	target := rel
-	if !filepath.IsAbs(target) {
-		target = filepath.Join(absRoot, target)
-	} else {
-		target = filepath.Clean(target)
-	}
-
-	absTarget, err := filepath.Abs(target)
-	if err != nil {
-		return "", err
-	}
-
-	realTarget, err := filepath.EvalSymlinks(absTarget)
-	if err == nil {
-		absTarget = realTarget
-	} else if os.IsNotExist(err) {
-		// Resolve symlinks on the deepest existing parent directory
-		dir := filepath.Dir(absTarget)
-		realDir, dirErr := filepath.EvalSymlinks(dir)
-		for dirErr != nil && os.IsNotExist(dirErr) && dir != filepath.Dir(dir) {
-			dir = filepath.Dir(dir)
-			realDir, dirErr = filepath.EvalSymlinks(dir)
-		}
-		if dirErr == nil {
-			relFromDir, relErr := filepath.Rel(dir, absTarget)
-			if relErr == nil {
-				absTarget = filepath.Join(realDir, relFromDir)
-			}
-		}
-	}
-
-	if absTarget != absRoot && !strings.HasPrefix(absTarget, absRoot+string(filepath.Separator)) {
-		return "", fmt.Errorf("%w: path %q outside sandbox %q", ErrPathEscape, rel, root)
-	}
-	return absTarget, nil
+	return target, nil
 }
 
 // --- ReadFileTool ---
@@ -103,12 +55,17 @@ func (t *ReadFileTool) Execute(ctx context.Context, args json.RawMessage) (any, 
 	if err := json.Unmarshal(args, &input); err != nil {
 		return nil, fmt.Errorf("invalid args: %w", err)
 	}
-	target, err := SafePath(t.Workspace, input.Path)
+	ws, err := sec.OpenSafeWorkspace(t.Workspace)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
 	}
-	b, err := os.ReadFile(target)
+	defer ws.Close()
+
+	b, err := ws.ReadFile(input.Path)
 	if err != nil {
+		if errors.Is(err, sec.ErrPathTraversal) || errors.Is(err, sec.ErrInvalidPath) {
+			return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
+		}
 		return nil, fmt.Errorf("read failed: %w", err)
 	}
 	return string(b), nil
@@ -152,14 +109,16 @@ func (t *WriteFileTool) Execute(ctx context.Context, args json.RawMessage) (any,
 	if err := json.Unmarshal(args, &input); err != nil {
 		return nil, fmt.Errorf("invalid args: %w", err)
 	}
-	target, err := SafePath(t.Workspace, input.Path)
+	ws, err := sec.OpenSafeWorkspace(t.Workspace)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
 	}
-	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-		return nil, err
-	}
-	if err := os.WriteFile(target, []byte(input.Content), 0o644); err != nil {
+	defer ws.Close()
+
+	if err := ws.WriteFile(input.Path, []byte(input.Content), 0o644); err != nil {
+		if errors.Is(err, sec.ErrPathTraversal) || errors.Is(err, sec.ErrInvalidPath) {
+			return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
+		}
 		return nil, err
 	}
 	return fmt.Sprintf("Successfully wrote %d bytes to %s", len(input.Content), input.Path), nil
@@ -205,20 +164,16 @@ func (t *EditFileTool) Execute(ctx context.Context, args json.RawMessage) (any, 
 	if err := json.Unmarshal(args, &input); err != nil {
 		return nil, fmt.Errorf("invalid args: %w", err)
 	}
-	target, err := SafePath(t.Workspace, input.Path)
+	ws, err := sec.OpenSafeWorkspace(t.Workspace)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
 	}
-	b, err := os.ReadFile(target)
-	if err != nil {
-		return nil, fmt.Errorf("read file to edit: %w", err)
-	}
-	content := string(b)
-	if !strings.Contains(content, input.Target) {
-		return nil, errors.New("target text not found in file")
-	}
-	updated := strings.Replace(content, input.Target, input.Replacement, 1)
-	if err := os.WriteFile(target, []byte(updated), 0o644); err != nil {
+	defer ws.Close()
+
+	if err := ws.EditFile(input.Path, input.Target, input.Replacement); err != nil {
+		if errors.Is(err, sec.ErrPathTraversal) || errors.Is(err, sec.ErrInvalidPath) {
+			return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
+		}
 		return nil, err
 	}
 	return "File edited successfully", nil
@@ -251,15 +206,18 @@ func (t *ListDirTool) Execute(ctx context.Context, args json.RawMessage) (any, e
 		Path string `json:"path"`
 	}
 	_ = json.Unmarshal(args, &input)
-	if input.Path == "" {
-		input.Path = "."
-	}
-	target, err := SafePath(t.Workspace, input.Path)
+
+	ws, err := sec.OpenSafeWorkspace(t.Workspace)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
 	}
-	entries, err := os.ReadDir(target)
+	defer ws.Close()
+
+	entries, err := ws.ReadDir(input.Path)
 	if err != nil {
+		if errors.Is(err, sec.ErrPathTraversal) || errors.Is(err, sec.ErrInvalidPath) {
+			return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
+		}
 		return nil, err
 	}
 	var res []string
@@ -275,3 +233,48 @@ func (t *ListDirTool) Execute(ctx context.Context, args json.RawMessage) (any, e
 
 // ParallelSafe marks ListDirTool as safe for concurrent directory listing operations.
 func (t *ListDirTool) ParallelSafe() bool { return true }
+
+// --- DeleteFileTool ---
+
+type DeleteFileTool struct {
+	Workspace string
+}
+
+func (t *DeleteFileTool) Name() string { return "delete_file" }
+func (t *DeleteFileTool) Description() string {
+	return "Delete a file or empty directory from the workspace."
+}
+func (t *DeleteFileTool) Parameters() map[string]any {
+	return map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"path": map[string]any{
+				"type":        "string",
+				"description": "Path to the file or directory to delete",
+			},
+		},
+		"required": []string{"path"},
+	}
+}
+
+func (t *DeleteFileTool) Execute(ctx context.Context, args json.RawMessage) (any, error) {
+	var input struct {
+		Path string `json:"path"`
+	}
+	if err := json.Unmarshal(args, &input); err != nil {
+		return nil, fmt.Errorf("invalid args: %w", err)
+	}
+	ws, err := sec.OpenSafeWorkspace(t.Workspace)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
+	}
+	defer ws.Close()
+
+	if err := ws.Remove(input.Path); err != nil {
+		if errors.Is(err, sec.ErrPathTraversal) || errors.Is(err, sec.ErrInvalidPath) {
+			return nil, fmt.Errorf("%w: %v", ErrPathEscape, err)
+		}
+		return nil, err
+	}
+	return fmt.Sprintf("Successfully deleted %s", input.Path), nil
+}

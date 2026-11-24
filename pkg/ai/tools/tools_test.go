@@ -86,6 +86,45 @@ func TestSafePath_SymlinkEscape(t *testing.T) {
 	}
 }
 
+func TestFSTools_EmptyWorkspaceFailsClosed(t *testing.T) {
+	ctx := context.Background()
+
+	// 1. ReadFileTool with empty workspace
+	readTool := &ReadFileTool{Workspace: ""}
+	rArgs, _ := json.Marshal(map[string]string{"path": "secret.txt"})
+	if _, err := readTool.Execute(ctx, rArgs); err == nil || !errors.Is(err, ErrPathEscape) {
+		t.Fatalf("expected ReadFileTool with empty workspace to fail closed with ErrPathEscape, got: %v", err)
+	}
+
+	// 2. WriteFileTool with empty workspace
+	writeTool := &WriteFileTool{Workspace: ""}
+	wArgs, _ := json.Marshal(map[string]string{"path": "test.txt", "content": "data"})
+	if _, err := writeTool.Execute(ctx, wArgs); err == nil || !errors.Is(err, ErrPathEscape) {
+		t.Fatalf("expected WriteFileTool with empty workspace to fail closed with ErrPathEscape, got: %v", err)
+	}
+
+	// 3. EditFileTool with empty workspace
+	editTool := &EditFileTool{Workspace: ""}
+	eArgs, _ := json.Marshal(map[string]string{"path": "test.txt", "target": "a", "replacement": "b"})
+	if _, err := editTool.Execute(ctx, eArgs); err == nil || !errors.Is(err, ErrPathEscape) {
+		t.Fatalf("expected EditFileTool with empty workspace to fail closed with ErrPathEscape, got: %v", err)
+	}
+
+	// 4. ListDirTool with empty workspace
+	listTool := &ListDirTool{Workspace: ""}
+	lArgs, _ := json.Marshal(map[string]string{"path": "."})
+	if _, err := listTool.Execute(ctx, lArgs); err == nil || !errors.Is(err, ErrPathEscape) {
+		t.Fatalf("expected ListDirTool with empty workspace to fail closed with ErrPathEscape, got: %v", err)
+	}
+
+	// 5. DeleteFileTool with empty workspace
+	deleteTool := &DeleteFileTool{Workspace: ""}
+	dArgs, _ := json.Marshal(map[string]string{"path": "file.txt"})
+	if _, err := deleteTool.Execute(ctx, dArgs); err == nil || !errors.Is(err, ErrPathEscape) {
+		t.Fatalf("expected DeleteFileTool with empty workspace to fail closed with ErrPathEscape, got: %v", err)
+	}
+}
+
 func TestFSTools_Lifecycle(t *testing.T) {
 	tmp := t.TempDir()
 	ctx := context.Background()
