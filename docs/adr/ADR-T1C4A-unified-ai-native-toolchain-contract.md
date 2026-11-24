@@ -4,7 +4,7 @@
 |-------|-------|
 | ID | ADR-T1C4A |
 | Title | AI-Native Engineering is a first-class capability of the unified `krew` toolchain, integrated through a versioned public contract |
-| Status | Proposed (awaiting maintainer approval) |
+| Status | Approved |
 | Date | 2026-11-23 |
 | Author | Krewire Contributors |
 | Deciders | Krewire core maintainers |
