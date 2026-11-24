@@ -312,9 +312,10 @@ type decision struct {
 
 // ControlPlane coordinates human-in-the-loop AI workflows across workspaces.
 type ControlPlane struct {
-	mu     sync.RWMutex
-	tasks  map[string]*EngineeringTask // key: wsID + ":" + taskID
-	runner CommandRunner
+	mu           sync.RWMutex
+	tasks        map[string]*EngineeringTask // key: wsID + ":" + taskID
+	runner       CommandRunner
+	nonceTracker sec.NonceTracker
 }
 
 // NewControlPlane initializes a human-in-the-loop engineering control plane.
@@ -323,8 +324,9 @@ func NewControlPlane(runner CommandRunner) *ControlPlane {
 		runner = HostCommandRunner{}
 	}
 	return &ControlPlane{
-		tasks:  make(map[string]*EngineeringTask),
-		runner: runner,
+		tasks:        make(map[string]*EngineeringTask),
+		runner:       runner,
+		nonceTracker: sec.NewMemoryNonceTracker(),
 	}
 }
 
@@ -794,16 +796,45 @@ func (cp *ControlPlane) DecideDiff(wsID, taskID, filePath string, accept bool, r
 	return nil
 }
 
-// GenerateApprovalSignal issues a cryptographically authenticated approval signal
-// for a privileged task operation within a workspace.
-func (cp *ControlPlane) GenerateApprovalSignal(wsID, taskID, approverID, secretKey string, ttl time.Duration) (*sec.ApprovalSignal, error) {
-	task, err := cp.liveTask(wsID, taskID)
+// ApprovalSignalOptions configures approval signal generation with cryptographic binding.
+type ApprovalSignalOptions struct {
+	TenantID    string
+	WorkspaceID string
+	TaskID      string
+	ApproverID  string
+	ActionHash  string
+	SecretKey   string
+	KeyID       string
+	TTL         time.Duration
+}
+
+// GenerateApprovalSignalWithOptions issues a cryptographically authenticated approval signal
+// for a privileged task operation within a workspace, binding tenant, task, action hash, and nonce.
+func (cp *ControlPlane) GenerateApprovalSignalWithOptions(opts ApprovalSignalOptions) (*sec.ApprovalSignal, error) {
+	if opts.WorkspaceID == "" {
+		return nil, errors.New("assistant: workspace ID is required for approval signal")
+	}
+	if opts.TaskID == "" {
+		return nil, errors.New("assistant: task ID is required for approval signal")
+	}
+	task, err := cp.liveTask(opts.WorkspaceID, opts.TaskID)
 	if err != nil {
 		return nil, err
 	}
 
-	scope := fmt.Sprintf("dash:task:%s:%s", wsID, taskID)
-	sig, err := sec.NewApprovalSignal(approverID, scope, secretKey, ttl)
+	scope := fmt.Sprintf("dash:task:%s:%s", opts.WorkspaceID, opts.TaskID)
+	if opts.TenantID != "" {
+		scope = fmt.Sprintf("dash:%s:task:%s:%s", opts.TenantID, opts.WorkspaceID, opts.TaskID)
+	}
+
+	sig, err := sec.NewApprovalSignalWithOptions(sec.ApprovalOptions{
+		ApproverID: opts.ApproverID,
+		Scope:      scope,
+		SecretKey:  opts.SecretKey,
+		KeyID:      opts.KeyID,
+		ActionHash: opts.ActionHash,
+		TTL:        opts.TTL,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -812,14 +843,108 @@ func (cp *ControlPlane) GenerateApprovalSignal(wsID, taskID, approverID, secretK
 		ID:         fmt.Sprintf("act-%d", time.Now().UnixNano()),
 		Timestamp:  time.Now(),
 		Type:       "approval_signal_issued",
-		Actor:      approverID,
+		Actor:      opts.ApproverID,
 		IsVerified: true,
 		Label:      "Verified System Decision",
-		Summary:    fmt.Sprintf("Cryptographic approval signal issued by %s for scope %q", approverID, scope),
-		Details:    map[string]any{"scope": scope, "valid_until": sig.ValidUntil},
+		Summary:    fmt.Sprintf("Cryptographic approval signal issued by %s for scope %q", opts.ApproverID, scope),
+		Details: map[string]any{
+			"scope":       scope,
+			"valid_until": sig.ValidUntil,
+			"key_id":      sig.KeyID,
+			"action_hash": sig.ActionHash,
+			"nonce":       sig.Nonce,
+		},
 	})
 
 	return sig, nil
+}
+
+// GenerateApprovalSignal issues a cryptographically authenticated approval signal
+// for a privileged task operation within a workspace.
+func (cp *ControlPlane) GenerateApprovalSignal(wsID, taskID, approverID, secretKey string, ttl time.Duration) (*sec.ApprovalSignal, error) {
+	return cp.GenerateApprovalSignalWithOptions(ApprovalSignalOptions{
+		WorkspaceID: wsID,
+		TaskID:      taskID,
+		ApproverID:  approverID,
+		SecretKey:   secretKey,
+		TTL:         ttl,
+	})
+}
+
+// VerifyApprovalSignalOptions configures verification criteria for an ApprovalSignal.
+type VerifyApprovalSignalOptions struct {
+	TenantID           string
+	WorkspaceID        string
+	TaskID             string
+	ExpectedActionHash string
+	SecretKey          string
+	KeyRing            *sec.KeyRing
+}
+
+// VerifyApprovalSignalWithOptions cryptographically verifies an approval signal against the task's
+// expected scope, action hash, key material, and replay protection.
+func (cp *ControlPlane) VerifyApprovalSignalWithOptions(sig *sec.ApprovalSignal, opts VerifyApprovalSignalOptions) error {
+	if sig == nil {
+		return sec.ErrInvalidApprovalSignal
+	}
+	if opts.WorkspaceID == "" || opts.TaskID == "" {
+		return errors.New("assistant: workspace ID and task ID are required for verification")
+	}
+
+	task, err := cp.liveTask(opts.WorkspaceID, opts.TaskID)
+	if err != nil {
+		return err
+	}
+
+	expectedScope := fmt.Sprintf("dash:task:%s:%s", opts.WorkspaceID, opts.TaskID)
+	if opts.TenantID != "" {
+		expectedScope = fmt.Sprintf("dash:%s:task:%s:%s", opts.TenantID, opts.WorkspaceID, opts.TaskID)
+	}
+
+	cp.mu.Lock()
+	if cp.nonceTracker == nil {
+		cp.nonceTracker = sec.NewMemoryNonceTracker()
+	}
+	tracker := cp.nonceTracker
+	cp.mu.Unlock()
+
+	if err := sig.VerifyWithOptions(sec.VerifySignalOptions{
+		SecretKey:          opts.SecretKey,
+		KeyRing:            opts.KeyRing,
+		ExpectedScope:      expectedScope,
+		ExpectedActionHash: opts.ExpectedActionHash,
+		Tracker:            tracker,
+	}); err != nil {
+		return err
+	}
+
+	task.recordActivity(ActivityRecord{
+		ID:         fmt.Sprintf("act-%d", time.Now().UnixNano()),
+		Timestamp:  time.Now(),
+		Type:       "approval_signal_verified",
+		Actor:      sig.ApproverID,
+		IsVerified: true,
+		Label:      "Verified System Decision",
+		Summary:    fmt.Sprintf("Cryptographic approval signal verified for scope %q by %s", expectedScope, sig.ApproverID),
+		Details: map[string]any{
+			"scope":       expectedScope,
+			"valid_until": sig.ValidUntil,
+			"key_id":      sig.KeyID,
+			"action_hash": sig.ActionHash,
+		},
+	})
+
+	return nil
+}
+
+// VerifyApprovalSignal verifies an approval signal against workspace, task, secretKey, and action hash.
+func (cp *ControlPlane) VerifyApprovalSignal(sig *sec.ApprovalSignal, wsID, taskID, secretKey, expectedActionHash string) error {
+	return cp.VerifyApprovalSignalWithOptions(sig, VerifyApprovalSignalOptions{
+		WorkspaceID:        wsID,
+		TaskID:             taskID,
+		SecretKey:          secretKey,
+		ExpectedActionHash: expectedActionHash,
+	})
 }
 
 // Subscribe opens a real-time event channel for task execution events.

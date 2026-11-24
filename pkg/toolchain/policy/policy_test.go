@@ -9,7 +9,7 @@ import (
 	"github.com/krewire/krewire/pkg/toolchain/contract"
 )
 
-const secret = "host-secret"
+const secret = "host-secret-test-key"
 
 func authorizer(t *testing.T) *Authorizer {
 	t.Helper()
@@ -78,7 +78,7 @@ func TestApprovals(t *testing.T) {
 	forged := good
 	forged.Token = strings.Repeat("0", len(good.Token))
 	wrongScope, _ := Sign("alice", PlanScope("131", "other"), secret, time.Minute)
-	wrongKey, _ := Sign("alice", d.ApprovalScope, "other-secret", time.Minute)
+	wrongKey, _ := Sign("alice", d.ApprovalScope, "other-secret-key-2", time.Minute)
 	stranger, _ := Sign("mallory", d.ApprovalScope, secret, time.Minute)
 	for name, rec := range map[string]contract.ApprovalRecord{"forged": forged, "scope": wrongScope, "key": wrongKey, "approver": stranger} {
 		if d := a.Authorize(call, []contract.ApprovalRecord{rec}); d.Allowed {

@@ -3,12 +3,14 @@ package assistant_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/krewire/krewire/pkg/ai/assistant"
 	"github.com/krewire/krewire/pkg/ai/sdlc"
+	"github.com/krewire/krewire/pkg/sec"
 )
 
 // TestControlPlane_ConcurrentReadersRace is a regression test for the data
@@ -204,5 +206,124 @@ func TestControlPlane_TaskSnapshotDeepCopyIsolation(t *testing.T) {
 	fromCreated := created.Snapshot()
 	if fromCreated.ID != brief.ID {
 		t.Errorf("expected snapshot ID %s, got %s", brief.ID, fromCreated.ID)
+	}
+}
+
+func TestControlPlane_ApprovalSignalSecurity(t *testing.T) {
+	cp := assistant.NewControlPlane(assistant.HostCommandRunner{})
+	wsID := "ws-sig-sec"
+	taskID := "TASK-SIG-SEC-1"
+	brief := sdlc.TaskBrief{
+		ID:        taskID,
+		Title:     "approval signal security verification",
+		Objective: "verify cryptographic binding and replay protection",
+		Scope:     []string{"."},
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if _, err := cp.CreateTask(ctx, wsID, t.TempDir(), brief, "dev"); err != nil {
+		t.Fatalf("CreateTask: %v", err)
+	}
+
+	secret := "0123456789abcdef0123456789abcdef"
+	diffHash := "sha256:4d6023d8819543e49870f7cfcb7891bb08e7ff9ffba92d0cbb577e1dbab454f2"
+
+	// 1. Generation with full options
+	sig, err := cp.GenerateApprovalSignalWithOptions(assistant.ApprovalSignalOptions{
+		TenantID:    "ten-alpha",
+		WorkspaceID: wsID,
+		TaskID:      taskID,
+		ApproverID:  "lead-security",
+		ActionHash:  diffHash,
+		SecretKey:   secret,
+		KeyID:       "key-2026-q1",
+		TTL:         10 * time.Minute,
+	})
+	if err != nil {
+		t.Fatalf("GenerateApprovalSignalWithOptions: %v", err)
+	}
+	if sig.KeyID != "key-2026-q1" || sig.ActionHash != diffHash || sig.Nonce == "" {
+		t.Fatalf("unexpected signal fields: %+v", sig)
+	}
+
+	// 2. Successful verification
+	if err := cp.VerifyApprovalSignalWithOptions(sig, assistant.VerifyApprovalSignalOptions{
+		TenantID:           "ten-alpha",
+		WorkspaceID:        wsID,
+		TaskID:             taskID,
+		ExpectedActionHash: diffHash,
+		SecretKey:          secret,
+	}); err != nil {
+		t.Fatalf("verification failed: %v", err)
+	}
+
+	// 3. Replay detection: second verification must fail
+	if err := cp.VerifyApprovalSignalWithOptions(sig, assistant.VerifyApprovalSignalOptions{
+		TenantID:           "ten-alpha",
+		WorkspaceID:        wsID,
+		TaskID:             taskID,
+		ExpectedActionHash: diffHash,
+		SecretKey:          secret,
+	}); !errors.Is(err, sec.ErrApprovalReplayed) {
+		t.Fatalf("expected ErrApprovalReplayed, got %v", err)
+	}
+
+	// 4. Insecure former fallback secret rejected
+	fallbackSecret := "dash-ephemeral-approval-secret"
+	if _, err := cp.GenerateApprovalSignalWithOptions(assistant.ApprovalSignalOptions{
+		WorkspaceID: wsID,
+		TaskID:      taskID,
+		ApproverID:  "attacker",
+		SecretKey:   fallbackSecret,
+	}); !errors.Is(err, sec.ErrInsecureFallbackSecret) {
+		t.Fatalf("expected ErrInsecureFallbackSecret, got %v", err)
+	}
+
+	// 5. Verification fails on tampered action hash
+	sig2, err := cp.GenerateApprovalSignalWithOptions(assistant.ApprovalSignalOptions{
+		WorkspaceID: wsID,
+		TaskID:      taskID,
+		ApproverID:  "lead-security",
+		ActionHash:  diffHash,
+		SecretKey:   secret,
+		TTL:         10 * time.Minute,
+	})
+	if err != nil {
+		t.Fatalf("GenerateApprovalSignalWithOptions sig2: %v", err)
+	}
+
+	if err := cp.VerifyApprovalSignalWithOptions(sig2, assistant.VerifyApprovalSignalOptions{
+		WorkspaceID:        wsID,
+		TaskID:             taskID,
+		ExpectedActionHash: "sha256:tampered",
+		SecretKey:          secret,
+	}); !errors.Is(err, sec.ErrApprovalActionHashMismatch) {
+		t.Fatalf("expected ErrApprovalActionHashMismatch, got %v", err)
+	}
+
+	// 6. Verification with key ring and rotation
+	ring, err := sec.NewKeyRing("key-2026-q1", secret)
+	if err != nil {
+		t.Fatalf("NewKeyRing: %v", err)
+	}
+	sig3, err := cp.GenerateApprovalSignalWithOptions(assistant.ApprovalSignalOptions{
+		WorkspaceID: wsID,
+		TaskID:      taskID,
+		ApproverID:  "lead-security",
+		KeyID:       "key-2026-q1",
+		SecretKey:   secret,
+		TTL:         10 * time.Minute,
+	})
+	if err != nil {
+		t.Fatalf("sig3 generation: %v", err)
+	}
+
+	if err := cp.VerifyApprovalSignalWithOptions(sig3, assistant.VerifyApprovalSignalOptions{
+		WorkspaceID: wsID,
+		TaskID:      taskID,
+		KeyRing:     ring,
+	}); err != nil {
+		t.Fatalf("verification with key ring failed: %v", err)
 	}
 }
