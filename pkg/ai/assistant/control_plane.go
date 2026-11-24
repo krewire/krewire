@@ -2,6 +2,7 @@ package assistant
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -63,6 +64,170 @@ type EngineeringTask struct {
 	live *EngineeringTask
 }
 
+// TaskSnapshot is an immutable, concurrency-safe read model of an EngineeringTask.
+// All nested slices, maps, and structures are deep-copied under the task read lock,
+// guaranteeing that subsequent mutations by workflow goroutines cannot cause data races
+// during reads or JSON serialization.
+type TaskSnapshot struct {
+	ID          string                    `json:"id"`
+	WorkspaceID string                    `json:"workspace_id"`
+	Title       string                    `json:"title"`
+	Brief       sdlc.TaskBrief            `json:"brief"`
+	Stage       sdlc.Stage                `json:"stage"`
+	Status      sdlc.Status               `json:"status"`
+	Plan        *sdlc.Plan                `json:"plan,omitempty"`
+	Diffs       []sdlc.FileDiff           `json:"diffs,omitempty"`
+	Evidence    []sdlc.VerificationResult `json:"evidence,omitempty"`
+	Review      *sdlc.ReviewSummary       `json:"review,omitempty"`
+	Provenance  sdlc.Provenance           `json:"provenance"`
+	Activities  []ActivityRecord          `json:"activities"`
+	Error       string                    `json:"error,omitempty"`
+	CreatedAt   time.Time                 `json:"created_at"`
+	UpdatedAt   time.Time                 `json:"updated_at"`
+}
+
+func cloneBrief(b sdlc.TaskBrief) sdlc.TaskBrief {
+	cp := b
+	if b.Scope != nil {
+		cp.Scope = append([]string(nil), b.Scope...)
+	}
+	if b.Constraints != nil {
+		cp.Constraints = append([]string(nil), b.Constraints...)
+	}
+	if b.AcceptanceCriteria != nil {
+		cp.AcceptanceCriteria = append([]string(nil), b.AcceptanceCriteria...)
+	}
+	if b.VerificationCommands != nil {
+		cp.VerificationCommands = append([]string(nil), b.VerificationCommands...)
+	}
+	return cp
+}
+
+func clonePlan(p *sdlc.Plan) *sdlc.Plan {
+	if p == nil {
+		return nil
+	}
+	cp := *p
+	if p.Steps != nil {
+		cp.Steps = make([]sdlc.PlanStep, len(p.Steps))
+		for i, step := range p.Steps {
+			stepCopy := step
+			if step.TargetFiles != nil {
+				stepCopy.TargetFiles = append([]string(nil), step.TargetFiles...)
+			}
+			cp.Steps[i] = stepCopy
+		}
+	}
+	return &cp
+}
+
+func cloneReview(r *sdlc.ReviewSummary) *sdlc.ReviewSummary {
+	if r == nil {
+		return nil
+	}
+	cp := *r
+	if r.VerificationEvidence != nil {
+		cp.VerificationEvidence = append([]sdlc.VerificationResult(nil), r.VerificationEvidence...)
+	}
+	if r.Risks != nil {
+		cp.Risks = append([]string(nil), r.Risks...)
+	}
+	if r.UnresolvedQuestions != nil {
+		cp.UnresolvedQuestions = append([]string(nil), r.UnresolvedQuestions...)
+	}
+	return &cp
+}
+
+func cloneProvenance(p sdlc.Provenance) sdlc.Provenance {
+	cp := p
+	if p.ToolsUsed != nil {
+		cp.ToolsUsed = append([]string(nil), p.ToolsUsed...)
+	}
+	if p.VerificationEvidence != nil {
+		cp.VerificationEvidence = append([]sdlc.VerificationResult(nil), p.VerificationEvidence...)
+	}
+	if p.CreatedFiles != nil {
+		cp.CreatedFiles = append([]string(nil), p.CreatedFiles...)
+	}
+	if p.ModifiedFiles != nil {
+		cp.ModifiedFiles = append([]string(nil), p.ModifiedFiles...)
+	}
+	return cp
+}
+
+func cloneActivities(acts []ActivityRecord) []ActivityRecord {
+	if acts == nil {
+		return nil
+	}
+	cp := make([]ActivityRecord, len(acts))
+	for i, act := range acts {
+		actCopy := act
+		if act.Details != nil {
+			actCopy.Details = cloneDetails(act.Details)
+		}
+		cp[i] = actCopy
+	}
+	return cp
+}
+
+func cloneDetails(m map[string]any) map[string]any {
+	if m == nil {
+		return nil
+	}
+	cp := make(map[string]any, len(m))
+	for k, v := range m {
+		cp[k] = cloneValue(v)
+	}
+	return cp
+}
+
+func cloneValue(v any) any {
+	switch val := v.(type) {
+	case map[string]any:
+		return cloneDetails(val)
+	case []string:
+		return append([]string(nil), val...)
+	case []sdlc.PlanStep:
+		steps := make([]sdlc.PlanStep, len(val))
+		for i, s := range val {
+			sCopy := s
+			if s.TargetFiles != nil {
+				sCopy.TargetFiles = append([]string(nil), s.TargetFiles...)
+			}
+			steps[i] = sCopy
+		}
+		return steps
+	case []sdlc.VerificationResult:
+		return append([]sdlc.VerificationResult(nil), val...)
+	case []sdlc.FileDiff:
+		return append([]sdlc.FileDiff(nil), val...)
+	case []any:
+		slice := make([]any, len(val))
+		for i, item := range val {
+			slice[i] = cloneValue(item)
+		}
+		return slice
+	case *sdlc.Plan:
+		return clonePlan(val)
+	case sdlc.Plan:
+		p := clonePlan(&val)
+		if p != nil {
+			return *p
+		}
+		return val
+	case *sdlc.ReviewSummary:
+		return cloneReview(val)
+	case sdlc.ReviewSummary:
+		r := cloneReview(&val)
+		if r != nil {
+			return *r
+		}
+		return val
+	default:
+		return val
+	}
+}
+
 // target resolves a snapshot to its live task.
 func (task *EngineeringTask) target() *EngineeringTask {
 	if task.live != nil {
@@ -71,37 +236,73 @@ func (task *EngineeringTask) target() *EngineeringTask {
 	return task
 }
 
+// Snapshot returns an immutable point-in-time snapshot of the task taken
+// under its read lock. All nested slices, maps, and pointer types are
+// deep-copied so subsequent mutations by workflow goroutines cannot affect
+// the snapshot or cause data races during concurrent reads/JSON marshaling.
+func (task *EngineeringTask) Snapshot() *TaskSnapshot {
+	target := task.target()
+	target.mu.RLock()
+	defer target.mu.RUnlock()
+
+	var diffs []sdlc.FileDiff
+	if target.Diffs != nil {
+		diffs = append([]sdlc.FileDiff(nil), target.Diffs...)
+	}
+	var evidence []sdlc.VerificationResult
+	if target.Evidence != nil {
+		evidence = append([]sdlc.VerificationResult(nil), target.Evidence...)
+	}
+
+	return &TaskSnapshot{
+		ID:          target.ID,
+		WorkspaceID: target.WorkspaceID,
+		Title:       target.Title,
+		Brief:       cloneBrief(target.Brief),
+		Stage:       target.Stage,
+		Status:      target.Status,
+		Plan:        clonePlan(target.Plan),
+		Diffs:       diffs,
+		Evidence:    evidence,
+		Review:      cloneReview(target.Review),
+		Provenance:  cloneProvenance(target.Provenance),
+		Activities:  cloneActivities(target.Activities),
+		Error:       target.Error,
+		CreatedAt:   target.CreatedAt,
+		UpdatedAt:   target.UpdatedAt,
+	}
+}
+
 // snapshot returns a copy of the task's exported state taken under its read
 // lock. Slices and the plan/review values are copied so later mutations by
 // the workflow goroutine are not observable through the snapshot.
 func (task *EngineeringTask) snapshot() *EngineeringTask {
-	task.mu.RLock()
-	defer task.mu.RUnlock()
-	cp := &EngineeringTask{
-		ID:          task.ID,
-		WorkspaceID: task.WorkspaceID,
-		Title:       task.Title,
-		Brief:       task.Brief,
-		Stage:       task.Stage,
-		Status:      task.Status,
-		Diffs:       append([]sdlc.FileDiff(nil), task.Diffs...),
-		Evidence:    append([]sdlc.VerificationResult(nil), task.Evidence...),
-		Provenance:  task.Provenance,
-		Activities:  append([]ActivityRecord(nil), task.Activities...),
-		Error:       task.Error,
-		CreatedAt:   task.CreatedAt,
-		UpdatedAt:   task.UpdatedAt,
-		live:        task,
+	snap := task.Snapshot()
+	return &EngineeringTask{
+		ID:          snap.ID,
+		WorkspaceID: snap.WorkspaceID,
+		Title:       snap.Title,
+		Brief:       snap.Brief,
+		Stage:       snap.Stage,
+		Status:      snap.Status,
+		Plan:        snap.Plan,
+		Diffs:       snap.Diffs,
+		Evidence:    snap.Evidence,
+		Review:      snap.Review,
+		Provenance:  snap.Provenance,
+		Activities:  snap.Activities,
+		Error:       snap.Error,
+		CreatedAt:   snap.CreatedAt,
+		UpdatedAt:   snap.UpdatedAt,
+		live:        task.target(),
 	}
-	if task.Plan != nil {
-		plan := *task.Plan
-		cp.Plan = &plan
-	}
-	if task.Review != nil {
-		review := *task.Review
-		cp.Review = &review
-	}
-	return cp
+}
+
+// MarshalJSON ensures that even if an EngineeringTask is serialized directly,
+// an immutable, race-safe snapshot is serialized under read locks rather than
+// traversing live internal fields without synchronization.
+func (task *EngineeringTask) MarshalJSON() ([]byte, error) {
+	return json.Marshal(task.Snapshot())
 }
 
 type decision struct {
@@ -401,6 +602,15 @@ func (cp *ControlPlane) GetTask(wsID, taskID string) (*EngineeringTask, error) {
 	return task.snapshot(), nil
 }
 
+// GetTaskSnapshot returns an immutable, concurrency-safe snapshot of an existing supervised task.
+func (cp *ControlPlane) GetTaskSnapshot(wsID, taskID string) (*TaskSnapshot, error) {
+	task, err := cp.liveTask(wsID, taskID)
+	if err != nil {
+		return nil, err
+	}
+	return task.Snapshot(), nil
+}
+
 // ListTasks lists snapshots of all tasks for a workspace.
 func (cp *ControlPlane) ListTasks(wsID string) []*EngineeringTask {
 	cp.mu.RLock()
@@ -414,6 +624,23 @@ func (cp *ControlPlane) ListTasks(wsID string) []*EngineeringTask {
 	list := make([]*EngineeringTask, 0, len(live))
 	for _, task := range live {
 		list = append(list, task.snapshot())
+	}
+	return list
+}
+
+// ListTaskSnapshots lists immutable, concurrency-safe snapshots of all tasks for a workspace.
+func (cp *ControlPlane) ListTaskSnapshots(wsID string) []*TaskSnapshot {
+	cp.mu.RLock()
+	live := make([]*EngineeringTask, 0)
+	for key, task := range cp.tasks {
+		if strings.HasPrefix(key, wsID+":") {
+			live = append(live, task)
+		}
+	}
+	cp.mu.RUnlock()
+	list := make([]*TaskSnapshot, 0, len(live))
+	for _, task := range live {
+		list = append(list, task.Snapshot())
 	}
 	return list
 }

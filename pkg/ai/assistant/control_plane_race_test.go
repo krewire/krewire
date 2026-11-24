@@ -2,6 +2,7 @@ package assistant_test
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
 	"testing"
 	"time"
@@ -51,6 +52,10 @@ func TestControlPlane_ConcurrentReadersRace(t *testing.T) {
 					if task.Plan != nil {
 						_ = len(task.Plan.Steps)
 					}
+					// Verify direct task serialization is safe and invokes snapshotting.
+					if data, err := json.Marshal(task); err == nil {
+						_ = len(data)
+					}
 					ch, unsub := task.SubscribeActivities()
 					select {
 					case <-ch:
@@ -59,8 +64,23 @@ func TestControlPlane_ConcurrentReadersRace(t *testing.T) {
 					unsub()
 					unsub() // idempotent
 				}
+				if snap, err := cp.GetTaskSnapshot(wsID, brief.ID); err == nil {
+					_, _, _ = snap.Status, snap.Stage, len(snap.Activities)
+					if snap.Plan != nil {
+						_ = len(snap.Plan.Steps)
+					}
+					if data, err := json.Marshal(snap); err == nil {
+						_ = len(data)
+					}
+				}
 				for _, task := range cp.ListTasks(wsID) {
 					_ = task.UpdatedAt
+				}
+				for _, snap := range cp.ListTaskSnapshots(wsID) {
+					_ = snap.UpdatedAt
+					if data, err := json.Marshal(snap); err == nil {
+						_ = len(data)
+					}
 				}
 			}
 		}()
@@ -105,5 +125,84 @@ func TestControlPlane_ConcurrentReadersRace(t *testing.T) {
 	}
 	if fresh, _ := cp.GetTask(wsID, brief.ID); len(fresh.Activities) != before+1 {
 		t.Fatalf("expected a new activity in a fresh snapshot, got %d (was %d)", len(fresh.Activities), before)
+	}
+}
+
+func TestControlPlane_TaskSnapshotDeepCopyIsolation(t *testing.T) {
+	cp := assistant.NewControlPlane(assistant.HostCommandRunner{})
+	wsID := "ws-iso"
+	brief := sdlc.TaskBrief{
+		ID:                   "TASK-ISO-1",
+		Title:                "isolation verification",
+		Objective:            "verify deep copy guarantees",
+		Scope:                []string{"dir/a"},
+		Constraints:          []string{"c1"},
+		AcceptanceCriteria:   []string{"a1"},
+		VerificationCommands: []string{"echo 1"},
+		RequirePlan:          true,
+		RequireReview:        true,
+	}
+
+	created, err := cp.CreateTask(context.Background(), wsID, t.TempDir(), brief, "dev", func(opts *sdlc.WorkflowOptions) {
+		opts.PlanFn = func(ctx context.Context, b sdlc.TaskBrief) (*sdlc.Plan, error) {
+			return &sdlc.Plan{
+				Summary: "Plan summary",
+				Steps: []sdlc.PlanStep{
+					{ID: "s1", Description: "Step 1", TargetFiles: []string{"file1.go"}},
+				},
+			}, nil
+		}
+	})
+	if err != nil {
+		t.Fatalf("CreateTask: %v", err)
+	}
+
+	// Wait until plan is created
+	deadline := time.Now().Add(5 * time.Second)
+	var snap *assistant.TaskSnapshot
+	for time.Now().Before(deadline) {
+		var sErr error
+		snap, sErr = cp.GetTaskSnapshot(wsID, brief.ID)
+		if sErr == nil && snap != nil && snap.Plan != nil {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if snap == nil || snap.Plan == nil {
+		t.Fatalf("timed out waiting for plan snapshot")
+	}
+
+	// 1. Mutate returned snapshot fields and verify original in Core is unaffected
+	snap.Brief.Scope[0] = "mutated-scope"
+	snap.Plan.Steps[0].TargetFiles[0] = "mutated-file.go"
+	snap.Plan.Summary = "mutated-summary"
+
+	freshSnap, err := cp.GetTaskSnapshot(wsID, brief.ID)
+	if err != nil {
+		t.Fatalf("GetTaskSnapshot: %v", err)
+	}
+	if freshSnap.Brief.Scope[0] == "mutated-scope" {
+		t.Errorf("Brief.Scope was mutated through snapshot reference")
+	}
+	if freshSnap.Plan.Steps[0].TargetFiles[0] == "mutated-file.go" {
+		t.Errorf("Plan.Steps.TargetFiles was mutated through snapshot reference")
+	}
+	if freshSnap.Plan.Summary == "mutated-summary" {
+		t.Errorf("Plan.Summary was mutated through snapshot reference")
+	}
+
+	// 2. Mutate activities details map if present
+	if len(freshSnap.Activities) > 0 && freshSnap.Activities[0].Details != nil {
+		freshSnap.Activities[0].Details["mutated_key"] = "bad"
+		thirdSnap, _ := cp.GetTaskSnapshot(wsID, brief.ID)
+		if _, exists := thirdSnap.Activities[0].Details["mutated_key"]; exists {
+			t.Errorf("Activities[0].Details was mutated through snapshot reference")
+		}
+	}
+
+	// 3. Verify created.Snapshot() returns independent snapshot
+	fromCreated := created.Snapshot()
+	if fromCreated.ID != brief.ID {
+		t.Errorf("expected snapshot ID %s, got %s", brief.ID, fromCreated.ID)
 	}
 }
