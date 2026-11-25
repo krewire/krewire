@@ -172,7 +172,7 @@ func (s *Site) writeAssets(outDir string) []string {
 			continue
 		}
 		rel := cleanAssetPath(name)
-		if s.auto.bundle {
+		if s.auto.bundle && !s.scriptAssets[name] {
 			ext := strings.ToLower(filepath.Ext(rel))
 			if strings.HasPrefix(rel, "assets/") && (ext == ".css" || ext == ".js") {
 				if rel != assets.DefaultCSSBundlePath && rel != assets.DefaultJSBundlePath {
