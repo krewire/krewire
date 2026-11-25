@@ -39,7 +39,7 @@ Release qualification validates that all supported components across the 11 Krew
 ## 3. Integration Boundary Contracts
 
 ### Boundary 1: `krewire` ──► `ui`
-- **Contract**: `ui/kiw.pkg.json` declares a valid package manifest adhering to `https://krewire.com/schemas/kiw.pkg.schema.json`.
+- **Contract**: `ui/components/components.json` is the canonical component catalog; `krew pkg` derives the package manifest on demand.
 - **Validation**: `.kiw` component syntax compiles through `ui/kiw` parser without syntax regressions; CSS tokens in `styles/krewire.css` exist and map to clean, modern color and border standards.
 
 ### Boundary 2: `krewire` ──► `krew`
@@ -107,7 +107,7 @@ krew release qualify --json --out dist/qualification-results.json
       "status": "Supported",
       "passed": true,
       "skipped": false,
-      "details": "Verified @krewire/ui kiw.pkg.json manifest and component contracts",
+      "details": "Verified @krewire/ui component catalog (components.json) and component contracts",
       "error": "",
       "duration_ms": 12
     }
