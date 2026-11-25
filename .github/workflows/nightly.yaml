@@ -40,9 +40,9 @@ jobs:
         id: meta
         run: |
           # Nightlies precede the next minor of the canonical version SSOT.
-          BASE="$(sed -n 's/^var CurrentVersion = MustParseVersion("\(.*\)")$/\1/p' pkg/version/version.go)"
+          BASE="$(sed -n 's/^var CurrentVersion = MustParseVersion("\(.*\)")$/\1/p' version/version.go)"
           if [ -z "${BASE}" ]; then
-            echo "::error::cannot read CurrentVersion from pkg/version/version.go"
+            echo "::error::cannot read CurrentVersion from version/version.go"
             exit 1
           fi
           IFS=. read -r MAJOR MINOR _ <<< "${BASE}"

@@ -26,7 +26,7 @@ TARGETS="${TARGETS:-$DEFAULT_TARGETS}"
 # Executables shipped by this module: <binary name>=<main package>.
 BINARIES="ai=./cmd/ai"
 
-PKG="github.com/krewire/krewire/pkg/version"
+PKG="github.com/krewire/krewire/version"
 SBOM="${SBOM:-1}"
 CYCLONEDX_GOMOD="github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.12.0"
 
@@ -62,7 +62,7 @@ if [ "${SBOM}" = "1" ]; then
   GOBIN="${TOOLS}" GOFLAGS="" CGO_ENABLED=0 go install "${CYCLONEDX_GOMOD}"
 fi
 
-export CGO_ENABLED=0 GOFLAGS="-mod=readonly" GOWORK=off
+export CGO_ENABLED=0 GOFLAGS="-mod=readonly"
 
 for bin in ${BINARIES}; do
   name="${bin%%=*}"

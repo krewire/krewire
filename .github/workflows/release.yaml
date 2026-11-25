@@ -64,9 +64,9 @@ jobs:
           INPUT_TRACK: ${{ inputs.track }}
         run: |
           # Canonical version SSOT (docs/foundation/release-and-compatibility.md §1).
-          BASE="$(sed -n 's/^var CurrentVersion = MustParseVersion("\(.*\)")$/\1/p' pkg/version/version.go)"
+          BASE="$(sed -n 's/^var CurrentVersion = MustParseVersion("\(.*\)")$/\1/p' version/version.go)"
           if [ -z "${BASE}" ]; then
-            echo "::error::cannot read CurrentVersion from pkg/version/version.go"
+            echo "::error::cannot read CurrentVersion from version/version.go"
             exit 1
           fi
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then

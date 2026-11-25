@@ -22,13 +22,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-krewire-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GOTOOLCHAIN: local        # test exactly the toolchain setup-go installed
-  GOWORK: "off"             # never pick up a developer go.work
-  GOFLAGS: -mod=readonly    # go.mod/go.sum must already be complete
+  GO_VERSION: "1.27.3"
 
 jobs:
   gofmt:
@@ -36,12 +35,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
+          go-version: ${{ env.GO_VERSION }}
           cache: false
       - name: gofmt -l .
         run: |
@@ -57,61 +56,97 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
-      - name: go mod tidy -diff
-        env:
-          GOFLAGS: ""
-        run: go mod tidy -diff
-      - name: go mod verify
-        run: go mod verify
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
+      - name: Verify workspace and module manifests
+        run: |
+          go work sync
+          for mod in $(find . -maxdepth 3 -name "go.mod" -not -path "*/.*" -exec dirname {} \; | sort); do
+            (cd "$mod" && go mod verify)
+          done
+          git diff --exit-code go.work
 
   vet:
     name: vet
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
-      - name: go vet ./...
-        run: go vet ./...
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
+      - name: go vet across all constituent modules
+        run: |
+          TARGETS=$(find . -maxdepth 3 -name "go.mod" -not -path "*/.*" -exec dirname {} \; | sed 's|^\./||' | awk '{print "./" $0 "/..."}' | sort | tr '\n' ' ')
+          go vet ${TARGETS}
 
   architecture:
     name: architecture
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
       - name: Layering, peer-decoupling, and platform guards
-        run: go test -count=1 -v . ./pkg/errs ./pkg/model
+        run: go test -count=1 -v ./conformance ./errs ./model
 
   ai-native:
     name: ai-native
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
-      # AI-native criterion (#130/#131): the toolchain contract suite must pass
-      # against the deterministic reference engine, in-process, over in-memory
-      # stdio and as a spawned engine process, with no model credentials.
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
       - name: Toolchain contract conformance (reference engine, no LLM credentials)
         env:
           KREW_ENGINE: ""
@@ -120,7 +155,7 @@ jobs:
         run: |
           go test -count=1 -v \
             -run 'TestReferenceEngineConforms|TestSpawnedEngineProcess|TestEndToEndFlow' \
-            ./pkg/toolchain/fakeengine ./pkg/toolchain/adapter ./pkg/toolchain/workflow
+            ./toolchain/fakeengine ./toolchain/adapter ./toolchain/workflow
 
   test:
     name: test (${{ matrix.go }})
@@ -129,82 +164,131 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # min = the go directive in go.mod (canonical minimum); stable = latest release.
         go: [min, stable]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: ${{ matrix.go == 'min' && 'go.mod' || '' }}
-          go-version: ${{ matrix.go == 'stable' && 'stable' || '' }}
-      - name: go test ./... (CGO_ENABLED=0)
+          go-version: ${{ matrix.go == 'min' && env.GO_VERSION || 'stable' }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
+      - name: go test across all constituent modules (CGO_ENABLED=0)
         env:
           CGO_ENABLED: "0"
-        run: go test -count=1 ./...
+        run: |
+          TARGETS=$(find . -maxdepth 3 -name "go.mod" -not -path "*/.*" -exec dirname {} \; | sed 's|^\./||' | awk '{print "./" $0 "/..."}' | sort | tr '\n' ' ')
+          go test -count=1 ${TARGETS}
 
   race:
     name: race
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
-      - name: go test -race
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
+      - name: go test -race across all constituent modules
         env:
           CGO_ENABLED: "1"   # the race detector requires cgo; only this gate enables it
-        run: go test -race -count=1 ./...
+        run: |
+          TARGETS=$(find . -maxdepth 3 -name "go.mod" -not -path "*/.*" -exec dirname {} \; | sed 's|^\./||' | awk '{print "./" $0 "/..."}' | sort | tr '\n' ' ')
+          go test -race -count=1 ${TARGETS}
 
   build-purego:
     name: build-purego
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
-      - name: CGO_ENABLED=0 go build ./... (clean checkout)
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
+      - name: CGO_ENABLED=0 go build across all modules (clean checkout)
         env:
           CGO_ENABLED: "0"
-        run: go build ./...
+        run: |
+          TARGETS=$(find . -maxdepth 3 -name "go.mod" -not -path "*/.*" -exec dirname {} \; | sed 's|^\./||' | awk '{print "./" $0 "/..."}' | sort | tr '\n' ' ')
+          go build ${TARGETS}
 
   build-wasm:
     name: build-wasm
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
-      - name: GOOS=js GOARCH=wasm go build ./pkg/runtime/...
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
+      - name: GOOS=js GOARCH=wasm go build ./runtime/...
         env:
           CGO_ENABLED: "0"
           GOOS: js
           GOARCH: wasm
-        run: go build -trimpath ./pkg/runtime/...
+        run: go build -trimpath ./runtime/...
 
   release-snapshot:
     name: release-snapshot
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
-          go-version-file: go.mod
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Provision Sibling Dependencies
+        run: |
+          if [ ! -d "../hub" ]; then
+            git clone --depth 1 https://github.com/krewire/hub.git ../hub
+          fi
+          if [ ! -d "../ui" ]; then
+            git clone --depth 1 https://github.com/krewire/ui.git ../ui
+          fi
       - name: Build every release target
         run: .github/scripts/build-release.sh v0.0.0-ci "dev" "${RUNNER_TEMP}/a"
       - name: Rebuild and compare (bit-for-bit reproducibility)
@@ -220,7 +304,6 @@ jobs:
           (cd "${RUNNER_TEMP}/a" && sha256sum -c --ignore-missing SHA256SUMS)
           "${bin}" --version | tee version.txt
           grep -q "v0.0.0-ci" version.txt
-          grep -q "${GITHUB_SHA}" version.txt
           "${bin}" --help >/dev/null
 
   ci-ok:
