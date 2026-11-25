@@ -14,7 +14,7 @@ The parser and desugaring engine for the `.kiw` Single-File Component (SFC) temp
 - **Slot Mechanics with Fallback**: Supports `<slot name="header">Fallback</slot>` and `<slot>Default Body</slot>` with automatic resolution.
 - **Inline Snippets / Macros**: Authored with `{#snippet name(args)}...{/snippet}` and invoked with `{@render name(args)}`.
 - **Declarative Imports**: Supports `<script>` block ES-like imports, frontmatter `imports:`, and `@import` directives.
-- **Standalone Component Packages**: Built-in `.kpkg` pack/unpack engine with `kiw.pkg.json` manifests and `sec.SafePath` traversal guards.
+- **Standalone Component Packages**: Built-in `.kpkg` pack/unpack engine with `components.json` manifests and `sec.SafePath` traversal guards.
 - **Scoped `<style>`**: Captured as `StyleBlock` values with `Lang`, `Scoped`, and `Content`.
 - **Multi-language `<script>`**: Captured as `ScriptBlock` values with `Lang` (`js|ts|go|rust`), `Hydrate` (`load|idle|visible`), `Server`, and `Compute` flags.
 - **`<markdown>` Blocks**: Rendered through `markdown` at parse time.
@@ -111,7 +111,7 @@ Components can declare imports via `<script>` blocks, YAML frontmatter, or top-l
 ## Standalone Component Packages (`.kpkg`)
 
 `ui/kiw` provides a complete standalone package packaging and unpacking pipeline:
-- **Canonical Manifest (`kiw.pkg.json`)**: Declares package name, version, exported components mapping, and stylesheet.
+- **Canonical Manifest (`components.json`)**: Declares package name, version, exported components mapping, and stylesheet.
 - **Archive Format (`.kpkg`)**: Gzipped tarball with SHA-256 integrity verification.
 - **Directory Layout**: Installed into `.krewire/` by default (`kiw.DefaultPackageDir`).
 - **Security (`sec.SafePath`)**: Unpacking strictly enforces traversal guards to prevent ZipSlip/TarSlip vulnerabilities.
@@ -152,9 +152,9 @@ and `<markdown>`, plus bracket matching and folding.
 - `kiw.PropAliases(name string) []string`: the lenient prop-casing aliases.
 - `kiw.PackPackage(dir, outPath string) (archivePath, sha256Hex string, err error)`: Bundles a component directory into a `.kpkg` archive.
 - `kiw.UnpackPackage(archivePath, destDir string) (*PackageManifest, error)`: Safely unpacks a `.kpkg` archive with `sec.SafePath` bounds.
-- `kiw.LoadPackageManifest(path string) (*PackageManifest, error)`: Decodes and validates `kiw.pkg.json`.
+- `kiw.LoadPackageManifest(path string) (*PackageManifest, error)`: Decodes and validates `components.json`.
 - `kiw.SavePackageManifest(path string, m *PackageManifest) error`: Writes a validated `PackageManifest` to disk.
-- Constants: `kiw.PackageExtension` (`.kpkg`), `kiw.DefaultPackageDir` (`.krewire/pkg`), `kiw.PackageManifestFile` (`kiw.pkg.json`).
+- Constants: `kiw.PackageExtension` (`.kpkg`), `kiw.DefaultPackageDir` (`.krewire/pkg`), `kiw.PackageManifestFile` (`components.json`).
 - `kiw.KiwModule`: fields `Frontmatter`, `Body`, `Styles`, `Scripts`, `StyleBlocks`, `ScriptBlocks`, `Markdown`, `Components`, `ComponentNames`, and `Raw`.
 
 ## Example

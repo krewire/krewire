@@ -187,13 +187,13 @@ kiw seed --dsn test.db         # override target database DSN
 ### `kiw pkg <init <name> | pack [dir] | add <src> | list | export <comp|dir>>`
 Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/`, and automated style injection with native Go packaging.
 ```bash
-kiw pkg init @acme/ui             # Scaffolds standalone package with kiw.pkg.json
+kiw pkg init @acme/ui             # Scaffolds standalone package with components.json
 kiw pkg pack ./my-kit              # Packs package into .kpkg distributable archive
 kiw pkg add ./dist/ui-1.0.0.kpkg   # Installs package into ./.krewire/
 kiw pkg list                       # Lists installed component packages
 kiw pkg export Card                # Validates and exports self-contained component
 ```
-- **Manifest (`kiw.pkg.json`)**: Declares package metadata, exported component paths, and package stylesheets (`styles`).
+- **Manifest (`components.json`)**: Declares package metadata, exported component paths, and package stylesheets (`styles`).
 - **Namespace & Aliasing**: Components from installed packages can be invoked using their package namespace (e.g. `<acme:Button />`) or imported directly via `<script> import Button from '@acme/ui'; </script>`.
 - **Integrity**: `kiw pkg pack` and `add` enforce SHA-256 checksums and `sec.SafePath` bounds to prevent ZipSlip and directory traversal vulnerabilities.
 
