@@ -73,7 +73,6 @@ jobs:
           fi
       - name: Verify workspace and module manifests
         run: |
-          go work sync
           for mod in $(find . -maxdepth 3 -name "go.mod" -not -path "*/.*" -exec dirname {} \; | sort); do
             (cd "$mod" && go mod verify)
           done
