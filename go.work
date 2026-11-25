@@ -1,7 +1,6 @@
 go 1.27.3
 
 use (
-	./ai
 	./apicontract
 	./app
 	./assets
@@ -9,7 +8,6 @@ use (
 	./book
 	./cache
 	./cloud
-	./cmd/ai
 	./collab
 	./commerce
 	./config
