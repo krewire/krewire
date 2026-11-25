@@ -8,7 +8,7 @@ date: "2026-11-21"
 
 This document defines the automated conformance baseline for the `.kiw` Single File Component (SFC) specification, the Go-native template desugaring engine, server-side HTML rendering (SSR/SSG), and client-side island progressive hydration.
 
-The automated conformance suite lives in [`runtime/conformance`](file:///home/krewire/workspace/krewire/krewire/runtime/conformance) and runs continuously in CI quality gates.
+The automated conformance suite lives in [`runtime/conformance`](krewire/runtime/conformance) and runs continuously in CI quality gates.
 
 ---
 

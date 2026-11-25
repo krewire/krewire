@@ -158,8 +158,8 @@ An agent's self-reported claim of success is never considered proof of correctne
   • `CGO_ENABLED=0 go build ./...` ──► Passed (pure-Go binary compiled)
 - **Commits**: `cc6ea95` feat(kiw): establish canonical agent context (ref #108)
 - **Files Modified**:
-  • [context.go](file:///home/krewire/workspace/krewire/krewire/model/context.go)
-  • [loader.go](file:///home/krewire/workspace/krewire/krew/core/context/loader.go)
+  • [context.go](krewire/model/context.go)
+  • [loader.go](krew/core/context/loader.go)
 ```
 
 ---

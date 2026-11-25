@@ -29,7 +29,7 @@ This document records the official, reproducible performance baseline for Krewir
 ## 2. Canonical Measured Baseline (v0.2.0)
 
 **Environment:** Linux amd64 (AMD EPYC 9754, 2 vCPUs) · Go 1.27.3  
-**JSON Baseline Artifact:** [`docs/benchmarks/baseline-v0.2.0.json`](file:///home/krewire/workspace/krewire/krewire/docs/benchmarks/baseline-v0.2.0.json)
+**JSON Baseline Artifact:** [`docs/benchmarks/baseline-v0.2.0.json`](krewire/docs/benchmarks/baseline-v0.2.0.json)
 
 | ID | Operation | Category | Measured Latency | Memory / Op | Allocs / Op | Target Budget | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
