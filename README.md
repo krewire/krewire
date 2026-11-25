@@ -4,7 +4,7 @@
 
 Official open-source foundational monorepo for the Krewire ecosystem (`github.com/krewire/krewire`), providing modular domain packages, foundational kernel primitives, official application runtimes, and autonomous agentic engineering blueprints.
 
-The monorepo operates as a **Pure Multi-Module Monorepo** comprising **37 independent domain Go modules** with no root `go.mod`, linked locally via `go.work`.
+The monorepo operates as a **Pure Multi-Module Monorepo** comprising **35 independent domain Go modules** with no root `go.mod`, linked locally via `go.work`.
 
 For the canonical brand definition, communication variants, and taxonomical guide, see **[Canonical Definition & Identity](docs/foundation/canonical-definition.md)**.
 
@@ -75,15 +75,15 @@ krewire/
 All workloads, libraries, and platforms advance along the **Ecosystem Architectural Battery**, fully driven by the `krew` unified toolchain CLI and declarative `krewire.yaml` configuration:
 
 ```text
-Go Stdlib ──► Krewire Libraries ──► Krewire UI | Krewire Hub | Krewire Krew ──► Krewire Cloud ──► Krewire Dash
+Go Stdlib ──► Krewire Libraries ──► Krewire UI | Krewire Hub | Krewire Agent ──► Krewire Cloud ──► Krewire Dash
                                                                                                  (Unified Workspace)
 ```
 
-1. **krewire** (this repository): Foundational pure-Go monorepo (37 domain modules without root `go.mod`).
+1. **krewire** (this repository): Foundational pure-Go monorepo (35 domain modules without root `go.mod`).
 2. **hub**: Port & Adapter repository for third-party integrations, external database drivers, and frontend compilers.
 3. **krew**: Unified developer toolchain & CLI driver (`cli`, `core`, `conformance`, `version`).
 4. **tui**: Lightweight, pure-Go Terminal User Interface (TUI) framework and terminal design primitives (`core`, `term`).
-5. **ui**: Pop-Brutalist `.kiw` design system (10 modular packages: `components`, `core`, `styles`, etc.).
+5. **ui**: clean, modern `.kiw` design system (10 modular packages: `components`, `core`, `styles`, etc.).
 6. **cloud**: Private enterprise hybrid PaaS engine and control plane (13 modules).
 7. **auth**: Private enterprise identity, SSO, MFA, and RBAC platform (12 modules).
 8. **dash**: AI-native virtual workspace, execution sandboxes, and collaboration console (13 modules).

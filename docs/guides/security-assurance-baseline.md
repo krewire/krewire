@@ -94,7 +94,7 @@ The Krewire assurance framework classifies every control into one of three statu
 
 ## 5. AI Agent Security Sandbox & Governance
 
-Autonomous AI agents (such as Krewire Krew and developer assistants) must be strictly governed to prevent unintended command execution, data exfiltration, or filesystem corruption:
+Autonomous AI agents (such as Krewire Agent and developer assistants) must be strictly governed to prevent unintended command execution, data exfiltration, or filesystem corruption:
 
 1. **Filesystem Sandbox Boundary**:
    - Any agent file read, write, or modification is evaluated against `sec.SafePath(workspaceRoot, targetPath)`.

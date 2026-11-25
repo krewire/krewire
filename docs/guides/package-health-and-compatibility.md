@@ -74,10 +74,10 @@ The 11 platform repositories in the Krewire digital SDLC ecosystem are qualified
 
 | Repository | Role | Owning Team | Compatible Krewire Core | Ecosystem Dependencies |
 |---|---|---|---|---|
-| `krewire` | Foundational Monorepo (37 Modules) | `@krewire/team-runtime` | `v0.2.0` (Self) | None (Foundational) |
+| `krewire` | Foundational Monorepo (35 Modules) | `@krewire/team-runtime` | `v0.2.0` (Self) | None (Foundational) |
 | `hub` | Port & Adapter (3rd-Party Drivers) | `@krewire/team-hub` | `^0.2.0` | `krewire` |
 | `tui` | Pure-Go Terminal UI Framework | `@krewire/team-toolchain` | `^0.2.0` | None (Foundational) |
-| `ui` | Pop-Brutalist Design System | `@krewire/team-runtime` | `^0.2.0` | `krewire` |
+| `ui` | Clean, Modern Design System | `@krewire/team-runtime` | `^0.2.0` | `krewire` |
 | `krew` | Autonomous AI Agent Engine | `@krewire/team-agent` | `^0.2.0` | `krewire` |
 | `cloud` | Hybrid PaaS & Control Plane | `@krewire/team-cloud` | `^0.2.0` | `krewire`, `auth` |
 | `auth` | Enterprise IAM & SSO Platform | `@krewire/team-iam` | `^0.2.0` | `krewire` |

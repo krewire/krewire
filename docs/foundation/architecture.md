@@ -9,11 +9,11 @@ System architecture, layering rules, module hierarchy, and design decisions acro
 Krewire is an integrated, full-stack application and developer ecosystem built in Go (1.27.1+). It unifies eight distinct software workload kinds under a single declarative control plane, standard-library-aligned domain packages, a consolidated developer CLI, and an AI-native agent constitution.
 
 The ecosystem spans eleven repositories:
-1. **`krewire`** (Core Monorepo): 37 modular domain packages without root `go.mod`, 100% Go Standard Library, CGO-free, autonomous AI engine at `ai`, `apps/`, `templates/`.
+1. **`krewire`** (Core Monorepo): 35 modular domain packages without root `go.mod`, 100% Go Standard Library, CGO-free, autonomous AI engine at `ai`, `apps/`, `templates/`.
 2. **`hub`**: Public Port & Adapter repository for third-party integrations, external database drivers (`hub/sqlite`, `hub/postgres`, `hub/mysql`, `hub/redis`), and frontend compiler adapters (`hub/svelte`, `hub/tailwind`, `hub/vue`) (`github.com/krewire/hub`).
 3. **`krew`**: Unified developer toolchain, CLI driver, and autonomous AI agent runtime (`github.com/krewire/krew`).
 4. **`tui`**: Lightweight, pure-Go TUI framework and terminal primitives with zero external dependencies (`github.com/krewire/tui`).
-5. **`ui`**: Pop-Brutalist `.kiw` design system, component catalog, and Model C package distribution (`github.com/krewire/ui`).
+5. **`ui`**: clean, modern `.kiw` design system, component catalog, and Model C package distribution (`github.com/krewire/ui`).
 6. **`cloud`**: Private enterprise hybrid PaaS engine, runner supervisor, and multi-tenant control plane (`github.com/krewire/cloud`).
 7. **`auth`**: Private enterprise identity, Single Sign-On (OIDC/SAML2), MFA (TOTP), and hierarchical RBAC platform (`github.com/krewire/auth`).
 8. **`dash`**: Krewire Dash — AI-native virtual workspace, execution sandboxes, and collaboration presence (`github.com/krewire/dash`).
@@ -205,7 +205,7 @@ Scope levels structure architecture and testing across the workspace.
 - **Declarative Models & Boundaries (`model`):** Scope hierarchy, licensing tiers, and project validation constraints.
 - **Versioning & Watermark (`version`):** Semantic version contracts, compatibility validation, and build signature watermarking.
 
-### B. Domain Modules (37 Modules in `krewire`)
+### B. Domain Modules (35 Modules in `krewire`)
 - **Web (`web`):** High-throughput HTTP routing, pipeline middleware, SSR templating, SSG asset pipeline, WebSocket-driven HMR, and API gateway routing.
 - **Runtime (`runtime`):** WebAssembly client engine compiled with `GOOS=js`, providing a lightweight Virtual DOM (VDOM), declarative component mounting, and reactive widget islands.
 - **Security (`sec`):** Secure defaults out-of-the-box: OWASP-compliant security headers, CSRF token generation/validation, CORS configuration, URL SSRF defense, and structured log sanitization.

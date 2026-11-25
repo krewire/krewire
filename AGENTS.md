@@ -2,7 +2,7 @@
 
 Agent guide for AI agents working inside the foundational `krewire` repository.
 
-This repository is structured as a **Pure Multi-Module Monorepo** comprising **37 independent domain modules** coordinated locally via `go.work`, with zero `go.mod` at the repository root.
+This repository is structured as a **Pure Multi-Module Monorepo** comprising **35 independent domain modules** coordinated locally via `go.work`, with zero `go.mod` at the repository root.
 
 ## Language Standards
 

@@ -13,7 +13,7 @@
 
 ## 1. Executive Summary
 
-This specification defines the unified, governed AI engineering model across **Krewire Krew**, **Krewire Boost**, and the **`krew` devtool CLI**.
+This specification defines the unified, governed AI engineering model across **Krewire Agent**, **Krewire Boost**, and the **`krew` devtool CLI**.
 
 Autonomous AI coding agents can dramatically accelerate software delivery, but without strict contracts, they risk introducing hallucinated dependencies, violating architectural invariants, and reporting false success.
 
@@ -66,7 +66,7 @@ The Krewire AI engineering battery divides responsibilities strictly across thre
 - **Contract**: Boost provides the rules, commit conventions, architectural constraints, and slash commands embedded into the repository via `AGENTS.md` and `.agents/`.
 - **Independence**: Boost templates are standard Markdown and JSON files installable into any project.
 
-### 2.3 Krewire Krew (The Cognitive Engine)
+### 2.3 Krewire Agent (The Cognitive Engine)
 - **Role**: Autonomous agent runtime and execution coordinator.
 - **Contract**: Krew consumes the context provided by `krew`, follows the constitution defined by Boost, and interacts with tools via the Model Context Protocol (MCP).
 
@@ -168,7 +168,7 @@ An agent's self-reported claim of success is never considered proof of correctne
 
 Krewire projects are never dependent on proprietary AI providers:
 - Removing or disabling Boost (`AGENTS.md`, `.agents/`) has zero impact on application runtime.
-- The `krew` devtool CLI and all 37 modular domain modules compile, run, test, and deploy identically with or without AI agents.
+- The `krew` devtool CLI and all 35 modular domain modules compile, run, test, and deploy identically with or without AI agents.
 - Developers can swap agent engines (Krew, Claude Code, Cursor, Copilot, OpenCode) seamlessly because all agents consume the same open standard (`krew context --json`).
 
 ---

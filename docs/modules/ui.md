@@ -4,7 +4,7 @@ Import: `github.com/krewire/ui`
 
 ## 1. Purpose & Architecture
 
-The `ui` package (maintained in `github.com/krewire/ui`) implements Krewire's **Pop-Brutalist** UI design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), strongly typed widgets, declarative form builders, and accessible dark-mode inversion with native Go packaging.
+The `ui` package (maintained in `github.com/krewire/ui`) implements Krewire's **clean, modern** UI design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), strongly typed widgets, declarative form builders, and accessible dark-mode inversion with native Go packaging.
 
 For full component specifications and design tokens, see [Web UI Component Toolkit Guide](./web-runtime/ui-tui.md).
 
@@ -13,11 +13,11 @@ For full component specifications and design tokens, see [Web UI Component Toolk
 ## 2. Main API Reference
 
 - **`widget.NewButton(label)`**: Creates button with variants (`Primary`, `Secondary`, `Destructive`, `Outline`, `Ghost`).
-- **`widget.NewCard()`**: Pop-Brutalist card layout with Header, Body, and Footer slots.
+- **`widget.NewCard()`**: clean, modern card layout with Header, Body, and Footer slots.
 - **`widget.NewModal(title)`**: Accessible modal dialog with backdrop blur and keyboard dismissal.
 - **`widget.NewAlert(message, level)`**: Status alerts (`Success`, `Warning`, `Error`, `Info`).
 - **`form.New(action, method)`**: Declarative form builder with CSRF tokens and field validation state.
-- **`tokens.CSS()`**: Returns standard Pop-Brutalist CSS tokens and theme variables.
+- **`tokens.CSS()`**: Returns standard clean, modern CSS tokens and theme variables.
 
 ---
 

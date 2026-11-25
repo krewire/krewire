@@ -37,7 +37,7 @@ The Krewire product federation is structured as an architectural battery governe
 │             LAYER 4: APPLICATION ENGINES & PLATFORM SERVICES           │
 │  • Krewire Cloud (cloud)   - Hybrid PaaS & multi-tenant control plane  │
 │  • Krewire Auth (auth)     - Enterprise IAM, OIDC/SAML2 SSO, MFA, RBAC │
-│  • Krewire Krew (krew)     - Autonomous ReAct AI agent engine (Proprietary)│
+│  • Krewire Agent (krew)     - Autonomous ReAct AI agent engine (Proprietary)│
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ orchestrated by
                                     ▼
@@ -52,7 +52,7 @@ The Krewire product federation is structured as an architectural battery governe
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   LAYER 2: MODULAR DOMAIN LIBRARIES                    │
 │  • Pustaka Domain (37 modules) - web, orm, cache, sec, ai, runtime   │
-│  • Krewire UI (ui)         - Pop-Brutalist .kiw component catalog      │
+│  • Krewire UI (ui)         - clean, modern .kiw component catalog      │
 │  • .kiw Engine (ui/kiw)   - Pure-Go contextual template compiler      │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │ depends on
@@ -88,7 +88,7 @@ Every first-party component in Krewire belongs to one of six architectural categ
 - **Krewire Core** (`krewire`):
   - **Category**: Monorepo Foundation & Modular Libraries.
   - **Repository**: `github.com/krewire/krewire` (Public, MIT License).
-  - **Scope**: Foundational kernel (`model`, `lifecycle`, `errs`), 37 domain modules at repository root, and starter blueprints (`templates/`).
+  - **Scope**: Foundational kernel (`model`, `lifecycle`, `errs`), 35 domain modules at repository root, and starter blueprints (`templates/`).
   - **Maturity**: Production-Ready.
 - **`krew` Devtool** (`krew`):
   - **Category**: Universal Developer CLI Toolchain.
@@ -107,13 +107,13 @@ Every first-party component in Krewire belongs to one of six architectural categ
 - **Krewire UI** (`ui`):
   - **Category**: Component Design System.
   - **Repository**: `github.com/krewire/ui` (Public, MIT License).
-  - **Scope**: 66 Pop-Brutalist `.kiw` UI components, CSS styling tokens (`styles/krewire.css`), and pure Go `embed.FS` distribution (Model C package model). Pure-Go & Tailwind CSS.
+  - **Scope**: 66 clean, modern `.kiw` UI components, CSS styling tokens (`styles/krewire.css`), and pure Go `embed.FS` distribution (Model C package model). Pure-Go & Tailwind CSS.
   - **Maturity**: Production-Ready.
 
 ---
 
 ### 3.4 Platform Engines (Enterprise & Proprietary)
-- **Krewire Krew** (`krew`):
+- **Krewire Agent** (`krew`):
   - **Category**: Autonomous AI Agent Engine.
   - **Repository**: `github.com/krewire/krew` (Private, Proprietary Closed Source).
   - **Scope**: ReAct AI agent loop, multi-agent communication swarms, tool calling, Model Context Protocol (MCP), and IDE sidecars.
@@ -162,10 +162,10 @@ To maintain consistency across code, documentation, and public dialogue:
 1. **Brand Capitalization**:
    - Always capitalize **Krewire** with a capital `K`.
    - The CLI tool is strictly lowercase: `krew`.
-   - The autonomous AI agent is capitalized as **Krew** (or **Krewire Krew**).
+   - The autonomous AI agent is capitalized as **Krew** (or **Krewire Agent**).
    - Component files use `.kiw` extension (lowercase).
 2. **First-Party Product Naming**:
-   - Official titles use the `Krewire <Product>` form: *Krewire Cloud*, *Krewire Auth*, *Krewire Dash*, *Krewire Krew*, *Krewire UI*.
+   - Official titles use the `Krewire <Product>` form: *Krewire Cloud*, *Krewire Auth*, *Krewire Dash*, *Krewire Agent*, *Krewire UI*.
    - Never use colloquial variations like *KrewCloud* or *KrewAuth*.
 3. **Retired Components**:
    - *Admin Panel* has been merged into *Krewire Dash*.

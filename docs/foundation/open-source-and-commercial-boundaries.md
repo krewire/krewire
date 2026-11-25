@@ -25,7 +25,7 @@ The 11 repositories comprising the Krewire ecosystem operate under distinct lice
 
 | Repository | Visibility | License | Tier / Role | Self-Hosting Status |
 |---|---|---|---|---|
-| **`krewire`** | **Public** | **MIT** | Open Core Foundation (37 domain modules) | 100% Free & Self-Hostable |
+| **`krewire`** | **Public** | **MIT** | Open Core Foundation (35 domain modules) | 100% Free & Self-Hostable |
 | **`hub`** | **Public** | **MIT** | Port & Adapter Repository (`hub/*`) | 100% Free & Self-Hostable |
 | **`tui`** | **Public** | **MIT** | Pure-Go Terminal UI Framework | 100% Free & Self-Hostable |
 | **`ui`** | **Public** | **MIT** | Design System & `.kiw` Components | 100% Free & Self-Hostable |
@@ -44,7 +44,7 @@ The 11 repositories comprising the Krewire ecosystem operate under distinct lice
 Krewire adheres to an uncompromising, permanent Open-Core Covenant:
 
 1. **Permanent MIT Open Core**:
-   - Architectural Layers 0 through 3—including the core kernel (`model`, `lifecycle`, `errs`), all 37 modular domain modules, the universal developer CLI (`krew`), starter templates (`templates/`), and the UI design system (`ui`)—are **100% MIT-licensed forever**.
+   - Architectural Layers 0 through 3—including the core kernel (`model`, `lifecycle`, `errs`), all 35 modular domain modules, the universal developer CLI (`krew`), starter templates (`templates/`), and the UI design system (`ui`)—are **100% MIT-licensed forever**.
 2. **Zero Artificial Crippleware**:
    - No feature in the open-core free tier will ever be crippled, seat-limited, time-bombed, or telemetry-gated to force upgrades to commercial tiers.
    - An independent builder or team can build, compile, deploy, and operate any of the eight workload kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`) indefinitely without purchasing any commercial license.

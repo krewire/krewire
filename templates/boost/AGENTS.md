@@ -1,8 +1,8 @@
 # Krewire Boost — Agent Constitution
 
 This document is the primary operating ruleset for AI agents in projects
-that install Krewire Boost (`kiw boost install`). It is tuned for the
-**Krewire ecosystem** (Go projects driven by the `kiw` CLI) and provides a
+that install Krewire Boost (`krew boost install`). It is tuned for the
+**Krewire ecosystem** (Go projects driven by the `krew` CLI) and provides a
 comprehensive **Agent Triad** architecture covering all phases of the Software
 Development Life Cycle (SDLC).
 
@@ -77,46 +77,46 @@ Inspect project capabilities before executing workflows:
 
 | Capability | Detection Marker | Driven by | Needs `main.go` |
 |---|---|---|---|
-| Binary Application | root `main.go` or `cmd/*` | `kiw run`, `kiw dev` | yes |
-| SSG / Static Site | `pages/` directory or `ssg:` key | `kiw build`, `kiw serve` | no |
-| Book / Documentation | `content/` directory or `book:` key | `kiw build`, `kiw serve` | no |
-| Worker Queue | `worker:` key | `kiw run`, `kiw worker`, `kiw dev` | yes |
-| Microservice | `service:` key | `kiw run`, `kiw dev` | yes |
-| API Gateway | `gateway:` key | `kiw run`, `kiw gateway`, `kiw dev` | yes |
-| Infrastructure | `infra:` key | `kiw deploy`, `kiw build --plan` | no |
+| Binary Application | root `main.go` or `cmd/*` | `krew run`, `krew dev` | yes |
+| SSG / Static Site | `pages/` directory or `ssg:` key | `krew build`, `krew serve` | no |
+| Book / Documentation | `content/` directory or `book:` key | `krew build`, `krew serve` | no |
+| Worker Queue | `worker:` key | `krew run`, `krew worker`, `krew dev` | yes |
+| Microservice | `service:` key | `krew run`, `krew dev` | yes |
+| API Gateway | `gateway:` key | `krew run`, `krew gateway`, `krew dev` | yes |
+| Infrastructure | `infra:` key | `krew deploy`, `krew build --plan` | no |
 
-Validate with `kiw info`. Inspect `krewire.yaml` or project directory markers.
+Validate with `krew info`. Inspect `krewire.yaml` or project directory markers.
 
-## The `kiw` Command Matrix (Krewire)
+## The `krew` Command Matrix (Krewire)
 
-The `kiw` CLI is the unified entry point:
+The `krew` CLI is the unified entry point:
 
 | Command | Purpose | Target |
 |---|---|---|
-| `kiw new <name>` | Scaffold a new project (fullstack `app` by default) | any |
-| `kiw init [<variant>]` | Equip a pre-init bootstrap project with layout (see `kiw init --help`) | any |
-| `kiw build` | Compile binary or build static output (`.krewire/build`) | all |
-| `kiw serve` | Start local server or preview output | all |
-| `kiw run [args...]` | Build and run application binary | app, cli, worker, service |
-| `kiw dev` | Live rebuild and reload development server | app, cli, worker, service |
-| `kiw worker` | Run background worker queues | worker |
-| `kiw deploy` | Provision and deploy infrastructure | app, site, book, worker, service, infra |
-| `kiw test` | Run `go test ./...` | all Go projects |
-| `kiw vet` | Run `go vet ./...` | all Go projects |
-| `kiw fmt` | Run `gofmt -l .` / format code | all Go projects |
-| `kiw make <kind> <name>` | Scaffold component, page, handler, migration, model, middleware, service | all |
-| `kiw dash` | Interactive dev dashboard, metrics, virtual workspaces & SSE telemetry (`:4000`) | all |
-| `kiw mcp [--stdio]` | Native Model Context Protocol (MCP) server for AI coding agents | all |
-| `kiw info` | Display project environment and kind | all |
-| `kiw version` | Display CLI and ecosystem version | all |
-| `kiw boost install` | Install Krewire Boost AI templates | all |
+| `krew new <name>` | Scaffold a new project (fullstack `app` by default) | any |
+| `krew init [<variant>]` | Equip a pre-init bootstrap project with layout (see `krew init --help`) | any |
+| `krew build` | Compile binary or build static output (`.krewire/build`) | all |
+| `krew serve` | Start local server or preview output | all |
+| `krew run [args...]` | Build and run application binary | app, cli, worker, service |
+| `krew dev` | Live rebuild and reload development server | app, cli, worker, service |
+| `krew worker` | Run background worker queues | worker |
+| `krew deploy` | Provision and deploy infrastructure | app, site, book, worker, service, infra |
+| `krew test` | Run `go test ./...` | all Go projects |
+| `krew vet` | Run `go vet ./...` | all Go projects |
+| `krew fmt` | Run `gofmt -l .` / format code | all Go projects |
+| `krew make <kind> <name>` | Scaffold component, page, handler, migration, model, middleware, service | all |
+| `krew dash` | Interactive dev dashboard, metrics, virtual workspaces & SSE telemetry (`:4000`) | all |
+| `krew mcp [--stdio]` | Native Model Context Protocol (MCP) server for AI coding agents | all |
+| `krew info` | Display project environment and kind | all |
+| `krew version` | Display CLI and ecosystem version | all |
+| `krew boost install` | Install Krewire Boost AI templates | all |
 
 ## Native Agentic Integration: Model Context Protocol (MCP)
 
 Krewire projects feature native bidirectional Model Context Protocol (MCP) support for AI coding assistants (Antigravity, Cursor, Claude Desktop, OpenCode):
 
-- **stdio transport**: Connect local IDEs and desktop assistants directly with `kiw mcp --stdio`. Configured out of the box in `opencode.json` and `.cursor/mcp.json`.
-- **SSE / HTTP transport**: Access telemetry and tools over network streams via `kiw dash` at `http://127.0.0.1:4000/mcp/sse`.
+- **stdio transport**: Connect local IDEs and desktop assistants directly with `krew mcp --stdio`. Configured out of the box in `opencode.json` and `.cursor/mcp.json`.
+- **SSE / HTTP transport**: Access telemetry and tools over network streams via `krew dash` at `http://127.0.0.1:4000/mcp/sse`.
 
 ### MCP Resources
 - `krewire://project/info` — Project metadata, workload kind, Go runtime, and active services.
@@ -141,7 +141,7 @@ go vet ./...      # must report zero defects
 go test ./...     # must pass all tests
 ```
 
-- For `site` and `book` kinds, run `kiw build` and verify `.krewire/build` generation.
+- For `site` and `book` kinds, run `krew build` and verify `.krewire/build` generation.
 - Never declare success without running and checking actual command output.
 
 ## Commit & Progress Tracking Discipline

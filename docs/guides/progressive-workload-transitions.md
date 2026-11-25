@@ -74,7 +74,7 @@ Premature microservice decomposition introduces severe distributed systems overh
   2. Add `server:` block specifying HTTP port.
   3. Create standard Go entrypoint (`main.go`) importing `web` and `app`.
   4. Move existing `.kiw` static pages into `web/pages/`.
-- **Breaking Changes**: Zero. Existing `.kiw` component syntax and Pop-Brutalist styles remain 100% compatible.
+- **Breaking Changes**: Zero. Existing `.kiw` component syntax and clean, modern styles remain 100% compatible.
 
 ---
 

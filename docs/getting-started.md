@@ -1,6 +1,6 @@
 # Getting Started with Krewire Core Monorepo
 
-This guide helps developers get up and running with the **Krewire core monorepo** (`github.com/krewire/krewire`), containing 37 domain modules without root `go.mod`, 100% Go Standard Library, CGO-free, and autonomous AI engine.
+This guide helps developers get up and running with the **Krewire core monorepo** (`github.com/krewire/krewire`), containing 35 domain modules without root `go.mod`, 100% Go Standard Library, CGO-free, and autonomous AI engine.
 
 ## Prerequisites
 

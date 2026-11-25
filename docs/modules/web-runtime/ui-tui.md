@@ -1,13 +1,13 @@
 # Package: `ui` & `tui` (Web UI Component Toolkit & Terminal UI Engine)
 
-The `ui` and `tui` libraries provide user interface authoring surfaces across two mediums: Pop-Brutalist web interfaces with pure Go runtime efficiency, and expressive, interactive terminal UI applications.
+The `ui` and `tui` libraries provide user interface authoring surfaces across two mediums: clean, modern web interfaces with pure Go runtime efficiency, and expressive, interactive terminal UI applications.
 
 ---
 
 ## 1. Architectural Map & Responsibility Boundaries
 
 ```text
-├── ui/ (github.com/krewire/ui) # Pop-Brutalist Web UI & Component Architecture
+├── ui/ (github.com/krewire/ui) # clean, modern Web UI & Component Architecture
 │   ├── tokens.go       # CSS design tokens, palettes, brutalist borders & hard drop-shadows
 │   ├── theme.go        # Theme management & dark/light mode toggle contracts
 │   ├── app_builder.go  # Fluent web layout and application assembler
@@ -24,7 +24,7 @@ The `ui` and `tui` libraries provide user interface authoring surfaces across tw
 
 ---
 
-## 2. Pop-Brutalist Web UI Engine (`ui`)
+## 2. clean, modern Web UI Engine (`ui`)
 
 `ui` embodies the **Pop-Brutalism** design system: high-contrast borders (`2.5px solid`), vibrant primary accents (`#39D353`), hard geometric drop-shadows (`4px 4px 0px var(--border)`), and accessible dark-mode inversion.
 

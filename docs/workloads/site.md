@@ -30,7 +30,7 @@ my-site/
 │   └── about.kiw         # Maps to /about
 ├── layouts/              # Shared layout shells
 │   └── Landing.kiw
-├── components/           # Reusable Pop-Brutalist .kiw components
+├── components/           # Reusable clean, modern .kiw components
 │   ├── Navbar.kiw
 │   ├── Hero.kiw
 │   └── Footer.kiw

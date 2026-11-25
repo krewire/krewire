@@ -1,6 +1,6 @@
 # Krewire Packages — Technical Reference
 
-Comprehensive catalog and architectural guide for all 37 Go domain modules in `github.com/krewire/krewire`.
+Comprehensive catalog and architectural guide for all 35 Go domain modules in `github.com/krewire/krewire`.
 
 ---
 
@@ -89,7 +89,7 @@ Cloud orchestration, AI capabilities, testing infrastructure, and modular utilit
 
 ---
 
-## 4. Comprehensive Core Module Catalog (37 Modules in `krewire`)
+## 4. Comprehensive Core Module Catalog (35 Modules in `krewire`)
 
 | Package | Documentation | Focus |
 |---|---|---|
@@ -138,7 +138,7 @@ Domain components maintained in dedicated sibling repositories:
 
 | Component | Repository | Focus |
 |---|---|---|
-| **UI Components** | [`github.com/krewire/ui`](../../../ui) | 66 Pop-Brutalist `.kiw` UI components, Model C Go package distribution (`ui/components`, `ui/styles`) |
+| **UI Components** | [`github.com/krewire/ui`](../../../ui) | 66 clean, modern `.kiw` UI components, Model C Go package distribution (`ui/components`, `ui/styles`) |
 | **.kiw Compiler** | [`github.com/krewire/ui/kiw`](../../../ui) | Single-File Component (.kiw) AST parser, desugarer, and template engine |
 | **Terminal UI** | [`github.com/krewire/tui`](../../../tui) | Lightweight pure-Go TUI toolkit and command dispatching (`tui`, `tui/term`) |
 | **Developer Toolchain** | [`github.com/krewire/krew`](../../../krew) | Unified developer CLI, code generator, migrations, and autonomous agent runtime |

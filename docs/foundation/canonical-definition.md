@@ -95,9 +95,9 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 
 ### 3.5 Platform Products & Design Primitives (`Produk Platform & Primitif Desain`)
 - **Definition**: Distinct higher-tier applications, services, and design primitives built within the Krewire ecosystem:
-  - **Krewire Krew** (`krew`): Unified developer toolchain, CLI driver, and autonomous ReAct AI agent runtime.
+  - **Krewire Agent** (`krew`): Unified developer toolchain, CLI driver, and autonomous ReAct AI agent runtime.
   - **Krewire TUI** (`tui`): Lightweight, pure-Go TUI framework and terminal design primitives with zero external dependencies (Open Source).
-  - **Krewire UI** (`ui`): Pop-Brutalist `.kiw` design system (66 components, Model C Go packages, pure Go & Tailwind CSS) (Open Source).
+  - **Krewire UI** (`ui`): clean, modern `.kiw` design system (66 components, Model C Go packages, pure Go & Tailwind CSS) (Open Source).
   - **Krewire Cloud** (`cloud`): Hybrid PaaS control plane, process supervisor, and edge gateway (Private Enterprise).
   - **Krewire Auth** (`auth`): Multi-tenant SSO (OIDC/SAML2), MFA (TOTP), and RBAC platform (Private Enterprise).
   - **Krewire Dash** (`dash`): AI-native virtual workspace, execution sandboxes, and collaboration console (Private Enterprise).
@@ -111,7 +111,7 @@ To prevent organizational confusion, maintainers and AI agents must strictly obs
 
 | Repository | Scope | License | Posture / Tier | Maturity Level |
 |---|---|---|---|---|
-| `krewire` | Foundational monorepo (37 domain modules) | MIT | Open Core Foundation | Production-Ready |
+| `krewire` | Foundational monorepo (35 domain modules) | MIT | Open Core Foundation | Production-Ready |
 | `hub` | Public Port & Adapter repository (3rd-party drivers & adapters) | MIT | Open Core Foundation | Production-Ready |
 | `tui` | Terminal UI framework & ANSI primitives | MIT | Open Core Foundation | Production-Ready |
 | `ui` | Component catalog & design tokens | MIT | Open Core Foundation | Production-Ready |

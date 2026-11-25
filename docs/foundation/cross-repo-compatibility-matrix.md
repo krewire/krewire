@@ -40,7 +40,7 @@ Release qualification validates that all supported components across the 11 Krew
 
 ### Boundary 1: `krewire` ──► `ui`
 - **Contract**: `ui/kiw.pkg.json` declares a valid package manifest adhering to `https://krewire.com/schemas/kiw.pkg.schema.json`.
-- **Validation**: `.kiw` component syntax compiles through `ui/kiw` parser without syntax regressions; CSS tokens in `styles/krewire.css` exist and map to Pop-Brutalist color and border standards.
+- **Validation**: `.kiw` component syntax compiles through `ui/kiw` parser without syntax regressions; CSS tokens in `styles/krewire.css` exist and map to clean, modern color and border standards.
 
 ### Boundary 2: `krewire` ──► `krew`
 - **Contract**: `krew` consumes `github.com/krewire/krewire/model`, `lifecycle` supervisors, and `errs` diagnostic exit codes.

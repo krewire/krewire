@@ -36,7 +36,7 @@ The foundational modules provide reusable primitives without embedding applicati
 | `web` | Layer 3 | HTTP routing, middleware, security headers (CSP, HSTS), SSG, SSR, HMR, and API gateway routing. | Stable |
 | `runtime` | Layer 3 | Client-side WebAssembly Virtual DOM (VDOM) engine, component mounting, reactive widget islands (`GOOS=js`). | Stable |
 | `ui/kiw` | Layer 3 | `.kiw` template parsing, AST desugaring, component runtime, and template compilers. | Stable |
-| `ui` | Layer 3 | Pop-Brutalist UI component library, layout panels, and CSS styling tokens. | Stable |
+| `ui` | Layer 3 | clean, modern UI component library, layout panels, and CSS styling tokens. | Stable |
 | `tui` | Layer 3 | Terminal UI application builder powering the `krew` CLI (`tui.NewApp`, `tui.NewCommand`). | Stable |
 | `sec` | Layer 3 | Defensive security middleware, PBKDF2 password hashing, SSRF guards (`SafeHTTPClient`), and `SafePath`. | Stable |
 | `auth` | Layer 3 | Basic Authentication, HS256 JWT, claims verification, and caller identity binding. | Stable |
