@@ -24,7 +24,15 @@ DEFAULT_TARGETS="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
 TARGETS="${TARGETS:-$DEFAULT_TARGETS}"
 
 # Executables shipped by this module: <binary name>=<main package>.
-BINARIES="ai=./cmd/ai"
+# krewire is a pure domain monorepo; executables live in krewire/krew and krewire/agent.
+BINARIES=""
+
+if [ -z "${BINARIES}" ]; then
+  echo "krewire is a pure library monorepo; no standalone executables to build."
+  mkdir -p "${OUT}"
+  touch "${OUT}/SHA256SUMS"
+  exit 0
+fi
 
 PKG="github.com/krewire/krewire/version"
 SBOM="${SBOM:-1}"

@@ -300,10 +300,14 @@ jobs:
       - name: Smoke test linux/amd64 binary
         run: |
           bin="${RUNNER_TEMP}/a/ai_v0.0.0-ci_linux_amd64"
-          (cd "${RUNNER_TEMP}/a" && sha256sum -c --ignore-missing SHA256SUMS)
-          "${bin}" --version | tee version.txt
-          grep -q "v0.0.0-ci" version.txt
-          "${bin}" --help >/dev/null
+          if [ -f "${bin}" ]; then
+            (cd "${RUNNER_TEMP}/a" && sha256sum -c --ignore-missing SHA256SUMS)
+            "${bin}" --version | tee version.txt
+            grep -q "v0.0.0-ci" version.txt
+            "${bin}" --help >/dev/null
+          else
+            echo "krewire is a pure domain library monorepo without standalone binaries."
+          fi
 
   ci-ok:
     name: ci-ok
