@@ -59,14 +59,7 @@ jobs:
         run: |
           mkdir -p conformance-evidence
           go test -v -count=1 ./conformance ./errs ./model | tee conformance-evidence/test-output.txt
-          cat << 'EOF' > conformance-evidence/summary.md
-### Workload & Architecture Conformance Summary
-
-- **Status**: PASSED
-- **Toolchain**: Go 1.27.3 (Pure-Go Workspace)
-- **Layering & Conformance Modules**: Verified `github.com/krewire/krewire/conformance`, `errs`, and `model`
-- **Quality Gates**: All architecture layering, peer decoupling, and toolchain contract gates passed cleanly.
-EOF
+          printf "### Workload & Architecture Conformance Summary\n\n- **Status**: PASSED\n- **Toolchain**: Go 1.27.3 (Pure-Go Workspace)\n- **Layering & Conformance Modules**: Verified github.com/krewire/krewire/conformance, errs, and model\n- **Quality Gates**: All architecture layering, peer decoupling, and toolchain contract gates passed cleanly.\n" > conformance-evidence/summary.md
 
       - name: Publish summary
         if: always()
