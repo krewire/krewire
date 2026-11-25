@@ -75,6 +75,7 @@ func (e *VerificationEvidence) ComputeHash(commit string) string {
 type TaskVerificationRecord struct {
 	TaskID           string                 `json:"task_id"`
 	AgentID          string                 `json:"agent_id"`
+	WorkspaceRoot    string                 `json:"workspace_root,omitempty"`
 	Timestamp        string                 `json:"timestamp"`
 	GitCommit        string                 `json:"git_commit"`
 	WorkingTreeClean bool                   `json:"working_tree_clean"`
