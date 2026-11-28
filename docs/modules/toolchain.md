@@ -1,7 +1,7 @@
 # Toolchain Contract (`toolchain`)
 
 Public, versioned contracts that make AI-native engineering a first-class part
-of the unified `krew` toolchain ([ADR-T1C4A](../adr/ADR-T1C4A-unified-ai-native-toolchain-contract.md),
+of the unified `krew` toolchain ([ADR-005](../../../internal/docs/adr/ADR-005-autonomous-agent-engine-and-toolchain-contract.md),
 [spec](../tools/krew/ai-native-contract.md)).
 
 | Package | Responsibility |

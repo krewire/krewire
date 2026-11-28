@@ -60,11 +60,7 @@ This document formalizes the strategic hierarchy of **Krewire**, articulating th
 
 ## 3. Vision
 
-### English
 > **A world where builders can create, own, and evolve enduring software without unnecessary financial, operational, or cognitive dependency.**
-
-### Indonesian (Bahasa Indonesia)
-> **Dunia di mana para pembangun perangkat lunak dapat menciptakan, memiliki, dan mengembangkan software yang berdaya tahan lama tanpa ketergantungan finansial, operasional, atau kognitif yang membebani.**
 
 ### Rationale
 Software creation has become artificially complex and expensive. Teams are forced to stitch together fragmented runtimes, pay escalating cloud subscription bills, manage sprawling multi-gigabyte dependency trees, and suffer vendor lock-in. Krewire envisions a sovereign future where independent builders, startups, and enterprises can own software that remains maintainable, affordable, and fully operational for decades.
@@ -73,11 +69,7 @@ Software creation has become artificially complex and expensive. Teams are force
 
 ## 4. Mission
 
-### English
 > **To make software engineering accessible, sovereign, and sustainable by eliminating toolchain fragmentation and engineering near-zero cost software ownership from initial specification to production.**
-
-### Indonesian (Bahasa Indonesia)
-> **Menjadikan rekayasa perangkat lunak mudah diakses, berdaulat, dan berkelanjutan dengan mengeliminasi fragmentasi perkakas serta merekayasa kepemilikan perangkat lunak berbiaya mendekati nol mulai dari spesifikasi awal hingga produksi.**
 
 ### Core Objectives
 1. **Eliminate Toolchain Fragmentation**: Replace incompatible multi-language stacks with one cohesive, compiled Go toolchain (`krew`) spanning sites, books, apps, workers, microservices, gateways, and infrastructure.

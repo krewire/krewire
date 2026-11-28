@@ -25,50 +25,32 @@ Every repository, documentation portal, CLI command, presentation, and marketing
 
 ### 2.1 The Canonical One-Sentence Definition
 
-#### English
 > **Krewire is an end-to-end, Go-first digital SDLC ecosystem engineered to build, run, and scale secure, sustainable, and scalable software products from specification to production.**
-
-#### Indonesian (Bahasa Indonesia)
-> **Krewire adalah ekosistem SDLC digital berbasis Go yang dirancang menyeluruh (end-to-end) untuk membangun, menjalankan, dan mengembangkan produk perangkat lunak yang aman (Secure), berkelanjutan (Sustain), dan terukur (Scalable) mulai dari spesifikasi hingga produksi.**
 
 ---
 
 ### 2.2 Short Variant (~120–160 characters)
 *Intended for GitHub repository descriptions, package manager tags, social media bios, and search engine metadata.*
 
-- **English**:
-  "The Go-first digital SDLC ecosystem for building secure, sustainable, and scalable software."
-- **Indonesian**:
-  "Ekosistem SDLC digital berbasis Go untuk membangun perangkat lunak yang aman, berkelanjutan, dan terukur."
+- "The Go-first digital SDLC ecosystem for building secure, sustainable, and scalable software."
 
 ---
 
 ### 2.3 Standard Variant (~50 words)
 *Intended for repository README headers, documentation overviews, landing page hero summaries, and press introductions.*
 
-- **English**:
-  "Krewire is a Go-first digital SDLC ecosystem that unifies developer tooling, modular domain libraries, and application runtimes under one cohesive architecture. Built around three immutable pillars—Secure, Sustain, and Scalable—it eliminates toolchain fragmentation and delivers near-zero cost software ownership from initial specification to cloud production."
-- **Indonesian**:
-  "Krewire adalah ekosistem SDLC digital berbasis Go yang menyatukan perkakas pengembang, pustaka domain modular, dan runtime aplikasi dalam satu arsitektur yang padu. Dibangun di atas tiga pilar utama—Secure, Sustain, dan Scalable—Krewire mengeliminasi fragmentasi toolchain dan menghadirkan kepemilikan perangkat lunak berbiaya mendekati nol mulai dari spesifikasi awal hingga produksi cloud."
+- "Krewire is a Go-first digital SDLC ecosystem that unifies developer tooling, modular domain libraries, and application runtimes under one cohesive architecture. Built around three immutable pillars—Secure, Sustain, and Scalable—it eliminates toolchain fragmentation and delivers near-zero cost software ownership from initial specification to cloud production."
 
 ---
 
 ### 2.4 Extended Variant (~150–250 words)
 *Intended for executive summaries, whitepapers, keynote addresses, contributor guides, and institutional partnerships.*
 
-- **English**:
-  "Krewire is an end-to-end digital SDLC ecosystem engineered in Go to bridge the divide between software consumption and sovereign software creation. Modern engineering is plagued by deep toolchain fragmentation, bloated runtime dependencies, fragile build systems, and prohibitive operational costs. Krewire replaces this complexity with a unified, standard-library-aligned battery driven by a single developer CLI (`krew`).
-  
-  The ecosystem spans the entire software development lifecycle—from early specification and autonomous AI agents, to typed domain libraries, pure-Go UI rendering, enterprise identity (SSO/RBAC), hybrid PaaS, and self-hosted server orchestration.
-  
-  Everything in Krewire is governed by three non-negotiable architectural pillars: **Secure** (safety by default, stdlib-first, zero hardcoded secrets), **Sustain** (near-zero cost engineering, 10–30 MB lean RAM footprints, single static binary embed, permanent MIT open core), and **Scalable** (additive growth across seven pipeline stages without rewrites). Through this cohesive architecture, Krewire ensures that a single developer or small engineering team can build and afford sovereign, world-class digital products a decade into the future."
+- "Krewire is an end-to-end digital SDLC ecosystem engineered in Go to bridge the divide between software consumption and sovereign software creation. Modern engineering is plagued by deep toolchain fragmentation, bloated runtime dependencies, fragile build systems, and prohibitive operational costs. Krewire replaces this complexity with a unified, standard-library-aligned battery driven by a single developer CLI (`krew`).
 
-- **Indonesian**:
-  "Krewire adalah ekosistem SDLC digital menyeluruh berbasis Go yang dirancang untuk menjembatani jurang antara konsumsi perangkat lunak dan kedaulatan penciptaan perangkat lunak. Rekayasa perangkat lunak modern kerap terbebani oleh fragmentasi perkakas, ketergantungan runtime yang membengkak, sistem build yang rapuh, dan biaya operasional yang mahal. Krewire menggantikan kompleksitas tersebut dengan rangkaian pustaka terpadu selaras pustaka standar Go yang digerakkan oleh satu CLI pengembang (`krew`).
-  
-  Ekosistem ini mencakup seluruh siklus hidup pengembangan perangkat lunak—mulai dari perumusan spesifikasi awal dan agen AI otonom, hingga pustaka domain bertipe, rendering UI murni Go, identitas enterprise (SSO/RBAC), hybrid PaaS, dan orkestrasi server mandiri.
-  
-  Seluruh komponen Krewire diatur oleh tiga pilar arsitektur yang tidak dapat diubah: **Secure** (keamanan bawaan, berlandaskan stdlib, tanpa rahasia hardcoded), **Sustain** (rekayasa biaya mendekati nol, konsumsi memori 10–30 MB, biner statis mandiri, open core MIT permanen), dan **Scalable** (pertumbuhan aditif di tujuh tahap tanpa tulis ulang kode). Melalui arsitektur terpadu ini, Krewire memastikan pengembang tunggal maupun tim kecil mampu membangun dan membiayai produk digital kelas dunia yang berdaulat hingga satu dekade ke depan."
+  The ecosystem spans the entire software development lifecycle—from early specification and autonomous AI agents, to typed domain libraries, pure-Go UI rendering, enterprise identity (SSO/RBAC), hybrid PaaS, and self-hosted server orchestration.
+
+  Everything in Krewire is governed by three non-negotiable architectural pillars: **Secure** (safety by default, stdlib-first, zero hardcoded secrets), **Sustain** (near-zero cost engineering, 10–30 MB lean RAM footprints, single static binary embed, permanent MIT open core), and **Scalable** (additive growth across seven pipeline stages without rewrites). Through this cohesive architecture, Krewire ensures that a single developer or small engineering team can build and afford sovereign, world-class digital products a decade into the future."
 
 ---
 
@@ -76,24 +58,24 @@ Every repository, documentation portal, CLI command, presentation, and marketing
 
 To prevent organizational confusion, maintainers and AI agents must strictly observe the following architectural distinctions:
 
-### 3.1 Ecosystem (`Ekosistem`)
+### 3.1 Ecosystem
 - **Definition**: The entire multi-repository federation, collective community, design system, specifications, developer tools, and platform engines.
 - **Rule**: Never refer to the single core monorepo (`krewire/krewire`) as "the ecosystem". The core monorepo is merely the foundational component *of* the ecosystem.
 
-### 3.2 Core Monorepo (`Inti / Core`)
+### 3.2 Core Monorepo
 - **Definition**: The repository [`krewire/krewire`](https://github.com/krewire/krewire).
 - **Contents**: Foundational kernel packages (`model`, `lifecycle`, `errs`), modular domain packages (`pkg/*`), the developer CLI driver (`krew`), and official starter blueprints (`templates/`).
 - **Licensing**: 100% MIT Open Source forever.
 
-### 3.3 Framework & Modular Libraries (`Pustaka Modular`)
+### 3.3 Framework & Modular Libraries
 - **Definition**: The 32 independent Go packages housed under `krewire/*` (`web`, `orm`, `cache`, `sec`, `storage`, `ai`, `resilience`, etc.).
 - **Rule**: Krewire is distributed as modular, composable libraries, not an inflexible mega-framework. Projects import only what they need; unreferenced packages add zero bytes and zero runtime cost.
 
-### 3.4 Toolchain (`Toolchain / Perkakas Pengembang`)
+### 3.4 Toolchain
 - **Definition**: The unified developer CLI `krew` (`krew`), declarative configuration engine (`krewire.yaml`), code generators, formatters, and release qualification runners.
 - **Rule**: `krew` drives all eight workload kinds (`app`, `cli`, `site`, `book`, `worker`, `service`, `gateway`, `infra`).
 
-### 3.5 Platform Products & Design Primitives (`Produk Platform & Primitif Desain`)
+### 3.5 Platform Products & Design Primitives
 - **Definition**: Distinct higher-tier applications, services, and design primitives built within the Krewire ecosystem:
   - **Krewire Agent** (`krew`): Unified developer toolchain, CLI driver, and autonomous ReAct AI agent runtime.
   - **Krewire TUI** (`tui`): Lightweight, pure-Go TUI framework and terminal design primitives with zero external dependencies (Open Source).

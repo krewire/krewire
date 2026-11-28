@@ -2,7 +2,7 @@
 
 Normative specification of the contract between the unified `krew` toolchain,
 its deterministic commands, and AI engines. Decision record:
-[ADR-T1C4A](../../adr/ADR-T1C4A-unified-ai-native-toolchain-contract.md).
+[ADR-005](../../../../internal/docs/adr/ADR-005-autonomous-agent-engine-and-toolchain-contract.md).
 Issues: #131, #140.
 
 | Item | Value |

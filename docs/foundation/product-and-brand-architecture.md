@@ -51,7 +51,7 @@ The Krewire product federation is structured as an architectural battery governe
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   LAYER 2: MODULAR DOMAIN LIBRARIES                    │
-│  • Pustaka Domain (37 modules) - web, orm, cache, sec, ai, runtime   │
+│  • Domain Libraries (37 modules) - web, orm, cache, sec, ai, runtime   │
 │  • Krewire UI (ui)         - clean, modern .kiw component catalog      │
 │  • .kiw Engine (ui/kiw)   - Pure-Go contextual template compiler      │
 └───────────────────────────────────┬────────────────────────────────────┘

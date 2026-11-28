@@ -1,0 +1,7 @@
+project:
+  name: "krewire"
+  version: "0.1.0"
+  description: "Foundational Go monorepo (35 domain modules, 100% Go Standard Library, CGO-free)"
+
+build:
+  output: "bin"

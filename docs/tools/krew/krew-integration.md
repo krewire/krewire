@@ -2,7 +2,7 @@
 
 How the `krewire/krew` repository adopts the
 [AI-native toolchain contract](./ai-native-contract.md)
-([ADR-T1C4A](../../adr/ADR-T1C4A-unified-ai-native-toolchain-contract.md)).
+([ADR-005](../../../../internal/docs/adr/ADR-005-autonomous-agent-engine-and-toolchain-contract.md)).
 The open core ships the contract, the context generator, the policy, the
 adapter transport, the orchestrator, the reference engine, and the conformance
 suite. Krew changes are listed here because the core does not modify the
