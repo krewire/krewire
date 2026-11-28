@@ -20,6 +20,8 @@ cat <<EOF
 | **Source commit** | \`${COMMIT}\` |
 | **Go toolchain** | \`${GO_VERSION}\`, \`CGO_ENABLED=0\`, \`-trimpath\` (reproducible) |
 
+EOF
+
 if ls "${DIST}"/ai_* >/dev/null 2>&1; then
 cat <<EOF
 This release publishes the Go library module \`github.com/krewire/krewire\` and
@@ -115,11 +117,13 @@ go get github.com/krewire/krewire/web@${VERSION}
 EOF
 fi
 
+cat <<EOF
+
 ### Known limitations
 
 - The unified developer toolchain \`krew\` is released from its own repository
   (\`krewire/krew\`) and is not bundled here; the toolchain-to-engine adapter
   contract is tracked in krewire/krewire#131 and #140.
-- \`ai chat\`, \`ai agent\`, and \`ai daemon\` need a configured model
-  provider; \`--version\`, \`--help\`, \`sessions\`, and \`export\` work offline.
+- Library modules are pure Go and standard-library based; external database
+  drivers enter through \`krewire/hub\`.
 EOF
