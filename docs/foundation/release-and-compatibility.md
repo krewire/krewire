@@ -36,13 +36,10 @@ Every module in the ecosystem releases across six designated tracks strictly adh
 2. **`stable` (General Availability)**: Production baseline published on two synchronized cadences:
    - **Quarterly Stable Releases** (`vX.Y.0`): Minor version increments tagged from `main` at the conclusion of each quarter once all quarterly engineering phases pass 100% of quality gates.
    - **Annual Stable Releases** (`vX.0.0`): Authoritative major version increments tagged at the close of Q4 (December).
-3. **`pre-release` (Alpha, Beta, RC)**: Instant automated preview builds published **immediately upon completing each individual quarterly engineering phase**:
-   - `alpha`: Early invariant preview (`vX.Y.0-alpha.0`), published upon completing Phase 0.
-   - `beta`: Feature-complete preview (`vX.Y.0-beta.N`), published upon completing intermediate implementation phases.
-   - `rc`: Release Candidate (`vX.Y.0-rc.1`), feature-complete and frozen for final production evaluation.
-4. **`nightly` (Daily Automated Builds)**: Bleeding-edge automated builds (`vX.Y.Z-nightly.YYYYMMDD`), published daily from `main`.
-5. **`experimental` (Architecture Spikes & Canary)**: Exploratory features on `exp/*` or `experimental/*` branches (`vX.Y.Z-exp.<feature>`).
-6. **`development` (`dev`)**: Continuous integration verification on active `main` and feature branches (`vX.Y.Z-dev.<sha>`).
+3. **`pre-release` (Alpha, Beta, RC)**: Formal qualification builds published during the pre-release window preceding stable GA releases (`vX.Y.0-alpha.N`, `vX.Y.0-beta.N`, `vX.Y.0-rc.N`).
+4. **`canary` (`vX.Y.Z-canary.N`)**: Automated canary checkpoint builds published **immediately upon completing each individual quarterly engineering phase** (`vX.Y.0-canary.0` for Phase 0, `vX.Y.0-canary.1` for Phase 1, ..., `vX.Y.0-canary.N`) for automated canary deployment and immediate workspace validation.
+5. **`nightly` (Daily Automated Builds)**: Bleeding-edge automated builds (`vX.Y.Z-nightly.YYYYMMDD`), published daily from `main`.
+6. **`development` (`dev`)**: Local, in-progress workspace builds (`vX.Y.Z-dev.<sha>`).
 
 ---
 
