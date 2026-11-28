@@ -34,7 +34,7 @@ Every module in the ecosystem releases across six designated tracks strictly adh
 
 1. **`lts` (Long-Term Support)**: Extended enterprise lifecycle published once every two years on **even-numbered calendar years** (e.g., `v2.0.0-lts` in 2028, `v4.0.0-lts` in 2030) with a 5-year active support window (`vX.0.0-lts` or `lts/vX.0` branch). Strict bug fixes and security patches only; zero breaking API changes.
 2. **`stable` (General Availability)**: Production baseline published on two synchronized cadences:
-   - **Quarterly Stable Releases** (`vX.Y.0`): Minor version increments tagged from `main` at the conclusion of each quarter once all quarterly engineering phases pass 100% of quality gates.
+   - **Quarterly Stable Releases** (`vX.Y.0`): Minor version increments tagged from `main` at the conclusion of each quarter once all quarterly engineering phases pass 100% of quality gates, advancing additively based on the authentic scope of backwards-compatible capabilities delivered.
    - **Annual Stable Releases** (`vX.0.0`): Authoritative major version increments tagged at the close of Q4 (December).
 3. **`pre-release` (Alpha, Beta, RC)**: Formal qualification builds published during the pre-release window preceding stable GA releases (`vX.Y.0-alpha.N`, `vX.Y.0-beta.N`, `vX.Y.0-rc.N`).
 4. **`canary` (`vX.Y.Z-canary.N`)**: Automated canary checkpoint builds published **immediately upon completing each individual quarterly engineering phase** (`vX.Y.0-canary.0` for Phase 0, `vX.Y.0-canary.1` for Phase 1, ..., `vX.Y.0-canary.N`) for automated canary deployment and immediate workspace validation.
