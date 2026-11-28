@@ -9,7 +9,7 @@ Welcome! This guide covers *how* to contribute to the **Krewire Core Monorepo** 
 
 ## 1. Architectural Rules & Invariants (Do Not Violate)
 
-Strict downward-only dependencies are strictly enforced across the ecosystem (ADR-E8P9D, ADR-B7D3A):
+Strict downward-only dependencies are strictly enforced across the ecosystem (ADR-001):
 
 ```text
 Layer 3: krew (CLI Toolchain) ──► Layer 2: <domain-modules> ──► Layer 1: model, errs ──► Layer 0: Go Stdlib

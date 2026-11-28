@@ -11,7 +11,7 @@ This repository is structured as a **Pure Multi-Module Monorepo** comprising **3
 
 ## Architecture Rules & Invariants
 
-Strict downward-only dependencies (Pyramid Architecture ADR-E8P9D, ADR-B7D3A):
+Strict downward-only dependencies (Pyramid Architecture ADR-001):
 ```text
 templates/boost ──► krew ──► <module> (web, orm, sec, ai) ──► model, errs ──► Go Stdlib
 ```
