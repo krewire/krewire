@@ -185,7 +185,7 @@ kiw seed --dsn test.db         # override target database DSN
 - **Directory**: Resolves from `seeds/` or `database/seeds/` (overridable via `database.seeds` in `krewire.yaml` or `--dir`).
 
 ### `kiw pkg <init <name> | pack [dir] | add <src> | list | export <comp|dir>>`
-Manages standalone `.kiw` component packages and distributed UI kits ([ADR-K7P9L](../../../../internal/docs/adr/ADR-K7P9L-pluggable-reusable-kiw-dsl-components.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/`, and automated style injection with native Go packaging.
+Manages standalone `.kiw` component packages and distributed UI kits ([ADR-003](../../../../internal/docs/adr/ADR-003-ui-and-terminal-presentation-engine.md)). Enables modular packaging, tar.gz (`.kpkg`) archiving with SHA-256 integrity verification, local installation into `./.krewire/`, and automated style injection with native Go packaging.
 ```bash
 kiw pkg init @acme/ui             # Scaffolds standalone package with components.json
 kiw pkg pack ./my-kit              # Packs package into .kpkg distributable archive

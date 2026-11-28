@@ -30,7 +30,7 @@ Krewire adheres strictly to [Semantic Versioning 2.0.0](https://semver.org/):
 
 ## 3. The Six Version Release Tracks
 
-Every module in the ecosystem releases across six designated tracks ([ADR-R7P3K](../../../internal/docs/adr/ADR-R7P3K-multi-track-release-hotfix-deploy-pipelines.md)):
+Every module in the ecosystem releases across six designated tracks ([ADR-007](../../../internal/docs/adr/ADR-007-versioning-release-and-deployment-pipelines.md)):
 
 1. **`lts` (Long-Term Support)**: Extended enterprise lifecycle (`vX.Y.Z-lts` or `lts/vX.Y` branch). Strict bug fixes and security patches only.
 2. **`stable` (General Availability)**: Production baseline (`vX.Y.Z`), tagged directly from `main` after passing 100% of quality gates.
