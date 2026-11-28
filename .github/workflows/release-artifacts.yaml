@@ -88,39 +88,57 @@ jobs:
           retention-days: 14
 
   smoke:
-    name: smoke (${{ matrix.target }})
+    name: smoke-test
     needs: build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { os: ubuntu-latest, target: linux_amd64, ext: "" }
-          - { os: ubuntu-24.04-arm, target: linux_arm64, ext: "" }
-          - { os: macos-15-intel, target: darwin_amd64, ext: "" }
-          - { os: macos-latest, target: darwin_arm64, ext: "" }
-          - { os: windows-latest, target: windows_amd64, ext: .exe }
-          - { os: windows-11-arm, target: windows_arm64, ext: .exe }
     steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version: "1.27.3"
+          cache: false
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-${{ inputs.version }}
           path: dist
-      - name: Verify checksum, --version, and --help
+      - name: Verify checksums, manifest, and library module integrity
         shell: bash
         working-directory: dist
         env:
-          FILE: ai_${{ inputs.version }}_${{ matrix.target }}${{ matrix.ext }}
+          VERSION: ${{ inputs.version }}
+          CHANNEL: ${{ inputs.channel }}
         run: |
           if command -v sha256sum >/dev/null; then sum="sha256sum"; else sum="shasum -a 256"; fi
-          grep -F "  ${FILE}" SHA256SUMS | ${sum} -c -
-          chmod +x "${FILE}"
-          "./${FILE}" --version | tee version.txt
-          grep -qF "${VERSION}" version.txt
-          grep -qF "channel ${CHANNEL}" version.txt
-          grep -qF "${GITHUB_SHA}" version.txt
-          "./${FILE}" --help | grep -q "Usage:"
+          ${sum} -c SHA256SUMS
+          test -s release-manifest.json
+          grep -qF "${VERSION}" release-manifest.json
+          grep -qF "${CHANNEL}" release-manifest.json
+
+          # Verify source archive integrity and module structure
+          bundle="krewire-${VERSION}-source.tar.gz"
+          if [ -f "${bundle}" ]; then
+            mkdir -p extracted
+            tar -xzf "${bundle}" -C extracted
+            test -f extracted/go.work
+            test -f extracted/model/go.mod
+            (cd extracted && for mod in $(find . -maxdepth 3 -name "go.mod" -not -path "*/.*" -exec dirname {} \; | sort); do
+              (cd "$mod" && go mod verify)
+            done)
+          fi
+
+          # If standalone binary exists, run binary smoke test
+          bin="ai_${VERSION}_linux_amd64"
+          if [ -f "${bin}" ]; then
+            chmod +x "${bin}"
+            "./${bin}" --version | tee version.txt
+            grep -qF "${VERSION}" version.txt
+            grep -qF "channel ${CHANNEL}" version.txt
+            grep -qF "${GITHUB_SHA}" version.txt
+            "./${bin}" --help | grep -q "Usage:"
+          fi
 
   publish:
     name: publish
@@ -164,7 +182,7 @@ jobs:
       contents: read
       attestations: read
     steps:
-      - name: Download, verify, and run the published release
+      - name: Download, verify, and check published release assets
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -172,11 +190,20 @@ jobs:
           mkdir published && cd published
           gh release download "${VERSION}" --repo "${REPO}"
           sha256sum -c SHA256SUMS
-          for f in ai_*; do
-            case "${f}" in *.cdx.json) continue ;; esac
-            gh attestation verify "${f}" --repo "${REPO}"
-          done
+          while read -r sum f; do
+            case "${f}" in
+              *.sigstore.json|SHA256SUMS) continue ;;
+              *)
+                if [ -f "${f}" ]; then
+                  echo "Verifying attestation for ${f}..."
+                  gh attestation verify "${f}" --repo "${REPO}"
+                fi
+                ;;
+            esac
+          done < SHA256SUMS
           bin="ai_${VERSION}_linux_amd64"
-          chmod +x "${bin}"
-          "./${bin}" --version | grep -F "${GITHUB_SHA}"
-          "./${bin}" --help >/dev/null
+          if [ -f "${bin}" ]; then
+            chmod +x "${bin}"
+            "./${bin}" --version | grep -F "${GITHUB_SHA}"
+            "./${bin}" --help >/dev/null
+          fi

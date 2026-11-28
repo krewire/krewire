@@ -27,17 +27,6 @@ TARGETS="${TARGETS:-$DEFAULT_TARGETS}"
 # krewire is a pure domain monorepo; executables live in krewire/krew and krewire/agent.
 BINARIES=""
 
-if [ -z "${BINARIES}" ]; then
-  echo "krewire is a pure library monorepo; no standalone executables to build."
-  mkdir -p "${OUT}"
-  touch "${OUT}/SHA256SUMS"
-  exit 0
-fi
-
-PKG="github.com/krewire/krewire/version"
-SBOM="${SBOM:-1}"
-CYCLONEDX_GOMOD="github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.12.0"
-
 if ! git diff --quiet HEAD -- || [ -n "$(git status --porcelain --untracked-files=normal)" ]; then
   echo "error: working tree is not clean; release builds must come from a committed tree" >&2
   git status --short >&2
@@ -56,46 +45,57 @@ sha256() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$@"; else shasum -a 256 "$@"; fi
 }
 
-LDFLAGS="-s -w -buildid=
+mkdir -p "${OUT}"
+
+if [ -z "${BINARIES}" ]; then
+  echo "krewire is a pure library monorepo; creating reproducible multi-module source bundle."
+  BUNDLE="krewire-${VERSION}-source.tar.gz"
+  tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner \
+    --exclude='.git' --exclude='.github' --exclude='dist' -cf - . | gzip -n > "${OUT}/${BUNDLE}"
+else
+  PKG="github.com/krewire/krewire/version"
+  SBOM="${SBOM:-1}"
+  CYCLONEDX_GOMOD="github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.12.0"
+
+  LDFLAGS="-s -w -buildid=
  -X ${PKG}.buildVersion=${VERSION}
  -X ${PKG}.buildCommit=${COMMIT}
  -X ${PKG}.buildDate=${BUILD_DATE}
  -X ${PKG}.buildChannel=${CHANNEL}"
 
-mkdir -p "${OUT}"
+  if [ "${SBOM}" = "1" ]; then
+    TOOLS="$(mktemp -d)"
+    trap 'rm -rf "${TOOLS}"' EXIT
+    GOBIN="${TOOLS}" GOFLAGS="" CGO_ENABLED=0 go install "${CYCLONEDX_GOMOD}"
+  fi
 
-if [ "${SBOM}" = "1" ]; then
-  TOOLS="$(mktemp -d)"
-  trap 'rm -rf "${TOOLS}"' EXIT
-  GOBIN="${TOOLS}" GOFLAGS="" CGO_ENABLED=0 go install "${CYCLONEDX_GOMOD}"
-fi
+  export CGO_ENABLED=0 GOFLAGS="-mod=readonly"
 
-export CGO_ENABLED=0 GOFLAGS="-mod=readonly"
-
-for bin in ${BINARIES}; do
-  name="${bin%%=*}"
-  main="${bin#*=}"
-  for target in ${TARGETS}; do
-    goos="${target%/*}"
-    goarch="${target#*/}"
-    ext=""
-    [ "${goos}" = "windows" ] && ext=".exe"
-    file="${OUT}/${name}_${VERSION}_${goos}_${goarch}${ext}"
-    echo "building ${file}"
-    GOOS="${goos}" GOARCH="${goarch}" go build \
-      -trimpath -buildvcs=true \
-      -ldflags "${LDFLAGS}" \
-      -o "${file}" "${main}"
-    if [ "${SBOM}" = "1" ]; then
-      "${TOOLS}/cyclonedx-gomod" bin -json -noserial -version "${VERSION}" \
-        -output "${file%.exe}.cdx.json" "${file}"
-      # Pin the SBOM timestamp to SOURCE_DATE_EPOCH so it is reproducible too.
-      sed -E "s/\"timestamp\": \"[^\"]*\"/\"timestamp\": \"${BUILD_DATE}\"/" \
-        "${file%.exe}.cdx.json" > "${file%.exe}.cdx.tmp"
-      mv "${file%.exe}.cdx.tmp" "${file%.exe}.cdx.json"
-    fi
+  for bin in ${BINARIES}; do
+    name="${bin%%=*}"
+    main="${bin#*=}"
+    for target in ${TARGETS}; do
+      goos="${target%/*}"
+      goarch="${target#*/}"
+      ext=""
+      [ "${goos}" = "windows" ] && ext=".exe"
+      file="${OUT}/${name}_${VERSION}_${goos}_${goarch}${ext}"
+      echo "building ${file}"
+      GOOS="${goos}" GOARCH="${goarch}" go build \
+        -trimpath -buildvcs=true \
+        -ldflags "${LDFLAGS}" \
+        -o "${file}" "${main}"
+      if [ "${SBOM}" = "1" ]; then
+        "${TOOLS}/cyclonedx-gomod" bin -json -noserial -version "${VERSION}" \
+          -output "${file%.exe}.cdx.json" "${file}"
+        # Pin the SBOM timestamp to SOURCE_DATE_EPOCH so it is reproducible too.
+        sed -E "s/\"timestamp\": \"[^\"]*\"/\"timestamp\": \"${BUILD_DATE}\"/" \
+          "${file%.exe}.cdx.json" > "${file%.exe}.cdx.tmp"
+        mv "${file%.exe}.cdx.tmp" "${file%.exe}.cdx.json"
+      fi
+    done
   done
-done
+fi
 
 GO_VERSION="$(go env GOVERSION)"
 
@@ -111,6 +111,10 @@ GO_VERSION="$(go env GOVERSION)"
   printf '  "build_date": "%s",\n' "${BUILD_DATE}"
   printf '  "go_version": "%s",\n' "${GO_VERSION}"
   printf '  "build_flags": "CGO_ENABLED=0 -trimpath -buildvcs=true -ldflags=-s -w -buildid=",\n'
+  printf '  "distribution_type": "%s",\n' "$([ -z "${BINARIES}" ] && echo "pure-library" || echo "executable")"
+  if [ -z "${BINARIES}" ]; then
+    printf '  "source_bundle": "krewire-%s-source.tar.gz",\n' "${VERSION}"
+  fi
   printf '  "targets": ['
   sep=""
   for target in ${TARGETS}; do printf '%s"%s"' "${sep}" "${target}"; sep=", "; done

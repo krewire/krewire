@@ -20,6 +20,8 @@ cat <<EOF
 | **Source commit** | \`${COMMIT}\` |
 | **Go toolchain** | \`${GO_VERSION}\`, \`CGO_ENABLED=0\`, \`-trimpath\` (reproducible) |
 
+if ls "${DIST}"/ai_* >/dev/null 2>&1; then
+cat <<EOF
 This release publishes the Go library module \`github.com/krewire/krewire\` and
 the \`ai\` command (\`cmd/ai\`), the only executable the core module ships.
 
@@ -80,6 +82,38 @@ and run \`go mod tidy\`.
 - **Reproduce**: check out \`${COMMIT}\` and run
   \`.github/scripts/build-release.sh ${VERSION} ${CHANNEL} dist\` with Go
   \`${GO_VERSION}\`; the checksums must match.
+EOF
+else
+cat <<EOF
+This release publishes the reproducible multi-module pure library source bundle
+for the Krewire foundational ecosystem (\`github.com/krewire/krewire\`).
+
+### Published Assets
+
+- \`krewire-${VERSION}-source.tar.gz\`: Full reproducible multi-module library source bundle.
+- \`release-manifest.json\`: Machine-readable metadata of constituent modules, toolchain, and commit.
+- \`SHA256SUMS\`: Cryptographic SHA-256 checksums covering all published assets.
+- \`provenance.sigstore.json\`: Cryptographically signed SLSA build provenance attestation.
+
+### Consume Modules
+
+Import constituent modules in your \`go.mod\`:
+
+\`\`\`bash
+go get github.com/krewire/krewire/model@${VERSION}
+go get github.com/krewire/krewire/web@${VERSION}
+\`\`\`
+
+### Verify
+
+- **Checksums**: \`SHA256SUMS\` covers every asset.
+- **Provenance**: \`gh attestation verify krewire-${VERSION}-source.tar.gz --repo ${REPO}\`
+- **Manifest**: \`release-manifest.json\` records version, channel, commit, toolchain, and module inventory.
+- **Reproduce**: check out \`${COMMIT}\` and run
+  \`.github/scripts/build-release.sh ${VERSION} ${CHANNEL} dist\` with Go
+  \`${GO_VERSION}\`; the checksums must match bit-for-bit.
+EOF
+fi
 
 ### Known limitations
 

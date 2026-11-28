@@ -9,15 +9,7 @@ This specification documents the canonical release procedure, semantic compatibi
 The definitive, single source of truth for the core ecosystem version is declared in:
 - [`version/version.go`](../../version/version.go) via `version.CurrentVersion = MustParseVersion("0.2.0")`.
 
-Executables shipped by this module (currently `cmd/ai`) report their identity through `version.Build()`. The release pipeline stamps the exact release version, source commit, build date, and channel at link time; unstamped local builds fall back to `CurrentVersion` and the VCS metadata embedded by `-buildvcs`:
-```bash
-go build -trimpath -ldflags="-s -w -buildid= \
-  -X github.com/krewire/krewire/version.buildVersion=v0.2.0 \
-  -X github.com/krewire/krewire/version.buildCommit=$(git rev-parse HEAD) \
-  -X github.com/krewire/krewire/version.buildChannel=stable" ./cmd/ai
-ai --version   # ai v0.2.0 (channel stable, commit <sha>, built <date>, go1.27.1, linux/amd64)
-```
-The `krew` toolchain is built and versioned in its own repository (`krewire/krew`).
+As established in ADR-E8P9D and the pure-module monorepo reorganization, `krewire` is a pure domain library monorepo (35 modular packages). Standalone executables are distributed from `krewire/krew` (canonical developer CLI) and `krewire/agent` (autonomous AI agent runtime). Core releases publish reproducible multi-module source bundles (`krewire-${VERSION}-source.tar.gz`), machine-readable release manifests (`release-manifest.json`), checksums (`SHA256SUMS`), and signed SLSA build provenance attestations (`provenance.sigstore.json`).
 
 ---
 
