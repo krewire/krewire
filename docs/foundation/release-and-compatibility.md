@@ -41,6 +41,8 @@ Every module in the ecosystem releases across six designated tracks strictly adh
 5. **`nightly` (Daily Automated Builds)**: Bleeding-edge automated builds (`vX.Y.Z-nightly.YYYYMMDD`), published daily from `main`.
 6. **`development` (`dev`)**: Local, in-progress workspace builds (`vX.Y.Z-dev.<sha>`).
 
+> **Out-of-Band Release Freedom**: The scheduled cadence provides predictable planning windows, but never precludes out-of-band releases. Emergency security hotfixes (CVE patches), urgent production regression fixes, and off-cycle minor capability additions are published ad-hoc whenever required.
+
 ---
 
 ## 4. Automated Release, Hotfix, and Deploy Pipelines
