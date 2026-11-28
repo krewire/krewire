@@ -28,19 +28,21 @@ Krewire adheres strictly to [Semantic Versioning 2.0.0](https://semver.org/):
 
 ---
 
-## 3. The Six Version Release Tracks
+## 3. The Six Version Release Tracks & Cadence Model
 
-Every module in the ecosystem releases across six designated tracks ([ADR-007](../../../internal/docs/adr/ADR-007-versioning-release-and-deployment-pipelines.md)):
+Every module in the ecosystem releases across six designated tracks ([ADR-007](../../../internal/docs/adr/ADR-007-versioning-release-and-deployment-pipelines.md), [Release Cadence Roadmap](../../../internal/docs/roadmap/release-and-deployment-cadence.md)):
 
-1. **`lts` (Long-Term Support)**: Extended enterprise lifecycle (`vX.Y.Z-lts` or `lts/vX.Y` branch). Strict bug fixes and security patches only.
-2. **`stable` (General Availability)**: Production baseline (`vX.Y.Z`), tagged directly from `main` after passing 100% of quality gates.
-3. **`pre-release` (RC, Beta, Alpha)**:
-   - `rc`: Release Candidate (`vX.Y.Z-rc.N`), feature-complete, frozen for production evaluation.
-   - `beta`: Community preview (`vX.Y.Z-beta.N`), feature-complete for external integration testing.
-   - `alpha`: Early preview (`vX.Y.Z-alpha.N`), experimental architecture validation.
-4. **`nightly` (Daily Automated Builds)**: Bleeding-edge automated builds (`vX.Y.Z-nightly.YYYYMMDD`), published daily from `main`.
-5. **`experimental` (Architecture Spikes & Canary)**: Exploratory features on `exp/*` or `experimental/*` branches (`vX.Y.Z-exp.<feature>`).
-6. **`development` (`dev`)**: Continuous integration verification on active `main` and feature branches (`vX.Y.Z-dev.<sha>`).
+1. **`lts` (Long-Term Support)**: Extended enterprise lifecycle published once every two years on **even-numbered calendar years** (2026, 2028, 2030) with a 5-year active support window (`vYYYY.0.0-lts` or `lts/vYYYY` branch). Strict bug fixes and security patches only; zero breaking API changes.
+2. **`stable` (General Availability)**: Production baseline published on two synchronized cadences:
+   - **Quarterly Stable Releases** (`vYYYY.<Q>.0`): Tagged from `main` at the conclusion of each quarter once all quarterly engineering phases pass 100% of quality gates.
+   - **Annual Stable Releases** (`vYYYY.0.0`): Authoritative annual milestone tagged at the close of Q4 (December).
+3. **`pre-release` (Alpha, Beta, RC)**: Instant automated preview builds published **immediately upon completing each individual quarterly engineering phase**:
+   - `alpha`: Early invariant preview (`vYYYY.<Q>.0-alpha.0`), published upon completing Phase 0.
+   - `beta`: Feature-complete preview (`vYYYY.<Q>.0-beta.N`), published upon completing intermediate implementation phases.
+   - `rc`: Release Candidate (`vYYYY.<Q>.0-rc.1`), feature-complete and frozen for final production evaluation.
+4. **`nightly` (Daily Automated Builds)**: Bleeding-edge automated builds (`vYYYY.<Q>.0-nightly.YYYYMMDD`), published daily from `main`.
+5. **`experimental` (Architecture Spikes & Canary)**: Exploratory features on `exp/*` or `experimental/*` branches (`vYYYY.<Q>.0-exp.<feature>`).
+6. **`development` (`dev`)**: Continuous integration verification on active `main` and feature branches (`vYYYY.<Q>.0-dev.<sha>`).
 
 ---
 
